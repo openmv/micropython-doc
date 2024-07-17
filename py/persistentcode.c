@@ -738,37 +738,35 @@ void mp_raw_code_save_file(mp_compiled_module_t *cm, qstr filename) {
 
 #define MP_BC_OPCODE_HAS_SIGNED_OFFSET(opcode) (MP_BC_UNWIND_JUMP <= (opcode) && (opcode) <= MP_BC_POP_JUMP_IF_FALSE)
 
-typedef struct _bit_vector_t {
-    size_t max_bit_set;
+typedef struct _qstr_table_used_t {
+    size_t max_index;
     size_t alloc;
-    uintptr_t *bits;
-} bit_vector_t;
+    uint8_t *used;
+} qstr_table_used_t;
 
-static void bit_vector_init(bit_vector_t *self) {
-    self->max_bit_set = 0;
-    self->alloc = 1;
-    self->bits = m_new(uintptr_t, self->alloc);
+static void qstr_table_used_init(qstr_table_used_t *q) {
+    q->max_index = 0;
+    q->alloc = 4;
+    q->used = m_new(uint8_t, q->alloc);
 }
 
-static void bit_vector_clear(bit_vector_t *self) {
-    m_del(uintptr_t, self->bits, self->alloc);
+static void qstr_table_used_clear(qstr_table_used_t *q) {
+    m_del(uint8_t, q->used, q->alloc);
 }
 
-static bool bit_vector_is_set(bit_vector_t *self, size_t index) {
-    const size_t bits_size = sizeof(*self->bits) * MP_BITS_PER_BYTE;
-    return index / bits_size < self->alloc
-           && (self->bits[index / bits_size] & (1 << (index % bits_size))) != 0;
+static bool qstr_table_used_is_used(qstr_table_used_t *q, mp_uint_t qstr_index) {
+    return qstr_index / 8 < q->alloc
+        && (q->used[qstr_index / 8] & (1 << (qstr_index % 8))) != 0;
 }
 
-static void bit_vector_set(bit_vector_t *self, size_t index) {
-    const size_t bits_size = sizeof(*self->bits) * MP_BITS_PER_BYTE;
-    self->max_bit_set = MAX(self->max_bit_set, index);
-    if (index / bits_size >= self->alloc) {
-        size_t new_alloc = self->alloc * 2;
-        self->bits = m_renew(uintptr_t, self->bits, self->alloc, new_alloc);
-        self->alloc = new_alloc;
+static void qstr_table_used_add(qstr_table_used_t *q, mp_uint_t qstr_index) {
+    q->max_index = MAX(q->max_index, qstr_index);
+    if (qstr_index / 8 >= q->alloc) {
+        size_t new_alloc = q->alloc * 2;
+        q->used = m_renew(uint8_t, q->used, q->alloc, new_alloc);
+        q->alloc = new_alloc;
     }
-    self->bits[index / bits_size] |= 1 << (index % bits_size);
+    q->used[qstr_index / 8] |= 1 << (qstr_index % 8);
 }
 
 typedef struct _mp_opcode_t {
@@ -826,19 +824,23 @@ mp_obj_t mp_raw_code_save_fun_to_bytes(const mp_module_constants_t *consts, cons
     MP_BC_PRELUDE_SIZE_DECODE(ip);
 
     // Track the qstrs used by the function.
-    bit_vector_t qstr_table_used;
-    bit_vector_init(&qstr_table_used);
+    qstr_table_used_t qstr_table_used;
+    qstr_table_used_init(&qstr_table_used);
 
     // Track the objects used by the function.
-    bit_vector_t obj_table_used;
-    bit_vector_init(&obj_table_used);
+    qstr_table_used_t obj_table_used;
+    qstr_table_used_init(&obj_table_used);
 
     const byte *ip_names = ip;
     mp_uint_t simple_name = mp_decode_uint(&ip_names);
-    bit_vector_set(&qstr_table_used, simple_name);
+    qstr_table_used_add(&qstr_table_used, simple_name);
     for (size_t i = 0; i < n_pos_args + n_kwonly_args; ++i) {
         mp_uint_t arg_name = mp_decode_uint(&ip_names);
-        bit_vector_set(&qstr_table_used, arg_name);
+        qstr_table_used_add(&qstr_table_used, arg_name);
+    }
+
+    if (n_def_pos_args != 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("function can't have default positional arguments"));
     }
 
     // Skip pass source code info and cell info.
@@ -852,9 +854,9 @@ mp_obj_t mp_raw_code_save_fun_to_bytes(const mp_module_constants_t *consts, cons
             // End of opcodes.
             fun_data_top = ip;
         } else if (op.opcode == MP_BC_LOAD_CONST_OBJ) {
-            bit_vector_set(&obj_table_used, op.arg);
+            qstr_table_used_add(&obj_table_used, op.arg);
         } else if (op.format == MP_BC_FORMAT_QSTR) {
-            bit_vector_set(&qstr_table_used, op.arg);
+            qstr_table_used_add(&qstr_table_used, op.arg);
         }
         ip += op.size;
     }
@@ -870,12 +872,12 @@ mp_obj_t mp_raw_code_save_fun_to_bytes(const mp_module_constants_t *consts, cons
     mp_print_bytes(&print, header, sizeof(header));
 
     // Number of entries in constant table.
-    mp_print_uint(&print, qstr_table_used.max_bit_set + 1);
-    mp_print_uint(&print, obj_table_used.max_bit_set + 1);
+    mp_print_uint(&print, qstr_table_used.max_index + 1);
+    mp_print_uint(&print, obj_table_used.max_index + 1);
 
     // Save qstrs.
-    for (size_t i = 0; i <= qstr_table_used.max_bit_set; ++i) {
-        if (bit_vector_is_set(&qstr_table_used, i)) {
+    for (size_t i = 0; i <= qstr_table_used.max_index; ++i) {
+        if (qstr_table_used_is_used(&qstr_table_used, i)) {
             save_qstr(&print, consts->qstr_table[i]);
         } else {
             save_qstr(&print, MP_QSTR_);
@@ -883,16 +885,16 @@ mp_obj_t mp_raw_code_save_fun_to_bytes(const mp_module_constants_t *consts, cons
     }
 
     // Save constant objects.
-    for (size_t i = 0; i <= obj_table_used.max_bit_set; ++i) {
-        if (bit_vector_is_set(&obj_table_used, i)) {
+    for (size_t i = 0; i <= obj_table_used.max_index; ++i) {
+        if (qstr_table_used_is_used(&obj_table_used, i)) {
             save_obj(&print, consts->obj_table[i]);
         } else {
             save_obj(&print, mp_const_none);
         }
     }
 
-    bit_vector_clear(&qstr_table_used);
-    bit_vector_clear(&obj_table_used);
+    qstr_table_used_clear(&qstr_table_used);
+    qstr_table_used_clear(&obj_table_used);
 
     // Save function kind and data length.
     mp_print_uint(&print, fun_data_len << 3);
