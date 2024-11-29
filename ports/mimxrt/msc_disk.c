@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  *
  * Copyright (c) 2020-2021 Damien P. George
- * Copyright (c) 2024-2025 Ibrahim Abdelkader <iabdalkader@openmv.io>
+ * Copyright (c) 2023 Ibrahim Abdelkader <iabdalkader@openmv.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,12 +31,7 @@
 #include "modmimxrt.h"
 #if MICROPY_PY_MACHINE_SDCARD
 #include "sdcard.h"
-
-#ifndef MICROPY_HW_SDCARD_SDMMC
-#define MICROPY_HW_SDCARD_SDMMC (1)
-#endif
-
-#define MSC_SDCARD_INDEX    (MICROPY_HW_SDCARD_SDMMC - 1)
+#define MSC_SDCARD_ID   (MICROPY_HW_SDCARD_SDMMC - 1)
 #endif
 
 // This implementation does Not support Flash sector caching.
@@ -45,22 +40,26 @@
 #define BLOCK_COUNT         (MICROPY_HW_FLASH_STORAGE_BYTES / BLOCK_SIZE)
 #define FLASH_BASE_ADDR     (MICROPY_HW_FLASH_STORAGE_BASE)
 
-static bool msc_ejected = false;
+bool ejected = false;
 
 const mp_obj_type_t *mimxrt_msc_medium = NULL;
 
 // Invoked when received SCSI_CMD_INQUIRY
 // Application fill vendor id, product id and revision with string up to 8, 16, 4 characters respectively
 void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
-    memcpy(vendor_id, MICROPY_HW_USB_MSC_INQUIRY_VENDOR_STRING, MIN(strlen(MICROPY_HW_USB_MSC_INQUIRY_VENDOR_STRING), 8));
-    memcpy(product_id, MICROPY_HW_USB_MSC_INQUIRY_PRODUCT_STRING, MIN(strlen(MICROPY_HW_USB_MSC_INQUIRY_PRODUCT_STRING), 16));
-    memcpy(product_rev, MICROPY_HW_USB_MSC_INQUIRY_REVISION_STRING, MIN(strlen(MICROPY_HW_USB_MSC_INQUIRY_REVISION_STRING), 4));
+    const char vid[] = "Micropy";
+    const char pid[] = "Mass Storage";
+    const char rev[] = "1.0";
+
+    strncpy((char *)vendor_id,   vid, 8);
+    strncpy((char *)product_id,  pid, 16);
+    strncpy((char *)product_rev, rev, 4);
 }
 
 // Invoked when received Test Unit Ready command.
 // return true allowing host to read/write this LUN e.g SD card inserted
 bool tud_msc_test_unit_ready_cb(uint8_t lun) {
-    if (msc_ejected || mimxrt_msc_medium == NULL) {
+    if (ejected || mimxrt_msc_medium == NULL) {
         tud_msc_set_sense(lun, SCSI_SENSE_NOT_READY, 0x3a, 0x00);
         return false;
     }
@@ -75,7 +74,7 @@ void tud_msc_capacity_cb(uint8_t lun, uint32_t *block_count, uint16_t *block_siz
         *block_count = BLOCK_COUNT;
     #if MICROPY_PY_MACHINE_SDCARD
     } else if (mimxrt_msc_medium == &machine_sdcard_type) {
-        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_INDEX];
+        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_ID];
         *block_size = card->block_len;
         *block_count = card->block_count;
     #endif
@@ -89,10 +88,10 @@ bool tud_msc_start_stop_cb(uint8_t lun, uint8_t power_condition, bool start, boo
     if (load_eject) {
         if (start) {
             // load disk storage
-            msc_ejected = false;
+            ejected = false;
         } else {
             // unload disk storage
-            msc_ejected = true;
+            ejected = true;
         }
     }
     return true;
@@ -105,7 +104,7 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void *buff
         flash_read_block(FLASH_BASE_ADDR + lba * BLOCK_SIZE, buffer, bufsize);
     #if MICROPY_PY_MACHINE_SDCARD
     } else if (mimxrt_msc_medium == &machine_sdcard_type) {
-        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_INDEX];
+        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_ID];
         sdcard_read(card, buffer, lba, bufsize / card->block_len);
     #endif
     }
@@ -123,7 +122,7 @@ int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t *
         flash_write_block(FLASH_BASE_ADDR + lba * BLOCK_SIZE, buffer, bufsize);
     #if MICROPY_PY_MACHINE_SDCARD
     } else if (mimxrt_msc_medium == &machine_sdcard_type) {
-        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_INDEX];
+        mimxrt_sdcard_obj_t *card = &mimxrt_sdcard_objs[MSC_SDCARD_ID];
         sdcard_write(card, buffer, lba, bufsize / card->block_len);
 
     #endif
