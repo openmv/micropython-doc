@@ -29,6 +29,7 @@
 // Board specific definitions
 #include "mpconfigboard.h"
 #include "fsl_common.h"
+#include "core_cm7.h"
 
 uint32_t trng_random_u32(void);
 
@@ -62,9 +63,6 @@ uint32_t trng_random_u32(void);
 #define MICROPY_SCHEDULER_DEPTH             (8)
 #define MICROPY_SCHEDULER_STATIC_NODES      (1)
 #define MICROPY_VFS                         (1)
-#ifndef MICROPY_VFS_ROM
-#define MICROPY_VFS_ROM                     (1)
-#endif
 #define MICROPY_QSTR_EXTRA_POOL             mp_qstr_frozen_const_pool
 
 // Control over Python builtins
