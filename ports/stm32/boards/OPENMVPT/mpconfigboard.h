@@ -1,16 +1,7 @@
-/*
- * This file is part of the MicroPython project, http://micropython.org/
- * The MIT License (MIT)
- * Copyright (C) 2013-2025 OpenMV, LLC.
- */
-
 #define MICROPY_HW_BOARD_NAME       "OPENMVPT"
 #define MICROPY_HW_MCU_NAME         "STM32H743"
 #define MICROPY_PY_SYS_PLATFORM     "OpenMVPureThermal"
 #define MICROPY_HW_FLASH_FS_LABEL   "OPENMV"
-
-// Network config
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-openmv-4p"
 
 #define MICROPY_OBJ_REPR            (MICROPY_OBJ_REPR_C)
 #define UINT_FMT                    "%u"
@@ -19,31 +10,20 @@ typedef int mp_int_t;               // must be pointer size
 typedef unsigned int mp_uint_t;     // must be pointer size
 
 #define MICROPY_FATFS_EXFAT         (1)
-#define MICROPY_HW_ENABLE_RTC       (1)
+#define MICROPY_HW_HAS_FLASH        (1)
 #define MICROPY_HW_ENABLE_RNG       (1)
-#define MICROPY_HW_ENABLE_ADC       (1)
+#define MICROPY_HW_ENABLE_RTC       (1)
+#define MICROPY_HW_ENABLE_TIMER     (1)
+#define MICROPY_HW_ENABLE_SERVO     (1)
 #define MICROPY_HW_ENABLE_DAC       (1)
+#define MICROPY_HW_ENABLE_ADC       (1)
 #define MICROPY_HW_ENABLE_SPI2      (1)
 #define MICROPY_HW_ENABLE_USB       (1)
-#define MICROPY_HW_HAS_FLASH        (1)
-#define MICROPY_HW_ENABLE_SERVO     (1)
-#define MICROPY_HW_ENABLE_TIMER     (1)
 #define MICROPY_HW_ENABLE_SDCARD    (1)
-#define MICROPY_HW_ENTER_BOOTLOADER_VIA_RESET   (0)
 #define MICROPY_HW_TIM_IS_RESERVED(id) (id == 1 || id == 6)
 
-// ROMFS config
-#define MICROPY_HW_ROMFS_ENABLE_EXTERNAL_QSPI   (1)
-#define MICROPY_HW_ROMFS_QSPI_SPIFLASH_OBJ      (&spi_bdev.spiflash)
-#define MICROPY_HW_ROMFS_ENABLE_PART0           (1)
-
-// Flash storage config
-#define MICROPY_HW_SPIFLASH_ENABLE_CACHE    (1)
-#define MICROPY_HW_SPIFLASH_SOFT_RESET      (1)
-#define MICROPY_HW_ENABLE_INTERNAL_FLASH_STORAGE (0)
-
-extern void board_enter_bootloader(void);
-#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) board_enter_bootloader()
+#define MICROPY_HW_ENTER_BOOTLOADER_VIA_RESET   (0)
+#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) NVIC_SystemReset()
 
 // Note these are not used in top system.c.
 #define MICROPY_HW_CLK_PLLM         (3)
@@ -62,6 +42,30 @@ void board_low_power(int mode);
 #define MICROPY_BOARD_LEAVE_STOP    board_low_power(0);
 #define MICROPY_BOARD_ENTER_STOP    board_low_power(1);
 #define MICROPY_BOARD_ENTER_STANDBY board_low_power(2);
+
+#define MICROPY_HW_USB_VID                      0x37C5
+#define MICROPY_HW_USB_PID                      0x1205
+#define MICROPY_HW_USB_PID_CDC_MSC              (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC_HID              (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC                  (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_MSC                  (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2_MSC             (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2                 (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3                 (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3_MSC             (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC_MSC_HID          (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2_MSC_HID         (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3_MSC_HID         (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_LANGID_STRING            0x409
+#define MICROPY_HW_USB_MANUFACTURER_STRING      "OpenMV"
+#define MICROPY_HW_USB_PRODUCT_FS_STRING        "OpenMV Virtual Comm Port in FS Mode"
+#define MICROPY_HW_USB_PRODUCT_HS_STRING        "OpenMV Virtual Comm Port in HS Mode"
+#define MICROPY_HW_USB_SERIALNUMBER_FS_STRING   "000000000011"
+#define MICROPY_HW_USB_SERIALNUMBER_HS_STRING   "000000000010"
+#define MICROPY_HW_USB_INTERFACE_FS_STRING      "VCP Interface"
+#define MICROPY_HW_USB_INTERFACE_HS_STRING      "VCP Interface"
+#define MICROPY_HW_USB_CONFIGURATION_FS_STRING  "VCP Config"
+#define MICROPY_HW_USB_CONFIGURATION_HS_STRING  "VCP Config"
 
 // UART1 config
 #define MICROPY_HW_UART1_TX  (pin_B14)
@@ -133,11 +137,15 @@ extern const struct _mp_obj_type_t mod_network_nic_type_winc;
 #define MICROPY_BOARD_NETWORK_INTERFACES
 #endif
 
+// Use external SPI flash for storage
+#define MICROPY_HW_SPIFLASH_ENABLE_CACHE    (1)
+#define MICROPY_HW_SPIFLASH_SOFT_RESET      (1)
+#define MICROPY_HW_ENABLE_INTERNAL_FLASH_STORAGE (0)
+
 // QSPI Flash 256MBits
 #define MICROPY_HW_QSPI_PRESCALER           (2) // F_CLK = F_AHB/2 (100MHz)
+#define MICROPY_HW_SPIFLASH_SIZE_BITS       (256 * 1024 * 1024)
 #define MICROPY_HW_QSPIFLASH_SIZE_BITS_LOG2 (28)
-// Reserve 8MiB for romfs
-#define MICROPY_HW_SPIFLASH_SIZE_BITS       (192 * 1024 * 1024)
 #define MICROPY_HW_QSPIFLASH_CS             (pin_G6)
 #define MICROPY_HW_QSPIFLASH_SCK            (pin_F10)
 #define MICROPY_HW_QSPIFLASH_IO0            (pin_F8)
@@ -165,7 +173,7 @@ extern struct _spi_bdev_t spi_bdev;
 // Timing configuration for 200MHz/2=100MHz (10ns)
 #define MICROPY_HW_SDRAM_CLOCK_PERIOD       2
 #define MICROPY_HW_SDRAM_CAS_LATENCY        2
-#define MICROPY_HW_SDRAM_FREQUENCY_KHZ      (100000) // 100 MHz
+#define MICROPY_HW_SDRAM_FREQUENCY          (100000) // 100 MHz
 #define MICROPY_HW_SDRAM_TIMING_TMRD        (2)
 #define MICROPY_HW_SDRAM_TIMING_TXSR        (7)
 #define MICROPY_HW_SDRAM_TIMING_TRAS        (5)
@@ -188,6 +196,7 @@ extern struct _spi_bdev_t spi_bdev;
 
 #define MICROPY_HW_SDRAM_AUTOREFRESH_NUM    (8)
 #define MICROPY_HW_SDRAM_BURST_LENGTH       1
+
 #define MICROPY_HW_SDRAM_REFRESH_RATE       (64) // ms
 
 #define MICROPY_HW_FMC_SDCKE0   (pin_C5)
@@ -247,25 +256,3 @@ extern struct _spi_bdev_t spi_bdev;
 #define MICROPY_HW_FMC_D29      (pin_I7)
 #define MICROPY_HW_FMC_D30      (pin_I9)
 #define MICROPY_HW_FMC_D31      (pin_I10)
-
-#define MICROPY_HW_USB_VID                      0x37C5
-#define MICROPY_HW_USB_PID                      0x1205
-#define MICROPY_HW_USB_PID_CDC_MSC              (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC_HID              (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC                  (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_MSC                  (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2_MSC             (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2                 (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3                 (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3_MSC             (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC_MSC_HID          (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2_MSC_HID         (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3_MSC_HID         (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_LANGID_STRING            0x409
-#define MICROPY_HW_USB_MANUFACTURER_STRING      "OpenMV"
-#define MICROPY_HW_USB_PRODUCT_FS_STRING        "OpenMV Virtual Comm Port in FS Mode"
-#define MICROPY_HW_USB_PRODUCT_HS_STRING        "OpenMV Virtual Comm Port in HS Mode"
-#define MICROPY_HW_USB_INTERFACE_FS_STRING      "VCP Interface"
-#define MICROPY_HW_USB_INTERFACE_HS_STRING      "VCP Interface"
-#define MICROPY_HW_USB_CONFIGURATION_FS_STRING  "VCP Config"
-#define MICROPY_HW_USB_CONFIGURATION_HS_STRING  "VCP Config"

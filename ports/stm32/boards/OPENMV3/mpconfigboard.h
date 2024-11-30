@@ -1,16 +1,7 @@
-/*
- * This file is part of the MicroPython project, http://micropython.org/
- * The MIT License (MIT)
- * Copyright (C) 2013-2025 OpenMV, LLC.
- */
-
 #define MICROPY_HW_BOARD_NAME       "OPENMV3"
 #define MICROPY_HW_MCU_NAME         "STM32F765"
 #define MICROPY_PY_SYS_PLATFORM     "OpenMV3-M7"
 #define MICROPY_HW_FLASH_FS_LABEL   "OPENMV"
-
-// Network config
-#define MICROPY_PY_NETWORK_HOSTNAME_DEFAULT "mpy-openmv-3"
 
 #define MICROPY_OBJ_REPR            (MICROPY_OBJ_REPR_C)
 #define UINT_FMT                    "%u"
@@ -20,36 +11,55 @@ typedef unsigned int mp_uint_t;     // must be pointer size
 
 #define MICROPY_FATFS_EXFAT         (1)
 #define MICROPY_HW_HAS_SWITCH       (0)
+#define MICROPY_HW_HAS_FLASH        (1)
 #define MICROPY_HW_HAS_MMA7660      (0)
 #define MICROPY_HW_HAS_LIS3DSH      (0)
 #define MICROPY_HW_HAS_LCD          (0)
-#define MICROPY_HW_ENABLE_RTC       (1)
 #define MICROPY_HW_ENABLE_RNG       (1)
+#define MICROPY_HW_ENABLE_RTC       (1)
+#define MICROPY_HW_ENABLE_TIMER     (1)
+#define MICROPY_HW_ENABLE_SERVO     (1)
 #define MICROPY_HW_ENABLE_DAC       (1)
 #define MICROPY_HW_ENABLE_SPI1      (0)
 #define MICROPY_HW_ENABLE_SPI2      (1)
 #define MICROPY_HW_ENABLE_SPI3      (0)
 #define MICROPY_HW_ENABLE_SPI4      (0)
 #define MICROPY_HW_ENABLE_USB       (1)
-#define MICROPY_HW_HAS_FLASH        (1)
-#define MICROPY_HW_ENABLE_SERVO     (1)
-#define MICROPY_HW_ENABLE_TIMER     (1)
 #define MICROPY_HW_ENABLE_SDCARD    (1)
 #define MICROPY_HW_TIM_IS_RESERVED(id) (id == 1 || id == 6)
+
 #define MICROPY_HW_ENTER_BOOTLOADER_VIA_RESET   (0)
-
-// ROMFS config
-#define MICROPY_HW_ROMFS_ENABLE_INTERNAL_FLASH  (1)
-#define MICROPY_HW_ROMFS_ENABLE_PART0           (1)
-
-extern void board_enter_bootloader(void);
-#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) board_enter_bootloader()
+#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) NVIC_SystemReset()
 
 #define MICROPY_HW_CLK_PLLM (12)
 #define MICROPY_HW_CLK_PLLN (432)
 #define MICROPY_HW_CLK_PLLQ (9)
 #define MICROPY_HW_CLK_PLLR (2)
 #define MICROPY_HW_CLK_PLLP (RCC_PLLP_DIV2)
+
+#define MICROPY_HW_USB_VID                      0x37C5
+#define MICROPY_HW_USB_PID                      0x1203
+#define MICROPY_HW_USB_PID_CDC_MSC              (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC_HID              (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC                  (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_MSC                  (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2_MSC             (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2                 (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3                 (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3_MSC             (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC_MSC_HID          (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC2_MSC_HID         (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_PID_CDC3_MSC_HID         (MICROPY_HW_USB_PID)
+#define MICROPY_HW_USB_LANGID_STRING            0x409
+#define MICROPY_HW_USB_MANUFACTURER_STRING      "OpenMV"
+#define MICROPY_HW_USB_PRODUCT_FS_STRING        "OpenMV Virtual Comm Port in FS Mode"
+#define MICROPY_HW_USB_PRODUCT_HS_STRING        "OpenMV Virtual Comm Port in HS Mode"
+#define MICROPY_HW_USB_SERIALNUMBER_FS_STRING   "000000000011"
+#define MICROPY_HW_USB_SERIALNUMBER_HS_STRING   "000000000010"
+#define MICROPY_HW_USB_INTERFACE_FS_STRING      "VCP Interface"
+#define MICROPY_HW_USB_INTERFACE_HS_STRING      "VCP Interface"
+#define MICROPY_HW_USB_CONFIGURATION_FS_STRING  "VCP Config"
+#define MICROPY_HW_USB_CONFIGURATION_HS_STRING  "VCP Config"
 
 // UART1 config
 #define MICROPY_HW_UART1_TX  (pin_B14)
@@ -119,25 +129,3 @@ extern const struct _mp_obj_type_t mod_network_nic_type_winc;
 #else
 #define MICROPY_BOARD_NETWORK_INTERFACES
 #endif
-
-#define MICROPY_HW_USB_VID                      0x37C5
-#define MICROPY_HW_USB_PID                      0x1203
-#define MICROPY_HW_USB_PID_CDC_MSC              (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC_HID              (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC                  (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_MSC                  (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2_MSC             (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2                 (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3                 (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3_MSC             (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC_MSC_HID          (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC2_MSC_HID         (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_PID_CDC3_MSC_HID         (MICROPY_HW_USB_PID)
-#define MICROPY_HW_USB_LANGID_STRING            0x409
-#define MICROPY_HW_USB_MANUFACTURER_STRING      "OpenMV"
-#define MICROPY_HW_USB_PRODUCT_FS_STRING        "OpenMV Virtual Comm Port in FS Mode"
-#define MICROPY_HW_USB_PRODUCT_HS_STRING        "OpenMV Virtual Comm Port in HS Mode"
-#define MICROPY_HW_USB_INTERFACE_FS_STRING      "VCP Interface"
-#define MICROPY_HW_USB_INTERFACE_HS_STRING      "VCP Interface"
-#define MICROPY_HW_USB_CONFIGURATION_FS_STRING  "VCP Config"
-#define MICROPY_HW_USB_CONFIGURATION_HS_STRING  "VCP Config"
