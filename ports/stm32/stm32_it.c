@@ -453,6 +453,69 @@ void OTG_HS_WKUP_IRQHandler(void) {
 {
 }*/
 
+/**
+  * @brief  These functions handle the EXTI interrupt requests.
+  * @param  None
+  * @retval None
+  */
+void EXTI0_IRQHandler(void) {
+    IRQ_ENTER(EXTI0_IRQn);
+    omv_gpio_irq_handler(0);
+    Handle_EXTI_Irq(0);
+    IRQ_EXIT(EXTI0_IRQn);
+}
+
+void EXTI1_IRQHandler(void) {
+    IRQ_ENTER(EXTI1_IRQn);
+    omv_gpio_irq_handler(1);
+    Handle_EXTI_Irq(1);
+    IRQ_EXIT(EXTI1_IRQn);
+}
+
+void EXTI2_IRQHandler(void) {
+    IRQ_ENTER(EXTI2_IRQn);
+    omv_gpio_irq_handler(2);
+    Handle_EXTI_Irq(2);
+    IRQ_EXIT(EXTI2_IRQn);
+}
+
+void EXTI3_IRQHandler(void) {
+    IRQ_ENTER(EXTI3_IRQn);
+    omv_gpio_irq_handler(3);
+    Handle_EXTI_Irq(3);
+    IRQ_EXIT(EXTI3_IRQn);
+}
+
+void EXTI4_IRQHandler(void) {
+    IRQ_ENTER(EXTI4_IRQn);
+    omv_gpio_irq_handler(4);
+    Handle_EXTI_Irq(4);
+    IRQ_EXIT(EXTI4_IRQn);
+}
+
+void EXTI9_5_IRQHandler(void) {
+    IRQ_ENTER(EXTI9_5_IRQn);
+    omv_gpio_irq_handler(5);
+    Handle_EXTI_Irq(5);
+    Handle_EXTI_Irq(6);
+    Handle_EXTI_Irq(7);
+    Handle_EXTI_Irq(8);
+    Handle_EXTI_Irq(9);
+    IRQ_EXIT(EXTI9_5_IRQn);
+}
+
+void EXTI15_10_IRQHandler(void) {
+    IRQ_ENTER(EXTI15_10_IRQn);
+    omv_gpio_irq_handler(10);
+    Handle_EXTI_Irq(10);
+    Handle_EXTI_Irq(11);
+    Handle_EXTI_Irq(12);
+    Handle_EXTI_Irq(13);
+    Handle_EXTI_Irq(14);
+    Handle_EXTI_Irq(15);
+    IRQ_EXIT(EXTI15_10_IRQn);
+}
+
 void PVD_IRQHandler(void) {
     IRQ_ENTER(PVD_IRQn);
     Handle_EXTI_Irq(EXTI_PVD_OUTPUT);
