@@ -178,6 +178,15 @@ void spi_init0(void) {
     #endif
 }
 
+void spi_deinit_all(void) {
+    for (int i = 0; i < (sizeof(spi_obj) / sizeof(spi_t)); i++) {
+        const spi_t *spi = &spi_obj[i];
+        if (spi->spi != NULL) {
+            spi_deinit(spi);
+        }
+    }
+}
+
 int spi_find_index(mp_obj_t id) {
     int spi_id;
     if (mp_obj_is_str(id)) {

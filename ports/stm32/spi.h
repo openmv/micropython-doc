@@ -65,6 +65,7 @@ extern const mp_obj_type_t pyb_spi_type;
 #define SPI_TRANSFER_TIMEOUT(len) ((len) + 100)
 
 void spi_init0(void);
+void spi_deinit_all(void);
 int spi_init(const spi_t *spi, bool enable_nss_pin);
 void spi_deinit(const spi_t *spi_obj);
 void spi_deinit_all(void);
