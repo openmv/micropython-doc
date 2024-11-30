@@ -408,6 +408,15 @@ void i2c_deinit(I2C_HandleTypeDef *i2c) {
     }
 }
 
+void i2c_deinit_all(void) {
+    for (int i = 0; i < (sizeof(pyb_i2c_obj) / sizeof(pyb_i2c_obj_t)); i++) {
+        const pyb_i2c_obj_t *pyb_i2c = &pyb_i2c_obj[i];
+        if (pyb_i2c->i2c != NULL) {
+            i2c_deinit(pyb_i2c->i2c);
+        }
+    }
+}
+
 int pyb_i2c_init_freq(const pyb_i2c_obj_t *self, mp_int_t freq) {
     I2C_InitTypeDef *init = &self->i2c->Init;
 
