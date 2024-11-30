@@ -158,6 +158,9 @@ static inline void restore_irq_pri(uint32_t state) {
 // DCMI DMA2_Stream1
 #define IRQ_PRI_DMA21           NVIC_EncodePriority(NVIC_PRIORITYGROUP_4, 3, 0)
 
+// F7 JPEG encoder
+#define IRQ_PRI_JPEG            NVIC_EncodePriority(NVIC_PRIORITYGROUP_4, 4, 0)
+
 // SDIO must be higher priority than DMA for SDIO DMA transfers to work.
 #define IRQ_PRI_SDIO            NVIC_EncodePriority(NVIC_PRIORITYGROUP_4, 4, 0)
 
