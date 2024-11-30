@@ -30,12 +30,7 @@ typedef unsigned int mp_uint_t;     // must be pointer size
 #define MICROPY_HW_ENABLE_SDCARD    (1)
 #define MICROPY_HW_ENABLE_MMCARD    (0)
 #define MICROPY_HW_ENTER_BOOTLOADER_VIA_RESET   (0)
-#define MICROPY_HW_TIM_IS_RESERVED(id) (id == 1)
-
-// ROMFS config
-#define MICROPY_HW_ROMFS_ENABLE_EXTERNAL_QSPI       (1)
-#define MICROPY_HW_ROMFS_QSPI_SPIFLASH_OBJ          (&spi_bdev.spiflash)
-#define MICROPY_HW_ROMFS_ENABLE_PART0               (1)
+#define MICROPY_HW_TIM_IS_RESERVED(id) (id == 1 || id == 6)
 
 // Flash storage config
 #define MICROPY_HW_SPIFLASH_ENABLE_CACHE            (1)
