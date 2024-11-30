@@ -507,21 +507,7 @@ static HAL_StatusTypeDef sdcard_common_checks(uint32_t block_num, uint32_t num_b
         return HAL_ERROR;
     }
 
-    // check that adding block_num & num_blocks don't overflow
-    // (the ST HAL does a bounds check, but only after adding them...)
-    uint32_t end_block;
-    if (__builtin_add_overflow(block_num, num_blocks, &end_block)) {
-        return HAL_ERROR;
-    }
-
-    return HAL_OK;
-}
-
-mp_uint_t sdcard_read_blocks(uint8_t *dest, uint32_t block_num, uint32_t num_blocks) {
-    HAL_StatusTypeDef err = sdcard_common_checks(block_num, num_blocks);
-    if (err != HAL_OK) {
-        return err;
-    }
+    HAL_StatusTypeDef err = HAL_OK;
 
     // we must disable USB irqs to prevent MSC contention with SD card
     uint32_t basepri = raise_irq_pri(IRQ_PRI_OTG_FS);
@@ -586,11 +572,12 @@ mp_uint_t sdcard_read_blocks(uint8_t *dest, uint32_t block_num, uint32_t num_blo
 }
 
 mp_uint_t sdcard_write_blocks(const uint8_t *src, uint32_t block_num, uint32_t num_blocks) {
-    HAL_StatusTypeDef err = sdcard_common_checks(block_num, num_blocks);
-    if (err != HAL_OK) {
-        return err;
+    // check that SD card is initialised
+    if (!(pyb_sdmmc_flags & PYB_SDMMC_FLAG_ACTIVE)) {
+        return HAL_ERROR;
     }
 
+    HAL_StatusTypeDef err = HAL_OK;
     // we must disable USB irqs to prevent MSC contention with SD card
     uint32_t basepri = raise_irq_pri(IRQ_PRI_OTG_FS);
 
