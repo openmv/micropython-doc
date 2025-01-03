@@ -26,9 +26,10 @@ typedef unsigned int mp_uint_t;     // must be pointer size
 #define MICROPY_HW_ENABLE_USB       (1)
 #define MICROPY_HW_ENABLE_SDCARD    (1)
 #define MICROPY_HW_TIM_IS_RESERVED(id) (id == 1 || id == 6)
-
 #define MICROPY_HW_ENTER_BOOTLOADER_VIA_RESET   (0)
-#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) NVIC_SystemReset()
+
+extern void board_enter_bootloader(void);
+#define MICROPY_BOARD_ENTER_BOOTLOADER(nargs, args) board_enter_bootloader()
 
 #define MICROPY_HW_CLK_PLLM (6)
 #define MICROPY_HW_CLK_PLLN (360)
