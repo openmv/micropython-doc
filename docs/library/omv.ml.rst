@@ -38,6 +38,7 @@ Sub Modules
 
     omv.ml.apps.rst
     omv.ml.preprocessing.rst
+    omv.ml.postprocessing.rst
     omv.ml.utils.rst
 
 class model -- Model Container

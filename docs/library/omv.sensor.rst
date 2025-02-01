@@ -546,19 +546,21 @@ Functions
    * `sensor.IOCTL_LEPTON_GET_ATTRIBUTE` - Pass this enum to get a FLIR Lepton SDK attribute.
       * The first argument is the 16-bit attribute ID to set (set the FLIR Lepton SDK).
       * Returns a MicroPython byte array of the attribute. Use ``struct`` to deserialize the byte array following the FLIR Lepton SDK.
-   * `sensor.IOCTL_LEPTON_GET_FPA_TEMPERATURE` - Pass this enum to get the FLIR Lepton FPA Temp in celsius.
-   * `sensor.IOCTL_LEPTON_GET_AUX_TEMPERATURE` - Pass this enum to get the FLIR Lepton AUX Temp in celsius.
-   * `sensor.IOCTL_LEPTON_SET_MEASUREMENT_MODE` - Pass this followed by True or False to turn off automatic gain control on the FLIR Lepton and force it to output an image where each pixel value represents an exact temperature value in celsius. A second True enables high temperature mode enabling measurements up to 500C on the Lepton 3.5, False is the default low temperature mode.
-   * `sensor.IOCTL_LEPTON_GET_MEASUREMENT_MODE` - Pass this to get a tuple for (measurement-mode-enabled, high-temp-enabled).
-   * `sensor.IOCTL_LEPTON_SET_MEASUREMENT_RANGE` - Pass this when measurement mode is enabled to set the temperature range in celsius for the mapping operation. The temperature image returned by the FLIR Lepton will then be clamped between these min and max values and then scaled to values between 0 to 255. To map a pixel value back to a temperature (on a grayscale image) do: ((pixel * (max_temp_in_celsius - min_temp_in_celsius)) / 255.0) + min_temp_in_celsius.
+   * `sensor.IOCTL_LEPTON_GET_FPA_TEMP` - Pass this enum to get the FLIR Lepton FPA Temp in celsius.
+   * `sensor.IOCTL_LEPTON_GET_AUX_TEMP` - Pass this enum to get the FLIR Lepton AUX Temp in celsius.
+   * `sensor.IOCTL_LEPTON_SET_MODE` - Pass this followed by True or False to turn off automatic gain control on the FLIR Lepton and force it to output an image where each pixel value represents an exact temperature value in celsius. A second True enables high temperature mode enabling measurements up to 500C on the Lepton 3.5, False is the default low temperature mode.
+   * `sensor.IOCTL_LEPTON_GET_MODE` - Pass this to get a tuple for (measurement-mode-enabled, high-temp-enabled).
+   * `sensor.IOCTL_LEPTON_SET_RANGE` - Pass this when measurement mode is enabled to set the temperature range in celsius for the mapping operation. The temperature image returned by the FLIR Lepton will then be clamped between these min and max values and then scaled to values between 0 to 255. To map a pixel value back to a temperature (on a grayscale image) do: ((pixel * (max_temp_in_celsius - min_temp_in_celsius)) / 255.0) + min_temp_in_celsius.
       * The first arugment should be the min temperature in celsius.
       * The second argument should be the max temperature in celsius. If the arguments are reversed the library will automatically swap them for you.
-   * `sensor.IOCTL_LEPTON_GET_MEASUREMENT_RANGE` - Pass this to return the sorted (min, max) 2 value temperature range tuple. The default is -10C to 40C if not set yet.
+   * `sensor.IOCTL_LEPTON_GET_RANGE` - Pass this to return the sorted (min, max) 2 value temperature range tuple. The default is -10C to 40C if not set yet.
    * `sensor.IOCTL_HIMAX_MD_ENABLE` - Pass this enum followed by ``True``/``False`` to enable/disable motion detection on the HM01B0. You should also enable the I/O pin (PC15 on the Arduino Portenta) attached the HM01B0 motion detection line to receive an interrupt.
    * `sensor.IOCTL_HIMAX_MD_CLEAR` - Pass this enum to clear the motion detection interrupt on the HM01B0.
    * `sensor.IOCTL_HIMAX_MD_WINDOW` - Pass this enum followed by (x1, y1, x2, y2) to set the motion detection window on the HM01B0.
    * `sensor.IOCTL_HIMAX_MD_THRESHOLD` - Pass this enum followed by a threshold value (0-255) to set the motion detection threshold on the HM01B0.
    * `sensor.IOCTL_HIMAX_OSC_ENABLE` - Pass this enum followed by ``True``/``False`` to enable/disable the oscillator HM01B0 to save power.
+   * `sensor.IOCTL_RGB_STATS` - Pass this enum to get the RGB statistics from the camera sensor. Returns a tuple of (r, gb, gr, b) values.
+   * `sensor.IOCTL_GENX320_SET_BIASES` - Pass this enum followed by a bias enum to set the GENX320 sensor biases.
 
 .. function:: set_color_palette(palette:int) -> None
 
@@ -1014,32 +1016,32 @@ Constants
 
    Gets a FLIR Lepton Attribute given the FLIR Lepton SDK.
 
-.. data:: IOCTL_LEPTON_GET_FPA_TEMPERATURE
+.. data:: IOCTL_LEPTON_GET_FPA_TEMP
    :type: int
 
    Gets the FLIR Lepton FPA temp in celsius.
 
-.. data:: IOCTL_LEPTON_GET_AUX_TEMPERATURE
+.. data:: IOCTL_LEPTON_GET_AUX_TEMP
    :type: int
 
    Gets the FLIR Lepton AUX temp in celsius.
 
-.. data:: IOCTL_LEPTON_SET_MEASUREMENT_MODE
+.. data:: IOCTL_LEPTON_SET_MODE
    :type: int
 
    Lets you set the FLIR Lepton driver into a mode where you can get a valid temperature value per pixel. See `sensor.ioctl()` for more information.
 
-.. data:: IOCTL_LEPTON_GET_MEASUREMENT_MODE
+.. data:: IOCTL_LEPTON_GET_MODE
    :type: int
 
    Lets you get if measurement mode is enabled or not for the FLIR Lepton sensor. See `sensor.ioctl()` for more information.
 
-.. data:: IOCTL_LEPTON_SET_MEASUREMENT_RANGE
+.. data:: IOCTL_LEPTON_SET_RANGE
    :type: int
 
    Lets you set the temperature range you want to map pixels in the image to when in measurement mode. See `sensor.ioctl()` for more information.
 
-.. data:: IOCTL_LEPTON_GET_MEASUREMENT_RANGE
+.. data:: IOCTL_LEPTON_GET_RANGE
    :type: int
 
    Lets you get the temperature range used for measurement mode. See `sensor.ioctl()` for more information.
@@ -1068,6 +1070,41 @@ Constants
    :type: int
 
    Lets you control the internal oscillator on the HM01B0. See `sensor.ioctl()` for more information.
+
+.. data:: IOCTL_RGB_STATS
+   :type: int
+
+   Lets you get the RGB statistics from the camera sensor. See `sensor.ioctl()` for more information.
+
+.. data:: IOCTL_GENX320_SET_BIASES
+   :type: int
+
+   Lets you set the GENX320 camera sensor biases. See `sensor.ioctl()` for more information.
+
+.. data:: GENX320_BIASES_DEFAULT
+   :type: int
+
+   Default biases for the GENX320 camera sensor.
+
+.. data:: GENX320_BIASES_LOW_LIGHT
+   :type: int
+
+   Low light biases for the GENX320 camera sensor.
+
+.. data:: GENX320_BIASES_ACTIVE_MARKER
+   :type: int
+
+   Active marker biases for the GENX320 camera sensor.
+
+.. data:: GENX320_BIASES_LOW_NOISE
+   :type: int
+
+   Low noise biases for the GENX320 camera sensor.
+
+.. data:: GENX320_BIASES_HIGH_SPEED
+   :type: int
+
+   High speed biases for the GENX320 camera sensor.
 
 .. data:: SINGLE_BUFFER
    :type: int

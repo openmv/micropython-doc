@@ -1817,10 +1817,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -1891,10 +1891,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -1952,10 +1952,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2013,10 +2013,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2074,10 +2074,193 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
+      a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
+      whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
+
+      ``alpha_palette`` if not ``None`` can be a 256 pixel in total GRAYSCALE image to use as a alpha
+      palette which modulates the ``alpha`` value of the source image being drawn at a pixel pixel
+      level allowing you to precisely control the alpha value of pixels based on their grayscale value.
+      A pixel value of 255 in the alpha lookup table is opaque which anything less than 255 becomes
+      more transparent until 0. This is applied after ``rgb_channel`` extraction if used.
+
+      ``hint`` can be a logical OR of the flags:
+
+         * `image.AREA`: Use area scaling when downscaling versus the default of nearest neighbor.
+         * `image.BILINEAR`: Use bilinear scaling versus the default of nearest neighbor scaling.
+         * `image.BICUBIC`: Use bicubic scaling versus the default of nearest neighbor scaling.
+         * `image.CENTER`: Center the image being drawn on the display. This is applied after scaling.
+         * `image.HMIRROR`: Horizontally mirror the image.
+         * `image.VFLIP`: Vertically flip the image.
+         * `image.TRANSPOSE`: Transpose the image (swap x/y).
+         * `image.EXTRACT_RGB_CHANNEL_FIRST`: Do rgb_channel extraction before scaling.
+         * `image.APPLY_COLOR_PALETTE_FIRST`: Apply color palette before scaling.
+         * `image.SCALE_ASPECT_KEEP`: Scale the image being drawn to fit inside the display.
+         * `image.SCALE_ASPECT_EXPAND`: Scale the image being drawn to fill the display (results in cropping)
+         * `image.SCALE_ASPECT_IGNORE`: Scale the image being drawn to fill the display (results in stretching).
+         * `image.ROTATE_90`: Rotate the image by 90 degrees (this is just VFLIP | TRANSPOSE).
+         * `image.ROTATE_180`: Rotate the image by 180 degrees (this is just HMIRROR | VFLIP).
+         * `image.ROTATE_270`: Rotate the image by 270 degrees (this is just HMIRROR | TRANSPOSE).
+
+      ``copy`` if True create a deep-copy on the heap of the image that's been converted versus converting the
+      original image in-place.
+
+      ``copy_to_fb`` if True the image is loaded directly into the frame buffer.
+      ``copy_to_fb`` has priority over ``copy``. This has no special effect if the image is already in
+      the frame buffer.
+
+      Returns the image object so you can call another method using ``.`` notation.
+
+   .. method:: to_depth(x_scale:float=1.0, y_scale:float=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel:int=-1, alpha:int=256, color_palette=PALETTE_IRONBOW, alpha_palette=None, hint:int=0, copy:bool=False, copy_to_fb:bool=False) -> Image
+
+      Converts an image to an RGB565 Depth Image (16-bits per pixel).
+
+      ``x_scale`` controls how much the displayed image is scaled by in the x direction (float). If this
+      value is negative the image will be flipped horizontally. Note that if ``y_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``y_scale`` controls how much the displayed image is scaled by in the y direction (float). If this
+      value is negative the image will be flipped vertically. Note that if ``x_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``roi`` is the region-of-interest rectangle tuple (x, y, w, h) of the source image to draw. This
+      allows you to extract just the pixels in the ROI to scale and draw on the destination image.
+
+      ``rgb_channel`` is the RGB channel (0=R, G=1, B=2) to extract from an RGB565 image (if passed)
+      and to render onto the destination image. For example, if you pass ``rgb_channel=1`` this will
+      extract the green channel of the source RGB565 image and draw that in grayscale on the
+      destination image.
+
+      ``alpha`` controls how much of the source image to blend into the destination image. A value of
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
+      and destination image. 0 results in no modification to the destination image.
+
+      ``color_palette`` if not ``None`` can be `image.PALETTE_DEPTH` or
+      a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
+      whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
+
+      ``alpha_palette`` if not ``None`` can be a 256 pixel in total GRAYSCALE image to use as a alpha
+      palette which modulates the ``alpha`` value of the source image being drawn at a pixel pixel
+      level allowing you to precisely control the alpha value of pixels based on their grayscale value.
+      A pixel value of 255 in the alpha lookup table is opaque which anything less than 255 becomes
+      more transparent until 0. This is applied after ``rgb_channel`` extraction if used.
+
+      ``hint`` can be a logical OR of the flags:
+
+         * `image.AREA`: Use area scaling when downscaling versus the default of nearest neighbor.
+         * `image.BILINEAR`: Use bilinear scaling versus the default of nearest neighbor scaling.
+         * `image.BICUBIC`: Use bicubic scaling versus the default of nearest neighbor scaling.
+         * `image.CENTER`: Center the image being drawn on the display. This is applied after scaling.
+         * `image.HMIRROR`: Horizontally mirror the image.
+         * `image.VFLIP`: Vertically flip the image.
+         * `image.TRANSPOSE`: Transpose the image (swap x/y).
+         * `image.EXTRACT_RGB_CHANNEL_FIRST`: Do rgb_channel extraction before scaling.
+         * `image.APPLY_COLOR_PALETTE_FIRST`: Apply color palette before scaling.
+         * `image.SCALE_ASPECT_KEEP`: Scale the image being drawn to fit inside the display.
+         * `image.SCALE_ASPECT_EXPAND`: Scale the image being drawn to fill the display (results in cropping)
+         * `image.SCALE_ASPECT_IGNORE`: Scale the image being drawn to fill the display (results in stretching).
+         * `image.ROTATE_90`: Rotate the image by 90 degrees (this is just VFLIP | TRANSPOSE).
+         * `image.ROTATE_180`: Rotate the image by 180 degrees (this is just HMIRROR | VFLIP).
+         * `image.ROTATE_270`: Rotate the image by 270 degrees (this is just HMIRROR | TRANSPOSE).
+
+      ``copy`` if True create a deep-copy on the heap of the image that's been converted versus converting the
+      original image in-place.
+
+      ``copy_to_fb`` if True the image is loaded directly into the frame buffer.
+      ``copy_to_fb`` has priority over ``copy``. This has no special effect if the image is already in
+      the frame buffer.
+
+      Returns the image object so you can call another method using ``.`` notation.
+
+   .. method:: to_evt_dark(x_scale:float=1.0, y_scale:float=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel:int=-1, alpha:int=256, color_palette=PALETTE_IRONBOW, alpha_palette=None, hint:int=0, copy:bool=False, copy_to_fb:bool=False) -> Image
+
+      Converts an image to an RGB565 Dark Event Image (16-bits per pixel).
+
+      ``x_scale`` controls how much the displayed image is scaled by in the x direction (float). If this
+      value is negative the image will be flipped horizontally. Note that if ``y_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``y_scale`` controls how much the displayed image is scaled by in the y direction (float). If this
+      value is negative the image will be flipped vertically. Note that if ``x_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``roi`` is the region-of-interest rectangle tuple (x, y, w, h) of the source image to draw. This
+      allows you to extract just the pixels in the ROI to scale and draw on the destination image.
+
+      ``rgb_channel`` is the RGB channel (0=R, G=1, B=2) to extract from an RGB565 image (if passed)
+      and to render onto the destination image. For example, if you pass ``rgb_channel=1`` this will
+      extract the green channel of the source RGB565 image and draw that in grayscale on the
+      destination image.
+
+      ``alpha`` controls how much of the source image to blend into the destination image. A value of
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
+      and destination image. 0 results in no modification to the destination image.
+
+      ``color_palette`` if not ``None`` can be an a color palette enum or
+      a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
+      whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
+
+      ``alpha_palette`` if not ``None`` can be a 256 pixel in total GRAYSCALE image to use as a alpha
+      palette which modulates the ``alpha`` value of the source image being drawn at a pixel pixel
+      level allowing you to precisely control the alpha value of pixels based on their grayscale value.
+      A pixel value of 255 in the alpha lookup table is opaque which anything less than 255 becomes
+      more transparent until 0. This is applied after ``rgb_channel`` extraction if used.
+
+      ``hint`` can be a logical OR of the flags:
+
+         * `image.AREA`: Use area scaling when downscaling versus the default of nearest neighbor.
+         * `image.BILINEAR`: Use bilinear scaling versus the default of nearest neighbor scaling.
+         * `image.BICUBIC`: Use bicubic scaling versus the default of nearest neighbor scaling.
+         * `image.CENTER`: Center the image being drawn on the display. This is applied after scaling.
+         * `image.HMIRROR`: Horizontally mirror the image.
+         * `image.VFLIP`: Vertically flip the image.
+         * `image.TRANSPOSE`: Transpose the image (swap x/y).
+         * `image.EXTRACT_RGB_CHANNEL_FIRST`: Do rgb_channel extraction before scaling.
+         * `image.APPLY_COLOR_PALETTE_FIRST`: Apply color palette before scaling.
+         * `image.SCALE_ASPECT_KEEP`: Scale the image being drawn to fit inside the display.
+         * `image.SCALE_ASPECT_EXPAND`: Scale the image being drawn to fill the display (results in cropping)
+         * `image.SCALE_ASPECT_IGNORE`: Scale the image being drawn to fill the display (results in stretching).
+         * `image.ROTATE_90`: Rotate the image by 90 degrees (this is just VFLIP | TRANSPOSE).
+         * `image.ROTATE_180`: Rotate the image by 180 degrees (this is just HMIRROR | VFLIP).
+         * `image.ROTATE_270`: Rotate the image by 270 degrees (this is just HMIRROR | TRANSPOSE).
+
+      ``copy`` if True create a deep-copy on the heap of the image that's been converted versus converting the
+      original image in-place.
+
+      ``copy_to_fb`` if True the image is loaded directly into the frame buffer.
+      ``copy_to_fb`` has priority over ``copy``. This has no special effect if the image is already in
+      the frame buffer.
+
+      Returns the image object so you can call another method using ``.`` notation.
+
+   .. method:: to_evt_light(x_scale:float=1.0, y_scale:float=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel:int=-1, alpha:int=256, color_palette=PALETTE_IRONBOW, alpha_palette=None, hint:int=0, copy:bool=False, copy_to_fb:bool=False) -> Image
+
+      Converts an image to an RGB565 Light Event Image (16-bits per pixel).
+
+      ``x_scale`` controls how much the displayed image is scaled by in the x direction (float). If this
+      value is negative the image will be flipped horizontally. Note that if ``y_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``y_scale`` controls how much the displayed image is scaled by in the y direction (float). If this
+      value is negative the image will be flipped vertically. Note that if ``x_scale`` is not specified
+      then it will match ``x_scale`` to maintain the aspect ratio.
+
+      ``roi`` is the region-of-interest rectangle tuple (x, y, w, h) of the source image to draw. This
+      allows you to extract just the pixels in the ROI to scale and draw on the destination image.
+
+      ``rgb_channel`` is the RGB channel (0=R, G=1, B=2) to extract from an RGB565 image (if passed)
+      and to render onto the destination image. For example, if you pass ``rgb_channel=1`` this will
+      extract the green channel of the source RGB565 image and draw that in grayscale on the
+      destination image.
+
+      ``alpha`` controls how much of the source image to blend into the destination image. A value of
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
+      and destination image. 0 results in no modification to the destination image.
+
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2135,10 +2318,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2209,10 +2392,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2270,10 +2453,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2348,10 +2531,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2405,10 +2588,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2466,10 +2649,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -2732,10 +2915,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -3488,7 +3671,7 @@ The image object is the basic object for machine vision operations.
 
       Not supported on compressed images or bayer/yuv images.
 
-   .. method:: mode(size:int, threshold:Optional[bool]=False, offset:Optional[int]=0, invert:Optional[bool]=False, mask:Optional[Image]=Nonee) -> Image
+   .. method:: mode(size:int, threshold:Optional[bool]=False, offset:Optional[int]=0, invert:Optional[bool]=False, mask:Optional[Image]=None) -> Image
 
       Runs the mode filter on the image by replacing each pixel with the mode of
       their neighbors. This method works great on grayscale images. However, on
@@ -3804,10 +3987,10 @@ The image object is the basic object for machine vision operations.
       destination image.
 
       ``alpha`` controls how much of the source image to blend into the destination image. A value of
-      256 draws an opaque source image while a value lower than 256 produces a blend between the source
+      255 draws an opaque source image while a value lower than 255 produces a blend between the source
       and destination image. 0 results in no modification to the destination image.
 
-      ``color_palette`` if not ``None`` can be `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, or
+      ``color_palette`` if not ``None`` can be an a color palette enum or
       a 256 pixel in total RGB565 image to use as a color lookup table on the grayscale value of
       whatever the source image is. This is applied after ``rgb_channel`` extraction if used.
 
@@ -4638,6 +4821,21 @@ Constants
    :type: int
 
    Makes images look like the FLIR Lepton thermal images using a very non-linear color palette.
+
+.. data:: PALETTE_DEPTH
+   :type: int
+
+   Depth color palette for depth images.
+
+.. data:: PALETTE_EVT_DARK
+   :type: int
+
+   Dark background color palette for event images.
+
+.. data:: PALETTE_EVT_LIGHT
+   :type: int
+
+   Light background color palette for event images.
 
 .. data:: AREA
    :type: int
