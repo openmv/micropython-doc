@@ -68,9 +68,9 @@ class SSLContext
 
 .. method:: SSLContext.wrap_socket(sock, *, server_side=False, do_handshake_on_connect=True, server_hostname=None)
 
-   Takes a `stream` *sock* (usually socket.socket instance of ``SOCK_STREAM`` type),
+   Takes a :std:term:`stream` *sock* (usually socket.socket instance of ``SOCK_STREAM`` type),
    and returns an instance of ssl.SSLSocket, wrapping the underlying stream.
-   The returned object has the usual `stream` interface methods like
+   The returned object has the usual :std:term:`stream` interface methods like
    ``read()``, ``write()``, etc.
 
    - *server_side* selects whether the wrapped socket is on the server or client side.

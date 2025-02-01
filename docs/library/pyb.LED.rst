@@ -20,17 +20,19 @@ Constructors
 Methods
 -------
 
-.. method:: LED.intensity([value])
+.. only:: port_pyboard
 
-   Get or set the LED intensity.  Intensity ranges between 0 (off) and 255 (full on).
-   If no argument is given, return the LED intensity.
-   If an argument is given, set the LED intensity and return ``None``.
+   .. method:: LED.intensity([value])
 
-   *Note:* Only LED(3) and LED(4) can have a smoothly varying intensity, and
-   they use timer PWM to implement it.  LED(3) uses Timer(2) and LED(4) uses
-   Timer(3).  These timers are only configured for PWM if the intensity of the
-   relevant LED is set to a value between 1 and 254.  Otherwise the timers are
-   free for general purpose use.
+      Get or set the LED intensity.  Intensity ranges between 0 (off) and 255 (full on).
+      If no argument is given, return the LED intensity.
+      If an argument is given, set the LED intensity and return ``None``.
+
+      *Note:* Only LED(3) and LED(4) can have a smoothly varying intensity, and
+      they use timer PWM to implement it.  LED(3) uses Timer(2) and LED(4) uses
+      Timer(3).  These timers are only configured for PWM if the intensity of the
+      relevant LED is set to a value between 1 and 254.  Otherwise the timers are
+      free for general purpose use.
 
 .. method:: LED.off()
 

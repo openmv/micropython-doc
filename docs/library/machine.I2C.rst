@@ -97,12 +97,6 @@ General Methods
    requested frequency. This is dependent on the platform hardware. The actual
    rate may be determined by printing the I2C object.
 
-.. method:: I2C.deinit()
-
-   Turn off the I2C bus.
-
-   Availability: WiPy.
-
 .. method:: I2C.scan()
 
    Scan all I2C addresses between 0x08 and 0x77 inclusive and return a list of
@@ -202,8 +196,7 @@ methods are convenience functions to communicate with such devices.
    Read into *buf* from the peripheral specified by *addr* starting from the
    memory address specified by *memaddr*.  The number of bytes read is the
    length of *buf*.
-   The argument *addrsize* specifies the address size in bits (on ESP8266
-   this argument is not recognised and the address size is always 8 bits).
+   The argument *addrsize* specifies the address size in bits.
 
    The method returns ``None``.
 
@@ -211,7 +204,6 @@ methods are convenience functions to communicate with such devices.
 
    Write *buf* to the peripheral specified by *addr* starting from the
    memory address specified by *memaddr*.
-   The argument *addrsize* specifies the address size in bits (on ESP8266
-   this argument is not recognised and the address size is always 8 bits).
+   The argument *addrsize* specifies the address size in bits.
 
    The method returns ``None``.

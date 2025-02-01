@@ -5,16 +5,14 @@ class Servo -- 3-wire hobby servo driver
 ========================================
 
 Servo objects control standard hobby servo motors with 3-wires (ground, power,
-signal).  There are 4 positions on the pyboard where these motors can be plugged
-in: pins X1 through X4 are the signal pins, and next to them are 4 sets of power
-and ground pins.
+signal).
 
 Example usage::
 
     import pyb
 
-    s1 = pyb.Servo(1)   # create a servo object on position X1
-    s2 = pyb.Servo(2)   # create a servo object on position X2
+    s1 = pyb.Servo(1)   # create a servo object on position P7
+    s2 = pyb.Servo(2)   # create a servo object on position P8
 
     s1.angle(45)        # move servo 1 to 45 degrees
     s2.angle(0)         # move servo 2 to 0 degrees
@@ -32,8 +30,7 @@ Constructors
 
 .. class:: Servo(id)
 
-   Create a servo object.  ``id`` is 1-4, and corresponds to pins X1 through X4.
-
+   Create a servo object.  ``id`` is 1-3, and corresponds to pins P7 through P9.
 
 Methods
 -------
