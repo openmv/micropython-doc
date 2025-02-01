@@ -13,18 +13,14 @@ UART objects can be created and initialised using::
 
     from machine import UART
 
-    uart = UART(1, 9600)                         # init with given baudrate
+    uart = UART(3, 9600)                         # init with given baudrate
     uart.init(9600, bits=8, parity=None, stop=1) # init with given parameters
 
-Supported parameters differ on a board:
-
-Pyboard: Bits can be 7, 8 or 9. Stop can be 1 or 2. With *parity=None*,
+Bits can be 7, 8 or 9. Stop can be 1 or 2. With *parity=None*,
 only 8 and 9 bits are supported.  With parity enabled, only 7 and 8 bits
 are supported.
 
-WiPy/CC3200: Bits can be 5, 6, 7, 8. Stop can be 1 or 2.
-
-A UART object acts like a `stream` object and reading and writing is done
+A UART object acts like a :std:term:`stream` object and reading and writing is done
 using the standard stream methods::
 
     uart.read(10)       # read 10 characters, returns a bytes object
@@ -43,7 +39,7 @@ Constructors
 Methods
 -------
 
-.. method:: UART.init(baudrate=9600, bits=8, parity=None, stop=1, *, ...)
+.. method:: UART.init(baudrate=9600, bits=8, parity=None, stop=1, \*, ...)
 
    Initialise the UART bus with the given parameters:
 
@@ -79,14 +75,6 @@ Methods
            CTS input pin signals that the receiver is running low on buffer space.
          - ``UART.RTS | UART.CTS`` will enable both, for full hardware flow control.
 
-   On the WiPy only the following keyword-only parameter is supported:
-
-     - *pins* is a 4 or 2 item list indicating the TX, RX, RTS and CTS pins (in that order).
-       Any of the pins can be None if one wants the UART to operate with limited functionality.
-       If the RTS pin is given the the RX pin must be given as well. The same applies to CTS.
-       When no pins are given, then the default set of TX and RX pins is taken, and hardware
-       flow control will be disabled. If *pins* is ``None``, no pin assignment will be made.
-
    .. note::
      It is possible to call ``init()`` multiple times on the same object in
      order to reconfigure  UART on the fly. That allows using single UART
@@ -119,8 +107,7 @@ Methods
 .. method:: UART.read([nbytes])
 
    Read characters.  If ``nbytes`` is specified then read at most that many bytes,
-   otherwise read as much data as possible. It may return sooner if a timeout
-   is reached. The timeout is configurable in the constructor.
+   otherwise read as much data as possible.
 
    Return value: a bytes object containing the bytes read in.  Returns ``None``
    on timeout.
@@ -128,16 +115,14 @@ Methods
 .. method:: UART.readinto(buf[, nbytes])
 
    Read bytes into the ``buf``.  If ``nbytes`` is specified then read at most
-   that many bytes.  Otherwise, read at most ``len(buf)`` bytes. It may return sooner if a timeout
-   is reached. The timeout is configurable in the constructor.
+   that many bytes.  Otherwise, read at most ``len(buf)`` bytes.
 
    Return value: number of bytes read and stored into ``buf`` or ``None`` on
    timeout.
 
 .. method:: UART.readline()
 
-   Read a line, ending in a newline character. It may return sooner if a timeout
-   is reached. The timeout is configurable in the constructor.
+   Read a line, ending in a newline character.
 
    Return value: the line read or ``None`` on timeout.
 

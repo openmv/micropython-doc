@@ -188,9 +188,8 @@ provide a way to control networking interfaces of various kinds.
 .. toctree::
    :maxdepth: 1
 
+   network.WINC.rst
    network.WLAN.rst
-   network.WLANWiPy.rst
-   network.WIZNET5K.rst
    network.LAN.rst
    network.PPP.rst
 
