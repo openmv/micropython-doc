@@ -96,7 +96,6 @@ the following libraries.
    :maxdepth: 1
 
    bluetooth.rst
-   btree.rst
    cryptolib.rst
    deflate.rst
    machine.rst
@@ -106,7 +105,7 @@ the following libraries.
    uctypes.rst
    mutex.rst
    uping.rst
-   urequests.rst
+   requests.rst
    vfs.rst
 
 Libraries specific to the OpenMV Cam
@@ -127,6 +126,7 @@ The following libraries are specific to the OpenMV Cam.
    omv.audio.rst
    omv.display.rst
    omv.fir.rst
+   omv.tof.rst
    omv.tv.rst
    omv.cpufreq.rst
    omv.buzzer.rst
