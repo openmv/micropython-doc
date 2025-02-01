@@ -245,6 +245,7 @@ Classes
 
    machine.Pin.rst
    machine.Signal.rst
+   machine.LED.rst
    machine.ADC.rst
    machine.ADCBlock.rst
    machine.CAN.rst

@@ -29,7 +29,7 @@ Example usage::
 Functions
 ---------
 
-.. function:: init(type=-1) -> None
+.. function:: init(type:int=-1) -> None
 
    Initializes an onboard depth sensor.
 
@@ -41,7 +41,7 @@ Functions
    By default type is ``-1`` which will cause `tof.init()` to automatically scan and initialize an
    attached thermal sensor based on the I2C address.
 
-.. function:: reset(type=-1) -> None
+.. function:: reset(type:int=-1) -> None
 
    Re-initializes an onboard depth sensor.
 
@@ -85,7 +85,7 @@ Functions
       * `tof.TOF_NONE`: 0 Hz.
       * `tof.TOF_VL53L5CX`: 15 Hz.
 
-.. function:: read_depth(hmirror=False, vflip=False, transpose=False, timeout=-1)
+.. function:: read_depth(hmirror:bool=False, vflip:bool=False, transpose:bool=False, timeout:int=-1)
 
    Returns a tuple containing the depth list (width * height),
    the minimum depth seen, and the maximum depth seen.
@@ -115,7 +115,7 @@ Functions
 
       ``depth`` is a (width * height) list of floats (4-bytes each).
 
-.. function:: draw_depth(image:image.Image, ir, x:Optional[int]=None, y:Optional[int]=None, x_scale=1.0, y_scale=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel=-1, alpha=128, color_palette=image.PALETTE_DEPTH, alpha_palette=-1, hint=0, scale=Optional[Tuple[float, float]]) -> None
+.. function:: draw_depth(image:image.Image, tof, x:Optional[int]=None, y:Optional[int]=None, x_scale:float=1.0, y_scale:float=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel:int=-1, alpha:int=128, color_palette=image.PALETTE_DEPTH, alpha_palette=-1, hint:int=0, scale=Optional[Tuple[float, float]]) -> None
 
    Draws an ``depth`` array on ``image`` whose top-left corner starts at location x, y. This method
    automatically handles rendering the image passed into the correct pixel format for the destination
@@ -180,7 +180,7 @@ Functions
       To handle a transposed ``depth`` array `read_depth` remembers if it was called with ``transposed``
       ``True``. This is then passed to ``draw_depth`` internally.
 
-.. function:: snapshot(hmirror=False, vflip=False, transpose=False, x_scale=1.0, y_scale=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel=-1, alpha=128, color_palette=image.PALETTE_DEPTH, alpha_palette=None, hint=0, scale:Optional[Tuple[float, float]]=None, pixformat=image.RGB565, copy_to_fb=False, timeout=-1) -> image.Image
+.. function:: snapshot(hmirror:bool=False, vflip:bool=False, transpose:bool=False, x_scale:float=1.0, y_scale:float=1.0, roi:Optional[Tuple[int,int,int,int]]=None, rgb_channel:int=-1, alpha:int=128, color_palette=image.PALETTE_DEPTH, alpha_palette=None, hint:int=0, scale:Optional[Tuple[float, float]]=None, pixformat:int=image.RGB565, copy_to_fb:bool=False, timeout:int=-1) -> image.Image
 
    Works like `sensor.snapshot()` and returns an `image` object that is either
    `image.GRAYSCALE` (grayscale) or `image.RGB565` (color). If ``copy_to_fb`` is False then

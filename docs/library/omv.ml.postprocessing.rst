@@ -25,6 +25,8 @@ Constructors
     ``threshold`` The threshold to use for postprocessing.
 
     This post-processor returns a list of rect ``[x, y, w, h]`` and score tuples for each class in the model output.
+    E.g. ``[[((x, y, w, h), score)]]``. Note that empty class list are included in the output to ensure the position
+    of each class list in the output matches the position of the class index in the model output.
 
 class yolo_v2_postprocess -- YOLO V2
 ------------------------------------
@@ -43,6 +45,8 @@ Constructors
     ``anchors`` A list of anchor points ``(x, y)`` the model was trained on  to use for postprocessing.
 
     This post-processor returns a list of rect ``[x, y, w, h]`` and score tuples for each class in the model output.
+    E.g. ``[[((x, y, w, h), score)]]``. Note that empty class list are included in the output to ensure the position
+    of each class list in the output matches the position of the class index in the model output.
 
 class yolo_v5_postprocess -- YOLO V5
 ------------------------------------
@@ -59,3 +63,5 @@ Constructors
     ``threshold`` The threshold to use for postprocessing.
 
     This post-processor returns a list of rect ``[x, y, w, h]`` and score tuples for each class in the model output.
+    E.g. ``[[((x, y, w, h), score)]]``. Note that empty class list are included in the output to ensure the position
+    of each class list in the output matches the position of the class index in the model output.
