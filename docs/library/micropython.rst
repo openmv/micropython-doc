@@ -221,5 +221,5 @@ Classes
 
     .. method:: RingIO.close()
 
-        No-op provided as part of standard `stream` interface. Has no effect
+        No-op provided as part of standard :std:term:`stream` interface. Has no effect
         on data in the ringbuffer.
