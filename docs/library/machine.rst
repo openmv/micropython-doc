@@ -93,7 +93,6 @@ and then re-enabled to their previous state.  For example::
     # Enable interrupts
     machine.enable_irq(state)
 
-
 .. function:: disable_irq()
 
    Disable interrupt requests.
@@ -157,12 +156,6 @@ Power related functions
      return `machine.DEEPSLEEP` and this can be used to distinguish a deepsleep wake
      from other resets.
 
-.. function:: wake_reason()
-
-   Get the wake reason. See :ref:`constants <machine_constants>` for the possible return values.
-
-   Availability: ESP32, WiPy.
-
 Miscellaneous functions
 -----------------------
 
@@ -211,12 +204,6 @@ Miscellaneous functions
    .. note:: For controlling WS2812 / NeoPixel strips, see the :mod:`neopixel`
       module for a higher-level API.
 
-.. function:: rng()
-
-   Return a 24-bit software generated random number.
-
-   Availability: WiPy.
-
 .. _machine_constants:
 
 Constants
@@ -250,9 +237,9 @@ Classes
 
    machine.Pin.rst
    machine.Signal.rst
+   machine.LED.rst
    machine.ADC.rst
    machine.ADCBlock.rst
-   machine.DAC.rst
    machine.PWM.rst
    machine.UART.rst
    machine.SPI.rst
@@ -262,9 +249,4 @@ Classes
    machine.CAN.rst
    machine.RTC.rst
    machine.Timer.rst
-   machine.Counter.rst
-   machine.Encoder.rst
    machine.WDT.rst
-   machine.SD.rst
-   machine.SDCard.rst
-   machine.USBDevice.rst

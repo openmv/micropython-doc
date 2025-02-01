@@ -34,7 +34,8 @@ mounted.
 
 On STM32 / Pyboard, the internal flash is mounted at ``/flash``, and optionally
 the SDCard at ``/sd``. On ESP8266/ESP32, the primary filesystem is mounted at
-``/``.
+``/``. On the OpenMV Cam the internal flash is mounted at ``/`` unless an SDCard
+is installed which will be moutned at ``/`` instead.
 
 Block devices
 -------------
@@ -53,8 +54,8 @@ MicroPython will attempt to create a FAT filesystem spanning the entire flash.
 Ports can also provide a mechanism to "factory reset" the primary flash, usually
 by some combination of button presses at power on.
 
-STM32 / Pyboard
-...............
+STM32 / Pyboard / OpenMV Cam
+............................
 
 The :ref:`pyb.Flash <pyb.Flash>` class provides access to the internal flash. On some
 boards which have larger external flash (e.g. Pyboard D), it will use that

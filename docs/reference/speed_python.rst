@@ -135,7 +135,7 @@ of buffer and pass it to ``readinto()``.
 Strings vs Bytes
 ~~~~~~~~~~~~~~~~
 
-MicroPython uses :ref:`string interning <qstr>` to save space when there are
+MicroPython uses :ref:``string interning <qstr>`` to save space when there are
 multiple identical strings. Each time a new string is allocated at runtime (for
 example, when two other strings are concatenated), MicroPython checks whether
 the new string can be interned to save RAM.
@@ -219,7 +219,7 @@ process known as garbage collection reclaims the memory used by these redundant
 objects and the allocation is then tried again - a process which can take several
 milliseconds.
 
-There may be benefits in preempting this by periodically issuing `gc.collect()`.
+There may be benefits in pre-empting this by periodically issuing ``gc.collect()``.
 Firstly doing a collection before it is actually required is quicker - typically on the
 order of 1ms if done frequently. Secondly you can determine the point in code
 where this time is used rather than have a longer delay occur at random points,

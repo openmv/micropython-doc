@@ -10,9 +10,6 @@ expiry time, or periodically at a regular interval.
 The available features and restrictions of Timer objects vary depending on the
 MicroPython board and port.
 
-If you are using a WiPy board please refer to :ref:`machine.TimerWiPy <machine.TimerWiPy>`
-instead of this class.
-
 Timer Types
 -----------
 

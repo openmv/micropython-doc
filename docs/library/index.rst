@@ -98,81 +98,48 @@ the following libraries.
    :maxdepth: 1
 
    bluetooth.rst
-   btree.rst
    cryptolib.rst
    deflate.rst
-   framebuf.rst
    machine.rst
    micropython.rst
-   neopixel.rst
    network.rst
    openamp.rst
    uctypes.rst
+   mutex.rst
+   uping.rst
+   requests.rst
    vfs.rst
 
-The following libraries provide drivers for hardware components.
+Libraries specific to the OpenMV Cam
+------------------------------------
+
+The following libraries are specific to the OpenMV Cam.
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
 
-  wm8960.rst
-
-
-Port-specific libraries
------------------------
-
-In some cases the following port/board-specific libraries have functions or
-classes similar to those in the :mod:`machine` library.  Where this occurs, the
-entry in the port specific library exposes hardware functionality unique to
-that platform.
-
-To write portable code use functions and classes from the :mod:`machine` module.
-To access platform-specific hardware use the appropriate library, e.g.
-:mod:`pyb` in the case of the Pyboard.
-
-
-Libraries specific to the pyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following libraries are specific to the pyboard.
-
-.. toctree::
-  :maxdepth: 2
-
-  pyb.rst
-  stm.rst
-  lcd160cr.rst
-
-
-Libraries specific to the WiPy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following libraries and classes are specific to the WiPy.
-
-.. toctree::
-  :maxdepth: 2
-
-  wipy.rst
-  machine.ADCWiPy.rst
-  machine.TimerWiPy.rst
-
-
-Libraries specific to the ESP8266 and ESP32
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following libraries are specific to the ESP8266 and ESP32.
-
-.. toctree::
-  :maxdepth: 2
-
-  esp.rst
-  esp32.rst
-
-.. toctree::
-  :maxdepth: 1
-
-  espnow.rst
-
+   pyb.rst
+   stm.rst
+   omv.sensor.rst
+   omv.csi.rst
+   omv.image.rst
+   omv.ml.rst
+   omv.gif.rst
+   omv.mjpeg.rst
+   omv.audio.rst
+   omv.display.rst
+   omv.fir.rst
+   omv.tof.rst
+   omv.tv.rst
+   omv.cpufreq.rst
+   omv.imu.rst
+   omv.rpc.rst
+   omv.rtsp.rst
+   omv.omv.rst
+   omv.gt911.rst
+   omv.ft5x06.rst
+   omv.tfp410.rst
+   omv.pca9674a.rst
 
 Libraries specific to NXP i.MXRT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,25 +151,68 @@ The following libraries are specific to the NXP i.MXRT family of microcontroller
 
   mimxrt.rst
 
-Libraries specific to the RP2040
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Third-party libraries on the OpenMV Cam
+---------------------------------------
 
-The following libraries are specific to the RP2040, as used in the Raspberry Pi Pico.
+The following third-party libraries are built-in to your OpenMV Cam's firmware:
 
-.. toctree::
-  :maxdepth: 2
+:mod:`ulab` --- `numpy-like array manipulation library <https://micropython-ulab.readthedocs.io/en/latest/>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  rp2.rst
+.. module:: ulab
+   :synopsis: numpy-like array manipulation library
 
-Libraries specific to Zephyr
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`pid` --- `Proportional/Integral/Derivative Control <https://github.com/openmv/openmv/blob/master/scripts/libraries/pid.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following libraries are specific to the Zephyr port.
+.. module:: pid
+   :synopsis: Proportional/Integral/Derivative Control
 
-.. toctree::
-  :maxdepth: 2
+:mod:`bno055` --- `IMU Driver <https://github.com/openmv/openmv/blob/master/scripts/libraries/bno055.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  zephyr.rst
+.. module:: bno055
+   :synopsis: IMU Driver
+
+Examples scripts are located in OpenMV IDE under the ``IMU Shield`` examples folder.
+
+:mod:`ssd1306` --- `OLED Driver <https://github.com/openmv/openmv/blob/master/scripts/libraries/ssd1306.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: ssd1306
+   :synopsis: OLED Driver
+
+:mod:`tb6612` --- `Stepper Motor Driver <https://github.com/openmv/openmv/blob/master/scripts/libraries/tb6612.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: tb6612
+   :synopsis: Stepper Motor Driver
+
+Examples scripts are located in OpenMV IDE under the ``Motor Shield`` examples folder.
+
+:mod:`modbus` --- `modbus protocol library <https://github.com/openmv/openmv/blob/master/scripts/libraries/modbus.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: modbus
+   :synopsis: modbus protocol library
+
+Examples scripts are located in OpenMV IDE under the ``Modbus`` examples folder.
+
+:mod:`mqtt` --- `mqtt protocol library <https://github.com/openmv/openmv/blob/master/scripts/libraries/mqtt.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: mqtt
+   :synopsis: mqtt protocol library
+
+Examples scripts are located in OpenMV IDE under the ``WiFi Shield`` examples folder.
+
+:mod:`vl53l1x` --- `ToF Distance Sensor Driver <https://github.com/openmv/openmv/blob/master/scripts/libraries/vl53l1x.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. module:: vl53l1x
+   :synopsis: ToF Distance Sensor Driver
+
+Examples scripts are located in OpenMV IDE under the ``Distance Shield`` examples folder.
 
 .. _micropython_lib_extending:
 
