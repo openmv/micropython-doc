@@ -63,10 +63,6 @@ Some system state remains the same after a soft reset, including:
 - An active :doc:`REPL <repl>` appears continuous before and after soft reset,
   except in some unusual cases:
 
-  * If the :ref:`machine.USBDevice <machine.USBDevice>` class has been used to
-    create a custom USB interface then any built-in USB serial device will
-    appear to disconnect and reconnect as the custom USB interface must be
-    cleared during reset.
   * A serial UART REPL will restore its default hardware configuration (baud
     rate, etc).
 
@@ -116,8 +112,7 @@ that it's always available after reset for use with the :doc:`REPL <repl>`,
 .. warning:: boot.py should always exit and not run indefinitely.
 
    Depending on the port, some hardware initialisation is delayed until after
-   ``boot.py`` exits. This includes initialising USB on the stm32 port and all
-   ports which support :ref:`machine.USBDevice <machine.USBDevice>`. On these
+   ``boot.py`` exits. This includes initialising USB on the stm32 port. On these
    ports, output printed from ``boot.py`` may not be visible on the built-in USB
    serial port until after ``boot.py`` finishes running.
 
@@ -229,34 +224,3 @@ To confirm which files are still present in the internal filesystem::
     import os
     os.listdir()
 
-Safe Mode and Factory Reset
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If you're unable to easily access the REPL then you may need to perform one of
-two processes:
-
-1. "Safe mode" boot, which skips ``boot.py`` and ``main.py`` and immediately
-   starts a REPL, allowing you to clean up. This is only supported on some ports.
-2. Factory Reset to erase the entire contents of the flash filesystem. This may
-   also be necessary if the internal flash filesystem has become corrupted
-   somehow.
-
-The specific process(es) are different on each port:
-
-- :doc:`pyboard and stm32 port instructions </pyboard/tutorial/reset>`
-- :doc:`esp32 port instructions </esp32/tutorial/reset>`
-- :doc:`renesas-ra port instructions </renesas-ra/tutorial/reset>`
-- :doc:`rp2 port instructions </rp2/tutorial/reset>`
-- :doc:`wipy port instructions </wipy/tutorial/reset>`
-
-For ports without specific instructions linked above, the factory reset process
-involves erasing the board's entire flash and then flashing MicroPython again
-from scratch. Usually this will involve the same tool(s) that were originally
-used to install MicroPython. Consult the installation docs for your board, or
-ask on the `GitHub Discussions`_ if you're not sure.
-
-.. warning:: Re-flashing the MicroPython firmware without erasing the entire
-             flash first will usually not recover from soft bricking, as a
-             firmware update usually preserves the contents of the filesystem.
-
-.. _GitHub Discussions: https://github.com/orgs/micropython/discussions

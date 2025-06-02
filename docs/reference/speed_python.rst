@@ -135,7 +135,7 @@ of buffer and pass it to ``readinto()``.
 Strings vs Bytes
 ~~~~~~~~~~~~~~~~
 
-MicroPython uses :ref:`string interning <qstr>` to save space when there are
+MicroPython uses :ref:``string interning <qstr>`` to save space when there are
 multiple identical strings. Each time a new string is allocated at runtime (for
 example, when two other strings are concatenated), MicroPython checks whether
 the new string can be interned to save RAM.

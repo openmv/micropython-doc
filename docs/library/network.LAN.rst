@@ -37,13 +37,6 @@ Constructors
        or ``True``, the clock is driven by the Ethernet controller, if set to ``LAN.IN``
        or ``Pin.IN`` or ``False``, the clock is driven by the PHY interface.
 
-   For example, with the Seeed Arch Mix board you can  use::
-
-     nic = LAN(0, phy_type=LAN.PHY_LAN8720, phy_addr=1, ref_clk_mode=Pin.IN)
-
-   .. note:: On esp32 port the constructor requires different arguments. See
-             :ref:`esp32 port reference <esp32_network_lan>`.
-
 Methods
 -------
 
