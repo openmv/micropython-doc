@@ -161,7 +161,7 @@ Methods
        of a transfer is still being sent. If required, a one character wait time has to be
        added in the calling script.
 
-   Availability: rp2, esp32, esp8266, mimxrt, cc3200, stm32, nrf ports, renesas-ra
+   Availability: rp2, esp32, esp8266, mimxrt, cc3200, stm32, nrf ports, renesas-ra, alif
 
 .. method:: UART.irq(handler=None, trigger=0, hard=False)
 
@@ -205,6 +205,7 @@ Methods
       RP2              yes                yes        yes
       SAMD             yes        yes     yes
       STM32            yes        yes
+      alif             yes        yes     yes
       ============== ========== ====== ========== =========
 
 
@@ -226,7 +227,7 @@ Methods
        idle.
 
 
-   Availability: cc3200, esp32, mimxrt, nrf, renesas-ra, rp2, samd, stm32.
+   Availability: cc3200, esp32, mimxrt, nrf, renesas-ra, rp2, samd, stm32, alif.
 
 Constants
 ---------
@@ -236,7 +237,7 @@ Constants
 
     Flow control options.
 
-    Availability: esp32, mimxrt, renesas-ra, rp2, stm32.
+    Availability: esp32, mimxrt, renesas-ra, rp2, stm32, alif.
 
 .. data:: UART.IRQ_RXIDLE
           UART.IRQ_RX
@@ -245,4 +246,4 @@ Constants
 
     IRQ trigger sources.
 
-    Availability: renesas-ra, stm32, esp32, rp2040, mimxrt, samd, cc3200.
+    Availability: renesas-ra, stm32, esp32, rp2040, mimxrt, samd, cc3200, alif.
