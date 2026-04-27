@@ -1,0 +1,176 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) - The MicroPython Documentation is Copyright © 2014-2024,
+# Damien P. George, Paul Sokolovsky, and contributors
+# This file is distributed under the same license as the MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: MicroPython 1.22\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-07 12:34+0800\n"
+"PO-Revision-Date: 2024-11-23 07:10+0000\n"
+"Last-Translator: Weblate Admin <kaizhi@singtown.com>\n"
+"Language: zh_CN\n"
+"Language-Team: Chinese (Simplified) <http://tms.singtown.com/projects"
+"/openmv-doc/openmvcamtutorialsystem_architecture/zh_Hans/>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:2
+msgid "System Architecture"
+msgstr "系统架构"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:4
+msgid ""
+"Thanks for reading what of the tuturial has been completed so far. It "
+"probably won't ever be done. Anyway, I'd like to discuss the system "
+"architecture quickly."
+msgstr "感谢您阅读到目前为止完成的教程。它可能永远也不会完成。无论如何，我想快速讨论一下系统架构。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:7
+msgid ""
+"First, the OpenMV Cam is based off of the STM32 Microcontroller "
+"architecture because the MicroPython pyboard is based off of the STM32 "
+"Microcontroller architecture. If the project was started using some other"
+" system things might have been totally different."
+msgstr ""
+"首先，OpenMV Cam 基于 STM32 微控制器架构，因为 MicroPython pyboard 基于 STM32 "
+"微控制器架构。如果项目是使用其他系统启动的，情况可能会完全不同。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:11
+msgid ""
+"Moving on, we choose not to use DRAM with the original OpenMV Cam because"
+" it made the system too expensive to produce at low volumes. SDR DRAM "
+"(which is what the STM32 supports) isn't the cheapest at low "
+"manufacturing volumes and greatly increases board design complexity (e.g."
+" you need to do 8-layer boards to route all the signals). As we've revved"
+" the OpenMV Cam with a faster and faster main processor the SDR DRAM "
+"speed also has not kept up with the internal RAM speed. On the STM32H7 "
+"for example the internal RAM bandwidth is 3.2GB/s versus a maximum SDR "
+"RAM bandwidth of 666MB/s even if we built the system with an 8-layer "
+"board using a 32-bit DRAM bus requring 50+ I/O pins for the DRAM."
+msgstr ""
+"接下来，我们选择不在原始 OpenMV Cam 中使用 DRAM，因为这样会使系统在低产量下变得过于昂贵。SDR DRAM（STM32 "
+"所支持的类型）在低制造量下并不是最便宜的，而且大大增加了板级设计的复杂性（例如，你需要做 8 层 PCB 来布线路径）。随着我们为 OpenMV "
+"Cam 配备更快的主处理器，SDR DRAM 的速度也未能跟上内部 RAM 的速度。例如，在 STM32H7 上，内部 RAM 的带宽为 "
+"3.2GB/s，而最大 SDR RAM 带宽为 666MB/s，即使我们使用 8 层板设计，并采用 32 位 DRAM 总线，且为 DRAM 提供"
+" 50 个以上的 I/O 引脚。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:21
+msgid ""
+"So, since we're built on the STM32 architecture and limited to using "
+"expensive and slow SDR DRAM for now we haven't added it as our internal "
+"SRAM is way faster. As production volumes go up and technology improves "
+"hopefully we'll be able to have more memory while still keeping the "
+"OpenMV Cam simple to use."
+msgstr ""
+"因此，由于我们建立在 STM32 架构上，并且目前受限于使用昂贵且速度较慢的 SDR DRAM，我们尚未将其添加为内部 SRAM，因为我们的内部 "
+"SRAM 速度要快得多。随着生产量的增加和技术的改进，希望我们能够在保持 OpenMV Cam 简单易用的同时拥有更多内存。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:27
+msgid "Memory Architecture"
+msgstr "内存架构"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:29
+msgid ""
+"Given the above memory architecture limitations we built all of our code "
+"to run inside of the STM32 microcontroller memory. However, the STM32 "
+"doesn't have one large contigous memory map. It features different "
+"segments of RAM for different situations."
+msgstr ""
+"鉴于上述内存架构的限制，我们将所有代码都设计为在 STM32 微控制器的内存中运行。然而，STM32 "
+"并没有一个大型的连续内存映射。它为不同的使用场景提供了不同的 RAM 区段。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:34
+msgid ""
+"First, there's a segment of RAM which contains global variables, the "
+"heap, and the stack. The heap and global variables are fixed in size so "
+"only the stack grows and shrinks. For performance reasons heap/stack "
+"collision is not checked constantly so don't use recursive functions on "
+"the OpenMV Cam."
+msgstr ""
+"首先，有一个包含全局变量、堆和栈的 RAM "
+"段。堆和全局变量的大小是固定的，因此只有栈会增长和收缩。出于性能原因，堆/栈冲突并不会被不断检查，因此不要在 OpenMV Cam "
+"上使用递归函数。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:39
+msgid ""
+"As for the heap, it's fixed in size versus growing towards the stack and "
+"managed by MicroPython's garbage collector. MicroPython automagically "
+"free's up unused blocks inside of the heap. However, the design of the "
+"MicroPython heap does not allow it to be arbitrarily large (e.g. in the "
+"megabyte range) like heaps on PCs. So, even if we have DRAM it would be "
+"hard to leverage using MicroPython's heap."
+msgstr ""
+"至于堆，它的大小是固定的，不会朝着栈增长，并由 MicroPython 的垃圾回收器管理。MicroPython "
+"自动释放堆中未使用的块。然而，MicroPython 堆的设计不允许它像 PC 上的堆一样任意大（例如，在兆字节范围内）。因此，即使我们有 "
+"DRAM，也很难利用 MicroPython 的堆。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:45
+msgid ""
+"Next, there's a larger memory segment for the frame buffer to store "
+"images in. On the bottom of the frame buffer new images are stored when "
+"functions like `sensor.snapshot()` are called. Any unused space in the "
+"frame buffer is then available to be used as a \"frame buffer stack\" "
+"that builds from the top of the frame buffer down. This memory "
+"architecture design is what allows a lot of our computer vision methods "
+"to execute without having to allocate large data structures inside of the"
+" MicroPython heap."
+msgstr ""
+"接下来，有一个更大的内存段用于帧缓冲区以存储图像。当调用 `sensor.snapshot()` "
+"等函数时，新图像将存储在帧缓冲区的底部。然后，帧缓冲区中的任何未使用空间都可以用作从帧缓冲区的顶部向下构建的“帧缓冲区堆栈”。这种内存架构设计是使我们的许多计算机视觉方法能够执行而无需在"
+" MicroPython 堆中分配大型数据结构的原因。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:53
+msgid ""
+"That said, the frame buffer stack is still a stack and doesn't support "
+"random allocations and deallocations. Luckily, most computer vision "
+"algorithms have very predictable memory allocations. For ones that don't "
+"(like AprilTags) we allocate a temporary heap inside of the frame buffer "
+"stack when we need it (again to avoid fragmenting the MicroPython heap)."
+msgstr ""
+"话虽如此，帧缓冲区堆栈仍然是一个堆栈，不支持随机分配和释放。幸运的是，大多数计算机视觉算法具有非常可预测的内存分配。对于那些不具有的（例如，AprilTags），我们在需要时在帧缓冲区堆栈内分配一个临时堆（同样是为了避免片段化"
+" MicroPython 堆）。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:59
+msgid ""
+"Finally, vision algorithms return their results (which are small usually)"
+" by allocating objects in the MicroPython heap. The results can then be "
+"garbage collected easily by MicroPython while the frame buffer stack is "
+"fully cleared after any computer vision algorithms finish executing."
+msgstr ""
+"最后，视觉算法通过在 MicroPython 堆中分配对象来返回它们的结果（通常很小）。然后，结果可以由 MicroPython "
+"轻松进行垃圾回收，而帧缓冲区堆栈在任何计算机视觉算法执行完毕后完全清除。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:64
+msgid ""
+"Now while this works great it means you can only have one big image in "
+"the frame buffer in RAM. As the MicroPython heap is optimized for small "
+"objects storing large 100KB images in it doesn't make sense. To enable "
+"more images to fit in RAM we allow the frame buffer stack to be used for "
+"secondary image storage using `sensor.alloc_extra_fb()`. By allocating a "
+"secondary frame buffer on the frame buffer stack you can now have two or "
+"more images in RAM at the cost of reducing memory space for more complex "
+"algorithms (like AprilTags)."
+msgstr ""
+"现在，虽然这很好用，但意味着您只能在 RAM 中有一个大图像。由于 MicroPython 堆经过优化以存储小对象，将大型 100KB "
+"图像存储在其中是没有意义的。为了使更多图像适合 RAM，我们允许使用帧缓冲区堆栈存储次要图像，使用 "
+"`sensor.alloc_extra_fb()`。通过在帧缓冲区堆栈上分配次要帧缓冲区，您现在可以在 RAM "
+"中拥有两个或更多图像，但代价是减少用于更复杂算法（如 AprilTags）的内存空间。"
+
+#: ../../openmvcam/tutorial/system_architecture.rst:72
+msgid ""
+"So, that's the memory architecture. And... we allow images to be stored "
+"in the frame buffer, heap, and the frame buffer stack. Yes, our code is "
+"rather complex to handle all of this and it would have been great to just"
+" throw everything in a large DRAM. But, now you know why this isn't the "
+"case."
+msgstr ""
+"因此，这就是内存架构。而且...我们允许图像存储在帧缓冲区、堆和帧缓冲区堆栈中。是的，我们的代码相当复杂，以处理所有这些，如果能把所有东西都放在一个大的"
+" DRAM 中会很好，但现在您知道为什么情况不是这样。"
+
