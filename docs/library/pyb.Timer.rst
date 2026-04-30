@@ -49,201 +49,218 @@ limitation.
 Constructors
 ------------
 
-.. class:: Timer(id, ...)
+.. class:: Timer(id: int, *args, **kwargs)
 
    Construct a new timer object of the given id.  If additional
    arguments are given, then the timer is initialised by ``init(...)``.
    ``id`` can be 1 to 14.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: Timer.init(*, freq, prescaler, period, mode=Timer.UP, div=1, callback=None, deadtime=0, brk=Timer.BRK_OFF, hard=True)
+   .. method:: init(*, freq: Optional[Union[int, float]] = None, prescaler: Optional[int] = None, period: Optional[int] = None, mode: int = Timer.UP, div: int = 1, callback: Optional[Callable[[Timer], None]] = None, deadtime: int = 0, brk: int = Timer.BRK_OFF, hard: bool = True) -> None
 
-   Initialise the timer.  Initialisation must be either by frequency (in Hz)
-   or by prescaler and period::
+      Initialise the timer.  Initialisation must be either by frequency (in Hz)
+      or by prescaler and period::
 
-       tim.init(freq=100)                  # set the timer to trigger at 100Hz
-       tim.init(prescaler=83, period=999)  # set the prescaler and period directly
+          tim.init(freq=100)                  # set the timer to trigger at 100Hz
+          tim.init(prescaler=83, period=999)  # set the prescaler and period directly
 
-   Keyword arguments:
+      Keyword arguments:
 
-     - ``freq`` --- specifies the periodic frequency of the timer. You might also
-       view this as the frequency with which the timer goes through one complete cycle.
+        - ``freq`` --- specifies the periodic frequency of the timer. You might also
+          view this as the frequency with which the timer goes through one complete cycle.
 
-     - ``prescaler`` [0-0xffff] - specifies the value to be loaded into the
-       timer's Prescaler Register (PSC). The timer clock source is divided by
-       (``prescaler + 1``) to arrive at the timer clock. Timers 2-7 and 12-14
-       have a clock source of 84 MHz (pyb.freq()[2] \* 2), and Timers 1, and 8-11
-       have a clock source of 168 MHz (pyb.freq()[3] \* 2).
+        - ``prescaler`` [0-0xffff] - specifies the value to be loaded into the
+          timer's Prescaler Register (PSC). The timer clock source is divided by
+          (``prescaler + 1``) to arrive at the timer clock. Timers 2-7 and 12-14
+          have a clock source of 84 MHz (pyb.freq()[2] \* 2), and Timers 1, and 8-11
+          have a clock source of 168 MHz (pyb.freq()[3] \* 2).
 
-     - ``period`` [0-0xffff] for timers 1, 3, 4, and 6-15. [0-0x3fffffff] for timers 2 & 5.
-       Specifies the value to be loaded into the timer's AutoReload
-       Register (ARR). This determines the period of the timer (i.e. when the
-       counter cycles). The timer counter will roll-over after ``period + 1``
-       timer clock cycles.
+        - ``period`` [0-0xffff] for timers 1, 3, 4, and 6-15. [0-0x3fffffff] for timers 2 & 5.
+          Specifies the value to be loaded into the timer's AutoReload
+          Register (ARR). This determines the period of the timer (i.e. when the
+          counter cycles). The timer counter will roll-over after ``period + 1``
+          timer clock cycles.
 
-     - ``mode`` can be one of:
+        - ``mode`` can be one of:
 
-       - ``Timer.UP`` - configures the timer to count from 0 to ARR (default)
-       - ``Timer.DOWN`` - configures the timer to count from ARR down to 0.
-       - ``Timer.CENTER`` - configures the timer to count from 0 to ARR and
-         then back down to 0.
+          - ``Timer.UP`` - configures the timer to count from 0 to ARR (default)
+          - ``Timer.DOWN`` - configures the timer to count from ARR down to 0.
+          - ``Timer.CENTER`` - configures the timer to count from 0 to ARR and
+            then back down to 0.
 
-     - ``div`` can be one of 1, 2, or 4. Divides the timer clock to determine
-       the sampling clock used by the digital filters.
+        - ``div`` can be one of 1, 2, or 4. Divides the timer clock to determine
+          the sampling clock used by the digital filters.
 
-     - ``callback`` - as per Timer.callback()
+        - ``callback`` - as per Timer.callback()
 
-     - ``deadtime`` - specifies the amount of "dead" or inactive time between
-       transitions on complimentary channels (both channels will be inactive)
-       for this time). ``deadtime`` may be an integer between 0 and 1008, with
-       the following restrictions: 0-128 in steps of 1. 128-256 in steps of
-       2, 256-512 in steps of 8, and 512-1008 in steps of 16. ``deadtime``
-       measures ticks of ``source_freq`` divided by ``div`` clock ticks.
-       ``deadtime`` is only available on timers 1 and 8.
+        - ``deadtime`` - specifies the amount of "dead" or inactive time between
+          transitions on complimentary channels (both channels will be inactive)
+          for this time). ``deadtime`` may be an integer between 0 and 1008, with
+          the following restrictions: 0-128 in steps of 1. 128-256 in steps of
+          2, 256-512 in steps of 8, and 512-1008 in steps of 16. ``deadtime``
+          measures ticks of ``source_freq`` divided by ``div`` clock ticks.
+          ``deadtime`` is only available on timers 1 and 8.
 
-     - ``brk`` - specifies if the break mode is used to kill the output of
-       the PWM when the ``BRK_IN`` input is asserted. The value of this
-       argument determines if break is enabled and what the polarity is, and
-       can be one of ``Timer.BRK_OFF``, ``Timer.BRK_LOW`` or
-       ``Timer.BRK_HIGH``. To select the ``BRK_IN`` pin construct a Pin object with
-       ``mode=Pin.ALT, alt=Pin.AFn_TIMx``. The pin's GPIO input features are
-       available in alt mode - ``pull=`` , ``value()`` and ``irq()``.
+        - ``brk`` - specifies if the break mode is used to kill the output of
+          the PWM when the ``BRK_IN`` input is asserted. The value of this
+          argument determines if break is enabled and what the polarity is, and
+          can be one of ``Timer.BRK_OFF``, ``Timer.BRK_LOW`` or
+          ``Timer.BRK_HIGH``. To select the ``BRK_IN`` pin construct a Pin object with
+          ``mode=Pin.ALT, alt=Pin.AFn_TIMx``. The pin's GPIO input features are
+          available in alt mode - ``pull=`` , ``value()`` and ``irq()``.
 
-     - ``hard`` can be one of:
+        - ``hard`` can be one of:
 
-       - ``True`` - The callback will be executed in hard interrupt
-         context, which minimises delay and jitter but is subject to the
-         limitations described in :ref:`isr_rules` including being unable
-         to allocate on the heap.
-       - ``False`` - The callback will be scheduled as a soft interrupt,
-         allowing it to allocate but possibly also introducing
-         garbage-collection delays and jitter.
+          - ``True`` - The callback will be executed in hard interrupt
+            context, which minimises delay and jitter but is subject to the
+            limitations described in :ref:`isr_rules` including being unable
+            to allocate on the heap.
+          - ``False`` - The callback will be scheduled as a soft interrupt,
+            allowing it to allocate but possibly also introducing
+            garbage-collection delays and jitter.
 
-       The default value of this option is True.
+          The default value of this option is True.
 
-    You must either specify freq or both of period and prescaler.
+       You must either specify freq or both of period and prescaler.
 
-.. method:: Timer.deinit()
+   .. method:: deinit() -> None
 
-   Deinitialises the timer.
+      Deinitialises the timer.
 
-   Disables the callback (and the associated irq).
+      Disables the callback (and the associated irq).
 
-   Disables any channel callbacks (and the associated irq).
-   Stops the timer, and disables the timer peripheral.
+      Disables any channel callbacks (and the associated irq).
+      Stops the timer, and disables the timer peripheral.
 
-.. method:: Timer.callback(fun)
+   .. method:: callback(fun: Optional[Callable[[Timer], None]]) -> None
 
-   Set the function to be called when the timer triggers.
-   ``fun`` is passed 1 argument, the timer object.
-   If ``fun`` is ``None`` then the callback will be disabled.
+      Set the function to be called when the timer triggers.
+      ``fun`` is passed 1 argument, the timer object.
+      If ``fun`` is ``None`` then the callback will be disabled.
 
-.. method:: Timer.channel(channel, mode, ...)
+   .. method:: channel(channel: int, mode: Optional[int] = None, *args, **kwargs) -> Optional[TimerChannel]
 
-   If only a channel number is passed, then a previously initialized channel
-   object is returned (or ``None`` if there is no previous channel).
+      If only a channel number is passed, then a previously initialized channel
+      object is returned (or ``None`` if there is no previous channel).
 
-   Otherwise, a TimerChannel object is initialized and returned.
+      Otherwise, a TimerChannel object is initialized and returned.
 
-   Each channel can be configured to perform pwm, output compare, or
-   input capture. All channels share the same underlying timer, which means
-   that they share the same timer clock.
+      Each channel can be configured to perform pwm, output compare, or
+      input capture. All channels share the same underlying timer, which means
+      that they share the same timer clock.
 
-   Keyword arguments:
+      Keyword arguments:
 
-     - ``mode`` can be one of:
+        - ``mode`` can be one of:
 
-       - ``Timer.PWM`` --- configure the timer in PWM mode (active high).
-       - ``Timer.PWM_INVERTED`` --- configure the timer in PWM mode (active low).
-       - ``Timer.OC_TIMING`` --- indicates that no pin is driven.
-       - ``Timer.OC_ACTIVE`` --- the pin will be made active when a compare match occurs (active is determined by polarity)
-       - ``Timer.OC_INACTIVE`` --- the pin will be made inactive when a compare match occurs.
-       - ``Timer.OC_TOGGLE`` --- the pin will be toggled when an compare match occurs.
-       - ``Timer.OC_FORCED_ACTIVE`` --- the pin is forced active (compare match is ignored).
-       - ``Timer.OC_FORCED_INACTIVE`` --- the pin is forced inactive (compare match is ignored).
-       - ``Timer.IC`` --- configure the timer in Input Capture mode.
-       - ``Timer.ENC_A`` --- configure the timer in Encoder mode. The counter only changes when CH1 changes.
-       - ``Timer.ENC_B`` --- configure the timer in Encoder mode. The counter only changes when CH2 changes.
-       - ``Timer.ENC_AB`` --- configure the timer in Encoder mode. The counter changes when CH1 or CH2 changes.
+          - ``Timer.PWM`` --- configure the timer in PWM mode (active high).
+          - ``Timer.PWM_INVERTED`` --- configure the timer in PWM mode (active low).
+          - ``Timer.OC_TIMING`` --- indicates that no pin is driven.
+          - ``Timer.OC_ACTIVE`` --- the pin will be made active when a compare match occurs (active is determined by polarity)
+          - ``Timer.OC_INACTIVE`` --- the pin will be made inactive when a compare match occurs.
+          - ``Timer.OC_TOGGLE`` --- the pin will be toggled when an compare match occurs.
+          - ``Timer.OC_FORCED_ACTIVE`` --- the pin is forced active (compare match is ignored).
+          - ``Timer.OC_FORCED_INACTIVE`` --- the pin is forced inactive (compare match is ignored).
+          - ``Timer.IC`` --- configure the timer in Input Capture mode.
+          - ``Timer.ENC_A`` --- configure the timer in Encoder mode. The counter only changes when CH1 changes.
+          - ``Timer.ENC_B`` --- configure the timer in Encoder mode. The counter only changes when CH2 changes.
+          - ``Timer.ENC_AB`` --- configure the timer in Encoder mode. The counter changes when CH1 or CH2 changes.
 
-     - ``callback`` - as per TimerChannel.callback()
+        - ``callback`` - as per TimerChannel.callback()
 
-     - ``pin`` None (the default) or a Pin object. If specified (and not None)
-       this will cause the alternate function of the indicated pin
-       to be configured for this timer channel. An error will be raised if
-       the pin doesn't support any alternate functions for this timer channel.
+        - ``pin`` None (the default) or a Pin object. If specified (and not None)
+          this will cause the alternate function of the indicated pin
+          to be configured for this timer channel. An error will be raised if
+          the pin doesn't support any alternate functions for this timer channel.
 
-   Keyword arguments for Timer.PWM modes:
+      Keyword arguments for Timer.PWM modes:
 
-     - ``pulse_width`` - determines the initial pulse width value to use.
-     - ``pulse_width_percent`` - determines the initial pulse width percentage to use.
+        - ``pulse_width`` - determines the initial pulse width value to use.
+        - ``pulse_width_percent`` - determines the initial pulse width percentage to use.
 
-   Keyword arguments for Timer.OC modes:
+      Keyword arguments for Timer.OC modes:
 
-     - ``compare`` - determines the initial value of the compare register.
+        - ``compare`` - determines the initial value of the compare register.
 
-     - ``polarity`` can be one of:
+        - ``polarity`` can be one of:
 
-       - ``Timer.HIGH`` - output is active high
-       - ``Timer.LOW`` - output is active low
+          - ``Timer.HIGH`` - output is active high
+          - ``Timer.LOW`` - output is active low
 
-   Optional keyword arguments for Timer.IC modes:
+      Optional keyword arguments for Timer.IC modes:
 
-     - ``polarity`` can be one of:
+        - ``polarity`` can be one of:
 
-       - ``Timer.RISING`` - captures on rising edge.
-       - ``Timer.FALLING`` - captures on falling edge.
-       - ``Timer.BOTH`` - captures on both edges.
+          - ``Timer.RISING`` - captures on rising edge.
+          - ``Timer.FALLING`` - captures on falling edge.
+          - ``Timer.BOTH`` - captures on both edges.
 
-     Note that capture only works on the primary channel, and not on the
-     complimentary channels.
+        Note that capture only works on the primary channel, and not on the
+        complimentary channels.
 
-   Notes for Timer.ENC modes:
+      Notes for Timer.ENC modes:
 
-     - Requires 2 pins, so one or both pins will need to be configured to use
-       the appropriate timer AF using the Pin API.
-     - Read the encoder value using the timer.counter() method.
-     - Only works on CH1 and CH2 (and not on CH1N or CH2N)
-     - The channel number is ignored when setting the encoder mode.
+        - Requires 2 pins, so one or both pins will need to be configured to use
+          the appropriate timer AF using the Pin API.
+        - Read the encoder value using the timer.counter() method.
+        - Only works on CH1 and CH2 (and not on CH1N or CH2N)
+        - The channel number is ignored when setting the encoder mode.
 
-   PWM Example::
+      PWM Example::
 
-       timer = pyb.Timer(2, freq=1000)
-       ch2 = timer.channel(2, pyb.Timer.PWM, pin=pyb.Pin.board.X2, pulse_width=8000)
-       ch3 = timer.channel(3, pyb.Timer.PWM, pin=pyb.Pin.board.X3, pulse_width=16000)
+          timer = pyb.Timer(2, freq=1000)
+          ch2 = timer.channel(2, pyb.Timer.PWM, pin=pyb.Pin.board.X2, pulse_width=8000)
+          ch3 = timer.channel(3, pyb.Timer.PWM, pin=pyb.Pin.board.X3, pulse_width=16000)
 
-   PWM Motor Example with complementary outputs, dead time, break input and break callback::
+      PWM Motor Example with complementary outputs, dead time, break input and break callback::
 
-       from pyb import Timer
-       from machine import Pin # machine.Pin supports alt mode and irq on the same pin.
-       pin_t8_1 = Pin(Pin.board.Y1, mode=Pin.ALT, af=Pin.AF3_TIM8)   # Pin PC6, TIM8_CH1
-       pin_t8_1n = Pin(Pin.board.X8, mode=Pin.ALT, af=Pin.AF3_TIM8)  # Pin PA7, TIM8_CH1N
-       pin_bkin = Pin(Pin.board.X7, mode=Pin.ALT, af=Pin.AF3_TIM8)   # Pin PA6, TIM8_BKIN
-       pin_bkin.irq(handler=break_callabck, trigger=Pin.IRQ_FALLING)
-       timer = pyb.Timer(8, freq=1000, deadtime=1008, brk=Timer.BRK_LOW)
-       ch1 = timer.channel(1, pyb.Timer.PWM, pulse_width_percent=30)
+          from pyb import Timer
+          from machine import Pin # machine.Pin supports alt mode and irq on the same pin.
+          pin_t8_1 = Pin(Pin.board.Y1, mode=Pin.ALT, af=Pin.AF3_TIM8)   # Pin PC6, TIM8_CH1
+          pin_t8_1n = Pin(Pin.board.X8, mode=Pin.ALT, af=Pin.AF3_TIM8)  # Pin PA7, TIM8_CH1N
+          pin_bkin = Pin(Pin.board.X7, mode=Pin.ALT, af=Pin.AF3_TIM8)   # Pin PA6, TIM8_BKIN
+          pin_bkin.irq(handler=break_callabck, trigger=Pin.IRQ_FALLING)
+          timer = pyb.Timer(8, freq=1000, deadtime=1008, brk=Timer.BRK_LOW)
+          ch1 = timer.channel(1, pyb.Timer.PWM, pulse_width_percent=30)
 
-.. method:: Timer.counter([value])
+   .. method:: counter(value: Optional[int] = None) -> Optional[int]
 
-   Get or set the timer counter.
+      Get or set the timer counter.
 
-.. method:: Timer.freq([value])
+   .. method:: freq(value: Optional[Union[int, float]] = None) -> Optional[Union[int, float]]
 
-   Get or set the frequency for the timer (changes prescaler and period if set).
+      Get or set the frequency for the timer (changes prescaler and period if set).
 
-.. method:: Timer.period([value])
+   .. method:: period(value: Optional[int] = None) -> Optional[int]
 
-   Get or set the period of the timer.
+      Get or set the period of the timer.
 
-.. method:: Timer.prescaler([value])
+   .. method:: prescaler(value: Optional[int] = None) -> Optional[int]
 
-   Get or set the prescaler for the timer.
+      Get or set the prescaler for the timer.
 
-.. method:: Timer.source_freq()
+   .. method:: source_freq() -> int
 
-   Get the frequency of the source of the timer.
+      Get the frequency of the source of the timer.
+
+   Constants
+   ---------
+
+   .. data:: UP
+             DOWN
+             CENTER
+      :type: int
+
+      Configures the timer to count Up, Down, or from 0 to ARR and then back down to 0.
+
+   .. data:: BRK_OFF
+             BRK_LOW
+             BRK_HIGH
+      :type: int
+
+      Configures the break mode when passed to the ``brk`` keyword argument.
 
 class TimerChannel --- setup a channel for a timer
 ==================================================
@@ -255,52 +272,41 @@ TimerChannel objects are created using the Timer.channel() method.
 Methods
 -------
 
-.. method:: timerchannel.callback(fun)
+.. class:: timerchannel
 
-   Set the function to be called when the timer channel triggers.
-   ``fun`` is passed 1 argument, the timer object.
-   If ``fun`` is ``None`` then the callback will be disabled.
+   Timer channel object returned by :meth:`Timer.channel`.
 
-.. method:: timerchannel.capture([value])
+   .. method:: callback(fun: Optional[Callable[[Timer], None]]) -> None
 
-   Get or set the capture value associated with a channel.
-   capture, compare, and pulse_width are all aliases for the same function.
-   capture is the logical name to use when the channel is in input capture mode.
+      Set the function to be called when the timer channel triggers.
+      ``fun`` is passed 1 argument, the timer object.
+      If ``fun`` is ``None`` then the callback will be disabled.
 
-.. method:: timerchannel.compare([value])
+   .. method:: capture(value: Optional[int] = None) -> Optional[int]
 
-   Get or set the compare value associated with a channel.
-   capture, compare, and pulse_width are all aliases for the same function.
-   compare is the logical name to use when the channel is in output compare mode.
+      Get or set the capture value associated with a channel.
+      capture, compare, and pulse_width are all aliases for the same function.
+      capture is the logical name to use when the channel is in input capture mode.
 
-.. method:: timerchannel.pulse_width([value])
+   .. method:: compare(value: Optional[int] = None) -> Optional[int]
 
-   Get or set the pulse width value associated with a channel.
-   capture, compare, and pulse_width are all aliases for the same function.
-   pulse_width is the logical name to use when the channel is in PWM mode.
+      Get or set the compare value associated with a channel.
+      capture, compare, and pulse_width are all aliases for the same function.
+      compare is the logical name to use when the channel is in output compare mode.
 
-   In edge aligned mode, a pulse_width of ``period + 1`` corresponds to a duty cycle of 100%
-   In center aligned mode, a pulse width of ``period`` corresponds to a duty cycle of 100%
+   .. method:: pulse_width(value: Optional[int] = None) -> Optional[int]
 
-.. method:: timerchannel.pulse_width_percent([value])
+      Get or set the pulse width value associated with a channel.
+      capture, compare, and pulse_width are all aliases for the same function.
+      pulse_width is the logical name to use when the channel is in PWM mode.
 
-   Get or set the pulse width percentage associated with a channel.  The value
-   is a number between 0 and 100 and sets the percentage of the timer period
-   for which the pulse is active.  The value can be an integer or
-   floating-point number for more accuracy.  For example, a value of 25 gives
-   a duty cycle of 25%.
+      In edge aligned mode, a pulse_width of ``period + 1`` corresponds to a duty cycle of 100%
+      In center aligned mode, a pulse width of ``period`` corresponds to a duty cycle of 100%
 
-Constants
----------
+   .. method:: pulse_width_percent(value: Optional[Union[int, float]] = None) -> Optional[Union[int, float]]
 
-.. data:: Timer.UP
-          Timer.DOWN
-          Timer.CENTER
-
-   Configures the timer to count Up, Down, or from 0 to ARR and then back down to 0.
-
-.. data:: Timer.BRK_OFF
-          Timer.BRK_LOW
-          Timer.BRK_HIGH
-
-   Configures the break mode when passed to the ``brk`` keyword argument.
+      Get or set the pulse width percentage associated with a channel.  The value
+      is a number between 0 and 100 and sets the percentage of the timer period
+      for which the pulse is active.  The value can be an integer or
+      floating-point number for more accuracy.  For example, a value of 25 gives
+      a duty cycle of 25%.

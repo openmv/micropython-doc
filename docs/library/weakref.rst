@@ -4,8 +4,6 @@
 .. module:: weakref
    :synopsis: Create weak references to Python objects
 
-|see_cpython_module| :mod:`python:weakref`.
-
 This module allows creation of weak references to Python objects.  A weak reference
 is a non-traceable reference to a heap-allocated Python object, so the garbage
 collector can still reclaim the object even though the weak reference refers to it.
@@ -23,7 +21,7 @@ ref objects
 
 A ref object is the simplest way to make a weak reference.
 
-.. class:: ref(object [, callback], /)
+.. class:: ref(object: Any, callback: Optional[Callable] = None, /)
 
    Return a weak reference to the given *object*.
 
@@ -32,7 +30,7 @@ A ref object is the simplest way to make a weak reference.
    *callback* will be called.  The *callback* will be passed the weak reference
    object as its single argument.
 
-.. method:: ref.__call__()
+.. method:: ref.__call__() -> Any
 
    Calling the weak reference object will return its referenced object if that
    object is still alive.  Otherwise ``None`` will be returned.
@@ -43,7 +41,7 @@ finalize objects
 A finalize object is an extended version of a ref object that is more convenient to
 use, and allows more control over the callback.
 
-.. class:: finalize(object, callback, /, *args, **kwargs)
+.. class:: finalize(object: Any, callback: Callable, /, *args, **kwargs)
 
    Return a weak reference to the given *object*.  In contrast to *weakref.ref*
    objects, finalize objects are held onto internally and will not be collected until
@@ -58,7 +56,7 @@ use, and allows more control over the callback.
    the *callback* will be called.  The *callback* will be passed arguments as:
    ``callback(*args, **kwargs)``.
 
-.. method:: finalize.__call__()
+.. method:: finalize.__call__() -> Any
 
    If the finalize object is alive then it transitions to the dead state and returns
    the value of ``callback(*args, **kwargs)``.  Otherwise ``None`` will be returned.
@@ -67,12 +65,12 @@ use, and allows more control over the callback.
 
    Read-only boolean attribute that indicates if the finalizer is in the alive state.
 
-.. method:: finalize.peek()
+.. method:: finalize.peek() -> Optional[Tuple]
 
    If the finalize object is alive then return ``(object, callback, args, kwargs)``.
    Otherwise return ``None``.
 
-.. method:: finalize.detach()
+.. method:: finalize.detach() -> Optional[Tuple]
 
    If the finalize object is alive then it transitions to the dead state and returns
    ``(object, callback, args, kwargs)``. Otherwise ``None`` will be returned.

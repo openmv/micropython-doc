@@ -37,7 +37,7 @@ For example::
 Constructors
 ------------
 
-.. class:: LCD160CR(connect=None, *, pwr=None, i2c=None, spi=None, i2c_addr=98)
+.. class:: LCD160CR(connect: str | None = None, *, pwr: Pin | None = None, i2c: I2C | None = None, spi: SPI | None = None, i2c_addr: int = 98)
 
     Construct an LCD160CR object.  The parameters are:
 
@@ -72,309 +72,276 @@ Constructors
     See `this image <http://micropython.org/resources/LCD160CRv10-positions.jpg>`_
     for how the display can be connected to the pyboard.
 
-Static methods
---------------
+   .. staticmethod:: rgb(r: int, g: int, b: int) -> int
 
-.. staticmethod:: LCD160CR.rgb(r, g, b)
+      Return a 16-bit integer representing the given rgb color values.  The
+      16-bit value can be used to set the font color (see
+      :meth:`LCD160CR.set_text_color`) pen color (see :meth:`LCD160CR.set_pen`)
+      and draw individual pixels.
 
-    Return a 16-bit integer representing the given rgb color values.  The
-    16-bit value can be used to set the font color (see
-    :meth:`LCD160CR.set_text_color`) pen color (see :meth:`LCD160CR.set_pen`)
-    and draw individual pixels.
+   .. staticmethod:: clip_line(data: bytes | bytearray, w: int, h: int) -> bool
 
-.. staticmethod:: LCD160CR.clip_line(data, w, h):
+      Clip the given line data.  This is for internal use.
 
-    Clip the given line data.  This is for internal use.
+   .. data:: w
+             h
+      :type: int
 
-Instance members
-----------------
+      The width and height of the display, respectively, in pixels.  These
+      members are updated when calling :meth:`LCD160CR.set_orient` and should
+      be considered read-only.
 
-The following instance members are publicly accessible.
+   .. method:: set_power(on: bool | int) -> None
 
-.. data:: LCD160CR.w
-.. data:: LCD160CR.h
+      Turn the display on or off, depending on the given value of *on*: 0 or ``False``
+      will turn the display off, and 1 or ``True`` will turn it on.
 
-    The width and height of the display, respectively, in pixels.  These
-    members are updated when calling :meth:`LCD160CR.set_orient` and should
-    be considered read-only.
+   .. method:: set_orient(orient: int) -> None
 
-Setup commands
---------------
+      Set the orientation of the display.  The *orient* parameter can be one
+      of `PORTRAIT`, `LANDSCAPE`, `PORTRAIT_UPSIDEDOWN`, `LANDSCAPE_UPSIDEDOWN`.
 
-.. method:: LCD160CR.set_power(on)
+   .. method:: set_brightness(value: int) -> None
 
-    Turn the display on or off, depending on the given value of *on*: 0 or ``False``
-    will turn the display off, and 1 or ``True`` will turn it on.
+      Set the brightness of the display, between 0 and 31.
 
-.. method:: LCD160CR.set_orient(orient)
+   .. method:: set_i2c_addr(addr: int) -> None
 
-    Set the orientation of the display.  The *orient* parameter can be one
-    of `PORTRAIT`, `LANDSCAPE`, `PORTRAIT_UPSIDEDOWN`, `LANDSCAPE_UPSIDEDOWN`.
+      Set the I2C address of the display.  The *addr* value must have the
+      lower 2 bits cleared.
 
-.. method:: LCD160CR.set_brightness(value)
+   .. method:: set_uart_baudrate(baudrate: int) -> None
 
-    Set the brightness of the display, between 0 and 31.
+      Set the baudrate of the UART interface.
 
-.. method:: LCD160CR.set_i2c_addr(addr)
+   .. method:: set_startup_deco(value: int) -> None
 
-    Set the I2C address of the display.  The *addr* value must have the
-    lower 2 bits cleared.
+      Set the start-up decoration of the display.  The *value* parameter can be a
+      logical or of `STARTUP_DECO_NONE`, `STARTUP_DECO_MLOGO`, `STARTUP_DECO_INFO`.
 
-.. method:: LCD160CR.set_uart_baudrate(baudrate)
+   .. method:: save_to_flash() -> None
 
-    Set the baudrate of the UART interface.
+      Save the following parameters to flash so they persist on restart and power up:
+      initial decoration, orientation, brightness, UART baud rate, I2C address.
 
-.. method:: LCD160CR.set_startup_deco(value)
+   .. method:: set_pixel(x: int, y: int, c: int) -> None
 
-    Set the start-up decoration of the display.  The *value* parameter can be a
-    logical or of `STARTUP_DECO_NONE`, `STARTUP_DECO_MLOGO`, `STARTUP_DECO_INFO`.
+      Set the specified pixel to the given color.  The color should be a 16-bit
+      integer and can be created by :meth:`LCD160CR.rgb`.
 
-.. method:: LCD160CR.save_to_flash()
+   .. method:: get_pixel(x: int, y: int) -> int
 
-    Save the following parameters to flash so they persist on restart and power up:
-    initial decoration, orientation, brightness, UART baud rate, I2C address.
+      Get the 16-bit value of the specified pixel.
 
-Pixel access methods
---------------------
+   .. method:: get_line(x: int, y: int, buf: bytearray | memoryview) -> None
 
-The following methods manipulate individual pixels on the display.
+      Low-level method to get a line of pixels into the given buffer.
+      To read *n* pixels *buf* should be *2*n+1* bytes in length.  The first byte
+      is a dummy byte and should be ignored, and subsequent bytes represent the
+      pixels in the line starting at coordinate *(x, y)*.
 
-.. method:: LCD160CR.set_pixel(x, y, c)
+   .. method:: screen_dump(buf: bytearray | memoryview, x: int = 0, y: int = 0, w: int | None = None, h: int | None = None) -> None
 
-    Set the specified pixel to the given color.  The color should be a 16-bit
-    integer and can be created by :meth:`LCD160CR.rgb`.
+      Dump the contents of the screen to the given buffer.  The parameters *x* and *y*
+      specify the starting coordinate, and *w* and *h* the size of the region.  If *w*
+      or *h* are ``None`` then they will take on their maximum values, set by the size
+      of the screen minus the given *x* and *y* values.  *buf* should be large enough
+      to hold ``2*w*h`` bytes.  If it's smaller then only the initial horizontal lines
+      will be stored.
 
-.. method:: LCD160CR.get_pixel(x, y)
+   .. method:: screen_load(buf: bytes | bytearray | memoryview) -> None
 
-    Get the 16-bit value of the specified pixel.
+      Load the entire screen from the given buffer.
 
-.. method:: LCD160CR.get_line(x, y, buf)
+   .. method:: set_pos(x: int, y: int) -> None
 
-    Low-level method to get a line of pixels into the given buffer.
-    To read *n* pixels *buf* should be *2*n+1* bytes in length.  The first byte
-    is a dummy byte and should be ignored, and subsequent bytes represent the
-    pixels in the line starting at coordinate *(x, y)*.
+      Set the position for text output using :meth:`LCD160CR.write`.  The position
+      is the upper-left corner of the text.
 
-.. method:: LCD160CR.screen_dump(buf, x=0, y=0, w=None, h=None)
+   .. method:: set_text_color(fg: int, bg: int) -> None
 
-    Dump the contents of the screen to the given buffer.  The parameters *x* and *y*
-    specify the starting coordinate, and *w* and *h* the size of the region.  If *w*
-    or *h* are ``None`` then they will take on their maximum values, set by the size
-    of the screen minus the given *x* and *y* values.  *buf* should be large enough
-    to hold ``2*w*h`` bytes.  If it's smaller then only the initial horizontal lines
-    will be stored.
+      Set the foreground and background color of the text.
 
-.. method:: LCD160CR.screen_load(buf)
+   .. method:: set_font(font: int, scale: int = 0, bold: int = 0, trans: int = 0, scroll: int = 0) -> None
 
-    Load the entire screen from the given buffer.
+      Set the font for the text.  Subsequent calls to `write` will use the newly
+      configured font.  The parameters are:
 
-Drawing text
-------------
+          - *font* is the font family to use, valid values are 0, 1, 2, 3.
+          - *scale* is a scaling value for each character pixel, where the pixels
+            are drawn as a square with side length equal to *scale + 1*.  The value
+            can be between 0 and 63.
+          - *bold* controls the number of pixels to overdraw each character pixel,
+            making a bold effect.  The lower 2 bits of *bold* are the number of
+            pixels to overdraw in the horizontal direction, and the next 2 bits are
+            for the vertical direction.  For example, a *bold* value of 5 will
+            overdraw 1 pixel in both the horizontal and vertical directions.
+          - *trans* can be either 0 or 1 and if set to 1 the characters will be
+            drawn with a transparent background.
+          - *scroll* can be either 0 or 1 and if set to 1 the display will do a
+            soft scroll if the text moves to the next line.
 
-To draw text one sets the position, color and font, and then uses
-`LCD160CR.write` to draw the text.
+   .. method:: write(s: str) -> None
 
-.. method:: LCD160CR.set_pos(x, y)
+      Write text to the display, using the current position, color and font.
+      As text is written the position is automatically incremented.  The
+      display supports basic VT100 control codes such as newline and backspace.
 
-    Set the position for text output using :meth:`LCD160CR.write`.  The position
-    is the upper-left corner of the text.
+   .. method:: set_pen(line: int, fill: int) -> None
 
-.. method:: LCD160CR.set_text_color(fg, bg)
+      Set the line and fill color for primitive shapes.
 
-    Set the foreground and background color of the text.
+   .. method:: erase() -> None
 
-.. method:: LCD160CR.set_font(font, scale=0, bold=0, trans=0, scroll=0)
+      Erase the entire display to the pen fill color.
 
-    Set the font for the text.  Subsequent calls to `write` will use the newly
-    configured font.  The parameters are:
+   .. method:: dot(x: int, y: int) -> None
 
-        - *font* is the font family to use, valid values are 0, 1, 2, 3.
-        - *scale* is a scaling value for each character pixel, where the pixels
-          are drawn as a square with side length equal to *scale + 1*.  The value
-          can be between 0 and 63.
-        - *bold* controls the number of pixels to overdraw each character pixel,
-          making a bold effect.  The lower 2 bits of *bold* are the number of
-          pixels to overdraw in the horizontal direction, and the next 2 bits are
-          for the vertical direction.  For example, a *bold* value of 5 will
-          overdraw 1 pixel in both the horizontal and vertical directions.
-        - *trans* can be either 0 or 1 and if set to 1 the characters will be
-          drawn with a transparent background.
-        - *scroll* can be either 0 or 1 and if set to 1 the display will do a
-          soft scroll if the text moves to the next line.
+      Draw a single pixel at the given location using the pen line color.
 
-.. method:: LCD160CR.write(s)
+   .. method:: rect(x: int, y: int, w: int, h: int) -> None
+               rect_outline(x: int, y: int, w: int, h: int) -> None
+               rect_interior(x: int, y: int, w: int, h: int) -> None
 
-    Write text to the display, using the current position, color and font.
-    As text is written the position is automatically incremented.  The
-    display supports basic VT100 control codes such as newline and backspace.
+      Draw a rectangle at the given location and size using the pen line
+      color for the outline, and the pen fill color for the interior.
+      The `rect` method draws the outline and interior, while the other methods
+      just draw one or the other.
 
-Drawing primitive shapes
-------------------------
+   .. method:: line(x1: int, y1: int, x2: int, y2: int) -> None
 
-Primitive drawing commands use a foreground and background color set by the
-`set_pen` method.
+      Draw a line between the given coordinates using the pen line color.
 
-.. method:: LCD160CR.set_pen(line, fill)
+   .. method:: dot_no_clip(x: int, y: int) -> None
+               rect_no_clip(x: int, y: int, w: int, h: int) -> None
+               rect_outline_no_clip(x: int, y: int, w: int, h: int) -> None
+               rect_interior_no_clip(x: int, y: int, w: int, h: int) -> None
+               line_no_clip(x1: int, y1: int, x2: int, y2: int) -> None
 
-    Set the line and fill color for primitive shapes.
+      These methods are as above but don't do any clipping on the input
+      coordinates.  They are faster than the clipping versions and can be
+      used when you know that the coordinates are within the display.
 
-.. method:: LCD160CR.erase()
+   .. method:: poly_dot(data: bytes | bytearray) -> None
 
-    Erase the entire display to the pen fill color.
+      Draw a sequence of dots using the pen line color.
+      The *data* should be a buffer of bytes, with each successive pair of
+      bytes corresponding to coordinate pairs (x, y).
 
-.. method:: LCD160CR.dot(x, y)
+   .. method:: poly_line(data: bytes | bytearray) -> None
 
-    Draw a single pixel at the given location using the pen line color.
+      Similar to :meth:`LCD160CR.poly_dot` but draws lines between the dots.
 
-.. method:: LCD160CR.rect(x, y, w, h)
-.. method:: LCD160CR.rect_outline(x, y, w, h)
-.. method:: LCD160CR.rect_interior(x, y, w, h)
+   .. method:: touch_config(calib: bool = False, save: bool = False, irq: bool | None = None) -> None
 
-    Draw a rectangle at the given location and size using the pen line
-    color for the outline, and the pen fill color for the interior.
-    The `rect` method draws the outline and interior, while the other methods
-    just draw one or the other.
+      Configure the touch panel:
 
-.. method:: LCD160CR.line(x1, y1, x2, y2)
+          - If *calib* is ``True`` then the call will trigger a touch calibration of
+            the resistive touch sensor.  This requires the user to touch various
+            parts of the screen.
+          - If *save* is ``True`` then the touch parameters will be saved to NVRAM
+            to persist across reset/power up.
+          - If *irq* is ``True`` then the display will be configured to pull the IRQ
+            line low when a touch force is detected.  If *irq* is ``False`` then this
+            feature is disabled.  If *irq* is ``None`` (the default value) then no
+            change is made to this setting.
 
-    Draw a line between the given coordinates using the pen line color.
+   .. method:: is_touched() -> bool
 
-.. method:: LCD160CR.dot_no_clip(x, y)
-.. method:: LCD160CR.rect_no_clip(x, y, w, h)
-.. method:: LCD160CR.rect_outline_no_clip(x, y, w, h)
-.. method:: LCD160CR.rect_interior_no_clip(x, y, w, h)
-.. method:: LCD160CR.line_no_clip(x1, y1, x2, y2)
+      Returns a boolean: ``True`` if there is currently a touch force on the screen,
+      ``False`` otherwise.
 
-    These methods are as above but don't do any clipping on the input
-    coordinates.  They are faster than the clipping versions and can be
-    used when you know that the coordinates are within the display.
+   .. method:: get_touch() -> tuple[int, int, int]
 
-.. method:: LCD160CR.poly_dot(data)
+      Returns a 3-tuple of: *(active, x, y)*.  If there is currently a touch force
+      on the screen then *active* is 1, otherwise it is 0.  The *x* and *y* values
+      indicate the position of the current or most recent touch.
 
-    Draw a sequence of dots using the pen line color.
-    The *data* should be a buffer of bytes, with each successive pair of
-    bytes corresponding to coordinate pairs (x, y).
+   .. method:: set_spi_win(x: int, y: int, w: int, h: int) -> None
 
-.. method:: LCD160CR.poly_line(data)
+      Set the window that SPI data is written to.
 
-    Similar to :meth:`LCD160CR.poly_dot` but draws lines between the dots.
+   .. method:: fast_spi(flush: bool = True) -> SPI
 
-Touch screen methods
---------------------
+      Ready the display to accept RGB pixel data on the SPI bus, resetting the location
+      of the first byte to go to the top-left corner of the window set by
+      :meth:`LCD160CR.set_spi_win`.
+      The method returns an SPI object which can be used to write the pixel data.
 
-.. method:: LCD160CR.touch_config(calib=False, save=False, irq=None)
+      Pixels should be sent as 16-bit RGB values in the 5-6-5 format.  The destination
+      counter will increase as data is sent, and data can be sent in arbitrary sized
+      chunks.  Once the destination counter reaches the end of the window specified by
+      :meth:`LCD160CR.set_spi_win` it will wrap around to the top-left corner of that window.
 
-    Configure the touch panel:
+   .. method:: show_framebuf(buf: bytes | bytearray | memoryview) -> None
 
-        - If *calib* is ``True`` then the call will trigger a touch calibration of
-          the resistive touch sensor.  This requires the user to touch various
-          parts of the screen.
-        - If *save* is ``True`` then the touch parameters will be saved to NVRAM
-          to persist across reset/power up.
-        - If *irq* is ``True`` then the display will be configured to pull the IRQ
-          line low when a touch force is detected.  If *irq* is ``False`` then this
-          feature is disabled.  If *irq* is ``None`` (the default value) then no
-          change is made to this setting.
+      Show the given buffer on the display.  *buf* should be an array of bytes containing
+      the 16-bit RGB values for the pixels, and they will be written to the area
+      specified by :meth:`LCD160CR.set_spi_win`, starting from the top-left corner.
 
-.. method:: LCD160CR.is_touched()
+      The `framebuf <framebuf.html>`_ module can be used to construct frame buffers
+      and provides drawing primitives. Using a frame buffer will improve
+      performance of animations when compared to drawing directly to the screen.
 
-    Returns a boolean: ``True`` if there is currently a touch force on the screen,
-    ``False`` otherwise.
+   .. method:: set_scroll(on: bool | int) -> None
 
-.. method:: LCD160CR.get_touch()
+      Turn scrolling on or off.  This controls globally whether any window regions will
+      scroll.
 
-    Returns a 3-tuple of: *(active, x, y)*.  If there is currently a touch force
-    on the screen then *active* is 1, otherwise it is 0.  The *x* and *y* values
-    indicate the position of the current or most recent touch.
+   .. method:: set_scroll_win(win: int, x: int = -1, y: int = 0, w: int = 0, h: int = 0, vec: int = 0, pat: int = 0, fill: int = 0x07e0, color: int = 0) -> None
 
-Advanced commands
------------------
+      Configure a window region for scrolling:
 
-.. method:: LCD160CR.set_spi_win(x, y, w, h)
+          - *win* is the window id to configure.  There are 0..7 standard windows for
+            general purpose use.  Window 8 is the text scroll window (the ticker).
+          - *x*, *y*, *w*, *h* specify the location of the window in the display.
+          - *vec* specifies the direction and speed of scroll: it is a 16-bit value
+            of the form ``0bF.ddSSSSSSSSSSSS``.  *dd* is 0, 1, 2, 3 for +x, +y, -x,
+            -y scrolling. *F* sets the speed format, with 0 meaning that the window
+            is shifted *S % 256* pixel every frame, and 1 meaning that the window
+            is shifted 1 pixel every *S* frames.
+          - *pat* is a 16-bit pattern mask for the background.
+          - *fill* is the fill color.
+          - *color* is the extra color, either of the text or pattern foreground.
 
-    Set the window that SPI data is written to.
+   .. method:: set_scroll_win_param(win: int, param: int, value: int) -> None
 
-.. method:: LCD160CR.fast_spi(flush=True)
+      Set a single parameter of a scrolling window region:
 
-    Ready the display to accept RGB pixel data on the SPI bus, resetting the location
-    of the first byte to go to the top-left corner of the window set by
-    :meth:`LCD160CR.set_spi_win`.
-    The method returns an SPI object which can be used to write the pixel data.
+          - *win* is the window id, 0..8.
+          - *param* is the parameter number to configure, 0..7, and corresponds
+            to the parameters in the `set_scroll_win` method.
+          - *value* is the value to set.
 
-    Pixels should be sent as 16-bit RGB values in the 5-6-5 format.  The destination
-    counter will increase as data is sent, and data can be sent in arbitrary sized
-    chunks.  Once the destination counter reaches the end of the window specified by
-    :meth:`LCD160CR.set_spi_win` it will wrap around to the top-left corner of that window.
+   .. method:: set_scroll_buf(s: str) -> None
 
-.. method:: LCD160CR.show_framebuf(buf)
+      Set the string for scrolling in window 8.  The parameter *s* must be a string
+      with length 32 or less.
 
-    Show the given buffer on the display.  *buf* should be an array of bytes containing
-    the 16-bit RGB values for the pixels, and they will be written to the area
-    specified by :meth:`LCD160CR.set_spi_win`, starting from the top-left corner.
+   .. method:: jpeg(buf: bytes | bytearray | memoryview) -> None
 
-    The `framebuf <framebuf.html>`_ module can be used to construct frame buffers
-    and provides drawing primitives. Using a frame buffer will improve
-    performance of animations when compared to drawing directly to the screen.
+      Display a JPEG.  *buf* should contain the entire JPEG data. JPEG data should
+      not include EXIF information. The following encodings are supported: Baseline
+      DCT, Huffman coding, 8 bits per sample, 3 color components, YCbCr4:2:2.
+      The origin of the JPEG is set by :meth:`LCD160CR.set_pos`.
 
-.. method:: LCD160CR.set_scroll(on)
+   .. method:: jpeg_start(total_len: int) -> None
+               jpeg_data(buf: bytes | bytearray | memoryview) -> None
 
-    Turn scrolling on or off.  This controls globally whether any window regions will
-    scroll.
+      Display a JPEG with the data split across multiple buffers.  There must be
+      a single call to `jpeg_start` to begin with, specifying the total number of
+      bytes in the JPEG.  Then this number of bytes must be transferred to the
+      display using one or more calls to the `jpeg_data` command.
 
-.. method:: LCD160CR.set_scroll_win(win, x=-1, y=0, w=0, h=0, vec=0, pat=0, fill=0x07e0, color=0)
+   .. method:: feed_wdt() -> None
 
-    Configure a window region for scrolling:
+      The first call to this method will start the display's internal watchdog
+      timer.  Subsequent calls will feed the watchdog.  The timeout is roughly 30
+      seconds.
 
-        - *win* is the window id to configure.  There are 0..7 standard windows for
-          general purpose use.  Window 8 is the text scroll window (the ticker).
-        - *x*, *y*, *w*, *h* specify the location of the window in the display.
-        - *vec* specifies the direction and speed of scroll: it is a 16-bit value
-          of the form ``0bF.ddSSSSSSSSSSSS``.  *dd* is 0, 1, 2, 3 for +x, +y, -x,
-          -y scrolling. *F* sets the speed format, with 0 meaning that the window
-          is shifted *S % 256* pixel every frame, and 1 meaning that the window
-          is shifted 1 pixel every *S* frames.
-        - *pat* is a 16-bit pattern mask for the background.
-        - *fill* is the fill color.
-        - *color* is the extra color, either of the text or pattern foreground.
+   .. method:: reset() -> None
 
-.. method:: LCD160CR.set_scroll_win_param(win, param, value)
-
-    Set a single parameter of a scrolling window region:
-
-        - *win* is the window id, 0..8.
-        - *param* is the parameter number to configure, 0..7, and corresponds
-          to the parameters in the `set_scroll_win` method.
-        - *value* is the value to set.
-
-.. method:: LCD160CR.set_scroll_buf(s)
-
-    Set the string for scrolling in window 8.  The parameter *s* must be a string
-    with length 32 or less.
-
-.. method:: LCD160CR.jpeg(buf)
-
-    Display a JPEG.  *buf* should contain the entire JPEG data. JPEG data should
-    not include EXIF information. The following encodings are supported: Baseline
-    DCT, Huffman coding, 8 bits per sample, 3 color components, YCbCr4:2:2.
-    The origin of the JPEG is set by :meth:`LCD160CR.set_pos`.
-
-.. method:: LCD160CR.jpeg_start(total_len)
-.. method:: LCD160CR.jpeg_data(buf)
-
-    Display a JPEG with the data split across multiple buffers.  There must be
-    a single call to `jpeg_start` to begin with, specifying the total number of
-    bytes in the JPEG.  Then this number of bytes must be transferred to the
-    display using one or more calls to the `jpeg_data` command.
-
-.. method:: LCD160CR.feed_wdt()
-
-    The first call to this method will start the display's internal watchdog
-    timer.  Subsequent calls will feed the watchdog.  The timeout is roughly 30
-    seconds.
-
-.. method:: LCD160CR.reset()
-
-    Reset the display.
+      Reset the display.
 
 Constants
 ---------
@@ -383,12 +350,14 @@ Constants
           lcd160cr.LANDSCAPE
           lcd160cr.PORTRAIT_UPSIDEDOWN
           lcd160cr.LANDSCAPE_UPSIDEDOWN
+   :type: int
 
    Orientations of the display, used by :meth:`LCD160CR.set_orient`.
 
 .. data:: lcd160cr.STARTUP_DECO_NONE
           lcd160cr.STARTUP_DECO_MLOGO
           lcd160cr.STARTUP_DECO_INFO
+   :type: int
 
    Types of start-up decoration, can be OR'ed together, used by
    :meth:`LCD160CR.set_startup_deco`.

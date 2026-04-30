@@ -30,18 +30,18 @@ Example usage::
 Constructors
 ------------
 
-.. class:: SD(id,... )
+.. class:: SD(id: int = 0, *args, **kwargs)
 
    Create a SD card object. See ``init()`` for parameters if initialization.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: SD.init(id=0, pins=('GP10', 'GP11', 'GP15'))
+   .. method:: init(id: int = 0, pins: tuple = ('GP10', 'GP11', 'GP15')) -> None
 
-   Enable the SD card. In order to initialize the card, give it a 3-tuple:
-   ``(clk_pin, cmd_pin, dat0_pin)``.
+      Enable the SD card. In order to initialize the card, give it a 3-tuple:
+      ``(clk_pin, cmd_pin, dat0_pin)``.
 
-.. method:: SD.deinit()
+   .. method:: deinit() -> None
 
-   Disable the SD card.
+      Disable the SD card.

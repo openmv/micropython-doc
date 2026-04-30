@@ -77,7 +77,7 @@ Example::
 Functions
 ---------
 
-.. function:: open(stream, *, flags=0, pagesize=0, cachesize=0, minkeypage=0)
+.. function:: open(stream: "io.IOBase", *, flags: int = 0, pagesize: int = 0, cachesize: int = 0, minkeypage: int = 0) -> "btree"
 
    Open a database from a random-access :std:term:`stream` (like an open file). All
    other parameters are optional and keyword-only, and allow to tweak advanced
@@ -104,57 +104,63 @@ Functions
 Methods
 -------
 
-.. method:: btree.close()
+.. class:: btree
 
-   Close the database. It's mandatory to close the database at the end of
-   processing, as some unwritten data may be still in the cache. Note that
-   this does not close underlying stream with which the database was opened,
-   it should be closed separately (which is also mandatory to make sure that
-   data flushed from buffer to the underlying storage).
+   BTree database object returned by `btree.open()`.
 
-.. method:: btree.flush()
+   .. method:: close() -> None
 
-   Flush any data in cache to the underlying stream.
+      Close the database. It's mandatory to close the database at the end of
+      processing, as some unwritten data may be still in the cache. Note that
+      this does not close underlying stream with which the database was opened,
+      it should be closed separately (which is also mandatory to make sure that
+      data flushed from buffer to the underlying storage).
 
-.. method:: btree.__getitem__(key)
-            btree.get(key, default=None, /)
-            btree.__setitem__(key, val)
-            btree.__delitem__(key)
-            btree.__contains__(key)
+   .. method:: flush() -> None
 
-   Standard dictionary methods.
+      Flush any data in cache to the underlying stream.
 
-.. method:: btree.__iter__()
+   .. method:: __getitem__(key: bytes) -> bytes
+               get(key: bytes, default: bytes | None = None, /) -> bytes | None
+               __setitem__(key: bytes, val: bytes) -> None
+               __delitem__(key: bytes) -> None
+               __contains__(key: bytes) -> bool
 
-   A BTree object can be iterated over directly (similar to a dictionary)
-   to get access to all keys in order.
+      Standard dictionary methods.
 
-.. method:: btree.keys([start_key, [end_key, [flags]]])
-            btree.values([start_key, [end_key, [flags]]])
-            btree.items([start_key, [end_key, [flags]]])
+   .. method:: __iter__() -> Iterator[bytes]
 
-   These methods are similar to standard dictionary methods, but also can
-   take optional parameters to iterate over a key sub-range, instead of
-   the entire database. Note that for all 3 methods, *start_key* and
-   *end_key* arguments represent key values. For example, `values()`
-   method will iterate over values corresponding to they key range
-   given. None values for *start_key* means "from the first key", no
-   *end_key* or its value of None means "until the end of database".
-   By default, range is inclusive of *start_key* and exclusive of
-   *end_key*, you can include *end_key* in iteration by passing *flags*
-   of `btree.INCL`. You can iterate in descending key direction
-   by passing *flags* of `btree.DESC`. The flags values can be ORed
-   together.
+      A BTree object can be iterated over directly (similar to a dictionary)
+      to get access to all keys in order.
+
+   .. method:: keys(start_key: bytes | None = None, end_key: bytes | None = None, flags: int = 0, /) -> Iterator[bytes]
+               values(start_key: bytes | None = None, end_key: bytes | None = None, flags: int = 0, /) -> "Iterator[bytes]"
+               items(start_key: bytes | None = None, end_key: bytes | None = None, flags: int = 0, /) -> "Iterator[tuple[bytes, bytes]]"
+
+      These methods are similar to standard dictionary methods, but also can
+      take optional parameters to iterate over a key sub-range, instead of
+      the entire database. Note that for all 3 methods, *start_key* and
+      *end_key* arguments represent key values. For example, `values()`
+      method will iterate over values corresponding to they key range
+      given. None values for *start_key* means "from the first key", no
+      *end_key* or its value of None means "until the end of database".
+      By default, range is inclusive of *start_key* and exclusive of
+      *end_key*, you can include *end_key* in iteration by passing *flags*
+      of `btree.INCL`. You can iterate in descending key direction
+      by passing *flags* of `btree.DESC`. The flags values can be ORed
+      together.
 
 Constants
 ---------
 
 .. data:: INCL
+   :type: int
 
    A flag for :meth:`btree.keys`, :meth:`btree.values`, :meth:`btree.items` methods to specify that
    scanning should be inclusive of the end key.
 
 .. data:: DESC
+   :type: int
 
    A flag for :meth:`btree.keys`, :meth:`btree.values`, :meth:`btree.items` methods to specify that
    scanning should be in descending direction of keys.

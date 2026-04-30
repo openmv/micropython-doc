@@ -29,7 +29,7 @@ There are two types of Timer in MicroPython, but not all ports support both:
 Constructors
 ------------
 
-.. class:: Timer(id, /, ...)
+.. class:: Timer(id: int, /, *, mode: int = PERIODIC, freq: int = -1, period: int = -1, callback: Callable[[Timer], None] | None = None, hard: bool = True)
 
    Construct a new Timer object with the given ``id``.
 
@@ -43,68 +43,69 @@ Constructors
 
    Any additional parameters are handled the same as :func:`Timer.init()`.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: Timer.init(*, mode=Timer.PERIODIC, freq=-1, period=-1, callback=None, hard=True)
+   .. method:: init(*, mode: int = Timer.PERIODIC, freq: int = -1, period: int = -1, callback: Callable[[Timer], None] | None = None, hard: bool = True) -> None
 
-   Initialise the timer. Example::
+      Initialise the timer. Example::
 
-       def mycallback(t):
-           pass
+          def mycallback(t):
+              pass
 
-       # periodic at 1kHz
-       tim.init(mode=Timer.PERIODIC, freq=1000, callback=mycallback)
+          # periodic at 1kHz
+          tim.init(mode=Timer.PERIODIC, freq=1000, callback=mycallback)
 
-       # periodic with 100ms period
-       tim.init(period=100, callback=mycallback)
+          # periodic with 100ms period
+          tim.init(period=100, callback=mycallback)
 
-       # one shot firing after 1000ms
-       tim.init(mode=Timer.ONE_SHOT, period=1000, callback=mycallback)
+          # one shot firing after 1000ms
+          tim.init(mode=Timer.ONE_SHOT, period=1000, callback=mycallback)
 
-   Keyword arguments:
+      Keyword arguments:
 
-     - ``mode`` can be one of:
+        - ``mode`` can be one of:
 
-       - ``Timer.ONE_SHOT`` - The timer runs once until the configured
-         period of the channel expires.
-       - ``Timer.PERIODIC`` - The timer runs periodically at the configured
-         frequency of the channel.
+          - ``Timer.ONE_SHOT`` - The timer runs once until the configured
+            period of the channel expires.
+          - ``Timer.PERIODIC`` - The timer runs periodically at the configured
+            frequency of the channel.
 
-     - ``freq`` - The timer frequency, in units of Hz.  The upper bound of
-       the frequency is dependent on the port.  When both the ``freq`` and
-       ``period`` arguments are given, ``freq`` has a higher priority and
-       ``period`` is ignored.
+        - ``freq`` - The timer frequency, in units of Hz.  The upper bound of
+          the frequency is dependent on the port.  When both the ``freq`` and
+          ``period`` arguments are given, ``freq`` has a higher priority and
+          ``period`` is ignored.
 
-     - ``period`` - The timer period, in milliseconds.
+        - ``period`` - The timer period, in milliseconds.
 
-     - ``callback`` - The callable to call upon expiration of the timer period.
-       The callback must take one argument, which is passed the Timer object.
+        - ``callback`` - The callable to call upon expiration of the timer period.
+          The callback must take one argument, which is passed the Timer object.
 
-       The ``callback`` argument shall be specified. Otherwise an exception
-       will occur upon timer expiration:
-       ``TypeError: 'NoneType' object isn't callable``
+          The ``callback`` argument shall be specified. Otherwise an exception
+          will occur upon timer expiration:
+          ``TypeError: 'NoneType' object isn't callable``
 
-     - ``hard`` can be one of:
+        - ``hard`` can be one of:
 
-       - ``True`` - The callback will be executed in hard interrupt context,
-         which minimises delay and jitter but is subject to the limitations
-         described in :ref:`isr_rules`. Not all ports support hard interrupts,
-         see the port documentation for more information.
-       - ``False`` - The callback will be scheduled as a soft interrupt,
-         allowing it to allocate but possibly also introducing
-         garbage-collection delays and jitter.
+          - ``True`` - The callback will be executed in hard interrupt context,
+            which minimises delay and jitter but is subject to the limitations
+            described in :ref:`isr_rules`. Not all ports support hard interrupts,
+            see the port documentation for more information.
+          - ``False`` - The callback will be scheduled as a soft interrupt,
+            allowing it to allocate but possibly also introducing
+            garbage-collection delays and jitter.
 
-       The default value of this parameter is port-specific for historical reasons.
+          The default value of this parameter is port-specific for historical reasons.
 
-.. method:: Timer.deinit()
+   .. method:: deinit() -> None
 
-   Deinitialises the timer. Stops the timer, and disables the timer peripheral.
+      Deinitialises the timer. Stops the timer, and disables the timer peripheral.
 
-Constants
----------
+   Constants
+   ---------
 
-.. data:: Timer.ONE_SHOT
-          Timer.PERIODIC
+   .. data:: ONE_SHOT
+             PERIODIC
+      :type: int
 
-   Timer operating mode.
+      Timer operating mode.

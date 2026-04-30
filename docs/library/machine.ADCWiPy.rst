@@ -22,7 +22,7 @@ Usage::
 Constructors
 ------------
 
-.. class:: ADCWiPy(id=0, *, bits=12)
+.. class:: ADCWiPy(id: int = 0, *, bits: int = 12)
 
    Create an ADC object associated with the given pin.
    This allows you to then read analog values on that pin.
@@ -36,27 +36,27 @@ Constructors
       ADC block, 1.8 V is the maximum. If these pins are used in digital mode,
       then the maximum allowed input is 3.6V.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: ADCWiPy.channel(id, *, pin)
+   .. method:: channel(id: int | None = None, *, pin: str | None = None) -> ADCChannel
 
-   Create an analog pin. If only channel ID is given, the correct pin will
-   be selected. Alternatively, only the pin can be passed and the correct
-   channel will be selected. Examples::
+      Create an analog pin. If only channel ID is given, the correct pin will
+      be selected. Alternatively, only the pin can be passed and the correct
+      channel will be selected. Examples::
 
-      # all of these are equivalent and enable ADC channel 1 on GP3
-      apin = adc.channel(1)
-      apin = adc.channel(pin='GP3')
-      apin = adc.channel(id=1, pin='GP3')
+         # all of these are equivalent and enable ADC channel 1 on GP3
+         apin = adc.channel(1)
+         apin = adc.channel(pin='GP3')
+         apin = adc.channel(id=1, pin='GP3')
 
-.. method:: ADCWiPy.init()
+   .. method:: init() -> None
 
-   Enable the ADC block.
+      Enable the ADC block.
 
-.. method:: ADCWiPy.deinit()
+   .. method:: deinit() -> None
 
-   Disable the ADC block.
+      Disable the ADC block.
 
 class ADCChannel --- read analog values from internal or external sources
 =========================================================================
@@ -64,18 +64,22 @@ class ADCChannel --- read analog values from internal or external sources
 ADC channels can be connected to internal points of the MCU or to GPIO pins.
 ADC channels are created using the ADC.channel method.
 
-.. method:: adcchannel()
+.. class:: adcchannel
 
-   Fast method to read the channel value.
+   ADC channel object returned by :meth:`ADCWiPy.channel`.
 
-.. method:: adcchannel.value()
+   .. method:: __call__() -> int
 
-   Read the channel value.
+      Fast method to read the channel value.
 
-.. method:: adcchannel.init()
+   .. method:: value() -> int
 
-   Re-init (and effectively enable) the ADC channel.
+      Read the channel value.
 
-.. method:: adcchannel.deinit()
+   .. method:: init() -> None
 
-   Disable the ADC channel.
+      Re-init (and effectively enable) the ADC channel.
+
+   .. method:: deinit() -> None
+
+      Disable the ADC channel.

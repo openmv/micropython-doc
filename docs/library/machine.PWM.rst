@@ -24,7 +24,7 @@ Example usage::
 Constructors
 ------------
 
-.. class:: PWM(dest, *, freq, duty_u16, duty_ns, invert=False)
+.. class:: PWM(dest: Pin | int, *, freq: int = ..., duty_u16: int = ..., duty_ns: int = ..., invert: bool = False)
 
    Construct and return a new PWM object using the following parameters:
 
@@ -42,44 +42,44 @@ Constructors
    Only one of *duty_u16* and *duty_ns* should be specified at a time.
    *invert* is available only on the alif, esp32, mimxrt, nrf, rp2, samd, stm32 and zephyr ports.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: PWM.init(*, freq, duty_u16, duty_ns)
+   .. method:: init(*, freq: int = ..., duty_u16: int = ..., duty_ns: int = ...) -> None
 
-   Modify settings for the PWM object.  See the above constructor for details
-   about the parameters.
+      Modify settings for the PWM object.  See the above constructor for details
+      about the parameters.
 
-.. method:: PWM.deinit()
+   .. method:: deinit() -> None
 
-   Disable the PWM output.
+      Disable the PWM output.
 
-.. method:: PWM.freq([value])
+   .. method:: freq(value: int | None = None, /) -> int | None
 
-   Get or set the current frequency of the PWM output.
+      Get or set the current frequency of the PWM output.
 
-   With no arguments the frequency in Hz is returned.
+      With no arguments the frequency in Hz is returned.
 
-   With a single *value* argument the frequency is set to that value in Hz.  The
-   method may raise a ``ValueError`` if the frequency is outside the valid range.
+      With a single *value* argument the frequency is set to that value in Hz.  The
+      method may raise a ``ValueError`` if the frequency is outside the valid range.
 
-.. method:: PWM.duty_u16([value])
+   .. method:: duty_u16(value: int | None = None, /) -> int | None
 
-   Get or set the current duty cycle of the PWM output, as an unsigned 16-bit
-   value in the range 0 to 65535 inclusive.
+      Get or set the current duty cycle of the PWM output, as an unsigned 16-bit
+      value in the range 0 to 65535 inclusive.
 
-   With no arguments the duty cycle is returned.
+      With no arguments the duty cycle is returned.
 
-   With a single *value* argument the duty cycle is set to that value, measured
-   as the ratio ``value / 65535``.
+      With a single *value* argument the duty cycle is set to that value, measured
+      as the ratio ``value / 65535``.
 
-.. method:: PWM.duty_ns([value])
+   .. method:: duty_ns(value: int | None = None, /) -> int | None
 
-   Get or set the current pulse width of the PWM output, as a value in nanoseconds.
+      Get or set the current pulse width of the PWM output, as a value in nanoseconds.
 
-   With no arguments the pulse width in nanoseconds is returned.
+      With no arguments the pulse width in nanoseconds is returned.
 
-   With a single *value* argument the pulse width is set to that value.
+      With a single *value* argument the pulse width is set to that value.
 
 Specific PWM class implementations
 ----------------------------------

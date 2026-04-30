@@ -4,8 +4,6 @@
 .. module:: time
    :synopsis: time related functions
 
-|see_cpython_module| :mod:`python:time`.
-
 The ``time`` module provides functions for getting the current time and date,
 measuring time intervals, and for delays.
 
@@ -37,8 +35,8 @@ behave not as expected.
 Functions
 ---------
 
-.. function:: gmtime([secs])
-              localtime([secs])
+.. function:: gmtime(secs: Optional[int] = None) -> Tuple[int, int, int, int, int, int, int, int]
+              localtime(secs: Optional[int] = None) -> Tuple[int, int, int, int, int, int, int, int]
 
    Convert the time *secs* expressed in seconds since the Epoch (see above) into an
    8-tuple which contains: ``(year, month, mday, hour, minute, second, weekday, yearday)``
@@ -58,13 +56,13 @@ Functions
    * weekday is 0-6 for Mon-Sun
    * yearday is 1-366
 
-.. function:: mktime(date_time_tuple)
+.. function:: mktime(date_time_tuple: Tuple[int, int, int, int, int, int, int, int]) -> int
 
    This is inverse function of localtime. It's argument is a full 8-tuple
    which expresses a time as per localtime. It returns an integer which is
    the number of seconds since the time epoch.
 
-.. function:: sleep(seconds)
+.. function:: sleep(seconds: float) -> None
 
    Sleep for the given number of seconds. Some boards may accept *seconds* as a
    floating-point number to sleep for a fractional number of seconds. Note that
@@ -74,7 +72,7 @@ Functions
    Calling ``sleep``, including ``sleep(0)`` is guaranteed to call pending callback
    functions.
 
-.. function:: sleep_ms(ms)
+.. function:: sleep_ms(ms: int) -> None
 
    Delay for given number of milliseconds, should be positive or 0.
 
@@ -86,7 +84,7 @@ Functions
    Calling ``sleep_ms``, including ``sleep_ms(0)`` is guaranteed to call
    pending callback functions.
 
-.. function:: sleep_us(us)
+.. function:: sleep_us(us: int) -> None
 
    Delay for given number of microseconds, should be positive or 0.
 
@@ -94,7 +92,7 @@ Functions
    microseconds, but it may take longer if the system has other higher priority
    processing to perform.
 
-.. function:: ticks_ms()
+.. function:: ticks_ms() -> int
 
     Returns an increasing millisecond counter with an arbitrary reference point, that
     wraps around after some value.
@@ -116,11 +114,11 @@ Functions
     as arguments to `ticks_diff()` or `ticks_add()` will also lead to
     invalid results from the latter functions.
 
-.. function:: ticks_us()
+.. function:: ticks_us() -> int
 
    Just like `ticks_ms()` above, but in microseconds.
 
-.. function:: ticks_cpu()
+.. function:: ticks_cpu() -> int
 
    Similar to `ticks_ms()` and `ticks_us()`, but with the highest possible resolution
    in the system. This is usually CPU clocks, and that's why the function is named that
@@ -134,7 +132,7 @@ Functions
    Availability: Not every port implements this function.
 
 
-.. function:: ticks_add(ticks, delta)
+.. function:: ticks_add(ticks: int, delta: int) -> int
 
    Offset ticks value by a given number, which can be either positive or negative.
    Given a *ticks* value, this function allows to calculate ticks value *delta*
@@ -160,7 +158,7 @@ Functions
         print(ticks_add(0, -1))
 
 
-.. function:: ticks_diff(ticks1, ticks2)
+.. function:: ticks_diff(ticks1: int, ticks2: int) -> int
 
    Measure ticks difference between values returned from `ticks_ms()`, `ticks_us()`,
    or `ticks_cpu()` functions, as a signed value which may wrap around.
@@ -225,7 +223,7 @@ Functions
    also overflow. This is known as https://en.wikipedia.org/wiki/Year_2038_problem .
 
 
-.. function:: time()
+.. function:: time() -> int
 
    Returns the number of seconds, as an integer, since the Epoch, assuming that
    underlying RTC is set and maintained as described above. If an RTC is not set, this
@@ -251,7 +249,7 @@ Functions
       since last power-up or from other relative, hardware-specific point
       (e.g. reset).
 
-.. function:: time_ns()
+.. function:: time_ns() -> int
 
     Similar to `time()` but returns nanoseconds since the Epoch, as an integer (usually
     a big integer, so will allocate on the heap).
@@ -259,7 +257,7 @@ Functions
 Constructors
 ------------
 
-.. class:: clock() -> clock
+.. class:: clock()
 
    Returns a clock object.
 

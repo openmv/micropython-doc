@@ -13,7 +13,7 @@ For assembling PIO programs, see :func:`rp2.asm_pio`.
 Constructors
 ------------
 
-.. class:: StateMachine(id, [program, ...])
+.. class:: StateMachine(id: int, program: Callable | None = None, *args, **kwargs)
 
     Get the state machine numbered *id*. The RP2040 has two identical PIO
     instances, each with 4 state machines: so there are 8 state machines in
@@ -22,128 +22,124 @@ Constructors
     Optionally initialize it with the given program *program*: see
     `StateMachine.init`.
 
+   .. method:: init(program: Callable, freq: int = -1, *, in_base: Pin | None = None, out_base: Pin | None = None, set_base: Pin | None = None, jmp_pin: Pin | None = None, sideset_base: Pin | None = None, in_shiftdir: int | None = None, out_shiftdir: int | None = None, push_thresh: int | None = None, pull_thresh: int | None = None) -> None
 
-Methods
--------
+      Configure the state machine instance to run the given *program*.
 
-.. method:: StateMachine.init(program, freq=-1, *, in_base=None, out_base=None, set_base=None, jmp_pin=None, sideset_base=None, in_shiftdir=None, out_shiftdir=None, push_thresh=None, pull_thresh=None)
+      The program is added to the instruction memory of this PIO instance. If the
+      instruction memory already contains this program, then its offset is
+      reused so as to save on instruction memory.
 
-    Configure the state machine instance to run the given *program*.
+      - *freq* is the frequency in Hz to run the state machine at. Defaults to
+        the system clock frequency.
 
-    The program is added to the instruction memory of this PIO instance. If the
-    instruction memory already contains this program, then its offset is
-    reused so as to save on instruction memory.
+        The clock divider is computed as ``system clock frequency / freq``, so
+        there can be slight rounding errors.
 
-    - *freq* is the frequency in Hz to run the state machine at. Defaults to
-      the system clock frequency.
+        The minimum possible clock divider is one 65536th of the system clock: so
+        at the default system clock frequency of 125MHz, the minimum value of
+        *freq* is ``1908``. To run state machines at slower frequencies, you'll
+        need to reduce the system clock speed with `machine.freq()`.
+      - *in_base* is the first pin to use for ``in()`` instructions.
+      - *out_base* is the first pin to use for ``out()`` instructions.
+      - *set_base* is the first pin to use for ``set()`` instructions.
+      - *jmp_pin* is the first pin to use for ``jmp(pin, ...)`` instructions.
+      - *sideset_base* is the first pin to use for side-setting.
+      - *in_shiftdir* is the direction the ISR will shift, either
+        `PIO.SHIFT_LEFT` or `PIO.SHIFT_RIGHT`.
+      - *out_shiftdir* is the direction the OSR will shift, either
+        `PIO.SHIFT_LEFT` or `PIO.SHIFT_RIGHT`.
+      - *push_thresh* is the threshold in bits before auto-push or conditional
+        re-pushing is triggered.
+      - *pull_thresh* is the threshold in bits before auto-pull or conditional
+        re-pulling is triggered.
 
-      The clock divider is computed as ``system clock frequency / freq``, so
-      there can be slight rounding errors.
+      Note: pins used for *in_base* need to be configured manually for input (or
+      otherwise) so that the PIO can see the desired signal (they could be input
+      pins, output pins, or connected to a different peripheral).  The *jmp_pin*
+      can also be configured manually, but by default will be an input pin.
 
-      The minimum possible clock divider is one 65536th of the system clock: so
-      at the default system clock frequency of 125MHz, the minimum value of
-      *freq* is ``1908``. To run state machines at slower frequencies, you'll
-      need to reduce the system clock speed with `machine.freq()`.
-    - *in_base* is the first pin to use for ``in()`` instructions.
-    - *out_base* is the first pin to use for ``out()`` instructions.
-    - *set_base* is the first pin to use for ``set()`` instructions.
-    - *jmp_pin* is the first pin to use for ``jmp(pin, ...)`` instructions.
-    - *sideset_base* is the first pin to use for side-setting.
-    - *in_shiftdir* is the direction the ISR will shift, either
-      `PIO.SHIFT_LEFT` or `PIO.SHIFT_RIGHT`.
-    - *out_shiftdir* is the direction the OSR will shift, either
-      `PIO.SHIFT_LEFT` or `PIO.SHIFT_RIGHT`.
-    - *push_thresh* is the threshold in bits before auto-push or conditional
-      re-pushing is triggered.
-    - *pull_thresh* is the threshold in bits before auto-pull or conditional
-      re-pulling is triggered.
+   .. method:: active(value: bool | int | None = None, /) -> bool
 
-    Note: pins used for *in_base* need to be configured manually for input (or
-    otherwise) so that the PIO can see the desired signal (they could be input
-    pins, output pins, or connected to a different peripheral).  The *jmp_pin*
-    can also be configured manually, but by default will be an input pin.
+      Gets or sets whether the state machine is currently running.
 
-.. method:: StateMachine.active([value])
+      >>> sm.active()
+      True
+      >>> sm.active(0)
+      False
 
-    Gets or sets whether the state machine is currently running.
+   .. method:: restart() -> None
 
-    >>> sm.active()
-    True
-    >>> sm.active(0)
-    False
+      Restarts the state machine and jumps to the beginning of the program.
 
-.. method:: StateMachine.restart()
+      This method clears the state machine's internal state using the RP2040's
+      ``SM_RESTART`` register. This includes:
 
-    Restarts the state machine and jumps to the beginning of the program.
+       - input and output shift counters
+       - the contents of the input shift register
+       - the delay counter
+       - the waiting-on-IRQ state
+       - a stalled instruction run using `StateMachine.exec()`
 
-    This method clears the state machine's internal state using the RP2040's
-    ``SM_RESTART`` register. This includes:
+   .. method:: exec(instr: str | int) -> None
 
-     - input and output shift counters
-     - the contents of the input shift register
-     - the delay counter
-     - the waiting-on-IRQ state
-     - a stalled instruction run using `StateMachine.exec()`
+      Execute a single PIO instruction.
 
-.. method:: StateMachine.exec(instr)
+      If *instr* is a string then uses `asm_pio_encode` to encode the instruction
+      from the given string.
 
-    Execute a single PIO instruction.
+      >>> sm.exec("set(0, 1)")
 
-    If *instr* is a string then uses `asm_pio_encode` to encode the instruction
-    from the given string.
+      If *instr* is an integer then it is treated as an already encoded PIO
+      machine code instruction to be executed.
 
-    >>> sm.exec("set(0, 1)")
+      >>> sm.exec(rp2.asm_pio_encode("out(y, 8)", 0))
 
-    If *instr* is an integer then it is treated as an already encoded PIO
-    machine code instruction to be executed.
+   .. method:: get(buf: "bytearray | array | None" = None, shift: int = 0) -> int
 
-    >>> sm.exec(rp2.asm_pio_encode("out(y, 8)", 0))
+      Pull a word from the state machine's RX FIFO.
 
-.. method:: StateMachine.get(buf=None, shift=0)
+      If the FIFO is empty, it blocks until data arrives (i.e. the state machine
+      pushes a word).
 
-    Pull a word from the state machine's RX FIFO.
+      The value is shifted right by *shift* bits before returning, i.e. the
+      return value is ``word >> shift``.
 
-    If the FIFO is empty, it blocks until data arrives (i.e. the state machine
-    pushes a word).
+   .. method:: put(value: "int | bytes | bytearray | array", shift: int = 0) -> None
 
-    The value is shifted right by *shift* bits before returning, i.e. the
-    return value is ``word >> shift``.
+      Push words onto the state machine's TX FIFO.
 
-.. method:: StateMachine.put(value, shift=0)
+      *value* can be an integer, an array of type ``B``, ``H`` or ``I``, or a
+      `bytearray`.
 
-    Push words onto the state machine's TX FIFO.
+      This method will block until all words have been written to the FIFO.  If
+      the FIFO is, or becomes, full, the method will block until the state machine
+      pulls enough words to complete the write.
 
-    *value* can be an integer, an array of type ``B``, ``H`` or ``I``, or a
-    `bytearray`.
+      Each word is first shifted left by *shift* bits, i.e. the state machine
+      receives ``word << shift``.
 
-    This method will block until all words have been written to the FIFO.  If
-    the FIFO is, or becomes, full, the method will block until the state machine
-    pulls enough words to complete the write.
+   .. method:: rx_fifo() -> int
 
-    Each word is first shifted left by *shift* bits, i.e. the state machine
-    receives ``word << shift``.
+      Returns the number of words in the state machine's RX FIFO. A value of 0
+      indicates the FIFO is empty.
 
-.. method:: StateMachine.rx_fifo()
+      Useful for checking if data is waiting to be read, before calling
+      `StateMachine.get()`.
 
-    Returns the number of words in the state machine's RX FIFO. A value of 0
-    indicates the FIFO is empty.
+   .. method:: tx_fifo() -> int
 
-    Useful for checking if data is waiting to be read, before calling
-    `StateMachine.get()`.
+      Returns the number of words in the state machine's TX FIFO. A value of 0
+      indicates the FIFO is empty.
 
-.. method:: StateMachine.tx_fifo()
+      Useful for checking if there is space to push another word using
+      `StateMachine.put()`.
 
-    Returns the number of words in the state machine's TX FIFO. A value of 0
-    indicates the FIFO is empty.
+   .. method:: irq(handler: Callable[[StateMachine], None] | None = None, trigger: int = 0 | 1, hard: bool = False) -> Callable
 
-    Useful for checking if there is space to push another word using
-    `StateMachine.put()`.
+       Returns the IRQ object for the given StateMachine.
 
-.. method:: StateMachine.irq(handler=None, trigger=0|1, hard=False)
-
-     Returns the IRQ object for the given StateMachine.
-
-     Optionally configure it.
+       Optionally configure it.
 
 Buffer protocol
 ---------------

@@ -16,90 +16,85 @@ For assembling PIO programs, see :func:`rp2.asm_pio`.
 Constructors
 ------------
 
-.. class:: PIO(id)
+.. class:: PIO(id: int)
 
     Gets the PIO instance numbered *id*. The RP2040 has two PIO instances,
     numbered 0 and 1.
 
     Raises a ``ValueError`` if any other argument is provided.
 
+   .. method:: gpio_base(base: Pin | int | None = None, /) -> int
 
-Methods
--------
+      Query and optionally set the current GPIO base for this PIO instance.
 
-.. method:: PIO.gpio_base([base])
+      If an argument is given then it must be a pin (or integer corresponding to a pin
+      number), restricted to either GPIO0 or GPIO16.  The GPIO base will then be set to
+      that pin.  Setting the GPIO base must be done before any programs are added or state
+      machines created.
 
-    Query and optionally set the current GPIO base for this PIO instance.
+      Returns the current GPIO base pin.
 
-    If an argument is given then it must be a pin (or integer corresponding to a pin
-    number), restricted to either GPIO0 or GPIO16.  The GPIO base will then be set to
-    that pin.  Setting the GPIO base must be done before any programs are added or state
-    machines created.
+   .. method:: add_program(program: Callable) -> None
 
-    Returns the current GPIO base pin.
+      Add the *program* to the instruction memory of this PIO instance.
 
-.. method:: PIO.add_program(program)
+      The amount of memory available for programs on each PIO instance is
+      limited. If there isn't enough space left in the PIO's program memory
+      this method will raise ``OSError(ENOMEM)``.
 
-    Add the *program* to the instruction memory of this PIO instance.
+   .. method:: remove_program(program: Callable | None = None, /) -> None
 
-    The amount of memory available for programs on each PIO instance is
-    limited. If there isn't enough space left in the PIO's program memory
-    this method will raise ``OSError(ENOMEM)``.
+      Remove *program* from the instruction memory of this PIO instance.
 
-.. method:: PIO.remove_program([program])
+      If no program is provided, it removes all programs.
 
-    Remove *program* from the instruction memory of this PIO instance.
+      It is not an error to remove a program which has already been removed.
 
-    If no program is provided, it removes all programs.
+   .. method:: state_machine(id: int, program: Callable | None = None, *args, **kwargs) -> StateMachine
 
-    It is not an error to remove a program which has already been removed.
+      Gets the state machine numbered *id*. On the RP2040, each PIO instance has
+      four state machines, numbered 0 to 3.
 
-.. method:: PIO.state_machine(id, [program, ...])
+      Optionally initialize it with a *program*: see `StateMachine.init`.
 
-    Gets the state machine numbered *id*. On the RP2040, each PIO instance has
-    four state machines, numbered 0 to 3.
+      >>> rp2.PIO(1).state_machine(3)
+      StateMachine(7)
 
-    Optionally initialize it with a *program*: see `StateMachine.init`.
+   .. method:: irq(handler: Callable[[PIO], None] | None = None, trigger: int = IRQ_SM0 | IRQ_SM1 | IRQ_SM2 | IRQ_SM3, hard: bool = False) -> Callable
 
-    >>> rp2.PIO(1).state_machine(3)
-    StateMachine(7)
+      Returns the IRQ object for this PIO instance.
 
-.. method:: PIO.irq(handler=None, trigger=IRQ_SM0|IRQ_SM1|IRQ_SM2|IRQ_SM3, hard=False)
+      MicroPython only uses IRQ 0 on each PIO instance. IRQ 1 is not available.
 
-    Returns the IRQ object for this PIO instance.
+      Optionally configure it.
 
-    MicroPython only uses IRQ 0 on each PIO instance. IRQ 1 is not available.
+   .. data:: IN_LOW
+             IN_HIGH
+             OUT_LOW
+             OUT_HIGH
+      :type: int
 
-    Optionally configure it.
+      These constants are used for the *out_init*, *set_init*, and *sideset_init*
+      arguments to `asm_pio`.
 
+   .. data:: SHIFT_LEFT
+             SHIFT_RIGHT
+      :type: int
 
-Constants
----------
+      These constants are used for the *in_shiftdir* and *out_shiftdir* arguments
+      to `asm_pio` or `StateMachine.init`.
 
-.. data:: PIO.IN_LOW
-          PIO.IN_HIGH
-          PIO.OUT_LOW
-          PIO.OUT_HIGH
+   .. data:: JOIN_NONE
+             JOIN_TX
+             JOIN_RX
+      :type: int
 
-    These constants are used for the *out_init*, *set_init*, and *sideset_init*
-    arguments to `asm_pio`.
+      These constants are used for the *fifo_join* argument to `asm_pio`.
 
-.. data:: PIO.SHIFT_LEFT
-          PIO.SHIFT_RIGHT
+   .. data:: IRQ_SM0
+             IRQ_SM1
+             IRQ_SM2
+             IRQ_SM3
+      :type: int
 
-    These constants are used for the *in_shiftdir* and *out_shiftdir* arguments
-    to `asm_pio` or `StateMachine.init`.
-
-.. data:: PIO.JOIN_NONE
-          PIO.JOIN_TX
-          PIO.JOIN_RX
-
-    These constants are used for the *fifo_join* argument to `asm_pio`.
-
-.. data:: PIO.IRQ_SM0
-          PIO.IRQ_SM1
-          PIO.IRQ_SM2
-          PIO.IRQ_SM3
-
-    These constants are used for the *trigger* argument to `PIO.irq`.
-
+      These constants are used for the *trigger* argument to `PIO.irq`.

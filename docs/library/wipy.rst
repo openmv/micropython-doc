@@ -11,7 +11,7 @@ WiPy, such as the heartbeat LED.
 Functions
 ---------
 
-.. function:: heartbeat([enable])
+.. function:: heartbeat(enable: bool | None = None, /) -> bool
 
    Get or set the state (enabled or disabled) of the heartbeat LED. Accepts and
    returns boolean values (``True`` or ``False``).

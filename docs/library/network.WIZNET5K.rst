@@ -34,7 +34,7 @@ It is possible to use other SPI buses and other pins for nSS and nRESET.
 Constructors
 ------------
 
-.. class:: WIZNET5K(spi, pin_cs, pin_rst)
+.. class:: WIZNET5K(spi: SPI, pin_cs: Pin, pin_rst: Pin)
 
    Create a WIZNET5K driver object, initialise the WIZnet5x00 module using the given
    SPI bus and pins, and return the WIZNET5K object.
@@ -51,11 +51,8 @@ Constructors
 
      nic = network.WIZNET5K(pyb.SPI(1), pyb.Pin.board.X5, pyb.Pin.board.X4)
 
-Methods
--------
+   This class implements most methods from `AbstractNIC <AbstractNIC>`, which are documented there. Additional methods are:
 
-This class implements most methods from `AbstractNIC <AbstractNIC>`, which are documented there. Additional methods are:
+   .. method:: regs() -> None
 
-.. method:: WIZNET5K.regs()
-
-   Dump the WIZnet5x00 registers.  Useful for debugging.
+      Dump the WIZnet5x00 registers.  Useful for debugging.

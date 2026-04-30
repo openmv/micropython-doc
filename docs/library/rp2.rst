@@ -23,7 +23,7 @@ The ``rp2`` module includes functions for assembling PIO programs.
 
 For running PIO programs, see :class:`rp2.StateMachine`.
 
-.. function:: asm_pio(*, out_init=None, set_init=None, sideset_init=None, side_pindir=False, in_shiftdir=PIO.SHIFT_LEFT, out_shiftdir=PIO.SHIFT_LEFT, autopush=False, autopull=False, push_thresh=32, pull_thresh=32, fifo_join=PIO.JOIN_NONE)
+.. function:: asm_pio(*, out_init: "int | tuple[int, ...] | None" = None, set_init: "int | tuple[int, ...] | None" = None, sideset_init: "int | tuple[int, ...] | None" = None, side_pindir: bool = False, in_shiftdir: int = PIO.SHIFT_LEFT, out_shiftdir: int = PIO.SHIFT_LEFT, autopush: bool = False, autopull: bool = False, push_thresh: int = 32, pull_thresh: int = 32, fifo_join: int = PIO.JOIN_NONE) -> Callable
 
     Assemble a PIO program.
 
@@ -60,7 +60,7 @@ For running PIO programs, see :class:`rp2.StateMachine`.
       combined into a single 8-word FIFO for one direction only. The options
       are `PIO.JOIN_NONE`, `PIO.JOIN_RX` and `PIO.JOIN_TX`.
 
-.. function:: asm_pio_encode(instr, sideset_count, sideset_opt=False)
+.. function:: asm_pio_encode(instr: str, sideset_count: int, sideset_opt: bool = False) -> int
 
     Assemble a single PIO instruction. You usually want to use `asm_pio()`
     instead.
@@ -68,7 +68,7 @@ For running PIO programs, see :class:`rp2.StateMachine`.
     >>> rp2.asm_pio_encode("set(0, 1)", 0)
     57345
 
-.. function:: bootsel_button()
+.. function:: bootsel_button() -> int
 
     Temporarily turns the QSPI_SS pin into an input and reads its value,
     returning 1 for low and 0 for high.

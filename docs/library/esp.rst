@@ -12,7 +12,7 @@ ports.
 Functions
 ---------
 
-.. function:: sleep_type([sleep_type])
+.. function:: sleep_type(sleep_type: int | None = None, /) -> int | None
 
     **Note**: ESP8266 only
 
@@ -31,7 +31,7 @@ Functions
 
     The system enters the set sleep mode automatically when possible.
 
-.. function:: deepsleep(time_us=0, /)
+.. function:: deepsleep(time_us: int = 0, /) -> None
 
     **Note**: ESP8266 only - use `machine.deepsleep()` on ESP32
 
@@ -42,27 +42,38 @@ Functions
     connected to the reset pin. Otherwise the module will sleep until manually
     reset.
 
-.. function:: flash_id()
+.. function:: flash_id() -> int
 
     **Note**: ESP8266 only
 
     Read the device ID of the flash memory.
 
-.. function:: flash_size()
+.. function:: flash_size() -> int
 
     Read the total size of the flash memory.
 
-.. function:: flash_user_start()
+.. function:: flash_user_start() -> int
 
     Read the memory offset at which the user flash space begins.
 
-.. function:: flash_read(byte_offset, length_or_buffer)
+.. function:: flash_read(byte_offset: int, length_or_buffer: int | bytearray) -> bytes | None
 
-.. function:: flash_write(byte_offset, bytes)
+    Read *length_or_buffer* bytes from the flash starting at *byte_offset*. If
+    an integer is given, returns the data as a `bytes` object; if a buffer
+    (e.g. `bytearray`) is given, fills the buffer in place and returns
+    ``None``.
 
-.. function:: flash_erase(sector_no)
+.. function:: flash_write(byte_offset: int, bytes: bytes) -> None
 
-.. function:: osdebug(uart_no)
+    Write *bytes* into the flash starting at *byte_offset*. The targeted
+    region must have been erased before writing.
+
+.. function:: flash_erase(sector_no: int) -> None
+
+    Erase the flash sector with index *sector_no* (i.e. the byte address is
+    ``sector_no * sector_size``).
+
+.. function:: osdebug(uart_no: int | None) -> None
 
     .. note:: This is the ESP8266 form of this function.
 
@@ -72,7 +83,7 @@ Functions
     ``uart_no`` is the number of the UART peripheral which should receive
     OS-level output, or ``None`` to disable OS serial debug log messages.
 
-.. function:: osdebug(uart_no, [level])
+.. function:: osdebug(uart_no: int | None, level: int | None = None, /) -> None
     :no-index:
 
     .. note:: This is the ESP32 form of this function.
@@ -109,7 +120,7 @@ Functions
               to prevent communications issues. This means OS level logging is never
               seen when using ``mpremote run`` and similar tools.
 
-.. function:: set_native_code_location(start, length)
+.. function:: set_native_code_location(start: int | None, length: int | None) -> None
 
     **Note**: ESP8266 only
 

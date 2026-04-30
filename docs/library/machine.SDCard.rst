@@ -23,8 +23,8 @@ arguments that might need to be set in order to use either a non-standard slot
 or a non-standard pin assignment. The exact subset of arguments supported will
 vary from platform to platform.
 
-.. class:: SDCard(slot=1, width=1, cd=None, wp=None, sck=None, miso=None, mosi=None,
-                  cs=None, cmd=None, data=None, freq=20000000)
+.. class:: SDCard(slot: int = 1, width: int = 1, cd: Pin | None = None, wp: Pin | None = None, sck: Pin | None = None, miso: Pin | None = None, mosi: Pin | None = None,
+                  cs: Pin | None = None, cmd: Pin | None = None, data: list | tuple | None = None, freq: int = 20000000)
 
     This class provides access to SD or MMC storage cards using either
     a dedicated SD/MMC interface hardware or through an SPI channel.
@@ -221,7 +221,7 @@ Hence this controller does not feature the ``machine.SDCard`` module.
 Due to the decision to only support 4-bit mode with 50MHz clock frequency the
 interface has been simplified, and the constructor signature is:
 
-.. class:: SDCard(slot=1)
+.. class:: SDCard(slot: int = 1)
   :noindex:
 
 The pins used for the USDHC peripheral have to be configured in ``mpconfigboard.h``.

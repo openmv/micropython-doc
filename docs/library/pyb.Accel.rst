@@ -20,33 +20,33 @@ Constructors
 
    Create and return an accelerometer object.
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: Accel.filtered_xyz()
+   .. method:: filtered_xyz() -> tuple[int, int, int]
 
-   Get a 3-tuple of filtered x, y and z values.
+      Get a 3-tuple of filtered x, y and z values.
 
-   Implementation note: this method is currently implemented as taking the
-   sum of 4 samples, sampled from the 3 previous calls to this function along
-   with the sample from the current call.  Returned values are therefore 4
-   times the size of what they would be from the raw x(), y() and z() calls.
+      Implementation note: this method is currently implemented as taking the
+      sum of 4 samples, sampled from the 3 previous calls to this function along
+      with the sample from the current call.  Returned values are therefore 4
+      times the size of what they would be from the raw x(), y() and z() calls.
 
-.. method:: Accel.tilt()
+   .. method:: tilt() -> int
 
-   Get the tilt register.
+      Get the tilt register.
 
-.. method:: Accel.x()
+   .. method:: x() -> int
 
-   Get the x-axis value.
+      Get the x-axis value.
 
-.. method:: Accel.y()
+   .. method:: y() -> int
 
-   Get the y-axis value.
+      Get the y-axis value.
 
-.. method:: Accel.z()
+   .. method:: z() -> int
 
-   Get the z-axis value.
+      Get the z-axis value.
 
 Hardware Note
 -------------

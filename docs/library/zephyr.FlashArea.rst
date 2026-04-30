@@ -15,7 +15,7 @@ tree is used; however, fixed flash partitioning is not enforced in MicroPython b
 Constructors
 ------------
 
-.. class:: FlashArea(id, block_size)
+.. class:: FlashArea(id: int, block_size: int)
 
    Gets an object for accessing flash memory at partition specified by ``id`` and with block size of ``block_size``.
 
@@ -26,15 +26,12 @@ Constructors
    ``scratch_partition``. Because MCUBoot is not enabled by default for MicroPython, these fixed partitions can be accessed by
    ID integer values 1, 2, 3, and 4, respectively.
 
-Methods
--------
+   .. method:: readblocks(block_num: int, buf: bytearray) -> None
+               readblocks(block_num: int, buf: bytearray, offset: int) -> None
+   .. method:: writeblocks(block_num: int, buf: bytes) -> None
+               writeblocks(block_num: int, buf: bytes, offset: int) -> None
+   .. method:: ioctl(cmd: int, arg: int) -> int | None
 
-.. method:: FlashArea.readblocks(block_num, buf)
-            FlashArea.readblocks(block_num, buf, offset)
-.. method:: FlashArea.writeblocks(block_num, buf)
-            FlashArea.writeblocks(block_num, buf, offset)
-.. method:: FlashArea.ioctl(cmd, arg)
-
-    These methods implement the simple and extended
-    :ref:`block protocol <block-device-interface>` defined by
-    :class:`vfs.AbstractBlockDev`.
+      These methods implement the simple and extended
+      :ref:`block protocol <block-device-interface>` defined by
+      :class:`vfs.AbstractBlockDev`.

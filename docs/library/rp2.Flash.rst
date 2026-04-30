@@ -20,17 +20,12 @@ Constructors
 
    Gets the singleton object for accessing the SPI flash memory.
 
+   .. method:: readblocks(block_num: int, buf: bytearray) -> None
+               readblocks(block_num: int, buf: bytearray, offset: int) -> None
+   .. method:: writeblocks(block_num: int, buf: bytes) -> None
+               writeblocks(block_num: int, buf: bytes, offset: int) -> None
+   .. method:: ioctl(cmd: int, arg: int) -> int | None
 
-Methods
--------
-
-.. method:: Flash.readblocks(block_num, buf)
-            Flash.readblocks(block_num, buf, offset)
-.. method:: Flash.writeblocks(block_num, buf)
-            Flash.writeblocks(block_num, buf, offset)
-.. method:: Flash.ioctl(cmd, arg)
-
-    These methods implement the simple and extended
-    :ref:`block protocol <block-device-interface>` defined by
-    :class:`vfs.AbstractBlockDev`.
-
+      These methods implement the simple and extended
+      :ref:`block protocol <block-device-interface>` defined by
+      :class:`vfs.AbstractBlockDev`.

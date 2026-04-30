@@ -20,7 +20,7 @@ GND and Vcc.  The I2C default address is ``0x1A``.
 Constructor
 -----------
 
-.. class:: WM8960(i2c, sample_rate, *, bits=16, swap=SWAP_NONE, route=ROUTE_PLAYBACK_RECORD, left_input=INPUT_MIC3, right_input=INPUT_MIC2, sysclk_source=SYSCLK_MCLK, mclk_freq=None, primary=False, adc_sync=SYNC_DAC, protocol=BUS_I2S, i2c_address=WM8960_I2C_ADDR)
+.. class:: WM8960(i2c: I2C, sample_rate: int, *, bits: int = 16, swap: int = SWAP_NONE, route: int = ROUTE_PLAYBACK_RECORD, left_input: int = INPUT_MIC3, right_input: int = INPUT_MIC2, sysclk_source: int = SYSCLK_MCLK, mclk_freq: int | None = None, primary: bool = False, adc_sync: int = SYNC_DAC, protocol: int = BUS_I2S, i2c_address: int = WM8960_I2C_ADDR)
 
     Create a WM8960 driver object, initialize the device with default settings and return the
     WM8960 object.
@@ -64,6 +64,119 @@ Constructor
 
     If the MCLK signal is applied using, for example,. a separate oscillator,
     it must be specified for proper operation.
+
+   .. method:: set_left_input(input_source: int) -> None
+
+      Specify the source for the left input.  The input source names are listed above.
+
+   .. method:: set_right_input(input_source: int) -> None
+
+      Specify the source for the right input.  The input source names are listed above.
+
+   .. method:: volume(module: int, volume_l: float | None = None, volume_r: float | None = None) -> tuple[float, float] | None
+
+      Sets or gets the volume of a certain module.
+
+      If no volume values are supplied, the actual volume tuple is returned.
+
+      If one or two values are supplied, it sets the volume of a certain module.
+      If two values are provided, the first one is used for the left channel,
+      the second for the right channel.  If only one value is supplied, it is used
+      for both channels.  The value range is normalized to 0.0-100.0 with a
+      logarithmic scale.
+
+      For a list of suitable modules and db/step, see the table below.
+
+   .. method:: mute(module: int, mute: bool, soft: bool = True, ramp: int = wm8960.MUTE_FAST) -> None
+
+      Mute or unmute the output. If *mute* is True, the output is muted, if ``False``
+      it is unmuted.
+
+      If *soft* is set as True, muting will happen as a soft transition.  The time for
+      the transition is defined by *ramp*, which is either ``MUTE_FAST`` or ``MUTE_SLOW``.
+
+   .. method:: set_data_route(route: int) -> None
+
+      Set the audio data route.  For the parameter value/names, see the table above.
+
+   .. method:: set_module(module: int, active: bool) -> None
+
+      Enable or disable a module, with *active* being ``False`` or ``True``.  For
+      the list of module names, see the table above.
+
+      Note that enabling ``MODULE_MONO_OUT`` is different from the `WM8960.mono`
+      method.  The first enables output 3, while the `WM8960.mono` method sends a
+      mono mix to the left and right output.
+
+   .. method:: enable_module(module: int) -> None
+
+      Enable a module.  For the list of module names, see the table above.
+
+   .. method:: disable_module(module: int) -> None
+
+      Disable a module.  For the list of module names, see the table above.
+
+   .. method:: expand_3d(level: int) -> None
+
+      Enable Stereo 3D expansion.  *level* is a number between 0 and 15.
+      A value of 0 disables the expansion.
+
+   .. method:: mono(active: bool) -> None
+
+      If *active* is ``True``, a Mono mix is sent to the left and right output
+      channel.  This is different from enabling the ``MODULE_MONO_MIX``, which
+      enables output 3.
+
+   .. method:: alc_mode(channel: int, mode: int = ALC_MODE) -> None
+
+      Enables or disables ALC mode.  Parameters are:
+
+      - *channel* enables and sets the channel for ALC. The parameter values are:
+
+          - ALC_OFF:   Switch ALC off
+          - ALS_RIGHT:  Use the right input channel
+          - ALC_LEFT:   Use the left input channel
+          - ALC_STEREO: Use both input channels.
+
+      - *mode* sets the ALC mode. Input values are:
+
+          - ALC_MODE:   act as ALC
+          - ALC_LIMITER: act as limiter.
+
+   .. method:: alc_gain(target: float = -12, max_gain: float = 30, min_gain: float = -17.25, noise_gate: float = -78) -> None
+
+      Set the target level, highest and lowest gain levels and the noise gate as dB level.
+      Permitted ranges are:
+
+      - *target*: -22.5 to -1.5 dB
+      - *max_gain*: -12 to 30 dB
+      - *min_gain*: -17 to 25 dB
+      - *noise_gate*: -78 to -30 dB
+
+      Excess values are limited to the permitted ranges.  A value of -78 or less
+      for *noise_gate* disables the noise gate function.
+
+   .. method:: alc_time(attack: int = 24, decay: int = 192, hold: int = 0) -> None
+
+      Set the dynamic characteristic of ALC.  The times are given as millisecond
+      values.  Permitted ranges are:
+
+      - *attack*: 6 to 6140
+      - *decay*: 24 to 24580
+      - *hold*: 0 to 43000
+
+      Excess values are limited within the permitted ranges.
+
+   .. method:: deemphasis(active: bool) -> None
+
+      Enables or disables a deemphasis filter for playback, with *active* being
+      ``False`` or ``True``.  This filter is applied only for sample rates of
+      32000, 44100 and 48000.  For other sample rates, the filter setting
+      is silently ignored.
+
+   .. method:: deinit() -> None
+
+      Disable all modules.
 
 Tables of parameter constants
 -----------------------------
@@ -177,35 +290,6 @@ Tables of parameter constants
    1     SYNC_DAC
    ===== ====
 
-
-Methods
--------
-
-In addition to initialization, the driver provides some useful methods for
-controlling its operation:
-
-.. method:: WM8960.set_left_input(input_source)
-
-    Specify the source for the left input.  The input source names are listed above.
-
-.. method:: WM8960.set_right_input(input_source)
-
-    Specify the source for the right input.  The input source names are listed above.
-
-.. method:: WM8960.volume(module, volume_l=None, volume_r=None)
-
-    Sets or gets the volume of a certain module.
-
-    If no volume values are supplied, the actual volume tuple is returned.
-
-    If one or two values are supplied, it sets the volume of a certain module.
-    If two values are provided, the first one is used for the left channel,
-    the second for the right channel.  If only one value is supplied, it is used
-    for both channels.  The value range is normalized to 0.0-100.0 with a
-    logarithmic scale.
-
-    For a list of suitable modules and db/step, see the table below.
-
 .. table:: **Module Names and dB steps**
    :widths: auto
    :align: center
@@ -219,97 +303,6 @@ controlling its operation:
    0.475   MODULE_LINE_IN
    0.8     MODULE_SPEAKER
    ======= ====
-
-.. method:: WM8960.mute(module, mute, soft=True, ramp=wm8960.MUTE_FAST)
-
-    Mute or unmute the output. If *mute* is True, the output is muted, if ``False``
-    it is unmuted.
-
-    If *soft* is set as True, muting will happen as a soft transition.  The time for
-    the transition is defined by *ramp*, which is either ``MUTE_FAST`` or ``MUTE_SLOW``.
-
-.. method:: WM8960.set_data_route(route)
-
-    Set the audio data route.  For the parameter value/names, see the table above.
-
-.. method:: WM8960.set_module(module, active)
-
-    Enable or disable a module, with *active* being ``False`` or ``True``.  For
-    the list of module names, see the table above.
-
-    Note that enabling ``MODULE_MONO_OUT`` is different from the `WM8960.mono`
-    method.  The first enables output 3, while the `WM8960.mono` method sends a
-    mono mix to the left and right output.
-
-.. method:: WM8960.enable_module(module)
-
-    Enable a module.  For the list of module names, see the table above.
-
-.. method:: WM8960.disable_module(module)
-
-    Disable a module.  For the list of module names, see the table above.
-
-.. method:: WM8960.expand_3d(level)
-
-    Enable Stereo 3D expansion.  *level* is a number between 0 and 15.
-    A value of 0 disables the expansion.
-
-.. method:: WM8960.mono(active)
-
-    If *active* is ``True``, a Mono mix is sent to the left and right output
-    channel.  This is different from enabling the ``MODULE_MONO_MIX``, which
-    enables output 3.
-
-.. method:: WM8960.alc_mode(channel, mode=ALC_MODE)
-
-    Enables or disables ALC mode.  Parameters are:
-
-    - *channel* enables and sets the channel for ALC. The parameter values are:
-
-        - ALC_OFF:   Switch ALC off
-        - ALS_RIGHT:  Use the right input channel
-        - ALC_LEFT:   Use the left input channel
-        - ALC_STEREO: Use both input channels.
-
-    - *mode* sets the ALC mode. Input values are:
-
-        - ALC_MODE:   act as ALC
-        - ALC_LIMITER: act as limiter.
-
-.. method:: WM8960.alc_gain(target=-12, max_gain=30, min_gain=-17.25, noise_gate=-78)
-
-    Set the target level, highest and lowest gain levels and the noise gate as dB level.
-    Permitted ranges are:
-
-    - *target*: -22.5 to -1.5 dB
-    - *max_gain*: -12 to 30 dB
-    - *min_gain*: -17 to 25 dB
-    - *noise_gate*: -78 to -30 dB
-
-    Excess values are limited to the permitted ranges.  A value of -78 or less
-    for *noise_gate* disables the noise gate function.
-
-.. method:: WM8960.alc_time(attack=24, decay=192, hold=0)
-
-    Set the dynamic characteristic of ALC.  The times are given as millisecond
-    values.  Permitted ranges are:
-
-    - *attack*: 6 to 6140
-    - *decay*: 24 to 24580
-    - *hold*: 0 to 43000
-
-    Excess values are limited within the permitted ranges.
-
-.. method:: WM8960.deemphasis(active)
-
-    Enables or disables a deemphasis filter for playback, with *active* being
-    ``False`` or ``True``.  This filter is applied only for sample rates of
-    32000, 44100 and 48000.  For other sample rates, the filter setting
-    is silently ignored.
-
-.. method:: WM8960.deinit()
-
-    Disable all modules.
 
 
 Examples

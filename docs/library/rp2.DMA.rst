@@ -72,155 +72,155 @@ Constructor
 
     Claim one of the DMA controller channels for exclusive use.
 
-Methods
--------
+   .. method:: config(read: "int | _AnyReadableBuf | None" = None, write: "int | _AnyWritableBuf | None" = None, count: int | None = None, ctrl: int | None = None, trigger: bool = False) -> None
 
-.. method:: DMA.config(read=None, write=None, count=None, ctrl=None, trigger=False)
+      Configure the DMA registers for the channel and optionally start the transfer.
+      Parameters are:
 
-    Configure the DMA registers for the channel and optionally start the transfer.
-    Parameters are:
+      - *read*: The address from which the DMA controller will start reading data or
+        an object that will provide data to be read. It can be an integer or any
+        object that supports the buffer protocol.
+      - *write*: The address to which the DMA controller will start writing or an
+        object into which data will be written. It can be an integer or any object
+        that supports the buffer protocol.
+      - *count*: The number of bus transfers that will execute before this channel
+        stops. Note that this is the number of transfers, not the number of bytes.
+        If the transfers are 2 or 4 bytes wide then the total amount of data moved
+        (and thus the size of required buffer) needs to be multiplied accordingly.
+      - *ctrl*: The value for the DMA control register. This is an integer value
+        that is typically packed using the :meth:`DMA.pack_ctrl()`.
+      - *trigger*: Optionally commence the transfer immediately.
 
-    - *read*: The address from which the DMA controller will start reading data or
-      an object that will provide data to be read. It can be an integer or any
-      object that supports the buffer protocol.
-    - *write*: The address to which the DMA controller will start writing or an
-      object into which data will be written. It can be an integer or any object
-      that supports the buffer protocol.
-    - *count*: The number of bus transfers that will execute before this channel
-      stops. Note that this is the number of transfers, not the number of bytes.
-      If the transfers are 2 or 4 bytes wide then the total amount of data moved
-      (and thus the size of required buffer) needs to be multiplied accordingly.
-    - *ctrl*: The value for the DMA control register. This is an integer value
-      that is typically packed using the :meth:`DMA.pack_ctrl()`.
-    - *trigger*: Optionally commence the transfer immediately.
+   .. method:: irq(handler: Callable[[DMA], None] | None = None, hard: bool = False) -> Callable
 
-.. method:: DMA.irq(handler=None, hard=False)
+      Returns the IRQ object for this DMA channel and optionally configures it.
 
-    Returns the IRQ object for this DMA channel and optionally configures it.
+   .. method:: close() -> None
 
-.. method:: DMA.close()
+      Release the claim on the underlying DMA channel and free the interrupt
+      handler. The :class:`DMA` object can not be used after this operation.
 
-    Release the claim on the underlying DMA channel and free the interrupt
-    handler. The :class:`DMA` object can not be used after this operation.
+   .. method:: pack_ctrl(default: int | None = None, **kwargs) -> int
 
-.. method:: DMA.pack_ctrl(default=None, **kwargs)
+      Pack the values provided in the keyword arguments into the named fields of a new control
+      register value. Any field that is not provided will be set to a default value. The
+      default will either be taken from the provided ``default`` value, or if that is not
+      given, a default suitable for the current channel; setting this to the current value
+      of the `DMA.ctrl` attribute provides an easy way to override a subset of the fields.
 
-    Pack the values provided in the keyword arguments into the named fields of a new control
-    register value. Any field that is not provided will be set to a default value. The
-    default will either be taken from the provided ``default`` value, or if that is not
-    given, a default suitable for the current channel; setting this to the current value
-    of the `DMA.ctrl` attribute provides an easy way to override a subset of the fields.
+      The keys for the keyword arguments can be any key returned by the :meth:`DMA.unpack_ctrl()`
+      method. The writable values are:
 
-    The keys for the keyword arguments can be any key returned by the :meth:`DMA.unpack_ctrl()`
-    method. The writable values are:
+      - *enable*: ``bool`` Set to enable the channel (default: ``True``).
 
-    - *enable*: ``bool`` Set to enable the channel (default: ``True``).
+      - *high_pri*: ``bool`` Make this channel's bus traffic high priority (default: ``False``).
 
-    - *high_pri*: ``bool`` Make this channel's bus traffic high priority (default: ``False``).
+      - *size*: ``int`` Transfer size: 0=byte, 1=half word, 2=word (default: 2).
 
-    - *size*: ``int`` Transfer size: 0=byte, 1=half word, 2=word (default: 2).
+      - *inc_read*: ``bool`` Increment the read address after each transfer (default: ``True``).
 
-    - *inc_read*: ``bool`` Increment the read address after each transfer (default: ``True``).
+      - *inc_write*: ``bool`` Increment the write address after each transfer (default: ``True``).
 
-    - *inc_write*: ``bool`` Increment the write address after each transfer (default: ``True``).
+      - *ring_size*: ``int`` If non-zero, only the bottom ``ring_size`` bits of one
+        address register will change when an address is incremented, causing the
+        address to wrap at the next ``1 << ring_size`` byte boundary. Which
+        address is wrapped is controlled by the ``ring_sel`` flag. A zero value
+        disables address wrapping.
 
-    - *ring_size*: ``int`` If non-zero, only the bottom ``ring_size`` bits of one
-      address register will change when an address is incremented, causing the
-      address to wrap at the next ``1 << ring_size`` byte boundary. Which
-      address is wrapped is controlled by the ``ring_sel`` flag. A zero value
-      disables address wrapping.
+      - *ring_sel*: ``bool`` Set to ``False`` to have the ``ring_size`` apply to the read address
+        or ``True`` to apply to the write address.
 
-    - *ring_sel*: ``bool`` Set to ``False`` to have the ``ring_size`` apply to the read address
-      or ``True`` to apply to the write address.
+      - *chain_to*: ``int`` The channel number for a channel to trigger after this transfer
+        completes. Setting this value to this DMA object's own channel number
+        disables chaining (this is the default).
 
-    - *chain_to*: ``int`` The channel number for a channel to trigger after this transfer
-      completes. Setting this value to this DMA object's own channel number
-      disables chaining (this is the default).
+      - *treq_sel*: ``int`` Select a Transfer Request signal. See section 2.5.3 in the RP2040
+        datasheet for details.
 
-    - *treq_sel*: ``int`` Select a Transfer Request signal. See section 2.5.3 in the RP2040
-      datasheet for details.
+      - *irq_quiet*: ``bool`` Do not generate interrupt at the end of each transfer. Interrupts
+        will instead be generated when a zero value is written to the trigger
+        register, which will halt a sequence of chained transfers (default:
+        ``True``).
 
-    - *irq_quiet*: ``bool`` Do not generate interrupt at the end of each transfer. Interrupts
-      will instead be generated when a zero value is written to the trigger
-      register, which will halt a sequence of chained transfers (default:
-      ``True``).
+      - *bswap*: ``bool`` If set to true, bytes in words or half-words will be reversed before
+        writing (default: ``True``).
 
-    - *bswap*: ``bool`` If set to true, bytes in words or half-words will be reversed before
-      writing (default: ``True``).
+      - *sniff_en*: ``bool`` Set to ``True`` to allow data to be accessed by the chips sniff
+        hardware (default: ``False``).
 
-    - *sniff_en*: ``bool`` Set to ``True`` to allow data to be accessed by the chips sniff
-      hardware (default: ``False``).
+      - *write_err*: ``bool`` Setting this to ``True`` will clear a previously reported write
+        error.
 
-    - *write_err*: ``bool`` Setting this to ``True`` will clear a previously reported write
-      error.
+      - *read_err*: ``bool`` Setting this to ``True`` will clear a previously reported read
+        error.
 
-    - *read_err*: ``bool`` Setting this to ``True`` will clear a previously reported read
-      error.
+      See the description of the ``CH0_CTRL_TRIG`` register in section 2.5.7 of the RP2040
+      datasheet for details of all of these fields.
 
-    See the description of the ``CH0_CTRL_TRIG`` register in section 2.5.7 of the RP2040
-    datasheet for details of all of these fields.
+   .. method:: unpack_ctrl(value: int) -> dict
 
-.. method:: DMA.unpack_ctrl(value)
+      Unpack a value for a DMA channel control register into a dictionary with key/value pairs
+      for each of the fields in the control register.  *value* is the ``ctrl`` register value
+      to unpack.
 
-    Unpack a value for a DMA channel control register into a dictionary with key/value pairs
-    for each of the fields in the control register.  *value* is the ``ctrl`` register value
-    to unpack.
+      This method will return values for all the keys that can be passed to ``DMA.pack_ctrl``.
+      In addition, it will also return the read-only flags in the control register: ``busy``,
+      which goes high when a transfer starts and low when it ends, and ``ahb_err``, which is
+      the logical OR of the ``read_err`` and ``write_err`` flags. These values will be ignored
+      when packing, so that the dictionary created by unpacking a control register can be used
+      directly as the keyword arguments for packing.
 
-    This method will return values for all the keys that can be passed to ``DMA.pack_ctrl``.
-    In addition, it will also return the read-only flags in the control register: ``busy``,
-    which goes high when a transfer starts and low when it ends, and ``ahb_err``, which is
-    the logical OR of the ``read_err`` and ``write_err`` flags. These values will be ignored
-    when packing, so that the dictionary created by unpacking a control register can be used
-    directly as the keyword arguments for packing.
+   .. method:: active(value: bool | None = None, /) -> bool
 
-.. method:: DMA.active([value])
+      Gets or sets whether the DMA channel is currently running.
 
-    Gets or sets whether the DMA channel is currently running.
+      >>> sm.active()
+      0
+      >>> sm.active(1)
+      >>> while sm.active():
+      ...     pass
 
-    >>> sm.active()
-    0
-    >>> sm.active(1)
-    >>> while sm.active():
-    ...     pass
+   .. attribute:: read
+      :type: int
 
-Attributes
-----------
+      This attribute reflects the address from which the next bus transfer
+      will read. It may be written with either an integer or an object
+      that supports the buffer protocol and doing so has immediate effect.
 
-.. attribute:: DMA.read
+   .. attribute:: write
+      :type: int
 
-    This attribute reflects the address from which the next bus transfer
-    will read. It may be written with either an integer or an object
-    that supports the buffer protocol and doing so has immediate effect.
+      This attribute reflects the address to which the next bus transfer
+      will write.  It may be written with either an integer or an object
+      that supports the buffer protocol and doing so has immediate effect.
 
-.. attribute:: DMA.write
+   .. attribute:: count
+      :type: int
 
-    This attribute reflects the address to which the next bus transfer
-    will write.  It may be written with either an integer or an object
-    that supports the buffer protocol and doing so has immediate effect.
+      Reading this attribute will return the number of remaining bus
+      transfers in the *current* transfer sequence. Writing this attribute
+      sets the total number of transfers to be the *next* transfer sequence.
 
-.. attribute:: DMA.count
+   .. attribute:: ctrl
+      :type: int
 
-    Reading this attribute will return the number of remaining bus
-    transfers in the *current* transfer sequence. Writing this attribute
-    sets the total number of transfers to be the *next* transfer sequence.
+      This attribute reflects DMA channel control register. It is typically written
+      with an integer packed using the :meth:`DMA.pack_ctrl()` method. The returned
+      register value can be unpacked using the :meth:`DMA.unpack_ctrl()` method.
 
-.. attribute:: DMA.ctrl
+   .. attribute:: channel
+      :type: int
 
-    This attribute reflects DMA channel control register. It is typically written
-    with an integer packed using the :meth:`DMA.pack_ctrl()` method. The returned
-    register value can be unpacked using the :meth:`DMA.unpack_ctrl()` method.
+      The channel number of the DMA channel. This can be passed in the ``chain_to``
+      argument of `DMA.pack_ctrl()` on another channel to allow DMA chaining.
 
-.. attribute:: DMA.channel
+   .. attribute:: registers
+      :type: "memoryview"
 
-    The channel number of the DMA channel. This can be passed in the ``chain_to``
-    argument of `DMA.pack_ctrl()` on another channel to allow DMA chaining.
-
-.. attribute:: DMA.registers
-
-    This attribute is an array-like object that allows direct access to
-    the DMA channel's registers. The index is by word, rather than by byte,
-    so the register indices are the register address offsets divided by 4.
-    See the RP2040 data sheet for register details.
+      This attribute is an array-like object that allows direct access to
+      the DMA channel's registers. The index is by word, rather than by byte,
+      so the register indices are the register address offsets divided by 4.
+      See the RP2040 data sheet for register details.
 
 Chaining and trigger register access
 ------------------------------------

@@ -41,57 +41,57 @@ For example, to make a bouncing dot, try::
 Constructors
 ------------
 
-.. class:: LCD(skin_position)
+.. class:: LCD(skin_position: str)
 
    Construct an LCD object in the given skin position.  ``skin_position`` can be 'X' or 'Y', and
    should match the position where the LCD pyskin is plugged in.
 
 
-Methods
--------
+   Methods
+   -------
 
-.. method:: LCD.command(instr_data, buf)
+   .. method:: command(instr_data: int, buf: bytes | bytearray | memoryview) -> None
 
-   Send an arbitrary command to the LCD.  Pass 0 for ``instr_data`` to send an
-   instruction, otherwise pass 1 to send data.  ``buf`` is a buffer with the
-   instructions/data to send.
+      Send an arbitrary command to the LCD.  Pass 0 for ``instr_data`` to send an
+      instruction, otherwise pass 1 to send data.  ``buf`` is a buffer with the
+      instructions/data to send.
 
-.. method:: LCD.contrast(value)
+   .. method:: contrast(value: int) -> None
 
-   Set the contrast of the LCD.  Valid values are between 0 and 47.
+      Set the contrast of the LCD.  Valid values are between 0 and 47.
 
-.. method:: LCD.fill(colour)
+   .. method:: fill(colour: int) -> None
 
-   Fill the screen with the given colour (0 or 1 for white or black).
+      Fill the screen with the given colour (0 or 1 for white or black).
 
-   This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
+      This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
 
-.. method:: LCD.get(x, y)
+   .. method:: get(x: int, y: int) -> int
 
-   Get the pixel at the position ``(x, y)``.  Returns 0 or 1.
+      Get the pixel at the position ``(x, y)``.  Returns 0 or 1.
 
-   This method reads from the visible buffer.
+      This method reads from the visible buffer.
 
-.. method:: LCD.light(value)
+   .. method:: light(value: bool | int) -> None
 
-   Turn the backlight on/off.  True or 1 turns it on, False or 0 turns it off.
+      Turn the backlight on/off.  True or 1 turns it on, False or 0 turns it off.
 
-.. method:: LCD.pixel(x, y, colour)
+   .. method:: pixel(x: int, y: int, colour: int) -> None
 
-   Set the pixel at ``(x, y)`` to the given colour (0 or 1).
+      Set the pixel at ``(x, y)`` to the given colour (0 or 1).
 
-   This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
+      This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
 
-.. method:: LCD.show()
+   .. method:: show() -> None
 
-   Show the hidden buffer on the screen.
+      Show the hidden buffer on the screen.
 
-.. method:: LCD.text(str, x, y, colour)
+   .. method:: text(str: str, x: int, y: int, colour: int) -> None
 
-   Draw the given text to the position ``(x, y)`` using the given colour (0 or 1).
+      Draw the given text to the position ``(x, y)`` using the given colour (0 or 1).
 
-   This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
+      This method writes to the hidden buffer.  Use ``show()`` to show the buffer.
 
-.. method:: LCD.write(str)
+   .. method:: write(str: str) -> None
 
-   Write the string ``str`` to the screen.  It will appear immediately.
+      Write the string ``str`` to the screen.  It will appear immediately.

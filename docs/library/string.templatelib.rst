@@ -37,13 +37,13 @@ Classes
       A read-only property that returns a tuple containing the ``value``
       attribute from each interpolation in the template.
 
-   .. method:: __iter__()
+   .. method:: __iter__() -> Iterator
 
       Iterate over the template contents, yielding string parts and
       :class:`Interpolation` objects in the order they appear. Empty strings
       are omitted.
 
-   .. method:: __add__(other)
+   .. method:: __add__(other: Template) -> Template
 
       Concatenate two templates. Returns a new :class:`Template` combining
       the strings and interpolations from both templates.
@@ -60,7 +60,7 @@ Classes
          # TypeError: cannot concatenate str to Template
          result = t1 + "World"
 
-.. class:: Interpolation(value, expression='', conversion=None, format_spec='')
+.. class:: Interpolation(value: Any, expression: str = '', conversion: Optional[str] = None, format_spec: str = '')
 
    Represents an interpolated expression within a template string. All
    arguments can be passed as keyword arguments.
