@@ -76,7 +76,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "MicroPython"
-copyright = "- The MicroPython Documentation is Copyright © 2014-2026, Damien P. George, Paul Sokolovsky, and contributors"
+copyright = "- The MicroPython Documentation is Copyright © 2014-2026, Damien P. George, Paul Sokolovsky, OpenMV LLC, and contributors"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -115,6 +115,8 @@ exclude_patterns = [
     "library/omv.uftpd.rst",
     "library/omv.utelnet.rst",
     "library/omv.uping.rst",
+    "library/omv.umalloc.rst",
+    "library/omv.cpufreq.rst",
     "library/esp.rst",
     "library/espnow.rst",
     "library/esp32.rst",

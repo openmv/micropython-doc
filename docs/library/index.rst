@@ -87,11 +87,17 @@ library.
 
 .. _micropython_lib_micropython:
 
-MicroPython-specific libraries
-------------------------------
+OpenMV Cam libraries
+--------------------
 
-Functionality specific to the MicroPython implementation is available in
-the following libraries.
+The following sections describe the libraries available on each
+OpenMV-supported board, including both the MicroPython-specific
+built-ins and OpenMV's own extensions.
+
+Common modules
+~~~~~~~~~~~~~~
+
+Built into the firmware on every OpenMV camera board.
 
 .. toctree::
    :maxdepth: 1
@@ -106,21 +112,6 @@ the following libraries.
    openamp.rst
    uctypes.rst
    vfs.rst
-
-Libraries specific to the OpenMV Cam
-------------------------------------
-
-The following sections describe the libraries available on each
-OpenMV-supported board.
-
-Common OpenMV modules
-~~~~~~~~~~~~~~~~~~~~~
-
-Built into the firmware on every OpenMV camera board.
-
-.. toctree::
-   :maxdepth: 1
-
    omv.csi.rst
    omv.sensor.rst
    omv.image.rst
@@ -133,7 +124,6 @@ Built into the firmware on every OpenMV camera board.
    omv.imu.rst
    omv.omv.rst
    omv.crc.rst
-   omv.umalloc.rst
    omv.ml.rst
    omv.ulab.rst
    logging.rst
@@ -176,7 +166,6 @@ for which boards include each one.
 
    pyb.rst
    stm.rst
-   omv.cpufreq.rst
    mimxrt.rst
    omv.alif.rst
 
@@ -228,7 +217,6 @@ OpenMV N6 (STM32N6 — STMicroelectronics' first NPU-equipped MCU):
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`ssd1306` — OLED driver
 * :mod:`tb6612` — TB6612 motor driver
 
@@ -263,7 +251,6 @@ OpenMV Pure Thermal:
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`tfp410` — DVI/HDMI serializer
 * :mod:`ft5x06` — capacitive touchscreen driver
 * :mod:`dht` — DHT11 and DHT22 temperature/humidity sensors
@@ -280,7 +267,6 @@ Legacy STM32-based OpenMV camera boards:
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`dht` — DHT11 and DHT22 temperature/humidity sensors
 * :mod:`onewire` — 1-Wire bus protocol
 * :mod:`ds18x20` — DS18x20 temperature sensor driver
@@ -295,7 +281,6 @@ Arduino Giga R1 WiFi:
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`dht` — DHT11 and DHT22 temperature/humidity sensors
 * :mod:`onewire` — 1-Wire bus protocol
 * :mod:`neopixel` — control of WS2812 / NeoPixel LEDs
@@ -309,7 +294,6 @@ Arduino Portenta H7:
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`dht` — DHT11 and DHT22 temperature/humidity sensors
 * :mod:`ds18x20` — DS18x20 temperature sensor driver
 * :mod:`onewire` — 1-Wire bus protocol
@@ -325,7 +309,6 @@ Arduino Nicla Vision:
 
 * :mod:`pyb` — functions related to the board
 * :mod:`stm` — functionality specific to STM32 MCUs
-* :mod:`cpufreq` — CPU frequency control
 * :mod:`lsm6dsox` — LSM6DSOX 6-axis IMU
 * :mod:`dht` — DHT11 and DHT22 temperature/humidity sensors
 * :mod:`ds18x20` — DS18x20 temperature sensor driver
