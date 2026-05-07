@@ -1,112 +1,1133 @@
-{% extends "layout.html" %}
-{% set title = _('Overview') %}
-{% block body %}
+{%- extends "layout/landing.html" -%}
+{%- set title = _('Overview') -%}
 
-  <h1>OpenMV MicroPython documentation</h1>
+{%- block extrahead -%}
+  {{ super() }}
+  <style>
+    /* ─── Landing-only styles ─── */
+    .openmv-landing {
+      --omv-blue: #3f7fbf;
+      --omv-blue-dark: #2c5e8a;
+      --omv-blue-bg: rgba(63, 127, 191, 0.08);
+      --omv-radius-sm: 6px;
+      --omv-radius-md: 10px;
+      --omv-radius-lg: 14px;
+      --omv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --omv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --omv-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.10);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    html.dark .openmv-landing {
+      --omv-blue: #6aa6db;
+      --omv-blue-dark: #8cbde6;
+      --omv-blue-bg: rgba(106, 166, 219, 0.12);
+      --omv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --omv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --omv-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
 
-  <p>
-    {{ _('Welcome! This is the documentation for OpenMV firmware') }}
-    v{{ openmv_version|e }}, built on top of MicroPython v{{ release|e }}, for the OpenMV Cam and compatible platforms{% if last_updated %}, {{ _('last updated') }} {{ last_updated|e }}{% endif %}.
-  </p>
+    /* Hide Shibuya's "yue" article styling on the landing for a wider canvas
+       and trim the top/bottom chrome the layout adds (pt-12 + .yue padding). */
+    body:has(.openmv-landing) .sy-content {
+      max-width: 1280px;
+      padding-top: 0;
+    }
+    body:has(.openmv-landing) .yue {
+      padding-bottom: 0;
+    }
 
-  <p><strong>General documentation for MicroPython:</strong></p>
+    /* Bump the social icons inside the mobile burger drawer so the GitHub
+       link doesn't render as a 16px icon next to a full-size search box. */
+    @media (max-width: 1023px) {
+      .sy-head-nav .sy-head-socials a { font-size: 24px; }
+    }
 
-  <table class="contentstable"><tr>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("library/index") }}">Library Reference</a><br/>
-        <span class="linkdescr">MicroPython libraries and modules</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("genrst/index") }}">MicroPython Differences</a><br/>
-        <span class="linkdescr">MicroPython operations which differ from CPython</span>
-      </p>
-    </td>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("reference/index") }}">Language Reference</a><br/>
-        <span class="linkdescr">information about MicroPython specific language features</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("license") }}">License</a><br/>
-        <span class="linkdescr">MicroPython license information</span>
-      </p>
-    </td>
-  </tr></table>
+    /* Reset Shibuya's .yue heading margins inside the landing — we control all
+       spacing via .omv-section padding and component margins.
+       (.yue p margins are overridden by the component-specific p selectors below.) */
+    .openmv-landing h1,
+    .openmv-landing h2,
+    .openmv-landing h3,
+    .openmv-landing h4 {
+      margin: 0;
+    }
 
-  <p><strong>References and tutorials:</strong></p>
+    /* Override Shibuya's .yue a link-underline border for landing anchors.
+       Use specificity (.openmv-landing + class) instead of !important. */
+    .openmv-landing a { font-weight: inherit; }
+    .openmv-landing a.omv-step,
+    .openmv-landing a.omv-card,
+    .openmv-landing a.omv-link-card {
+      border: 1px solid var(--sy-c-border);
+    }
+    .openmv-landing a.omv-step:hover,
+    .openmv-landing a.omv-card:hover,
+    .openmv-landing a.omv-link-card:hover {
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+    }
+    .openmv-landing a.omv-btn { border: 1px solid transparent; }
+    .openmv-landing a.omv-btn-secondary { border-color: rgba(255, 255, 255, 0.20); }
+    .openmv-landing a.omv-btn-secondary:hover { border-color: rgba(255, 255, 255, 0.30); }
+    .openmv-landing .omv-section-foot a { border-bottom: none; }
 
-  <table class="contentstable"><tr>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("openmvcam/quickref") }}">Quick reference for the OpenMV Cam</a><br/>
-        <span class="linkdescr">pinout for the OpenMV Cam, snippets of useful code, and a tutorial</span>
-      </p>
-    </td>
-  </tr></table>
+    /* ─── Hero — dark panel with autoplay video on the right + gradient fade ─── */
+    .omv-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--omv-radius-lg);
+      padding: 64px 56px 52px;
+      margin: 24px 0 32px;
+      background:
+        linear-gradient(135deg, #061a2e 0%, #0e3556 45%, #1d4f7e 100%);
+      color: #e6effa;
+      isolation: isolate;
+    }
+    .omv-hero .hero-video {
+      position: absolute;
+      /* Video keeps its native aspect (no crop). Anchored to the right edge,
+         fills the hero vertically. Tweak --hero-video-right to slide it
+         (e.g., -80px to bleed off the right edge). */
+      --hero-video-right: 0;
+      --hero-video-top: 0;
+      height: 100%;
+      width: auto;
+      top: var(--hero-video-top);
+      right: var(--hero-video-right);
+      margin: 0;          /* Shibuya's .yue video adds 2em top/bottom margin — kill it. */
+      /* Fade the video's left edge into the hero gradient so there's no
+         hard boundary between the video and the dark area on the left. */
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 25%);
+              mask-image: linear-gradient(90deg, transparent 0%, black 25%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    /* Subtle grid texture over the video. */
+    .omv-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='%23ffffff' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* Left-to-right gradient fade — keeps the title and CTAs legible. */
+    .omv-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg,
+          rgba(6, 26, 46, 0.95) 0%,
+          rgba(6, 26, 46, 0.85) 30%,
+          rgba(14, 53, 86, 0.55) 60%,
+          rgba(14, 53, 86, 0) 100%),
+        linear-gradient(180deg,
+          rgba(6, 26, 46, 0) 65%,
+          rgba(6, 26, 46, 0.35) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .omv-hero-inner { position: relative; z-index: 2; }
+    @media (max-width: 600px) {
+      .omv-hero .hero-video { display: none; }
+    }
+    .omv-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #b9d4ed;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(4px);
+    }
+    .omv-hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6aa6db;
+      box-shadow: 0 0 10px #6aa6db;
+      animation: omv-pulse 2s ease-in-out infinite;
+    }
+    @keyframes omv-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .omv-hero h1 {
+      font-size: 50px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -1.5px;
+      color: #ffffff;
+      margin: 0 0 18px;
+      max-width: 720px;
+    }
+    .omv-hero h1 .accent { color: #7eb8e8; }
+    .omv-hero p.lead {
+      font-size: 18px;
+      line-height: 1.65;
+      color: #b9d4ed;
+      max-width: 580px;
+      margin: 0 0 32px;
+    }
+    .omv-hero-cta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .omv-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: var(--omv-radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+    }
+    /* Bumped to .openmv-landing prefix so we beat .yue a's link color (0,1,1). */
+    .openmv-landing .omv-btn-primary {
+      background: #ffffff;
+      color: #0e3556;
+    }
+    .openmv-landing .omv-btn-primary:hover {
+      background: #f4f7fb;
+      color: #0e3556;
+      border-bottom-width: 1px;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .openmv-landing .omv-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.20);
+      backdrop-filter: blur(4px);
+    }
+    .openmv-landing .omv-btn-secondary:hover {
+      color: #ffffff;
+      border-bottom-width: 1px;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .omv-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-  <p><strong>Indices and tables:</strong></p>
+    /* ─── Sections ─── */
+    /* Sections only contribute padding above; component bottoms (cards,
+       callouts, section-foot links) carry their own margins. */
+    .omv-section { padding: 28px 0 0; }
 
-  <table class="contentstable"><tr>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("py-modindex") }}">Module index</a><br/>
-        <span class="linkdescr">quick access to all modules</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("genindex") }}">Full index</a><br/>
-        <span class="linkdescr">all functions, classes, constants</span>
-      </p>
-    </td>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("reference/glossary") }}">Glossary</a><br/>
-        <span class="linkdescr">MicroPython terms explained</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="{{ pathto("index") }}">Table of contents</a><br/>
-        <span class="linkdescr">a list of all sections and subsections</span>
-      </p>
-    </td></tr>
-  </table>
+    .omv-section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .omv-section-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--omv-blue);
+      background: var(--omv-blue-bg);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .omv-section h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--sy-c-heading);
+      margin: 0;
+    }
+    p.omv-section-desc {
+      font-size: 15px;
+      color: var(--sy-c-light);
+      max-width: 920px;
+      margin: 8px 0 28px;
+      line-height: 1.55;
+    }
 
-  <p><strong>External links:</strong></p>
+    /* ─── Quick start steps ─── */
+    .omv-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .omv-step {
+      background: var(--sy-c-surface);
+      border: 1px solid var(--sy-c-border);
+      border-radius: var(--omv-radius-lg);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .omv-step:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--omv-shadow-md);
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+    }
+    .omv-step-num {
+      width: 30px; height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 50%;
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      margin-bottom: 14px;
+    }
+    .omv-step h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--sy-c-heading);
+      margin: 0 0 6px;
+    }
+    .omv-step p {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--sy-c-light);
+      margin: 0;
+    }
 
-  <table class="contentstable"><tr>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-      <a class="biglink" href="https://openmv.io">OpenMV homepage</a><br/>
-        <span class="linkdescr">the official OpenMV site</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="http://forums.openmv.io">OpenMV forum</a><br/>
-        <span class="linkdescr">community discussion for all things related to OpenMV</span>
-      </p>
-    </td>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="https://github.com/openmv">OpenMV on GitHub</a><br/>
-        <span class="linkdescr">contribute to the source code on GitHub</span>
-      </p>
-    </td>
-  </tr></table>
-  <table class="contentstable"><tr>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-      <a class="biglink" href="http://micropython.org">MicroPython homepage</a><br/>
-        <span class="linkdescr">the official MicroPython site</span>
-      </p>
-      <p class="biglink">
-        <a class="biglink" href="https://github.com/orgs/micropython/discussions">GitHub Discussions</a><br/>
-        <span class="linkdescr">community discussion for all things related to MicroPython</span>
-      </p>
-    </td>
-    <td width="40%" style="padding-left:2em;">
-      <p class="biglink">
-        <a class="biglink" href="https://github.com/micropython">MicroPython on GitHub</a><br/>
-        <span class="linkdescr">contribute to the source code on GitHub</span>
-      </p>
-    </td>
-  </tr></table>
+    /* ─── Tabbed code section (split panel) ─── */
+    .omv-code-card {
+      background: var(--sy-c-surface);
+      border: 1px solid var(--sy-c-border);
+      border-radius: var(--omv-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--omv-shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    .omv-code-card .tab-headers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      padding: 0;
+      border-bottom: 1px solid var(--sy-c-border);
+      background: var(--sy-c-surface);
+    }
+    .omv-code-card .tab-btn {
+      padding: 11px 16px;
+      border: none;
+      background: transparent;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sy-c-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .omv-code-card .tab-btn:hover {
+      color: var(--sy-c-text);
+      background: color-mix(in srgb, var(--omv-blue) 6%, transparent);
+    }
+    .omv-code-card .tab-btn.active {
+      color: var(--omv-blue);
+      border-bottom-color: var(--omv-blue);
+    }
+    .omv-code-card .tab-bodies {
+      display: block;
+    }
+    .omv-code-card .tab-body {
+      display: none;
+    }
+    .omv-code-card .tab-body.active {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+    }
+    .omv-code-card .code-pane {
+      overflow: hidden;
+      display: flex;
+    }
+    .omv-code-card .code-pane .highlight {
+      flex: 1;
+      margin: 0;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .omv-code-card .code-pane pre {
+      margin: 0;
+      padding: 22px 24px;
+      font-size: 13px;
+      line-height: 1.6;
+      border: none;
+    }
+    .omv-code-card .desc-pane {
+      padding: 24px 26px;
+      border-left: 1px solid var(--sy-c-border);
+    }
+    .omv-code-card .desc-pane h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--sy-c-heading);
+      margin: 0 0 10px;
+    }
+    .omv-code-card .desc-pane > p {
+      font-size: 14px;
+      color: var(--sy-c-light);
+      line-height: 1.6;
+      margin: 0 0 16px;
+    }
+    .omv-bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .omv-bullet:last-child { margin-bottom: 0; }
+    .omv-bullet .check {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      margin-top: 1px;
+    }
+    .omv-bullet .check svg { width: 11px; height: 11px; }
+    .omv-bullet span {
+      font-size: 13.5px;
+      color: var(--sy-c-text);
+      line-height: 1.5;
+    }
+    .omv-bullet code {
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.92em;
+      font-family: var(--sy-f-mono);
+    }
 
-{% endblock %}
+    /* ─── Card grids (boards, modules, links) ─── */
+    .omv-grid {
+      display: grid;
+      gap: 14px;
+    }
+    .omv-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .omv-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .omv-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .omv-card {
+      background: var(--sy-c-surface);
+      border: 1px solid var(--sy-c-border);
+      border-radius: var(--omv-radius-md);
+      padding: 18px 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      display: block;
+      overflow: hidden;
+    }
+    .omv-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--omv-shadow-md);
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+    }
+
+    /* Board cards: image on top + body below */
+    .omv-card.board { padding: 0; }
+    .omv-card.board .board-thumb {
+      aspect-ratio: 4 / 3;
+      background:
+        radial-gradient(ellipse at center, rgba(63, 127, 191, 0.06), transparent 70%),
+        var(--sy-c-background);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--sy-c-border);
+      overflow: hidden;
+    }
+    html.dark .omv-card.board .board-thumb {
+      background:
+        radial-gradient(ellipse at center, rgba(106, 166, 219, 0.08), transparent 70%),
+        var(--sy-c-background);
+    }
+    .omv-card.board .board-thumb img {
+      max-width: 88%;
+      max-height: 88%;
+      object-fit: contain;
+      transition: transform 0.3s ease-out;
+    }
+    .omv-card.board:hover .board-thumb img {
+      transform: scale(1.03);
+    }
+    .omv-card.board .board-body {
+      padding: 16px 18px 18px;
+    }
+    .omv-card-icon {
+      width: 38px; height: 38px;
+      border-radius: var(--omv-radius-sm);
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .omv-card-icon svg { width: 20px; height: 20px; }
+
+    /* Color palette for module-card, feature-card, and link-card icons.
+       Compound selectors so we beat the default .feat-icon and .icon rules (0,2,0). */
+    .omv-card.icon-green  .omv-card-icon, .omv-feature-card.icon-green  .feat-icon, .omv-link-card.icon-green  .icon { background: rgba(20, 168, 126, 0.12); color: #0F8C68; }
+    .omv-card.icon-blue   .omv-card-icon, .omv-feature-card.icon-blue   .feat-icon, .omv-link-card.icon-blue   .icon { background: rgba(37, 99, 235, 0.12);  color: #2563EB; }
+    .omv-card.icon-purple .omv-card-icon, .omv-feature-card.icon-purple .feat-icon, .omv-link-card.icon-purple .icon { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+    .omv-card.icon-coral  .omv-card-icon, .omv-feature-card.icon-coral  .feat-icon, .omv-link-card.icon-coral  .icon { background: rgba(216, 90, 48, 0.12);  color: #D85A30; }
+    .omv-card.icon-amber  .omv-card-icon, .omv-feature-card.icon-amber  .feat-icon, .omv-link-card.icon-amber  .icon { background: rgba(186, 117, 23, 0.14); color: #BA7517; }
+    html.dark .omv-card.icon-green  .omv-card-icon, html.dark .omv-feature-card.icon-green  .feat-icon, html.dark .omv-link-card.icon-green  .icon { background: rgba(43, 194, 149, 0.16);  color: #5DD4AE; }
+    html.dark .omv-card.icon-blue   .omv-card-icon, html.dark .omv-feature-card.icon-blue   .feat-icon, html.dark .omv-link-card.icon-blue   .icon { background: rgba(96, 165, 250, 0.18);  color: #93C5FD; }
+    html.dark .omv-card.icon-purple .omv-card-icon, html.dark .omv-feature-card.icon-purple .feat-icon, html.dark .omv-link-card.icon-purple .icon { background: rgba(167, 139, 250, 0.18); color: #C4B5FD; }
+    html.dark .omv-card.icon-coral  .omv-card-icon, html.dark .omv-feature-card.icon-coral  .feat-icon, html.dark .omv-link-card.icon-coral  .icon { background: rgba(251, 146, 60, 0.18);  color: #FDBA74; }
+    html.dark .omv-card.icon-amber  .omv-card-icon, html.dark .omv-feature-card.icon-amber  .feat-icon, html.dark .omv-link-card.icon-amber  .icon { background: rgba(251, 191, 36, 0.18);  color: #FCD34D; }
+    .omv-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sy-c-heading);
+      margin: 0 0 4px;
+    }
+    .omv-card.module h4 {
+      font-family: var(--sy-f-mono);
+      letter-spacing: -0.2px;
+    }
+    .omv-card p {
+      font-size: 12.5px;
+      color: var(--sy-c-light);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .omv-card .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+      vertical-align: middle;
+      text-transform: uppercase;
+    }
+    .omv-card .tag.new { background: var(--omv-blue-bg); color: var(--omv-blue); }
+    .omv-card .tag.legacy { background: var(--sy-c-divider); color: var(--sy-c-light); }
+
+    .omv-link-card {
+      background: var(--sy-c-surface);
+      border: 1px solid var(--sy-c-border);
+      border-radius: var(--omv-radius-md);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .omv-link-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+      box-shadow: var(--omv-shadow-md);
+    }
+    .omv-link-card .icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: var(--omv-radius-sm);
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .omv-link-card .icon svg { width: 18px; height: 18px; }
+    .omv-link-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sy-c-heading);
+      margin: 0 0 2px;
+    }
+    .omv-link-card p {
+      font-size: 12px;
+      color: var(--sy-c-light);
+      margin: 0;
+    }
+
+    p.omv-section-foot {
+      margin: 20px 0 0;
+      font-size: 14px;
+    }
+
+    .omv-section-foot a {
+      color: var(--omv-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .omv-section-foot a:hover { text-decoration: underline; }
+
+    /* ─── Callout ("New to OpenMV?") — clickable card, mockup green ─── */
+    .omv-callout-card {
+      --omv-green: #14A87E;
+      --omv-green-dark: #0A6B50;
+      --omv-green-bg: rgba(20, 168, 126, 0.08);
+      background: var(--omv-green-bg);
+      border-radius: var(--omv-radius-lg);
+      padding: 22px 26px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin: 32px 0 0;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    html.dark .omv-callout-card {
+      --omv-green: #2BC295;
+      --omv-green-dark: #5DD4AE;
+      --omv-green-bg: rgba(43, 194, 149, 0.10);
+    }
+    .openmv-landing a.omv-callout-card {
+      border: 1px solid color-mix(in srgb, var(--omv-green) 30%, transparent);
+    }
+    .omv-callout-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--omv-shadow-md);
+    }
+    .openmv-landing a.omv-callout-card:hover {
+      border-color: color-mix(in srgb, var(--omv-green) 60%, transparent);
+    }
+    .omv-callout-card .callout-icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: var(--omv-radius-md);
+      background: color-mix(in srgb, var(--omv-green) 18%, transparent);
+      color: var(--omv-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .omv-callout-card .callout-icon svg { width: 22px; height: 22px; }
+    .omv-callout-card .callout-body { flex: 1; }
+    .omv-callout-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--omv-green-dark);
+      margin: 0 0 3px;
+    }
+    html.dark .omv-callout-card h3 { color: var(--omv-green); }
+    .omv-callout-card p {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--sy-c-text);
+      margin: 0;
+    }
+    .omv-callout-card .callout-arrow {
+      flex-shrink: 0;
+      color: var(--omv-green);
+      transition: transform 0.2s;
+    }
+    .omv-callout-card:hover .callout-arrow {
+      transform: translateX(4px);
+    }
+    .omv-callout-card .callout-arrow svg { width: 20px; height: 20px; }
+
+    /* ─── Hover-reveal "Explore →" arrow on module + board cards ─── */
+    .omv-card .card-arrow {
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--omv-blue);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .omv-card:hover .card-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .omv-card.board .board-body .card-arrow { margin-top: 10px; }
+
+    /* ─── Feature cards ("More resources") ─── */
+    .omv-feature-card {
+      background: var(--sy-c-surface);
+      border: 1px solid var(--sy-c-border);
+      border-radius: var(--omv-radius-lg);
+      padding: 26px 24px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .openmv-landing a.omv-feature-card { border: 1px solid var(--sy-c-border); }
+    .omv-feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--omv-shadow-md);
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+    }
+    .openmv-landing a.omv-feature-card:hover {
+      border-color: color-mix(in srgb, var(--omv-blue) 50%, var(--sy-c-border));
+    }
+    .omv-feature-card .feat-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--omv-radius-md);
+      background: var(--omv-blue-bg);
+      color: var(--omv-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .omv-feature-card .feat-icon svg { width: 22px; height: 22px; }
+    .omv-feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--sy-c-heading);
+      margin: 0 0 6px;
+    }
+    .omv-feature-card p {
+      font-size: 13px;
+      color: var(--sy-c-light);
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 960px) {
+      .omv-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+      .omv-grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+      .omv-steps { grid-template-columns: 1fr; }
+      /* Stack code on top, description below — code-card grid is on .tab-body.active. */
+      .omv-code-card .tab-body.active { grid-template-columns: 1fr; }
+      .omv-code-card .desc-pane { border-left: none; border-top: 1px solid var(--sy-c-border); }
+      .omv-hero h1 { font-size: 34px; }
+    }
+    @media (max-width: 600px) {
+      .omv-grid.cols-4, .omv-grid.cols-3, .omv-grid.cols-2 { grid-template-columns: 1fr; }
+      .omv-section { padding: 28px 0 0; }
+      /* Mobile hero — restore horizontal padding, shrink the headline so it doesn't run to the edge. */
+      .omv-hero { padding: 36px 22px 40px; }
+      .omv-hero h1 { font-size: 28px; letter-spacing: -0.8px; }
+      .omv-hero p.lead { font-size: 15px; margin-bottom: 22px; }
+      /* Stack the hero CTAs vertically on mobile so each one is full-width and tappable. */
+      .omv-hero-cta { flex-direction: column; align-items: stretch; gap: 10px; }
+      .omv-btn { padding: 11px 16px; font-size: 14px; justify-content: center; }
+      /* Tighten the code pane padding so the snippet doesn't overflow horizontally. */
+      .omv-code-card .code-pane pre { padding: 16px 14px; font-size: 12px; line-height: 1.55; }
+      .omv-code-card .desc-pane { padding: 18px 18px 20px; }
+      /* Tab labels wrap freely instead of overflowing on small screens. */
+      .omv-code-card .tab-btn { padding: 9px 12px; font-size: 12px; white-space: normal; }
+    }
+  </style>
+{%- endblock -%}
+
+{%- block body -%}
+<div class="openmv-landing">
+
+  <!-- ─── Hero ─── -->
+  <section class="omv-hero">
+    <video class="hero-video" autoplay muted loop playsinline preload="metadata"
+           aria-hidden="true">
+      <source src="_static/openmv-hero.mp4" type="video/mp4">
+    </video>
+    <div class="omv-hero-inner">
+      <span class="omv-hero-badge">
+        <span class="dot"></span>
+        For OpenMV firmware v{{ openmv_version|e }} &middot; based on MicroPython v{{ micropython_version|e }} &middot; Docs built {{ build_date|e }}
+      </span>
+      <h1>Machine vision,<br>made simple.</h1>
+      <p class="lead">Live face detection, AprilTag tracking, QR scanning, and YOLO. All on-device in pure MicroPython. No host computer, no cloud.</p>
+      <div class="omv-hero-cta">
+        <a class="omv-btn omv-btn-primary" href="{{ pathto('openmvcam/tutorial/index') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Quick start guide
+        </a>
+        <a class="omv-btn omv-btn-secondary" href="{{ pathto('library/index') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          API reference
+        </a>
+        <a class="omv-btn omv-btn-secondary" href="{{ pathto('openmvcam/quickref') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Browse examples
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Quick start steps (no header — overlaps hero like mockup) ─── -->
+  <section class="omv-section omv-quickstart-section">
+    <div class="omv-steps">
+      <a class="omv-step" href="{{ pathto('openmvcam/tutorial/software_setup') }}">
+        <div class="omv-step-num">1</div>
+        <h3>Open the IDE</h3>
+        <p>Download and install OpenMV IDE for Windows, macOS, or Linux and launch the IDE.</p>
+      </a>
+      <a class="omv-step" href="{{ pathto('openmvcam/quickref') }}">
+        <div class="omv-step-num">2</div>
+        <h3>Connect your cam</h3>
+        <p>Plug the OpenMV Cam into your computer via USB. A blue heartbeat LED blinks when it's ready.</p>
+      </a>
+      <a class="omv-step" href="{{ pathto('openmvcam/tutorial/index') }}">
+        <div class="omv-step-num">3</div>
+        <h3>Run your first script</h3>
+        <p>Click the socket-icon connect button in the IDE, then hit the green play arrow to run your first script.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ─── Hello world (tabbed code split) ─── -->
+  <section class="omv-section">
+    <div class="omv-section-header">
+      <h2>Hello world</h2>
+      <span class="omv-section-tag">Examples</span>
+    </div>
+    <div class="omv-code-card" data-omv-tabs>
+      <div class="tab-headers" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="yolo"      role="tab" aria-selected="true">YOLOv8 person tracking</button>
+        <button type="button" class="tab-btn"        data-tab="apriltag"  role="tab">AprilTag tracking</button>
+        <button type="button" class="tab-btn"        data-tab="blazeface" role="tab">BlazeFace tracking</button>
+        <button type="button" class="tab-btn"        data-tab="qrcode"    role="tab">QR code detection</button>
+        <button type="button" class="tab-btn"        data-tab="color"     role="tab">Color tracking</button>
+        <button type="button" class="tab-btn"        data-tab="barcode"   role="tab">Bar code detection</button>
+        <button type="button" class="tab-btn"        data-tab="hand"      role="tab">Hand landmarks</button>
+      </div>
+      <div class="tab-bodies">
+        <div class="tab-body active" data-tab="yolo" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.yolo|safe }}</div>
+          <div class="desc-pane">
+            <h3>Real-time person tracking</h3>
+            <p>The on-board YOLOv8 model is a single-class person detector — int8 quantised and shipped in ROM.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Loaded from <code>/rom/yolov8n_192.tflite</code> — no SD card or download needed.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Runs in real time on NPU-equipped boards — the OpenMV N6 and AE3.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Train your own YOLOv8 in Ultralytics — same three lines of glue.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="apriltag" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.apriltag|safe }}</div>
+          <div class="desc-pane">
+            <h3>Locate and identify AprilTags</h3>
+            <p>AprilTags are 2D fiducial markers — robust to motion blur and partial occlusion, and they give you full 3D pose.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Built-in detector — no model file or training needed.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Returns ID plus full 6-DoF pose — <code>x/y/z</code> translation and <code>x/y/z</code> rotation.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Use for robotics calibration, AR markers, and indoor positioning.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="blazeface" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.blazeface|safe }}</div>
+          <div class="desc-pane">
+            <h3>Detect faces with BlazeFace</h3>
+            <p>Google's BlazeFace is a lightweight TensorFlow Lite face detector that returns bounding boxes plus six landmarks per face.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Loaded from <code>/rom/blazeface_front_128.tflite</code> — pre-quantised, no download needed.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Six keypoints per face: eyes, nose, mouth, and ears.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>No privacy concerns — frames never leave the camera.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="qrcode" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.qrcode|safe }}</div>
+          <div class="desc-pane">
+            <h3>Scan QR codes from a live feed</h3>
+            <p>The built-in QR decoder handles tilted, distorted, and partially occluded codes.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Each result also exposes version, ECC level, and corner coordinates.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Numeric, alphanumeric, binary, and Kanji data modes.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Returns the decoded payload as a Python string — ready to use.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="color" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.color|safe }}</div>
+          <div class="desc-pane">
+            <h3>Find blobs of color</h3>
+            <p><code>find_blobs</code> returns connected pixel regions matching one or more LAB thresholds.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Tune thresholds for your lighting — disable auto-gain and auto-whitebal first.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Pass multiple thresholds for multi-color tracking in one call.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span><code>pixels_threshold</code> filters tiny detections; <code>merge=True</code> joins overlapping blobs.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="barcode" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.barcode|safe }}</div>
+          <div class="desc-pane">
+            <h3>Read 1D barcodes</h3>
+            <p>Find 1D barcodes anywhere in the frame and decode their payloads.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Powered by the <a href="https://github.com/mchehab/zbar">ZBar</a> library — recognises EAN, UPC, Code&nbsp;39/93/128, Codabar, ITF, ISBN, and DataBar.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Use a windowed strip in grayscale for the fastest linear scan.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Each result has format, payload, rotation, corners, and a bounding rect.</span></div>
+          </div>
+        </div>
+        <div class="tab-body" data-tab="hand" role="tabpanel">
+          <div class="code-pane">{{ landing_examples.hand|safe }}</div>
+          <div class="desc-pane">
+            <h3>Track 21 hand keypoints</h3>
+            <p>Google's MediaPipe Hand Landmarks model places 21 joints on each detected hand — wrist, knuckles, and fingertips.</p>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Loaded from <code>/rom/hand_landmarks_full_224.tflite</code> — running standalone here, without palm detection upstream.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span>Returns one list per hand — index 0 is left, index 1 is right.</span></div>
+            <div class="omv-bullet"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></span><span><code>ml.utils.draw_skeleton</code> draws all 21 joints and connections in one call.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Callout (clickable card) ─── -->
+    <a class="omv-callout-card" href="{{ pathto('openmvcam/tutorial/index') }}">
+      <div class="callout-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      </div>
+      <div class="callout-body">
+        <h3>New to OpenMV?</h3>
+        <p>Start with the step-by-step tutorial — it covers hardware setup, the IDE, basic scripts, and tips for your first real project.</p>
+      </div>
+      <div class="callout-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+  </section>
+
+  <!-- ─── Core libraries ─── -->
+  <section class="omv-section">
+    <div class="omv-section-header">
+      <h2>Core libraries</h2>
+      <span class="omv-section-tag">API</span>
+    </div>
+    <p class="omv-section-desc">Cameras, image processing, ML, ndarrays, I/O, displays, multitasking, networking, and Bluetooth — all from MicroPython.</p>
+    <div class="omv-grid cols-3">
+      <a class="omv-card module icon-green" href="{{ pathto('library/omv.csi') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <h4>csi</h4>
+        <p>Camera control, pixel formats, frame sizes, and capture settings.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-blue" href="{{ pathto('library/omv.image') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        <h4>image</h4>
+        <p>Machine vision: blobs, edges, lines, circles, features, and drawing.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-purple" href="{{ pathto('library/omv.ml') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a4 4 0 014 4c0 1.95-1.4 3.58-3.25 3.93"/><path d="M8 6a4 4 0 014-4"/><rect x="3" y="14" width="18" height="8" rx="2"/><path d="M7 14v8M12 14v8M17 14v8"/></svg></div>
+        <h4>ml</h4>
+        <p>On-device neural network inference — classify, detect, and segment.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-coral" href="{{ pathto('openmvcam/tutorial/numpy/index') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h4>ulab</h4>
+        <p>NumPy-style ndarrays, FFTs, and linear algebra on the camera.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-amber" href="{{ pathto('library/machine') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg></div>
+        <h4>machine</h4>
+        <p>Low-level hardware: GPIO, SPI, I²C, UART, PWM, ADC, and timers.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-blue" href="{{ pathto('library/omv.display') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h4>display</h4>
+        <p>LCD and TV-out drivers for showing images and overlays.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-green" href="{{ pathto('library/asyncio') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div>
+        <h4>asyncio</h4>
+        <p>Cooperative multitasking — run camera, network, and I/O in parallel.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-purple" href="{{ pathto('library/network') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+        <h4>network</h4>
+        <p>Wi-Fi, Ethernet, and sockets for IoT and remote communication.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+      <a class="omv-card module icon-amber" href="{{ pathto('library/aioble') }}">
+        <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/></svg></div>
+        <h4>aioble</h4>
+        <p>Async Bluetooth Low Energy — peripherals, advertising, and GATT.</p>
+        <span class="card-arrow">Explore →</span>
+      </a>
+    </div>
+    <p class="omv-section-foot">
+      <a href="{{ pathto('library/index') }}">View all libraries →</a>
+    </p>
+  </section>
+
+  <!-- ─── Explore by board ─── -->
+  <section class="omv-section">
+    <div class="omv-section-header">
+      <h2>Explore by board</h2>
+      <span class="omv-section-tag">Hardware</span>
+    </div>
+    <p class="omv-section-desc">Select your OpenMV Cam to see its pinout, specs, and board-specific quick reference.</p>
+    <div class="omv-grid cols-4">
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/openmv-n6') }}">
+        <div class="board-thumb"><img src="_images/openmv-n6-hero.jpg" alt="OpenMV N6"></div>
+        <div class="board-body">
+          <h4>OpenMV N6 <span class="tag new">New</span></h4>
+          <p>STM32N6 with built-in NPU — STMicro's first AI-accelerated MCU.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/openmv-ae3') }}">
+        <div class="board-thumb"><img src="_images/openmv-ae3-hero.jpg" alt="OpenMV AE3"></div>
+        <div class="board-body">
+          <h4>OpenMV AE3 <span class="tag new">New</span></h4>
+          <p>Alif Ensemble E3 — fusion-class Cortex-M55 with Ethos-U55 NPU.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/openmv-rt1062') }}">
+        <div class="board-thumb"><img src="_images/openmv-rt1062-hero.jpg" alt="OpenMV RT1062"></div>
+        <div class="board-body">
+          <h4>OpenMV RT1062</h4>
+          <p>NXP i.MX RT1062 Cortex-M7 at 600 MHz with 32 MB external SDRAM.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/openmv-cam-h7-plus') }}">
+        <div class="board-thumb"><img src="_images/openmv-h7-plus-hero.jpg" alt="OpenMV H7 Plus"></div>
+        <div class="board-body">
+          <h4>OpenMV H7 Plus</h4>
+          <p>STM32H743 with 32 MB external SDRAM and a 5-MP OV5640 sensor.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/openmv-cam-h7') }}">
+        <div class="board-thumb"><img src="_images/openmv-cam-h7-hero.jpg" alt="OpenMV H7"></div>
+        <div class="board-body">
+          <h4>OpenMV H7</h4>
+          <p>STM32H743 Cortex-M7 with a removable image sensor module.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/arduino-nicla-vision') }}">
+        <div class="board-thumb"><img src="_images/arduino-nicla-vision-hero.jpg" alt="Arduino Nicla Vision"></div>
+        <div class="board-body">
+          <h4>Arduino Nicla Vision</h4>
+          <p>Compact 23 × 23 mm STM32H747 board with on-board sensor.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/arduino-portenta-h7') }}">
+        <div class="board-thumb"><img src="_images/arduino-portenta-h7-hero.jpg" alt="Arduino Portenta H7"></div>
+        <div class="board-body">
+          <h4>Arduino Portenta</h4>
+          <p>STM32H747 with 8 MB SDRAM and Vision Shield support.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+      <a class="omv-card board" href="{{ pathto('openmvcam/quickref/arduino-giga-r1-wifi') }}">
+        <div class="board-thumb"><img src="_images/arduino-giga-r1-wifi-hero.jpg" alt="Arduino Giga"></div>
+        <div class="board-body">
+          <h4>Arduino Giga</h4>
+          <p>STM32H747 with 8 MB SDRAM, Vision and Display Shield support.</p>
+          <span class="card-arrow">Explore →</span>
+        </div>
+      </a>
+    </div>
+    <p class="omv-section-foot">
+      <a href="{{ pathto('openmvcam/quickref') }}">View all supported boards →</a>
+    </p>
+  </section>
+
+  <!-- ─── More resources ─── -->
+  <section class="omv-section">
+    <div class="omv-section-header">
+      <h2>More resources</h2>
+      <span class="omv-section-tag">MicroPython</span>
+    </div>
+    <div class="omv-grid cols-3">
+      <a class="omv-feature-card icon-blue" href="{{ pathto('reference/index') }}">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+        <h3>MicroPython language</h3>
+        <p>Language reference, syntax, and core runtime semantics.</p>
+      </a>
+      <a class="omv-feature-card icon-amber" href="{{ pathto('genrst/index') }}">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg></div>
+        <h3>Differences from CPython</h3>
+        <p>Where MicroPython diverges from standard Python — modules, builtins, and syntax.</p>
+      </a>
+      <a class="omv-feature-card icon-purple" href="{{ pathto('develop/index') }}">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <h3>MicroPython internals</h3>
+        <p>Compiler, runtime, native modules, and porting MicroPython to new MCUs.</p>
+      </a>
+    </div>
+  </section>
+
+  <script>
+    // Tab switching for the Hello-world code card.
+    document.querySelectorAll('[data-omv-tabs]').forEach(function (root) {
+      var btns = root.querySelectorAll('.tab-btn');
+      var bodies = root.querySelectorAll('.tab-body');
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var key = btn.dataset.tab;
+          btns.forEach(function (b) {
+            b.classList.toggle('active', b.dataset.tab === key);
+            b.setAttribute('aria-selected', b.dataset.tab === key ? 'true' : 'false');
+          });
+          bodies.forEach(function (body) {
+            body.classList.toggle('active', body.dataset.tab === key);
+          });
+        });
+      });
+    });
+  </script>
+
+  <!-- ─── Community & links ─── -->
+  <section class="omv-section">
+    <div class="omv-section-header">
+      <h2>Community &amp; links</h2>
+      <span class="omv-section-tag">External</span>
+    </div>
+    <div class="omv-grid cols-2">
+      <a class="omv-link-card icon-green" href="https://openmv.io">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>
+        <div>
+          <h4>OpenMV homepage</h4>
+          <p>Products, applications, downloads, and news.</p>
+        </div>
+      </a>
+      <a class="omv-link-card icon-blue" href="https://forums.openmv.io">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+        <div>
+          <h4>Forums</h4>
+          <p>Community discussion, help, and project sharing.</p>
+        </div>
+      </a>
+      <a class="omv-link-card icon-purple" href="https://github.com/openmv">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></span>
+        <div>
+          <h4>OpenMV on GitHub</h4>
+          <p>Firmware, IDE, and example sources — issues and pull requests welcome.</p>
+        </div>
+      </a>
+      <a class="omv-link-card icon-amber" href="https://github.com/micropython">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></span>
+        <div>
+          <h4>MicroPython on GitHub</h4>
+          <p>Upstream MicroPython firmware sources — what OpenMV builds on top of.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</div>
+{%- endblock -%}

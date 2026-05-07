@@ -26,8 +26,20 @@ micropy_version = os.getenv("MICROPY_VERSION") or "latest"
 micropy_all_versions = (os.getenv("MICROPY_ALL_VERSIONS") or "latest").split(",")
 url_pattern = "%s/en/%%s" % (os.getenv("MICROPY_URL_PREFIX") or "/",)
 
-# The OpenMV firmware version this documentation describes.
+# =============================================================================
+# Documentation versions and build date — bump these for each release.
+# =============================================================================
+import datetime as _dt
+
+# OpenMV firmware version this documentation covers.
 openmv_version = "5.0.0"
+
+# MicroPython version that the firmware is built on top of.
+# (Also used as the Sphinx ``version`` / ``release`` variables below.)
+micropython_version = "1.28"
+
+# Build date is computed automatically each time Sphinx runs.
+build_date = _dt.date.today().strftime("%d %b %Y")
 
 # The members of the html_context dict are available inside topindex.html
 html_context = {
@@ -38,6 +50,200 @@ html_context = {
     ],
     "is_release": micropy_version != "latest",
     "openmv_version": openmv_version,
+    "micropython_version": micropython_version,
+    "build_date": build_date,
+}
+
+# -- Landing page code examples (rendered via Pygments to match site code style) --
+from pygments import highlight as _pygments_highlight
+from pygments.lexers import PythonLexer as _PythonLexer
+from pygments.formatters import HtmlFormatter as _HtmlFormatter
+
+_landing_examples_src = {
+    "yolo": '''
+import csi
+import time
+import ml
+from ml.postprocessing.ultralytics import YoloV8
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.VGA)
+
+# Built-in single-class person detector model.
+model = ml.Model("/rom/yolov8n_192.tflite",
+                 postprocess=YoloV8(threshold=0.4))
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    # predict returns a list per class of ((x, y, w, h), score) tuples.
+    for class_dets in model.predict([img]):
+        for rect, score in class_dets:
+            img.draw_rectangle(rect, color=(0, 255, 0))
+    print(clock.fps(), "fps")
+''',
+    "apriltag": '''
+import csi
+import math
+import time
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.QVGA)
+csi0.auto_gain(False)
+csi0.auto_whitebal(False)
+
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    for tag in img.find_apriltags():
+        img.draw_detection(tag, color1=(255, 0, 0), color2=(0, 255, 0))
+        deg = math.degrees(tag.rotation)
+        print("ID %d  rotation %.1f deg" % (tag.id, deg))
+    print(clock.fps(), "fps")
+''',
+    "blazeface": '''
+import csi
+import time
+import ml
+from ml.postprocessing.mediapipe import BlazeFace
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.VGA)
+csi0.window((400, 400))  # square window for best results
+
+model = ml.Model("/rom/blazeface_front_128.tflite",
+                 postprocess=BlazeFace(threshold=0.4))
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    for rect, score, keypoints in model.predict([img]):
+        img.draw_rectangle(rect, color=(0, 0, 255))
+        ml.utils.draw_keypoints(img, keypoints, color=(255, 0, 0))
+    print(clock.fps(), "fps")
+''',
+    "qrcode": '''
+import csi
+import time
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.QVGA)
+csi0.auto_gain(False)
+
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    for code in img.find_qrcodes():
+        img.draw_rectangle(code.rect, color=(255, 0, 0))
+        print(code.payload)
+    print(clock.fps(), "fps")
+''',
+    "color": '''
+import csi
+import time
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.QVGA)
+csi0.auto_gain(False)
+csi0.auto_whitebal(False)
+
+# LAB thresholds: (L_min, L_max, A_min, A_max, B_min, B_max)
+thresholds = [
+    (30, 100, 15, 127, 15, 127),   # red
+    (30, 100, -64, -8, -32, 32),   # green
+]
+
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    for blob in img.find_blobs(thresholds, pixels_threshold=200):
+        img.draw_rectangle(blob.rect, color=(255, 0, 0))
+        img.draw_cross((blob.cx, blob.cy))
+    print(clock.fps(), "fps")
+''',
+    "barcode": '''
+import csi
+import time
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.GRAYSCALE)
+csi0.framesize(csi.VGA)
+csi0.window((640, 80))  # narrow strip for fast linear scanning
+csi0.auto_gain(False)
+csi0.auto_whitebal(False)
+
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    for code in img.find_barcodes():
+        img.draw_rectangle(code.rect, color=(0, 255, 0))
+        print(code.payload, "(quality %d)" % code.quality)
+    print(clock.fps(), "fps")
+''',
+    "hand": '''
+import csi
+import time
+import ml
+from ml.postprocessing.mediapipe import HandLandmarks
+
+csi0 = csi.CSI()
+csi0.reset()
+csi0.pixformat(csi.RGB565)
+csi0.framesize(csi.VGA)
+csi0.window((400, 400))  # square window for the model
+
+# Connections between the 21 keypoints — palm + 5 fingers.
+hand_lines = ((0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6),
+              (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12),
+              (9, 13), (13, 14), (14, 15), (15, 16), (13, 17), (17, 18),
+              (18, 19), (19, 20), (0, 17))
+
+model = ml.Model("/rom/hand_landmarks_full_224.tflite",
+                 postprocess=HandLandmarks(threshold=0.4))
+clock = time.clock()
+
+while True:
+    clock.tick()
+    img = csi0.snapshot()
+    # predict returns a list per hand: index 0 = left, index 1 = right.
+    for detections in model.predict([img]):
+        for rect, score, keypoints in detections:
+            ml.utils.draw_skeleton(img, keypoints, hand_lines,
+                                   kp_color=(255, 0, 0),
+                                   line_color=(0, 255, 0))
+    print(clock.fps(), "fps")
+''',
+}
+
+def _render_landing_code(src):
+    return _pygments_highlight(
+        src.strip(), _PythonLexer(),
+        _HtmlFormatter(nowrap=False, cssclass="highlight"),
+    )
+
+html_context["landing_examples"] = {
+    k: _render_landing_code(v) for k, v in _landing_examples_src.items()
 }
 
 # Authors used in various parts of the documentation.
@@ -58,8 +264,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
-    "sphinxcontrib.jquery",
-    "sphinx_rtd_theme",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,7 +280,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "MicroPython"
-copyright = "- The MicroPython Documentation is Copyright © 2014-2026, Damien P. George, Paul Sokolovsky, OpenMV LLC, and contributors"
+copyright = "The OpenMV MicroPython Documentation is Copyright © 2014-2026 by OpenMV, Damien P. George, and others."
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -84,7 +288,7 @@ copyright = "- The MicroPython Documentation is Copyright © 2014-2026, Damien P
 #
 # We don't follow "The short X.Y version" vs "The full version, including alpha/beta/rc tags"
 # breakdown, so use the same version identifier for both to avoid confusion.
-version = release = "1.28"
+version = release = micropython_version
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
@@ -207,25 +411,29 @@ rst_epilog = """
 
 # -- Options for HTML output ----------------------------------------------
 
-import sphinx_rtd_theme
-
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    try:
-        import sphinx_rtd_theme
-
-        html_theme = "sphinx_rtd_theme"
-    except:
-        html_theme = "default"
-        html_theme_path = ["."]
-else:
-    html_theme_path = ["."]
+html_theme = "shibuya"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+html_theme_options = {
+    "light_logo": "_static/openmv-logo-light.png",
+    "dark_logo": "_static/openmv-logo-dark.png",
+    "accent_color": "blue",
+    "color_mode": "auto",
+    "github_url": "https://github.com/openmv/openmv",
+    "discussion_url": "https://forums.openmv.io/",
+    "globaltoc_expand_depth": 1,
+    "toctree_collapse": True,
+    "show_ai_links": False,
+    "nav_links": [
+        {"title": "Home", "url": "index"},
+        {"title": "Quick start", "url": "openmvcam/tutorial/software_setup"},
+        {"title": "Tutorial", "url": "openmvcam/tutorial/index"},
+        {"title": "Library", "url": "library/index"},
+        {"title": "Boards", "url": "openmvcam/quickref"},
+    ],
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = ['.']
@@ -326,7 +534,7 @@ latex_documents = [
         master_doc,
         "MicroPython.tex",
         "MicroPython Documentation",
-        "Damien P. George, Paul Sokolovsky, OpenMV LLC, and contributors",
+        "OpenMV, Damien P. George, and others",
         "manual",
     ),
 ]
@@ -363,7 +571,7 @@ man_pages = [
         "index",
         "micropython",
         "MicroPython Documentation",
-        ["Damien P. George, Paul Sokolovsky, OpenMV LLC, and contributors"],
+        ["OpenMV, Damien P. George, and others"],
         1,
     ),
 ]
@@ -382,7 +590,7 @@ texinfo_documents = [
         master_doc,
         "MicroPython",
         "MicroPython Documentation",
-        "Damien P. George, Paul Sokolovsky, OpenMV LLC, and contributors",
+        "OpenMV, Damien P. George, and others",
         "MicroPython",
         "One line description of project.",
         "Miscellaneous",
