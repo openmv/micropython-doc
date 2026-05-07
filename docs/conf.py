@@ -21,11 +21,6 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath("."))
 
-# The MICROPY_VERSION env var should be "vX.Y.Z" (or unset).
-micropy_version = os.getenv("MICROPY_VERSION") or "latest"
-micropy_all_versions = (os.getenv("MICROPY_ALL_VERSIONS") or "latest").split(",")
-url_pattern = "%s/en/%%s" % (os.getenv("MICROPY_URL_PREFIX") or "/",)
-
 # =============================================================================
 # Documentation versions and build date — bump these for each release.
 # =============================================================================
@@ -41,14 +36,8 @@ micropython_version = "1.28"
 # Build date is computed automatically each time Sphinx runs.
 build_date = _dt.date.today().strftime("%d %b %Y")
 
-# The members of the html_context dict are available inside topindex.html
+# Values exposed to topindex.html and footer templates.
 html_context = {
-    "cur_version": micropy_version,
-    "all_versions": [(ver, url_pattern % ver) for ver in micropy_all_versions],
-    "downloads": [
-        ("PDF", url_pattern % micropy_version + "/micropython-docs.pdf"),
-    ],
-    "is_release": micropy_version != "latest",
     "openmv_version": openmv_version,
     "micropython_version": micropython_version,
     "build_date": build_date,
@@ -70,6 +59,7 @@ csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.VGA)
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 
 # Built-in single-class person detector model.
 model = ml.Model("/rom/yolov8n_192.tflite",
@@ -94,6 +84,7 @@ csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.QVGA)
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 csi0.auto_gain(False)
 csi0.auto_whitebal(False)
 
@@ -119,6 +110,7 @@ csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.VGA)
 csi0.window((400, 400))  # square window for best results
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 
 model = ml.Model("/rom/blazeface_front_128.tflite",
                  postprocess=BlazeFace(threshold=0.4))
@@ -140,6 +132,7 @@ csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.QVGA)
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 csi0.auto_gain(False)
 
 clock = time.clock()
@@ -160,6 +153,7 @@ csi0 = csi.CSI()
 csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.QVGA)
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 csi0.auto_gain(False)
 csi0.auto_whitebal(False)
 
@@ -188,6 +182,7 @@ csi0.reset()
 csi0.pixformat(csi.GRAYSCALE)
 csi0.framesize(csi.VGA)
 csi0.window((640, 80))  # narrow strip for fast linear scanning
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 csi0.auto_gain(False)
 csi0.auto_whitebal(False)
 
@@ -212,6 +207,7 @@ csi0.reset()
 csi0.pixformat(csi.RGB565)
 csi0.framesize(csi.VGA)
 csi0.window((400, 400))  # square window for the model
+csi0.snapshot(time=2000)  # let AWB/AGC stabilize
 
 # Connections between the 21 keypoints — palm + 5 fingers.
 hand_lines = ((0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6),
@@ -246,9 +242,6 @@ html_context["landing_examples"] = {
     k: _render_landing_code(v) for k, v in _landing_examples_src.items()
 }
 
-# Authors used in various parts of the documentation.
-micropy_authors = "MicroPython authors and contributors"
-
 
 # -- General configuration ------------------------------------------------
 
@@ -279,7 +272,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "MicroPython"
+project = "OpenMV MicroPython"
 copyright = "The OpenMV MicroPython Documentation is Copyright © 2014-2026 by OpenMV, Damien P. George, and others."
 
 # The version info for the project you're documenting, acts as replacement for
@@ -393,8 +386,9 @@ default_role = "any"
 # output. They are ignored by default.
 # show_authors = False
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+# Note: Shibuya overrides the Pygments style via its own theme.conf
+# (`github-light-default` / `github-dark-default`), so we don't set
+# ``pygments_style`` here.
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -509,10 +503,6 @@ html_additional_pages = {"index": "topindex.html"}
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None
 
-# Output file base name for HTML help builder.
-htmlhelp_basename = "MicroPythondoc"
-
-
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
@@ -532,8 +522,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "MicroPython.tex",
-        "MicroPython Documentation",
+        "OpenMV-MicroPython.tex",
+        "OpenMV MicroPython Documentation",
         "OpenMV, Damien P. George, and others",
         "manual",
     ),
@@ -569,8 +559,8 @@ latex_engine = "xelatex"
 man_pages = [
     (
         "index",
-        "micropython",
-        "MicroPython Documentation",
+        "openmv-micropython",
+        "OpenMV MicroPython Documentation",
         ["OpenMV, Damien P. George, and others"],
         1,
     ),
@@ -588,11 +578,11 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "MicroPython",
-        "MicroPython Documentation",
+        "OpenMV-MicroPython",
+        "OpenMV MicroPython Documentation",
         "OpenMV, Damien P. George, and others",
-        "MicroPython",
-        "One line description of project.",
+        "OpenMV-MicroPython",
+        "OpenMV firmware documentation, built on MicroPython.",
         "Miscellaneous",
     ),
 ]
@@ -611,4 +601,4 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"python": ("https://docs.python.org/3.5", None)}
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}

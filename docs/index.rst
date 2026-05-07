@@ -1,5 +1,5 @@
-MicroPython documentation and references
-========================================
+OpenMV MicroPython documentation
+================================
 
 .. toctree::
 
