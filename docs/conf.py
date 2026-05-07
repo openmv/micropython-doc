@@ -242,7 +242,6 @@ html_context["landing_examples"] = {
     k: _render_landing_code(v) for k, v in _landing_examples_src.items()
 }
 
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -569,7 +568,6 @@ man_pages = [
 # If true, show URL addresses after external links.
 # man_show_urls = False
 
-
 # -- Options for Texinfo output -------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
@@ -598,7 +596,6 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
-
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
