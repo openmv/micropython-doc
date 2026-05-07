@@ -421,10 +421,11 @@ html_theme_options = {
     "show_ai_links": False,
     "nav_links": [
         {"title": "Home", "url": "index"},
-        {"title": "Quick start", "url": "openmvcam/tutorial/software_setup"},
         {"title": "Tutorial", "url": "openmvcam/tutorial/index"},
-        {"title": "Library", "url": "library/index"},
         {"title": "Boards", "url": "openmvcam/quickref"},
+        {"title": "Shields", "url": "openmvcam/shields"},
+        {"title": "Sensors", "url": "openmvcam/sensors"},
+        {"title": "Library", "url": "library/index"},
     ],
 }
 

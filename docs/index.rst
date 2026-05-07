@@ -9,3 +9,5 @@ OpenMV MicroPython documentation
     develop/index.rst
     license.rst
     openmvcam/quickref.rst
+    openmvcam/shields.rst
+    openmvcam/sensors.rst
