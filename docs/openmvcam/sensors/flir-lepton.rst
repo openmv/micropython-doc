@@ -1,34 +1,24 @@
 FLIR Lepton Adapter
 ===================
 
-.. note::
+The FLIR Lepton Adapter Module connects FLIR Lepton thermal cores (sold separately) to the OpenMV Cam, with both AGC and direct-thermal modes for human / object temperature measurement.
 
-   This page is a placeholder. Sensor specs (resolution, pixel format,
-   supported frame sizes), wiring notes, and the MicroPython API for
-   driving the FLIR Lepton Adapter will be documented here.
+.. image:: ../flir-lepton-hero.jpg
+    :alt: FLIR Lepton Adapter
+    :width: 400px
+    :align: center
 
-   For ordering and product photos see the
-   `FLIR Lepton Adapter product page <https://openmv.io/products/flir-lepton-adapter-module>`_.
+For full datasheet, photos, and ordering see the
+`FLIR Lepton Adapter product page <https://openmv.io/products/flir-lepton-adapter-module>`_.
 
-Adapter for FLIR Lepton thermal modules (80×60 to 160×120).
+Highlights
+----------
 
-Specifications
---------------
+* Compatible with FLIR Lepton 1.x / 2.x / 3.x cores (sold separately)
+* Both AGC and direct-thermal modes with temperature mapping
+* Sees in total darkness
+* Compatible with all modular OpenMV Cam base boards
 
-.. todo:: Add resolution, pixel format, frame rates, and other key specs.
+.. warning::
 
-Compatible boards
------------------
-
-.. todo:: List which OpenMV / Arduino boards support this module.
-
-Software
---------
-
-.. todo:: Add the MicroPython snippet to initialise this sensor and
-   any sensor-specific knobs (gain, exposure, special pixel formats).
-
-Examples
---------
-
-.. todo:: Link to relevant examples in the OpenMV firmware repository.
+   This page is under construction.

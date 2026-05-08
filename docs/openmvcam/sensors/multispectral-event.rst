@@ -1,34 +1,30 @@
 Multispectral Event Camera
 ==========================
 
+The Multispectral Event Camera Module pairs the GENX320 event sensor with a 1 MP PAG7936 global-shutter colour sensor on a single module — a synchronised event + colour pipeline for high-speed object tracking, LED tracking, fluid flow, and other dynamic scenes.
+
+.. image:: ../multispectral-event-hero.jpg
+    :alt: Multispectral Event Camera
+    :width: 400px
+    :align: center
+
+For full datasheet, photos, and ordering see the
+`Multispectral Event Camera product page <https://openmv.io/products/multispectral-event-camera-module>`_.
+
 .. note::
 
-   This page is a placeholder. Sensor specs (resolution, pixel format,
-   supported frame sizes), wiring notes, and the MicroPython API for
-   driving the Multispectral Event Camera will be documented here.
+   Supported on the OpenMV N6 only.
 
-   For ordering and product photos see the
-   `Multispectral Event Camera product page <https://openmv.io/products/multispectral-event-camera-module>`_.
+Highlights
+----------
 
-Combined multispectral and event-based sensor module.
+* 320x320 event sensor, >140 dB dynamic range, 375 Hz+ histograms
+* PAG7936 colour: 1280x800 @ 120 FPS, 640x400 @ 240 FPS, 320x200 @ 480 FPS
+* Synchronised event timestamps with shared exposure trigger
+* Sees below 5 lux without auto-exposure
+* Power starts at ~3 mW for event streaming
+* Targeted at high-speed tracking, LED tracking, and fluid/particle flow
 
-Specifications
---------------
+.. warning::
 
-.. todo:: Add resolution, pixel format, frame rates, and other key specs.
-
-Compatible boards
------------------
-
-.. todo:: List which OpenMV / Arduino boards support this module.
-
-Software
---------
-
-.. todo:: Add the MicroPython snippet to initialise this sensor and
-   any sensor-specific knobs (gain, exposure, special pixel formats).
-
-Examples
---------
-
-.. todo:: Link to relevant examples in the OpenMV firmware repository.
+   This page is under construction.

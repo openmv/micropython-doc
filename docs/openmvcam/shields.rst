@@ -3,99 +3,229 @@
 Shields
 =======
 
-Add-on boards that plug into the bottom of an OpenMV Cam, extending it
-with networking, motor control, displays, sensors, and more. Each
-shield has its own page covering pin usage, electrical specs, and the
-APIs needed to drive it from MicroPython.
+Add-on boards that plug into an OpenMV Cam, extending it with
+networking, motor control, displays, sensors, and more. Each page
+covers what the shield does, key specs, and the APIs to drive it from
+MicroPython.
+
+Modern shields
+--------------
 
 .. raw:: html
 
    <div class="omv-cards-page">
      <section class="omv-section">
-       <div class="omv-grid cols-3">
+       <div class="omv-grid cols-4">
 
-         <a class="omv-card module icon-blue" href="shields/wifi-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
-           <h4>WiFi Shield</h4>
-           <p>2.4 GHz Wi-Fi for boards without on-board networking.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/gigabit-poe-shield.html">
+           <div class="board-thumb"><img src="../_images/gigabit-poe-shield-hero.jpg" alt="Gigabit PoE Shield"></div>
+           <div class="board-body">
+             <h4>Gigabit PoE Shield</h4>
+             <p>Gigabit Ethernet with PoE for higher-bandwidth streaming.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-green" href="shields/poe-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10v4M10 10v4M14 10v4M18 10v4"/></svg></div>
-           <h4>PoE Shield</h4>
-           <p>10/100 Ethernet with Power-over-Ethernet — single-cable deploy.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/servo-shield.html">
+           <div class="board-thumb"><img src="../_images/servo-shield-hero.jpg" alt="Servo Shield"></div>
+           <div class="board-body">
+             <h4>Servo Shield</h4>
+             <p>Drive up to 4 servos drawing up to 5A while powering the camera, 6–36V input.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-green" href="shields/gigabit-poe-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10v4M10 10v4M14 10v4M18 10v4"/><path d="M12 2v4"/></svg></div>
-           <h4>Gigabit PoE Shield</h4>
-           <p>Gigabit Ethernet with PoE for higher-bandwidth streaming.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/battery-shield.html">
+           <div class="board-thumb"><img src="../_images/battery-shield-hero.jpg" alt="Battery Shield"></div>
+           <div class="board-body">
+             <h4>Battery Shield</h4>
+             <p>1.8–5.5V battery input via a DC barrel jack, plus a 6–36V wide input.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-coral" href="shields/lcd-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-           <h4>LCD Shield</h4>
-           <p>1.8" SPI TFT LCD for live preview without a host computer.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/touch-lcd-shield.html">
+           <div class="board-thumb"><img src="../_images/touch-lcd-shield-hero.jpg" alt="Touch LCD Shield"></div>
+           <div class="board-body">
+             <h4>Touch LCD Shield</h4>
+             <p>2.3" 320×240 SPI LCD with capacitive multi-touch and Qwiic.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-coral" href="shields/touch-lcd-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><circle cx="12" cy="10" r="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-           <h4>Touch LCD Shield</h4>
-           <p>2.4" SPI LCD with capacitive touch — input plus output in one shield.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/poe-shield.html">
+           <div class="board-thumb"><img src="../_images/poe-shield-hero.jpg" alt="PoE Shield"></div>
+           <div class="board-body">
+             <h4>PoE Shield</h4>
+             <p>10/100 Ethernet with Power-over-Ethernet.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-purple" href="shields/servo-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-           <h4>Servo Shield</h4>
-           <p>Drive up to 32 servos via PWM — pan/tilt rigs, robotic arms, gimbals.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/pir-shield.html">
+           <div class="board-thumb"><img src="../_images/pir-shield-hero.jpg" alt="PIR Shield"></div>
+           <div class="board-body">
+             <h4>PIR Shield</h4>
+             <p>6µA standby motion trigger plus white and 850 nm IR illumination.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-purple" href="shields/driver-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg></div>
-           <h4>Driver Shield</h4>
-           <p>Dual H-bridge motor driver for DC motors and stepper motors.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/can-rs232-shield.html">
+           <div class="board-thumb"><img src="../_images/can-rs232-shield-hero.jpg" alt="CAN/RS232 Shield"></div>
+           <div class="board-body">
+             <h4>CAN/RS232 Shield</h4>
+             <p>8 Mb/s CAN-FD plus 1 Mb/s RS-232 for vehicles and legacy serial.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-amber" href="shields/relay-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 12h4M13 9v6"/></svg></div>
-           <h4>Relay Shield</h4>
-           <p>Switch high-voltage AC/DC loads from MicroPython GPIO triggers.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/rs422-rs485-shield.html">
+           <div class="board-thumb"><img src="../_images/rs422-rs485-shield-hero.jpg" alt="RS422/RS485 Shield"></div>
+           <div class="board-body">
+             <h4>RS422/RS485 Shield</h4>
+             <p>10 Mb/s differential serial for long-distance industrial buses.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-amber" href="shields/battery-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="16" height="10" rx="2"/><line x1="21" y1="11" x2="21" y2="13"/><path d="M7 11h2M11 11h2"/></svg></div>
-           <h4>Battery Shield</h4>
-           <p>Rechargeable Li-Po pack with charging circuit — go battery-powered.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/driver-shield.html">
+           <div class="board-thumb"><img src="../_images/driver-shield-hero.jpg" alt="Driver Shield"></div>
+           <div class="board-body">
+             <h4>Driver Shield</h4>
+             <p>Dual 3A motor drivers or quad 1.5A line drivers, 6–36V.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-blue" href="shields/can-rs232-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"/></svg></div>
-           <h4>CAN/RS232 Shield</h4>
-           <p>Industrial CAN bus and RS-232 transceivers for legacy serial.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/relay-shield.html">
+           <div class="board-thumb"><img src="../_images/relay-shield-hero.jpg" alt="Relay Shield"></div>
+           <div class="board-body">
+             <h4>Relay Shield</h4>
+             <p>Dual 60 W relays for AC/DC load switching, 6–36V input.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-blue" href="shields/rs422-rs485-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v18M16 3v18M3 12h18"/></svg></div>
-           <h4>RS422/RS485 Shield</h4>
-           <p>Differential serial transceivers for long-distance industrial buses.</p>
-           <span class="card-arrow">Explore →</span>
+       </div>
+     </section>
+   </div>
+
+Legacy shields
+--------------
+
+.. raw:: html
+
+   <div class="omv-cards-page">
+     <section class="omv-section">
+       <div class="omv-grid cols-4">
+
+         <a class="omv-card board" href="shields/lcd-shield.html">
+           <div class="board-thumb"><img src="../_images/lcd-shield-hero.jpg" alt="LCD Shield"></div>
+           <div class="board-body">
+             <h4>LCD Shield</h4>
+             <p>1.8" 128×160 SPI TFT for stand-alone preview.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
-         <a class="omv-card module icon-green" href="shields/pir-shield.html">
-           <div class="omv-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M2 12h2M20 12h2M12 2v2M12 20v2"/></svg></div>
-           <h4>PIR Shield</h4>
-           <p>Passive-infrared motion trigger that wakes the camera from sleep.</p>
-           <span class="card-arrow">Explore →</span>
+         <a class="omv-card board" href="shields/wifi-shield.html">
+           <div class="board-thumb"><img src="../_images/wifi-shield-hero.jpg" alt="WiFi Shield"></div>
+           <div class="board-body">
+             <h4>WiFi Shield</h4>
+             <p>2.4 GHz Wi-Fi for OpenMV Cams without on-board networking.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/proto-shield.html">
+           <div class="board-thumb"><img src="../_images/proto-shield-hero.jpg" alt="Proto Shield"></div>
+           <div class="board-body">
+             <h4>Proto Shield</h4>
+             <p>10×10 through-hole prototyping area with 3.3V and GND rails.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/motor-shield.html">
+           <div class="board-thumb"><img src="../_images/motor-shield-hero.jpg" alt="Motor Shield"></div>
+           <div class="board-body">
+             <h4>Motor Shield</h4>
+             <p>TB6612FNG dual-channel H-bridge driver with a 5V regulator for battery power.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/pan-tilt-shield.html">
+           <div class="board-thumb"><img src="../_images/pan-tilt-shield-hero.jpg" alt="Pan and Tilt Shield"></div>
+           <div class="board-body">
+             <h4>Pan and Tilt Shield</h4>
+             <p>Three servo channels with a 5V regulator powering the camera and servos.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/tv-shield.html">
+           <div class="board-thumb"><img src="../_images/tv-shield-hero.jpg" alt="TV Shield"></div>
+           <div class="board-body">
+             <h4>TV Shield</h4>
+             <p>352×240 NTSC analog video output via a VS23S010 SPI-to-NTSC chip.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/wireless-tv-shield.html">
+           <div class="board-thumb"><img src="../_images/wireless-tv-shield-hero.jpg" alt="Wireless TV Shield"></div>
+           <div class="board-body">
+             <h4>Wireless TV Shield</h4>
+             <p>NTSC video output with a 5.8 GHz analog FPV transmitter on board.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/qwiic-shield.html">
+           <div class="board-thumb"><img src="../_images/qwiic-shield-hero.jpg" alt="QWIIC Shield"></div>
+           <div class="board-body">
+             <h4>QWIIC Shield</h4>
+             <p>Two Qwiic JST-SH connectors for daisy-chained I2C peripherals.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/light-shield.html">
+           <div class="board-thumb"><img src="../_images/light-shield-hero.jpg" alt="Light Shield"></div>
+           <div class="board-body">
+             <h4>Light Shield</h4>
+             <p>Nine high-power white LEDs with a TPS61169 driver and DAC/PWM dimming.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/servo-shield-old.html">
+           <div class="board-thumb"><img src="../_images/servo-shield-old-hero.jpg" alt="Servo Shield"></div>
+           <div class="board-body">
+             <h4>Servo Shield</h4>
+             <p>Eight-channel PCA9685 servo / PWM controller over I2C.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/can-shield.html">
+           <div class="board-thumb"><img src="../_images/can-shield-hero.jpg" alt="CAN Shield"></div>
+           <div class="board-body">
+             <h4>CAN Shield</h4>
+             <p>1 Mb/s CAN bus with a DB9 connector and a 12V regulator.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
+         </a>
+
+         <a class="omv-card board" href="shields/thermopile-shield.html">
+           <div class="board-thumb"><img src="../_images/thermopile-shield-hero.jpg" alt="Thermopile Shield"></div>
+           <div class="board-body">
+             <h4>Thermopile Shield</h4>
+             <p>16×4 thermal-sensor array with per-pixel temperature.</p>
+             <span class="card-arrow">Explore →</span>
+           </div>
          </a>
 
        </div>
@@ -105,15 +235,25 @@ APIs needed to drive it from MicroPython.
 .. toctree::
    :hidden:
 
-   shields/wifi-shield.rst
-   shields/poe-shield.rst
    shields/gigabit-poe-shield.rst
-   shields/lcd-shield.rst
-   shields/touch-lcd-shield.rst
    shields/servo-shield.rst
-   shields/driver-shield.rst
-   shields/relay-shield.rst
    shields/battery-shield.rst
+   shields/touch-lcd-shield.rst
+   shields/poe-shield.rst
+   shields/pir-shield.rst
    shields/can-rs232-shield.rst
    shields/rs422-rs485-shield.rst
-   shields/pir-shield.rst
+   shields/driver-shield.rst
+   shields/relay-shield.rst
+   shields/lcd-shield.rst
+   shields/wifi-shield.rst
+   shields/proto-shield.rst
+   shields/motor-shield.rst
+   shields/pan-tilt-shield.rst
+   shields/tv-shield.rst
+   shields/wireless-tv-shield.rst
+   shields/qwiic-shield.rst
+   shields/light-shield.rst
+   shields/servo-shield-old.rst
+   shields/can-shield.rst
+   shields/thermopile-shield.rst

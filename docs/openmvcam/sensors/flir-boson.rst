@@ -1,34 +1,26 @@
 FLIR Boson Adapter
 ==================
 
+The FLIR Boson Adapter Module connects FLIR Boson and Boson+ thermal cores to the OpenMV Cam (sold separately). Use it for higher-resolution thermal imaging than the Lepton family.
+
+.. image:: ../flir-boson-hero.jpg
+    :alt: FLIR Boson Adapter
+    :width: 400px
+    :align: center
+
+For full datasheet, photos, and ordering see the
+`FLIR Boson Adapter product page <https://openmv.io/products/flir-boson-adapter-module>`_.
+
 .. note::
 
-   This page is a placeholder. Sensor specs (resolution, pixel format,
-   supported frame sizes), wiring notes, and the MicroPython API for
-   driving the FLIR Boson Adapter will be documented here.
+   Supported on the OpenMV N6, RT1062, and H7 Plus.
 
-   For ordering and product photos see the
-   `FLIR Boson Adapter product page <https://openmv.io/products/flir-boson-adapter-module>`_.
+Highlights
+----------
 
-Adapter for FLIR Boson thermal modules — higher-resolution thermal imaging.
+* Compatible with FLIR Boson and Boson+ thermal cores (sold separately)
+* Higher resolution than the Lepton family for finer thermal detail
 
-Specifications
---------------
+.. warning::
 
-.. todo:: Add resolution, pixel format, frame rates, and other key specs.
-
-Compatible boards
------------------
-
-.. todo:: List which OpenMV / Arduino boards support this module.
-
-Software
---------
-
-.. todo:: Add the MicroPython snippet to initialise this sensor and
-   any sensor-specific knobs (gain, exposure, special pixel formats).
-
-Examples
---------
-
-.. todo:: Link to relevant examples in the OpenMV firmware repository.
+   This page is under construction.

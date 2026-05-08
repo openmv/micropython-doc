@@ -3,11 +3,12 @@ OpenMV MicroPython documentation
 
 .. toctree::
 
-    library/index.rst
-    reference/index.rst
-    genrst/index.rst
-    develop/index.rst
-    license.rst
-    openmvcam/quickref.rst
-    openmvcam/shields.rst
-    openmvcam/sensors.rst
+    Tutorial <openmvcam/tutorial/index.rst>
+    Libraries <library/index.rst>
+    Boards <openmvcam/quickref.rst>
+    Shields <openmvcam/shields.rst>
+    Sensors <openmvcam/sensors.rst>
+    Language <reference/index.rst>
+    CPython <genrst/index.rst>
+    Internals <develop/index.rst>
+    License <license.rst>

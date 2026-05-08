@@ -3,15 +3,18 @@
 Boards
 ======
 
-OpenMV cameras and Arduino boards running the OpenMV firmware. Each
-page has the full pinout, peripheral mapping, supported drivers, and
+OpenMV cameras and Arduino boards running OpenMV firmware. Each page
+has the full pinout, peripheral mapping, supported drivers, and
 board-specific notes.
+
+OpenMV cameras
+--------------
 
 .. raw:: html
 
    <div class="omv-cards-page">
      <section class="omv-section">
-       <div class="omv-grid cols-4">
+       <div class="omv-grid cols-3">
 
          <a class="omv-card board" href="quickref/openmv-n6.html">
            <div class="board-thumb"><img src="../_images/openmv-n6-hero.jpg" alt="OpenMV N6"></div>
@@ -44,7 +47,7 @@ board-specific notes.
            <div class="board-thumb"><img src="../_images/openmv-pure-thermal-hero.webp" alt="OpenMV Pure Thermal"></div>
            <div class="board-body">
              <h4>Pure Thermal</h4>
-             <p>Thermal imaging with DVI/HDMI output, STM32H7 host.</p>
+             <p>Dual color and thermal imaging plus DVI/HDMI output and a built-in touch LCD, STM32H7 host.</p>
              <span class="card-arrow">Explore →</span>
            </div>
          </a>
@@ -70,8 +73,8 @@ board-specific notes.
          <a class="omv-card board" href="quickref/openmv-cam-m7.html">
            <div class="board-thumb"><img src="../_images/openmv-cam-m7-hero.jpg" alt="OpenMV M7"></div>
            <div class="board-body">
-             <h4>OpenMV M7</h4>
-             <p>STM32F765 Cortex-M7 — the original high-performance OpenMV Cam.</p>
+             <h4>OpenMV M7 <span class="tag legacy">Legacy</span></h4>
+             <p>STM32F765 Cortex-M7 — successor to the M4 with more memory and speed.</p>
              <span class="card-arrow">Explore →</span>
            </div>
          </a>
@@ -80,10 +83,23 @@ board-specific notes.
            <div class="board-thumb"><img src="../_images/openmv-cam-m4-hero.jpg" alt="OpenMV M4"></div>
            <div class="board-body">
              <h4>OpenMV M4 <span class="tag legacy">Legacy</span></h4>
-             <p>STM32F427 Cortex-M4 — entry-level OpenMV Cam.</p>
+             <p>STM32F427 Cortex-M4 — the first OpenMV Cam.</p>
              <span class="card-arrow">Explore →</span>
            </div>
          </a>
+
+       </div>
+     </section>
+   </div>
+
+Arduino boards
+--------------
+
+.. raw:: html
+
+   <div class="omv-cards-page">
+     <section class="omv-section">
+       <div class="omv-grid cols-3">
 
          <a class="omv-card board" href="quickref/arduino-nicla-vision.html">
            <div class="board-thumb"><img src="../_images/arduino-nicla-vision-hero.jpg" alt="Arduino Nicla Vision"></div>
@@ -115,7 +131,7 @@ board-specific notes.
          <a class="omv-card board" href="quickref/arduino-nano-rp2040-connect.html">
            <div class="board-thumb"><img src="../_images/arduino-nano-rp2040-connect-hero.jpg" alt="Arduino Nano RP2040 Connect"></div>
            <div class="board-body">
-             <h4>Arduino Nano RP2040 Connect <span class="tag legacy">Legacy</span></h4>
+             <h4>Arduino Nano RP2040 Connect <span class="tag unsupported">Unsupported</span></h4>
              <p>RP2040 Cortex-M0+ with U-blox NINA Wi-Fi/BLE.</p>
              <span class="card-arrow">Explore →</span>
            </div>
@@ -124,7 +140,7 @@ board-specific notes.
          <a class="omv-card board" href="quickref/arduino-nano-33-ble-sense.html">
            <div class="board-thumb"><img src="../_images/arduino-nano-33-ble-sense-hero.jpg" alt="Arduino Nano 33 BLE Sense"></div>
            <div class="board-body">
-             <h4>Arduino Nano 33 BLE Sense <span class="tag legacy">Legacy</span></h4>
+             <h4>Arduino Nano 33 BLE Sense <span class="tag unsupported">Unsupported</span></h4>
              <p>Nordic nRF52840 sensor board — no on-board image sensor.</p>
              <span class="card-arrow">Explore →</span>
            </div>
@@ -137,7 +153,6 @@ board-specific notes.
 .. toctree::
    :hidden:
 
-   tutorial/index.rst
    quickref/openmv-n6.rst
    quickref/openmv-ae3.rst
    quickref/openmv-rt1062.rst

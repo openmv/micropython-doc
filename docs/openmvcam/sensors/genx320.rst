@@ -1,34 +1,30 @@
 GENX320 Event Camera
 ====================
 
+The GENX320 Event Camera Module is a Prophesee event-based vision sensor with 320x320 resolution and microsecond temporal precision.
+
+.. image:: ../genx320-hero.jpg
+    :alt: GENX320 Event Camera
+    :width: 400px
+    :align: center
+
+For full datasheet, photos, and ordering see the
+`GENX320 Event Camera product page <https://openmv.io/products/genx320-camera-module>`_.
+
 .. note::
 
-   This page is a placeholder. Sensor specs (resolution, pixel format,
-   supported frame sizes), wiring notes, and the MicroPython API for
-   driving the GENX320 Event Camera will be documented here.
+   Supported on the OpenMV H7 Plus, RT1062, and N6.
 
-   For ordering and product photos see the
-   `GENX320 Event Camera product page <https://openmv.io/products/genx320-camera-module>`_.
+Highlights
+----------
 
-Prophesee event-based vision sensor with microsecond temporal resolution.
+* 320x320 event-based vision sensor
+* 140 dB dynamic range, no motion blur
+* 375 Hz+ event-histogram output rate
+* Power scales with scene activity — starts at ~3 mW
+* Operates from <5 lux to bright sunlight without auto-exposure
+* Outputs grayscale frames or raw event streams
 
-Specifications
---------------
+.. warning::
 
-.. todo:: Add resolution, pixel format, frame rates, and other key specs.
-
-Compatible boards
------------------
-
-.. todo:: List which OpenMV / Arduino boards support this module.
-
-Software
---------
-
-.. todo:: Add the MicroPython snippet to initialise this sensor and
-   any sensor-specific knobs (gain, exposure, special pixel formats).
-
-Examples
---------
-
-.. todo:: Link to relevant examples in the OpenMV firmware repository.
+   This page is under construction.
