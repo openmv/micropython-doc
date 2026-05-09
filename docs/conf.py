@@ -422,10 +422,14 @@ html_theme_options = {
     "nav_links": [
         {"title": "Home", "url": "index"},
         {"title": "Tutorial", "url": "openmvcam/tutorial/index"},
+        {"title": "Libraries", "url": "library/index"},
         {"title": "Boards", "url": "openmvcam/quickref"},
         {"title": "Shields", "url": "openmvcam/shields"},
         {"title": "Sensors", "url": "openmvcam/sensors"},
-        {"title": "Library", "url": "library/index"},
+        {"title": "Language", "url": "reference/index"},
+        {"title": "CPython", "url": "genrst/index"},
+        {"title": "Internals", "url": "develop/index"},
+        {"title": "License", "url": "license"},
     ],
 }
 
