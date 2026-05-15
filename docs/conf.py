@@ -38,17 +38,16 @@ micropython_version = "1.28"
 build_date = _dt.date.today().strftime("%d %b %Y")
 
 # Values exposed to topindex.html and footer templates.
-# Resolve the parent (openmv-doc) repo's HEAD SHA at build time so
-# "Edit this page" and the AI dropdown's raw-source link both pin to
-# the exact commit that produced the page. Falls back to "master" if
-# `git` isn't available (e.g. shallow tarball checkouts).
+# Resolve this submodule's HEAD SHA at build time so "Edit this
+# page" and the AI dropdown's raw-source link both pin to the exact
+# commit that produced the page. The RST files physically live in
+# openmv/micropython-doc — the parent openmv-doc repo only carries
+# a submodule pointer, so GitHub blob URLs there 404. Falls back to
+# "master" if `git` isn't available.
 try:
-    _parent_repo = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..")
-    )
     source_version = subprocess.check_output(
         ["git", "rev-parse", "HEAD"],
-        cwd=_parent_repo,
+        cwd=os.path.dirname(os.path.abspath(__file__)),
         stderr=subprocess.DEVNULL,
     ).decode().strip()
 except Exception:
@@ -58,16 +57,14 @@ html_context = {
     "openmv_version": openmv_version,
     "micropython_version": micropython_version,
     "build_date": build_date,
-    # Tells Shibuya where the page source lives — used by the "Edit
-    # this page" link, and as a fallback for the AI dropdown's
-    # "Open in ChatGPT/Claude/Perplexity" raw-source links when
-    # html_baseurl isn't reachable. Points at the user-facing
-    # openmv-doc parent repo (GitHub renders submodule contents
-    # through the parent's path).
+    # "Edit this page" + AI raw-source links point at the submodule
+    # repo where the RST source actually lives. The user-facing
+    # navbar/footer GitHub icon is controlled separately by
+    # html_theme_options["github_url"].
     "source_type": "github",
     "source_user": "openmv",
-    "source_repo": "openmv-doc",
-    "source_docs_path": "/micropython/docs/",
+    "source_repo": "micropython-doc",
+    "source_docs_path": "/docs/",
     "source_version": source_version,
 }
 
