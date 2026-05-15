@@ -15,6 +15,7 @@
 
 import sys
 import os
+import subprocess
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -37,19 +38,37 @@ micropython_version = "1.28"
 build_date = _dt.date.today().strftime("%d %b %Y")
 
 # Values exposed to topindex.html and footer templates.
+# Resolve the parent (openmv-doc) repo's HEAD SHA at build time so
+# "Edit this page" and the AI dropdown's raw-source link both pin to
+# the exact commit that produced the page. Falls back to "master" if
+# `git` isn't available (e.g. shallow tarball checkouts).
+try:
+    _parent_repo = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+    source_version = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],
+        cwd=_parent_repo,
+        stderr=subprocess.DEVNULL,
+    ).decode().strip()
+except Exception:
+    source_version = "master"
+
 html_context = {
     "openmv_version": openmv_version,
     "micropython_version": micropython_version,
     "build_date": build_date,
-    # Tells Shibuya where the page source lives — used as a fallback
-    # for the "Copy page" / "Open in ChatGPT/Claude/Perplexity" links
-    # when html_baseurl isn't set (in which case Shibuya reads from
-    # the deployed site's /_sources/ tree instead).
+    # Tells Shibuya where the page source lives — used by the "Edit
+    # this page" link, and as a fallback for the AI dropdown's
+    # "Open in ChatGPT/Claude/Perplexity" raw-source links when
+    # html_baseurl isn't reachable. Points at the user-facing
+    # openmv-doc parent repo (GitHub renders submodule contents
+    # through the parent's path).
     "source_type": "github",
     "source_user": "openmv",
     "source_repo": "openmv-doc",
     "source_docs_path": "/micropython/docs/",
-    "source_version": "master",
+    "source_version": source_version,
 }
 
 # Site root — used by sphinx-llms-txt to emit absolute URLs in
