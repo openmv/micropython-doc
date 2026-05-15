@@ -41,7 +41,21 @@ html_context = {
     "openmv_version": openmv_version,
     "micropython_version": micropython_version,
     "build_date": build_date,
+    # Tells Shibuya where the page source lives — used as a fallback
+    # for the "Copy page" / "Open in ChatGPT/Claude/Perplexity" links
+    # when html_baseurl isn't set (in which case Shibuya reads from
+    # the deployed site's /_sources/ tree instead).
+    "source_type": "github",
+    "source_user": "openmv",
+    "source_repo": "openmv-doc",
+    "source_docs_path": "/micropython/docs/",
+    "source_version": "master",
 }
+
+# Site root — used by sphinx-llms-txt to emit absolute URLs in
+# /llms.txt and by Shibuya's "Copy page" / "Open in ChatGPT" dropdown
+# to fetch raw page source from /_sources/.
+html_baseurl = "https://docs.openmv.io/"
 
 # -- Landing page code examples (rendered via Pygments to match site code style) --
 from pygments import highlight as _pygments_highlight
@@ -256,6 +270,9 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
+    # Auto-generates /llms.txt + /llms-full.txt during the build so LLMs
+    # can discover and ingest the docs without any per-page maintenance.
+    "sphinx_llms_txt",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -416,9 +433,15 @@ html_theme_options = {
     "color_mode": "auto",
     "github_url": "https://github.com/openmv/openmv",
     "discussion_url": "https://forums.openmv.io/",
+    "twitter_url": "https://x.com/openmvcam",
+    "youtube_url": "https://www.youtube.com/channel/UCk43Dxy_qcwwYyLsP6EWatQ",
+    "linkedin_url": "https://www.linkedin.com/company/16193624/",
     "globaltoc_expand_depth": 1,
     "toctree_collapse": True,
-    "show_ai_links": False,
+    "show_ai_links": True,
+    "open_in_chatgpt": True,
+    "open_in_claude": True,
+    "open_in_perplexity": True,
     "nav_links": [
         {"title": "Home", "url": "index"},
         {"title": "Tutorial", "url": "openmvcam/tutorial/index"},
