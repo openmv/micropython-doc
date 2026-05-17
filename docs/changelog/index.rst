@@ -99,4 +99,5 @@ migrate your code.
    v1.0.3.rst
    v1.0.2.rst
    v1.0.1.rst
+   v1.0.0.rst
    v4.2.3.rst
