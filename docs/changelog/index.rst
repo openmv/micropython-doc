@@ -15,3 +15,4 @@ migrate your code.
    v4.8.0.rst
    v4.7.0.rst
    v4.6.20.rst
+   v4.6.0.rst
