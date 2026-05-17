@@ -64,4 +64,8 @@ migrate your code.
    v3.5.2.rst
    v3.5.1.rst
    v3.5.0.rst
+   v3.5.0-beta.3.rst
+   v3.5.0-beta.2.rst
+   v3.5.0-beta.1.rst
+   v3.4.3.rst
    v4.2.3.rst
