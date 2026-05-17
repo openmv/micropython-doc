@@ -52,5 +52,6 @@ migrate your code.
    v3.8.0.rst
    v3.7.0.rst
    v3.6.9.rst
+   v3.6.8.rst
    v3.6.7.rst
    v4.2.3.rst
