@@ -85,4 +85,5 @@ migrate your code.
    v2.4.0.rst
    v2.3.0.rst
    v2.2.0.rst
+   v2.1.0.rst
    v4.2.3.rst
