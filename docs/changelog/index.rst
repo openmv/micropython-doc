@@ -60,4 +60,5 @@ migrate your code.
    v3.6.3.rst
    v3.6.2.rst
    v3.6.1.rst
+   v3.6.0.rst
    v4.2.3.rst
