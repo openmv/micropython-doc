@@ -5,12 +5,18 @@ OpenMV Firmware Changelog
 
 Every OpenMV firmware release brings new features and improvements. Here's
 what's new in each one — plus any breaking API changes and exactly how to
-migrate your code.
+migrate your code. Releases are grouped by major version, newest first.
 
 .. toctree::
    :maxdepth: 1
+   :caption: v5.x
 
    v5.0.0.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: v4.x
+
    v4.8.1.rst
    v4.8.0.rst
    v4.7.0.rst
@@ -33,6 +39,7 @@ migrate your code.
    v4.3.3.rst
    v4.3.1.rst
    v4.3.0.rst
+   v4.2.3.rst
    v4.2.2.rst
    v4.2.1.rst
    v4.2.0.rst
@@ -44,6 +51,11 @@ migrate your code.
    v4.0.2.rst
    v4.0.1.rst
    v4.0.0.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: v3.x
+
    v3.9.4.rst
    v3.9.3.rst
    v3.9.2.rst
@@ -76,6 +88,11 @@ migrate your code.
    v3.2.0.rst
    v3.1.0.rst
    v3.0.0.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: v2.x
+
    v2.9.0.rst
    v2.8.0.rst
    v2.7.0.rst
@@ -87,6 +104,11 @@ migrate your code.
    v2.2.0.rst
    v2.1.0.rst
    v2.0.0.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: v1.x
+
    v1.9.0.rst
    v1.8.0.rst
    v1.7.0.rst
@@ -100,4 +122,3 @@ migrate your code.
    v1.0.2.rst
    v1.0.1.rst
    v1.0.0.rst
-   v4.2.3.rst
