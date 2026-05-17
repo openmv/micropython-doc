@@ -75,4 +75,5 @@ migrate your code.
    v3.3.0.rst
    v3.2.0.rst
    v3.1.0.rst
+   v3.0.0.rst
    v4.2.3.rst
