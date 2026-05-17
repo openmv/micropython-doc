@@ -24,3 +24,4 @@ migrate your code.
    v4.5.4.rst
    v4.5.3.rst
    v4.5.2.rst
+   v4.5.1.rst
