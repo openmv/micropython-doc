@@ -78,4 +78,5 @@ migrate your code.
    v3.0.0.rst
    v2.9.0.rst
    v2.8.0.rst
+   v2.7.0.rst
    v4.2.3.rst
