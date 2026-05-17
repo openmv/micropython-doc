@@ -13,3 +13,4 @@ migrate your code.
    v5.0.0.rst
    v4.8.1.rst
    v4.8.0.rst
+   v4.7.0.rst
