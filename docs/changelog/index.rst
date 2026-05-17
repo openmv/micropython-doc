@@ -37,4 +37,6 @@ migrate your code.
    v4.2.1.rst
    v4.2.0.rst
    v4.1.4.rst
+   v4.1.3.rst
+   v4.1.2.rst
    v4.2.3.rst
