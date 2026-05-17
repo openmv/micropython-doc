@@ -372,6 +372,7 @@ exclude_patterns = [
     "library/pyb.LCD.rst",
     "library/pyb.Switch.rst",
     "library/wipy.rst",
+    "reference/pyboard.py.rst",
     "mimxrt/general.rst",
     "mimxrt/pinout.rst",
     "mimxrt/tutorial/intro.rst",
