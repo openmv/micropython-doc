@@ -469,6 +469,7 @@ html_theme_options = {
         {"title": "Language", "url": "reference/index"},
         {"title": "CPython", "url": "genrst/index"},
         {"title": "Internals", "url": "develop/index"},
+        {"title": "Changelog", "url": "changelog/index"},
         {"title": "License", "url": "license"},
     ],
 }
