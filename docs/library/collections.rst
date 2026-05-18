@@ -81,8 +81,11 @@ Classes
     Instances also provide the following method:
 
     .. method:: _asdict() -> OrderedDict
+       :noindex:
 
        Return the field names and their values as an :class:`OrderedDict`.
+       (``namedtuple`` builds types dynamically, so this method has no fixed
+       host class to attach to in the API model.)
 
 .. class:: OrderedDict(*args: Any, **kwargs: Any)
 
