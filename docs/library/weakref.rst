@@ -1,5 +1,5 @@
-:mod:`weakref` -- Python object lifetime management
-===================================================
+:mod:`weakref` --- Python object lifetime management
+====================================================
 
 .. module:: weakref
    :synopsis: Create weak references to Python objects

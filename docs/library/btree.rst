@@ -1,5 +1,5 @@
-:mod:`btree` -- simple BTree database
-=====================================
+:mod:`btree` --- simple BTree database
+======================================
 
 .. module:: btree
    :synopsis: simple BTree database

@@ -4,11 +4,11 @@ v3.3.0
 ======
 
 v3.3.0 is a huge release. It adds full **FLIR Lepton thermal-camera** support
-with a new ``sensor.ioctl()`` interface and color palettes, a **``tv``** SPI
+with a new :func:`sensor.ioctl` interface and color palettes, a ``tv`` SPI
 video-output module, **global-shutter triggered mode**, a big batch of new
-``image`` drawing/analysis methods (``gamma_corr()``, ``draw_ellipse()``,
+:mod:`image` drawing/analysis methods (``gamma_corr()``, ``draw_ellipse()``,
 ``draw_edges()``, many blob properties), and new ToF / motor / linalg
-libraries. The ``cpufreq`` API was reworked and ``sensor.set_framesize()`` now
+libraries. The ``cpufreq`` API was reworked and :func:`sensor.set_framesize` now
 raises — read the breaking changes below.
 
 .. contents:: On this page
@@ -19,32 +19,32 @@ Highlights
 ----------
 
 - **FLIR Lepton** — full thermal-camera support via the new
-  ``sensor.ioctl()`` interface, color palettes, and ``image.to_rainbow()``.
-- **``tv`` module** — SPI TV / composite video output.
+  :func:`sensor.ioctl` interface, color palettes, and ``image.to_rainbow()``.
+- ``tv`` module — SPI TV / composite video output.
 - **Global-shutter triggered mode** — MT9V034 triggered capture via
-  ``sensor.ioctl()``.
+  :func:`sensor.ioctl`.
 - **Imaging** — ``gamma_corr()``, ``draw_ellipse()``, ``draw_edges()``,
   ``draw_image()`` alpha blending, and many new blob properties.
 - **New libraries** — VL53L1X ToF distance, TB6612 motor driver,
   micro-linalg.
 - **Breaking:** the ``cpufreq`` API was reworked,
-  ``sensor.set_framesize()`` now raises on failure,
-  ``sensor.alloc_extra_fb()`` dropped Bayer/JPEG, and ``image.replace()``
+  :func:`sensor.set_framesize` now raises on failure,
+  :func:`sensor.alloc_extra_fb` dropped Bayer/JPEG, and ``image.replace()``
   positional args shifted — see the breaking changes.
 
 New features
 ------------
 
-- **FLIR Lepton** — added ``sensor.ioctl()`` for sensor-specific control and a
+- **FLIR Lepton** — added :func:`sensor.ioctl` for sensor-specific control and a
   full set of Lepton ioctls (radiometry, refresh/resolution, run-command,
   set/get attribute, FPA/AUX temperature in °C, measurement mode/range,
-  width/height), ``sensor.set_color_palette()`` / ``sensor.get_color_palette()``
+  width/height), :func:`sensor.set_color_palette` / :func:`sensor.get_color_palette`
   with ``sensor.PALETTE_RAINBOW`` / ``PALETTE_IRONBOW``,
   ``image.to_rainbow()``, and Lepton example scripts (27-Lepton).
 - **Triggered mode** — ``IOCTL_SET_TRIGGERED_MODE`` /
   ``IOCTL_GET_TRIGGERED_MODE`` for MT9V034 global-shutter triggered capture,
   with high-FPS and triggered-mode examples.
-- **``tv`` module** — added SPI TV / composite video output bindings.
+- ``tv`` module — added SPI TV / composite video output bindings.
 - **Imaging** — added ``image.gamma_corr()``, ``image.draw_ellipse()``,
   ``image.draw_edges()``, ``draw_image()`` alpha blending, a ``mask=``
   keyword on ``clear()``, re-added ``mask_rectangle()`` / ``mask_circle()`` /
@@ -56,8 +56,8 @@ New features
   many new blob properties (``corners``, ``perimeter``, ``roundness``,
   ``elongation``, ``extent``, ``compactness``, ``solidity``, ``convexity``,
   ``enclosing_circle``, ``enclosed_ellipse``, rotation).
-- **Libraries** — added the ``vl53l1x`` ToF distance-sensor driver, the
-  ``tb6612`` motor driver (with DC-motor and stepper Motor-Shield examples),
+- **Libraries** — added the :mod:`vl53l1x` ToF distance-sensor driver, the
+  :mod:`tb6612` motor driver (with DC-motor and stepper Motor-Shield examples),
   and a micro-linalg library (``ulinalg`` / ``umatrix``).
 - Upgraded FatFS to FF13C (exFAT-capable).
 
@@ -88,7 +88,7 @@ Imaging:
 
 System:
 
-- Fixed ``fb_alloc`` mark/free imbalance leaks across ``image`` / ``fir`` /
+- Fixed ``fb_alloc`` mark/free imbalance leaks across :mod:`image` / :mod:`fir` /
   ``lcd`` / ``tv`` / ``nn`` methods, made ``py_assert`` free framebuffer
   memory on caught exceptions (#417), cleared the UART overrun (ORE) flag so
   overruns no longer wedge UART reads, fixed the RTC IRQ handler, and fixed
@@ -146,10 +146,10 @@ the keyword form ``img.replace(src, mask=mask)``.
 
 .. _v3_3_0_extrafb:
 
-``sensor.alloc_extra_fb()`` no longer accepts Bayer/JPEG *(minor)*
+:func:`sensor.alloc_extra_fb` no longer accepts Bayer/JPEG *(minor)*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``sensor.alloc_extra_fb()`` no longer accepts ``sensor.BAYER`` or
+:func:`sensor.alloc_extra_fb` no longer accepts ``sensor.BAYER`` or
 ``sensor.JPEG`` (it now also supports ``sensor.BINARY``). Code that allocated
 extra framebuffers in Bayer or JPEG format must use ``GRAYSCALE`` /
 ``RGB565`` (or allocate the buffer another way).
@@ -158,10 +158,10 @@ extra framebuffers in Bayer or JPEG format must use ``GRAYSCALE`` /
 
 .. _v3_3_0_setframesize:
 
-``sensor.set_framesize()`` raises on failure *(behavior)*
+:func:`sensor.set_framesize` raises on failure *(behavior)*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``sensor.set_framesize()`` now raises a ``ValueError`` when the framesize is
+:func:`sensor.set_framesize` now raises a ``ValueError`` when the framesize is
 unsupported instead of returning ``False``. Code that checked the ``False``
 return value must catch the ``ValueError`` exception instead.
 
@@ -181,7 +181,7 @@ For a clean port to v3.3.0 the typical work is:
    (:ref:`the replace change <v3_3_0_replace>`).
 #. Allocate extra framebuffers as ``GRAYSCALE`` / ``RGB565`` instead of
    Bayer/JPEG (:ref:`the alloc_extra_fb change <v3_3_0_extrafb>`).
-#. Catch ``ValueError`` around ``sensor.set_framesize()`` instead of checking
+#. Catch ``ValueError`` around :func:`sensor.set_framesize` instead of checking
    for ``False`` (:ref:`the set_framesize change <v3_3_0_setframesize>`).
 
 All other scripts run unchanged.

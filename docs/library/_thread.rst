@@ -1,5 +1,5 @@
-:mod:`_thread` -- multithreading support
-========================================
+:mod:`_thread` --- multithreading support
+=========================================
 
 .. module:: _thread
    :synopsis: multithreading support
