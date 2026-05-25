@@ -22,7 +22,7 @@ Constructors
     Optionally initialize it with the given program *program*: see
     `StateMachine.init`.
 
-   .. method:: init(program: Callable, freq: int = -1, *, in_base: Pin | None = None, out_base: Pin | None = None, set_base: Pin | None = None, jmp_pin: Pin | None = None, sideset_base: Pin | None = None, in_shiftdir: int | None = None, out_shiftdir: int | None = None, push_thresh: int | None = None, pull_thresh: int | None = None) -> None
+   .. method:: init(program: Callable, freq: int = -1, *, in_base: machine.Pin | None = None, out_base: machine.Pin | None = None, set_base: machine.Pin | None = None, jmp_pin: machine.Pin | None = None, sideset_base: machine.Pin | None = None, in_shiftdir: int | None = None, out_shiftdir: int | None = None, push_thresh: int | None = None, pull_thresh: int | None = None) -> None
 
       Configure the state machine instance to run the given *program*.
 
