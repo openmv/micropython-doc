@@ -21,6 +21,7 @@ The OpenMV Cam tutorial covers how to use your OpenMV Cam and its accessories.
    numpy/index.rst
 
    tls_certificates.rst
+   battery_life.rst
 
    firmware_development.rst
 
