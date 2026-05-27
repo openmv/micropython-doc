@@ -14,6 +14,8 @@ The OpenMV Cam tutorial covers how to use your OpenMV Cam and its accessories.
    hardware_setup.rst
    openmvide_overview.rst
 
+   python/index.rst
+
    script_structure.rst
    io_tutorial.rst
    system_architecture.rst
