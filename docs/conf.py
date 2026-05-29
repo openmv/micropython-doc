@@ -284,6 +284,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
     # Auto-generates /llms.txt + /llms-full.txt during the build so LLMs
