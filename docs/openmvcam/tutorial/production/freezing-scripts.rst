@@ -1,5 +1,5 @@
-Releasing your OpenMV Cam Scripts for Production
-================================================
+Freezing scripts into the firmware
+==================================
 
 Once you've got your OpenMV Cam Scripts working like you want and you are ready to ship your
 product powered by OpenMV you need to freeze your scripts into the firmware. To do this you will

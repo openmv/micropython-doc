@@ -15,7 +15,7 @@ required deployment time.
 .. raw:: html
 
    <iframe id="openmv-battery-life-iframe"
-           src="../../_static/battery_life/index.html"
+           src="../../../_static/battery_life/index.html"
            title="OpenMV Battery Life Estimator"
            loading="lazy"
            scrolling="no"
