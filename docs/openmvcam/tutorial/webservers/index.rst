@@ -1,56 +1,54 @@
 Web Servers
 ===========
 
-The networking chapters got the camera onto the network and gave it
-sockets to talk through. *Web servers* is the first protocol that
-builds on top of those sockets that the section covers in depth. HTTP
-is the lingua franca of devices that talk to phones, dashboards,
-cloud services, and other cameras -- the one protocol every browser,
-every scripting language, and every embedded MCU agrees on.
+The networking chapters got the cam onto the network and gave it
+sockets to talk through (:doc:`/openmvcam/tutorial/networking/index`).
+What now? Most camera applications boil down to two things --
+*expose what the cam sees to the world* and *react to what other
+things on the network say*. HTTP is how that conversation happens, and
+it works in both directions:
 
-This section covers both sides of HTTP from the camera:
+* As a **server**, the cam answers requests from phones, browsers,
+  and other devices on the network. The :mod:`microdot` framework
+  is the cam's server.
+* As a **client**, the cam reaches out to cloud services to upload,
+  fetch, or coordinate. The :mod:`requests` module is the cam's
+  client.
 
-* As a **client**, the camera reaches out to other HTTP services --
-  uploading sensor readings to a cloud API, polling a weather service,
-  posting captured images to a private gateway. The
-  :mod:`requests` module is the camera's client.
-* As a **server**, the camera answers HTTP requests from other
-  devices -- exposing a control panel for a phone, serving a live
-  MJPEG stream to a browser, accepting commands from a companion
-  app. The :mod:`microdot` framework is the camera's server.
+Across the next 14 chapters we'll build *one* running camera
+application that exercises both.
 
-Both sit on top of :mod:`asyncio` for concurrency and on
-:mod:`socket` / :mod:`ssl` for the transport. Encryption,
-authentication, and access control all reuse the building blocks the
-networking section introduced.
+A *backyard motion-trigger cam* sits on a pole in the yard, sees what's
+going on, and tells the owner about anything interesting. We'll grow
+the cam from a one-route "I'm alive" server into a shippable thing:
+live preview to the owner's phone, a dashboard with a threshold slider
+and an event log, push notifications when motion fires, login, HTTPS,
+and a cloud archive of every triggered frame.
 
-.. toctree::
-   :caption: Concepts
-   :maxdepth: 1
+Each chapter adds *one* feature. Code samples assume the earlier
+chapters are in place -- we don't re-paste the whole script every
+time.
 
-   basics/why-http.rst
-   basics/http-roles.rst
-
-.. toctree::
-   :caption: As a client
-   :maxdepth: 1
-
-   client/requests.rst
+.. image:: figures/system-overview.svg
+   :alt: The phone or laptop talks to the cam over HTTPS for the
+         dashboard, SSE events, and WebSocket commands; the cam talks
+         out to a cloud archive over HTTPS POST.
+   :align: center
 
 .. toctree::
-   :caption: As a server
    :maxdepth: 1
 
-   server/minimal-app.rst
-   server/routing.rst
-   server/handlers.rst
-   server/serving-frames.rst
-   server/push.rst
-   server/auth-and-sessions.rst
-   server/security.rst
-
-.. toctree::
-   :caption: Wrap up
-   :maxdepth: 1
-
+   first-endpoint.rst
+   snapshot.rst
+   live-stream.rst
+   multi-client-stream.rst
+   control-api.rst
+   control-panel.rst
+   events.rst
+   commands.rst
+   auth-headers.rst
+   sessions-login.rst
+   https.rst
+   cors-csrf.rst
+   cloud-uploads.rst
    wrap-up.rst
