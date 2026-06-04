@@ -9,7 +9,7 @@ the host code can refer to by string.
 .. image:: ../figures/named-channels.svg
    :alt: One transport wire on the left fanning out into four
          labelled channels on the cam side -- stdin, stdout,
-         stream, and a user-registered frame channel -- each
+         stream, and a user-registered status channel -- each
          showing as an independent box.
    :align: center
 
@@ -19,9 +19,10 @@ The four built-in channels
 The cam registers four channels at boot, before any application
 code runs:
 
-* ``stdin`` -- bytes the host sends to the cam's MicroPython
-  ``input`` and the REPL. When the IDE shows a Python prompt that
-  reads keystrokes, it's piping them through ``stdin``.
+* ``stdin`` -- script bytes the host pushes to the cam to execute.
+  The IDE uses this channel to send the script being edited;
+  :meth:`~openmv.camera.Camera.exec` on the host SDK is the
+  equivalent call from a Python program.
 * ``stdout`` -- bytes from cam ``print()`` calls and uncaught
   exception tracebacks. The IDE's serial console reads this
   channel.
@@ -31,10 +32,9 @@ code runs:
 * ``profile`` -- profiler events, present only when the cam was
   built with profiling enabled. Most release builds omit it.
 
-Application code shouldn't touch ``stdin`` or ``stdout`` directly
-(let MicroPython handle them) and rarely needs to interact with
-``profile`` (the profiler tools do). The interesting work happens
-on channels the application registers itself.
+Application code rarely needs to touch any of the built-ins; the
+interesting work happens on channels the application registers
+itself.
 
 Registering a channel
 ---------------------
@@ -42,23 +42,36 @@ Registering a channel
 A cam-side script registers a new channel by calling
 :func:`protocol.register` with a name and a Python *backend* object::
 
+   import json
    import protocol
+   import time
 
-   class FrameChannel:
+   trigger_count = 0
+
+   class StatusChannel:
        def size(self):
-           return len(latest_jpeg) if latest_jpeg else 0
-       def read(self, offset, size):
-           return latest_jpeg[offset:offset + size]
-       def poll(self):
-           return latest_jpeg is not None
+           # Refresh the snapshot on every host query.
+           self._buf = json.dumps({
+               'uptime_s': time.ticks_ms() // 1000,
+               'triggers': trigger_count,
+           }).encode()
+           return len(self._buf)
 
-   protocol.register(name='frame', backend=FrameChannel())
+       def read(self, offset, size):
+           return self._buf[offset:offset + size]
+
+   protocol.register(name='status', backend=StatusChannel())
 
 The backend object's methods decide what the channel can do. A
 backend with only ``size`` and ``read`` is a *read-only data
 channel*; add ``write`` and it becomes bidirectional; add ``poll``
 and the host can ask whether new data is ready before paying for a
-read.
+read. Sampling the data inside ``size`` is the simplest pattern
+when the payload is small enough to fit in one fragment -- the
+buffer is generated on demand, never cached, never raced. Larger
+payloads -- image frames, sensor traces -- need a latching pattern
+that holds the buffer until the host finishes its multi-fragment
+read, covered with the frame channel.
 
 A small amount of bookkeeping happens automatically:
 
@@ -71,32 +84,69 @@ A small amount of bookkeeping happens automatically:
   host so its channel list updates.
 
 The return value is a :class:`protocol.ProtocolChannel` handle the
-application can hold on to. The handle's :meth:`send_event` method
-is the cam-side hook for telling the host "something happened on
-this channel without changing the readable data" -- a frame-grabbed
-notification, a button-press event, a sample-count milestone.
+application can hold on to. The handle's
+:meth:`~protocol.ProtocolChannel.send_event` method is the cam-side
+hook for telling the host "something happened on this channel
+without changing the readable data" -- a trigger fired, a button
+was pressed, a sample-count milestone passed.
 
 Reading channels from the host
 ------------------------------
 
-On the host side, :class:`openmv.camera.Camera` exposes the same
-named channels through high-level methods::
+The host SDK ships as the ``openmv`` package on PyPI
+(``pip install openmv``), built on ``pyserial`` for the transport.
+Its :class:`openmv.camera.Camera` class exposes the cam's named
+channels through high-level methods::
 
    from openmv.camera import Camera
 
-   with Camera('/dev/ttyACM0') as cam:
-       if cam.has_channel('frame'):
-           size = cam.channel_size('frame')
-           data = cam.channel_read('frame', size)
+   with Camera('/dev/ttyACM0', baudrate=921600) as cam:
+       cam.update_channels()
+       if cam.has_channel('status'):
+           size = cam.channel_size('status')
+           data = cam.channel_read('status', size)
 
-The string ``'frame'`` is looked up once into the channel ID the cam
-assigned during ``register`` and used in every packet from then on.
+.. warning::
+
+   The ``openmv`` package requires **CPython 3.12 or newer**.
+   Earlier interpreters lack features the SDK depends on; install
+   a 3.12+ build before ``pip install openmv``.
+
+A few things to notice about the setup:
+
+* The serial-port string -- ``/dev/ttyACM0`` here -- is
+  ``COM3``-style on Windows, ``/dev/cu.usbmodemXXXX`` on macOS, and
+  ``/dev/ttyACM*`` on Linux. The actual number depends on which
+  port the cam enumerated as.
+* The baud rate is the protocol's magic value ``921600``, which the
+  cam's USB-CDC stack recognises as "this client speaks the
+  protocol, not the REPL." Any other rate falls back to a plain
+  serial line.
+* The ``with Camera(...) as cam:`` context manager opens the
+  transport, runs ``PROTO_SYNC``, exchanges capabilities, and on
+  exit closes the port cleanly. The explicit
+  :meth:`~openmv.camera.Camera.update_channels` call after entry
+  refreshes the local channel list with any channels the
+  application registered after boot.
+
 :meth:`~openmv.camera.Camera.channel_size` and
 :meth:`~openmv.camera.Camera.channel_read` are the workhorse
 methods; :meth:`~openmv.camera.Camera.channel_write` round-trips a
 buffer to the cam if the backend has a ``write`` method;
 :meth:`~openmv.camera.Camera.has_channel` is the safe way to check
-that a name is registered before using it.
+that a name is registered before using it. The channel name is
+looked up once into the channel ID the cam assigned during
+``register`` and used in every packet from then on.
+
+Each :meth:`~openmv.camera.Camera.channel_size` /
+:meth:`~openmv.camera.Camera.channel_read` pair costs two
+round-trips: one packet to ask for the size, one to ask for the
+bytes. Over USB-CDC both finish in about a millisecond combined;
+over UART the same exchange takes longer in proportion to the
+serial line's baud rate. Application code that reads in a tight
+loop should call :meth:`~openmv.camera.Camera.channel_size`
+only when the size can actually change -- for fixed-size data, the
+size from the first call can be cached.
 
 Independence between channels
 -----------------------------

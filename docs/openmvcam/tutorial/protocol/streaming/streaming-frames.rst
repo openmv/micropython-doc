@@ -1,18 +1,21 @@
 Streaming frames
 ================
 
-A counter is the simplest possible channel. The next step up -- and
-the most common real use -- is streaming image frames from the cam
-to a host program at the cam's frame rate. The mechanics are the
-same as the counter: a backend with ``size``, ``read``, and now
-``poll``. The interesting parts are how the cam keeps the data
-fresh and how the protocol library transparently handles
-fragments larger than the cam's max payload.
+The most common real use of a custom channel is streaming image
+frames from the cam to a host program at the cam's frame rate. The
+mechanics are subtler than they look: a JPEG can run to 25 KB or
+more, so the host reads it as several fragments, and the cam's
+capture loop must be prevented from overwriting the buffer
+mid-read. The right pattern -- shown here and used by the tools in
+``openmv-projects/tools/`` -- *latches* the buffer until the host
+finishes pulling the last byte.
 
 The cam side
 ------------
 
-A frame channel exposes a JPEG of the latest snapshot::
+A frame channel that captures into a single framebuffer, latches it
+on the host's first read, and only takes the next snapshot once the
+host has consumed the full image::
 
    import csi
    import protocol
@@ -21,70 +24,116 @@ A frame channel exposes a JPEG of the latest snapshot::
    csi0.reset()
    csi0.pixformat(csi.RGB565)
    csi0.framesize(csi.QVGA)
+   csi0.framebuffers(1)
 
-   latest_jpeg = None
+   img = csi0.snapshot()
+   img.compress(quality=85)
+   img_mv = memoryview(img.bytearray())
+   img_size = len(img_mv)
+   frame_available = True
+
 
    class FrameChannel:
        def poll(self):
-           return latest_jpeg is not None
+           return frame_available
+
        def size(self):
-           return len(latest_jpeg) if latest_jpeg else 0
-       def read(self, offset, size):
-           return latest_jpeg[offset:offset + size]
+           return img_size
+
+       def readp(self, offset, size):
+           global frame_available
+           end = offset + size
+           mv = img_mv[offset:end]
+           if end == img_size:
+               # Host has just read the last byte of this frame --
+               # release the buffer so the capture loop can refresh.
+               frame_available = False
+           return mv
+
 
    ch = protocol.register(name='frame', backend=FrameChannel())
 
    while True:
-       img = csi0.snapshot()
-       latest_jpeg = bytes(img.compress(quality=85).bytearray())
-       ch.send_event(0x01)   # notify host that a new frame is ready
+       if not frame_available:
+           img = csi0.snapshot()
+           img.compress(quality=85)
+           img_mv = memoryview(img.bytearray())
+           img_size = len(img_mv)
+           frame_available = True
+           ch.send_event(0x01)   # notify host that a new frame is ready
 
-A few differences from the counter:
+Four pieces are doing real work here:
 
-* ``poll`` is present. The host polls each channel before reading;
-  the polling reply is a single byte so it costs almost nothing.
-  When ``poll`` returns :data:`False` the host skips the round trip
-  entirely.
-* ``size`` returns the current JPEG length, not regenerated on
-  demand. The application separately *captures* into ``latest_jpeg``
-  on its own schedule. The host reads whatever happens to be there
-  at the moment of the request.
-* ``send_event(0x01)`` notifies the host immediately when a new
-  frame is ready, without the host having to poll. The event ID
-  ``0x01`` is application-defined ("frame ready" in this case);
-  use a different small integer for each kind of notification.
-* The ``bytes(...)`` wrap around the JPEG is *load-bearing*: the
-  next ``csi0.snapshot()`` reuses the camera's image buffer in
-  place, and ``latest_jpeg`` has to outlive that. The same defensive
-  copy showed up in the webservers chapter for the same reason.
+* ``frame_available`` is the *latch*. The capture loop only takes a
+  new snapshot when it is :data:`False` -- meaning the host has
+  pulled the last byte of the previous frame. The host's read sets
+  it back to :data:`False` from inside ``readp`` once the final
+  offset has been served. Without this guard, the next
+  ``csi0.snapshot()`` would overwrite the buffer mid-read and the
+  host would receive a frame stitched together from two captures.
+* ``readp`` rather than ``read`` is what the backend implements.
+  The protocol library treats the returned buffer as authoritative
+  and reads its bytes directly into the outgoing packet -- no copy.
+  For frame-sized payloads ``readp`` is noticeably faster than
+  ``read``, which forces an intermediate copy.
+* ``size`` returns the cached JPEG length without recomputing
+  anything; the capture loop maintains it whenever it refreshes the
+  buffer. The host calls ``size`` between ``poll`` and ``readp`` to
+  know how many bytes to pull.
+* :meth:`~protocol.ProtocolChannel.send_event` notifies the host
+  the instant a new frame lands so it can begin pulling without
+  polling. The event ID ``0x01`` is application-defined ("frame
+  ready" in this case); use a different small integer for each
+  kind of notification.
 
 Fragmentation
 -------------
 
 QVGA RGB565 at JPEG quality 85 compresses to roughly 10-25 KB,
-depending on the scene. The maximum payload on a Cam H7 is 4082
-bytes (see the table in :func:`protocol.init`). One JPEG read won't
-fit in one packet -- and that's fine, because the protocol library
-fragments it transparently.
+depending on the scene -- much bigger than the negotiated max
+payload on any cam (see the per-board table in
+:func:`protocol.init`). One JPEG read won't fit in one packet, and
+that's fine, because the protocol library fragments it
+transparently.
 
 When the host asks for ``channel_read('frame', 12000)``:
 
-1. The library issues a ``CHANNEL_READ`` packet for the first
-   ~4 KB chunk. The cam runs ``read(0, 4082)`` and replies.
-2. The library issues a second ``CHANNEL_READ`` for the next
-   chunk. The cam runs ``read(4082, 4082)`` and replies.
-3. The third call completes the read. The library glues the three
-   chunks together and returns 12000 bytes to the host caller.
+1. The cam's ``readp`` is called *once* with ``offset=0`` and the
+   full 12000-byte request. It returns one memoryview covering the
+   whole range.
+2. The protocol library breaks that memoryview into max-payload-
+   sized fragments on the wire, one ``CHANNEL_READ`` reply packet
+   per fragment, each with its own header and CRC. The bytes are
+   streamed out of the backend's buffer directly -- no copy.
+3. The host receives the fragments in order, the reliability layer
+   retransmits any one chunk that fails its CRC, and the host SDK
+   glues the chunks into the 12000-byte result returned to the
+   caller.
 
-Each fragment has its own header and CRCs and goes through the
-reliability layer independently. If one chunk fails its CRC the
-library retransmits just that chunk; the application code on
-either side never sees the failure.
+.. note::
 
-On the cam side, the application's ``read`` method is called once
-per fragment with the right offset. The backend doesn't need to
-know about fragments at all -- as long as ``read`` returns the
-requested range of bytes, the library handles the rest.
+   This is the key practical difference between ``readp`` and
+   ``read``. ``readp`` is called *once per host request*; the
+   protocol layer fragments and transmits out of the single
+   returned buffer. ``read`` is called *once per fragment*, and
+   the library copies each returned chunk into its own packet
+   buffer. For frame-sized payloads ``readp`` saves both the
+   per-fragment Python-level call overhead and the copy.
+
+.. tip::
+
+   Want to see the gap for yourself? Rename the backend's
+   ``readp`` method to ``read`` -- nothing else changes; the
+   library will pick up the ``read`` capability instead -- and
+   compare the host's frame-rate counter before and after. The
+   slower number is the per-fragment copy and Python-call cost
+   you avoid by using ``readp``.
+
+The latch in ``FrameChannel.readp`` releases the buffer when
+``offset + size == img_size`` -- the moment the host has pulled
+the last byte. Until then, the buffer must stay valid, which is
+why the capture loop only takes the next snapshot once
+``frame_available`` flips back to :data:`False`.
 
 The host side
 -------------
@@ -99,9 +148,9 @@ The host pulls frames in a tight loop::
        cam.update_channels()
 
        while True:
-           if not cam.channel_size('frame'):
-               continue
            size = cam.channel_size('frame')
+           if not size:
+               continue
            data = cam.channel_read('frame', size)
            img = Image.open(io.BytesIO(data))
            img.show()                  # or feed to a GUI
@@ -121,13 +170,14 @@ view.
 Throughput thinking
 -------------------
 
-Three things bound the achievable frame rate over USB:
+Three things bound the achievable frame rate:
 
-* The cam's frame rate. QVGA RGB565 at low gain runs ~60 fps on a
-  Cam H7; the cam can't deliver faster than it captures.
-* The max payload. Bigger payloads mean fewer fragments and less
-  framing overhead per packet, so the larger cams (N6, AE3) at 8
-  KB max payload move bytes faster than the H7 at 4 KB.
+* The cam's capture rate. The protocol can't deliver frames faster
+  than the sensor produces them; whatever cap the chosen pixel
+  format and frame size impose on capture is the ceiling.
+* The negotiated max payload. Bigger payloads mean fewer fragments
+  per frame and less framing overhead, so cams with larger protocol
+  buffers move bytes faster than smaller ones.
 * CRC and ACK overhead. Each packet costs 14 bytes of framing plus
   one ACK round-trip. For long fragments the per-payload overhead
   is small; for tiny payloads it dominates.
@@ -135,12 +185,14 @@ Three things bound the achievable frame rate over USB:
 For most cam-to-laptop GUI work the limiting factor is the cam's
 capture and JPEG compression time, not the protocol stack. Where
 the protocol does become the bottleneck -- streaming uncompressed
-raw frames at 30+ fps, for example -- the levers are turning off
-ACKs (``protocol.init(ack=False)``), choosing a larger pixel
-buffer if the cam supports it, or moving the cam to a TCP
-transport where the host has more buffer space than USB.
+raw frames at high frame rates, for example -- the levers are
+turning off ACKs (``protocol.init(ack=False)``), increasing the
+protocol buffer if the cam supports it, or capturing in GRAYSCALE
+so each compressed JPEG carries one channel instead of three and
+the encoded frame ends up noticeably smaller on the wire.
 
-This is one half of streaming -- the cam pushing data to the
-host. The other half is the host pushing data to the cam: a
-control loop where the operator's slider or button on the laptop
-changes the cam's behaviour at runtime.
+The frame channel is the canonical cam-to-host data flow. The same
+backend interface, with a ``write`` method added, lets the host
+push data the other way too -- which is what an interactive cam
+tool needs as soon as the operator wants to *change* something
+rather than just watch.

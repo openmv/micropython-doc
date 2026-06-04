@@ -7,10 +7,10 @@ rest of the chapter walks the stack from bottom to top.
 
 .. image:: ../figures/the-four-layers.svg
    :alt: A vertical stack of four labelled layers: transport at the
-         bottom (USB or UART or TCP), framing above it (packet
-         header with CRC), reliability above that (sequence numbers,
-         ACK / NAK, retransmits), and channels at the top (named
-         logical streams).
+         bottom (USB or UART), framing above it (packet header with
+         CRC), reliability above that (sequence numbers, ACK / NAK,
+         retransmits), and channels at the top (named logical
+         streams).
    :align: center
 
 Transport
@@ -19,13 +19,11 @@ Transport
 At the bottom is the byte pipe between the cam and the host. The
 protocol library doesn't care which one carries the bytes:
 
-* USB-CDC over the USB port the cam is plugged into. The default and
-  highest-bandwidth option for every cam with a USB-C port.
+* USB-CDC over the USB port the cam is plugged into. The default
+  and highest-bandwidth option for every cam.
 * UART over a pair of GPIO pins on the cam connected to a serial
   adapter on the host. Useful for headless deployments where the
   USB port is busy or isn't physically accessible.
-* TCP over Wi-Fi or Ethernet, on cams that have networking. The cam
-  acts as a TCP server and the host opens a socket to it.
 
 The transport's only job is "bytes go in, bytes come out, in order".
 Everything above this layer assumes that the transport delivers
@@ -38,7 +36,7 @@ Framing
 -------
 
 The next layer up imposes structure on the byte stream. Every
-message becomes a *packet*: a 10-byte header followed by a payload
+message becomes a packet -- a 10-byte header followed by a payload
 followed by a 4-byte trailer. The header carries:
 
 * A 2-byte sync word (``0xD5AA``) that lets a receiver re-find the
@@ -79,29 +77,14 @@ Channels
 The top layer is what application code sees. A *channel* is a named
 logical stream identified by a channel ID from 0 to 31. Up to 32
 channels can coexist on one transport; each one is independent of
-the others, addressed by its ID in every packet's header.
-
-Four channels are built in:
-
-* ``stdin`` -- bytes typed in the host's REPL forwarded to the cam.
-* ``stdout`` -- ``print`` output from the cam forwarded to the
-  host.
-* ``stream`` -- the default channel the IDE uses to pull live
-  frames.
-* ``profile`` -- profiler events, when the cam is built with
-  profiling.
-
-Application code adds more by calling :func:`protocol.register` on
-the cam side, which exposes a Python class as a new named channel.
-The host then sees it in the channel list, can ``channel_read`` from
-it, ``channel_write`` to it, and react to events from it.
+the others, addressed by its ID in every packet's header. The cam
+boots with four built-in channels -- ``stdin``, ``stdout``,
+``stream``, and ``profile`` -- and application code registers more
+on top by calling :func:`protocol.register` with a Python class.
 
 The four layers don't mix concerns. Framing doesn't know about
 channels; reliability doesn't know about packet contents; the
 channel layer doesn't know how the bytes arrive. That separation is
 why a transport swap (USB to UART, for example) doesn't ripple up
-into the channel code.
-
-The rest of this chapter walks the same stack: framing on the next
-pages, reliability after that, channels above, and finally Python
-code on both ends.
+into the channel code, and it's what makes the rest of the chapter
+walkable one layer at a time.

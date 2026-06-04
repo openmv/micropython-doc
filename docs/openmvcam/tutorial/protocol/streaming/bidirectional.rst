@@ -71,8 +71,8 @@ any other operation on that channel proceeds. Application code can
 read ``config.quality`` from inside the capture loop without
 worrying about the host stomping mid-snapshot.
 
-When ``size`` and ``read`` are vestigial
-----------------------------------------
+Stub size and read on a write-only channel
+------------------------------------------
 
 A pure write channel still needs ``size`` and ``read`` defined,
 even if they're stubs returning 0 and ``b''``. The library uses
@@ -80,33 +80,40 @@ the *presence* of methods to derive the channel's capability flags;
 a backend that's missing ``read`` won't get ``CHANNEL_FLAG_READ``
 set and the host will refuse a read attempt.
 
-In practice the bytes returned from ``read`` on a write-only
-channel are useful for a different purpose: echoing back the
-current value so a host that just attached can ask the cam "what's
-the current setting?" rather than starting from a default.
-Returning the same JSON-encoded snapshot in ``read`` that ``write``
-parses makes the channel a true round-trip configuration store::
+The bytes returned from ``read`` on a write-only channel are
+useful for a different purpose, though: echoing back the current
+value so a host that just attached can ask the cam "what's the
+current setting?" rather than starting from a default. To make
+that work both directions have to agree on a serialisation. The
+raw-bytes ``int(bytes(data))`` parse in the earlier example works
+for a single integer field but won't scale once there's a second
+knob to set. Switching ``write`` to parse JSON and pairing it with
+a ``read`` that returns the matching JSON dump turns the channel
+into a true round-trip configuration store::
+
+   import json
 
    class ConfigChannel:
        def __init__(self):
            self.quality = 85
            self._buf = b''
        def size(self):
-           import json
            self._buf = json.dumps({'quality': self.quality}).encode()
            return len(self._buf)
        def read(self, offset, size):
            return self._buf[offset:offset + size]
        def write(self, offset, data):
-           import json
            new = json.loads(bytes(data))
            if 'quality' in new:
                self.quality = int(new['quality'])
            return len(data)
 
-Now the host can ``channel_read('config')`` to see the current
-value at any time. The cam serialises a fresh JSON dump on every
-read so the host always sees the latest state.
+The host now writes ``cam.channel_write('config',
+b'{"quality": 50}')`` to set a value and ``cam.channel_read('config')``
+to read the current state back. The cam serialises a fresh JSON
+dump on every read so the host always sees the latest values, and
+adding another knob (``threshold``, ``exposure``, ``orientation``)
+is one line in the JSON dict on each side.
 
 A complete loop
 ---------------
@@ -127,9 +134,9 @@ capture loop on the cam, a read-and-write loop on the host. No
 framing logic visible, no error handling visible -- the protocol
 library makes the reliable byte movement disappear.
 
-For typed values -- sliders with min/max/step, toggles,
-multiple-choice selects -- a JSON-encoded config dict starts to
-feel verbose. The :class:`protocol.CBORChannel` helper does the
-same round-trip with typed widget metadata baked in, which is the
-foundation for the host-side GUI patterns the openmv-projects tools
-use.
+Everything past this point is application code. Adding a third
+channel for a histogram, a fourth for telemetry, or a fifth for
+sensor triggers is the same backend-class-and-``protocol.register``
+recipe, repeated. Once a cam project reaches this point the
+protocol stops being the interesting problem; the application's
+own logic does.

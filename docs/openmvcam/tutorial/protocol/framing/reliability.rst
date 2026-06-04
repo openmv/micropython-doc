@@ -49,21 +49,24 @@ itself:
   because of a bad CRC or a sequence-number gap. The header points
   the sender at which sequence to retransmit.
 
-The sender keeps a small queue of unacknowledged packets and a
-timer for each. When an ACK arrives, the matching packet leaves
-the queue. When a NAK arrives, the sender retransmits the
-referenced sequence with the ``RTX`` flag set so the receiver
-knows it's a retry.
+The sender runs a stop-and-wait loop: it transmits one packet that
+requires acknowledgement, then waits for the matching ACK (or NAK)
+before sending the next. The single-in-flight model keeps the
+sender state bounded -- a few hundred bytes on the smallest cams --
+and matches the protocol's role as a control channel between two
+endpoints rather than a throughput-optimised pipe. On NAK the
+sender retransmits the same packet with the ``RTX`` flag set so the
+receiver knows it's a retry.
 
 Retransmit timing
 -----------------
 
 If neither ACK nor NAK arrives within the *retransmit timeout*, the
-sender retransmits the oldest unacknowledged packet on its own. The
-timeout defaults to ``500 ms`` and doubles on each consecutive
-retry (1 s, 2 s, ...). After the configured number of retries --
-default three -- the sender gives up and reports a transport error
-to the application.
+sender retransmits the in-flight packet on its own. The timeout
+defaults to ``500 ms`` and doubles on each consecutive retry (1 s,
+2 s, ...). After the configured number of retries -- default three
+-- the sender gives up and reports a transport error to the
+application.
 
 Doubling the timeout is the standard *exponential backoff* pattern.
 A short first timeout catches lost packets quickly; the doubling
@@ -121,6 +124,6 @@ genuinely unrecoverable failures (e.g. the transport itself is
 gone) reach the application.
 
 With framing in place to detect corruption and reliability in place
-to recover from it, the wire-level work is done. The next layer up
-is what application code uses to do something useful with the
-delivered bytes -- channels.
+to recover from it, the wire-level work is done. Application code
+sees framed, ordered, intact packets; the bytes inside them are
+free to mean whatever the channel above wants them to.

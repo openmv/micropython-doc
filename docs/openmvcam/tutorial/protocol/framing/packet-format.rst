@@ -18,22 +18,15 @@ sequence.
 The header
 ----------
 
-Ten bytes, packed without padding:
+Ten bytes, packed without padding. Each field:
 
-::
-
-    +-----------+------+------+-------+--------+-------+-------+
-    | sync (2)  | seq  | chan | flags | opcode | len(2)|crc(2) |
-    +-----------+------+------+-------+--------+-------+-------+
-
-Each field:
-
-* ``sync`` -- two bytes, always ``0xD5AA`` (low byte first). A
-  receiver scanning bytes can find the start of a packet by
-  searching for the sync word; anything before it is treated as
-  garbage. The choice of value is deliberate: ``0xD5`` and ``0xAA``
-  rarely appear in printable text, and the pair is unlikely to
-  occur by accident in the middle of a payload.
+* ``sync`` -- the 16-bit word ``0xD5AA`` in little-endian order.
+  Byte 0 on the wire is ``0xAA``, byte 1 is ``0xD5``. A receiver
+  scanning bytes can find the start of a packet by searching for
+  the pair ``AA D5``; anything before it is treated as garbage.
+  The choice of value is deliberate: ``0xAA`` and ``0xD5`` rarely
+  appear in printable text, and the pair is unlikely to occur by
+  accident in the middle of a payload.
 * ``seq`` -- one byte. A counter that increments by one for each
   packet sent on a given direction. The receiver checks that the
   next packet's sequence number is the expected one; if not, the
@@ -60,12 +53,12 @@ Each field:
 * ``opcode`` -- one byte. The command or response code. The
   protocol library reserves opcode ranges by purpose:
 
-  - ``0x00``..``0x0F`` -- protocol commands (SYNC, GET_CAPS,
-    SET_CAPS, STATS, VERSION).
-  - ``0x10``..``0x1F`` -- system commands (RESET, BOOT, INFO,
-    EVENT, MEMORY).
-  - ``0x20``..``0x2F`` -- channel commands (LIST, POLL, LOCK,
-    UNLOCK, SHAPE, SIZE, READ, WRITE, IOCTL, EVENT).
+  - ``0x00..0x0F`` -- protocol commands (SYNC, GET_CAPS, SET_CAPS,
+    STATS, VERSION).
+  - ``0x10..0x1F`` -- system commands (RESET, BOOT, INFO, EVENT,
+    MEMORY).
+  - ``0x20..0x2F`` -- channel commands (LIST, POLL, LOCK, UNLOCK,
+    SHAPE, SIZE, READ, WRITE, IOCTL, EVENT).
 
 * ``len`` -- two bytes, little-endian. The number of payload bytes
   that follow the header. A length of zero is legal -- many
@@ -84,10 +77,9 @@ small fixed structure; for a channel write it's whatever the host
 sent.
 
 The maximum payload size depends on the cam's protocol buffer size
-(refer to the per-board table in :func:`protocol.init`). The
-smaller cams cap at 498 bytes; the N6 and AE3 cap at 8178 bytes.
-Messages longer than the cap are split into fragments with the
-``FRAGMENT`` flag set on all but the last.
+(refer to the per-board table in :func:`protocol.init`). Messages
+longer than the cap are split into fragments with the ``FRAGMENT``
+flag set on all but the last.
 
 The trailing CRC
 ----------------
@@ -96,35 +88,16 @@ Four bytes, a CRC-32 over the payload. Catches corruption that the
 header CRC can't see, particularly on long payloads where a
 single-bit error mid-frame would otherwise slip through.
 
-Two CRCs feels like belt-and-braces, but it earns its keep: the
-header CRC lets the receiver discard a damaged packet without
-buffering the whole payload, which matters on small cams with
-limited RAM and on slow transports where waiting for the rest of
-the payload is wasted time.
-
-A small example
----------------
-
-A ``CHANNEL_SIZE`` request asking the cam for the current size of
-the ``frame`` channel might look like this on the wire (channel
-ID 4, sequence 17, no payload, ACK requested):
-
-::
-
-    D5 AA 11 04 08 25 00 00  CC CC  -- no payload, no payload CRC
-     |  |  |  |  |  |  |  |  |  |
-     sync   |  |  |  |  |  |  payload-CRC placeholder (omitted on
-            |  |  |  |  |  |  zero-length payload)
-            |  |  |  |  |  payload length = 0
-            |  |  |  |  opcode = CHANNEL_SIZE
-            |  |  |  flags = ACK_REQ
-            |  |  channel = 4
-            |  sequence = 17
-            header CRC over the previous bytes
-
-A read reply with eight bytes of channel data would look the same
-in the header (different opcode, non-zero length) followed by the
-eight payload bytes and a four-byte trailing CRC.
+Splitting the integrity check across two CRCs is deliberate. The
+header CRC protects the framing fields themselves -- particularly
+the payload length. Without a separate header CRC, a single bit
+flip in the length byte would cause the receiver to read the wrong
+number of bytes for the payload and desync from the byte stream
+entirely; with one, a damaged header is rejected outright and the
+receiver re-scans for the next sync word. The payload CRC then
+protects the message body as a separate concern, so a bit flip in
+the data is reported as a corrupt payload rather than mistaken for
+a framing error.
 
 The format is small enough to walk through byte by byte, and the
 fact that every packet has the same layout -- sync, then header,

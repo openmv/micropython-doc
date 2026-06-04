@@ -15,8 +15,8 @@ restarts it with :func:`protocol.init` to change parameters), then
 sits quietly waiting for a host. From the cam's point of view there
 is nothing to do until a packet arrives.
 
-The host side opens the transport -- USB port, UART, or TCP
-connection -- and immediately sends a ``PROTO_SYNC`` packet
+The host side opens the transport -- USB port or UART -- and
+immediately sends a ``PROTO_SYNC`` packet
 (opcode ``0x00``). This packet has a magic payload that lets the cam
 recognise it even if both sides got out of sync, and it's the only
 packet the cam ever responds to before capabilities are negotiated.
@@ -46,47 +46,16 @@ The host compares those against its own configuration. If the host
 needs to *change* any of them -- for example, to negotiate a smaller
 max payload because its receive buffer is smaller than the cam's --
 it sends ``PROTO_SET_CAPS`` (opcode ``0x02``) with the new values.
-The cam reconfigures its stack and acknowledges.
+The cam reconfigures its stack and acknowledges. From here on, every
+packet that crosses the wire follows that shared contract.
 
-By the time the capability exchange finishes both sides agree on:
-
-* Whether each packet is CRC-checked.
-* Whether sequence numbers are tracked.
-* Whether ACKs are required.
-* What the maximum payload size is for the rest of the session.
-
-From here on, every packet that crosses the wire follows that
-shared contract.
-
-The default contract
---------------------
-
-If the host doesn't override anything the defaults are:
-
-* CRC: on. Every packet is checked at both the header and payload
-  level.
-* Sequence numbers: on. Out-of-order packets trigger retransmit
-  requests.
-* ACKs: on. Every data packet asks for an acknowledgement; reads
-  retry on timeout.
-* Events: on. Channel-event packets reach the host.
-* Max payload: the cam's per-board buffer maximum minus 14 header
-  + CRC bytes. The smaller cams settle at 498 bytes; the largest
-  at 8178.
-
-For the majority of cam-to-laptop debugging that's the right
-configuration. Two situations make changing the defaults worth it:
-
-**One-way streaming.** A cam streaming sensor data the host
-records to disk doesn't need acknowledgements; missing the
-occasional sample isn't worth the round-trip latency. Calling
-``protocol.init(ack=False)`` on the cam side and matching the host
-trades guaranteed delivery for higher throughput.
-
-**Custom transport.** A cam talking to a host over a serial line
-with strong physical-layer integrity (a short loopback, an isolated
-SPI bus) can save CPU by skipping the CRC checks. The negotiation
-turns it off cleanly and both sides agree.
+If the host doesn't override anything, the defaults are all on:
+CRC validation, sequence-number tracking, ACKs, and event
+notifications. The default max payload is the cam's per-board
+buffer minus 14 bytes of framing overhead (the 10-byte header plus
+the 4-byte trailing payload CRC). For most cam-to-laptop work the
+defaults are the right starting point; the reliability page covers
+when and why an application opts pieces of them off.
 
 Channel discovery
 -----------------

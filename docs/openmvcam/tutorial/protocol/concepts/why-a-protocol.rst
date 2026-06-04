@@ -2,10 +2,9 @@ Why a protocol library
 ======================
 
 A pair of cables and a baud rate is enough to move bytes from a cam
-to a host PC. UART, USB-CDC, a TCP socket -- all three give the cam
-program a stream where ``write`` puts bytes in one end and ``read``
-takes them out the other. So what does a *protocol library* add on
-top of that?
+to a host PC. USB-CDC and UART both give the cam program a stream
+where ``write`` puts bytes in one end and ``read`` takes them out
+the other. So what does a *protocol library* add on top of that?
 
 Three things you would have to write yourself, every time, if you
 tried to build a serious cam-to-host channel directly on raw bytes:
@@ -23,15 +22,14 @@ format with a sync word and a length field, and the receiver never
 has to guess.
 
 **Reliability.**
-USB-CDC and TCP don't drop bytes silently in normal operation, but
-UART does (when the host stops servicing the port quickly enough),
-USB hubs can desync after suspend/resume, and a serial cable
-unplugged and reseated can leave one side with a partial packet. The
-right thing to do is to detect the corruption, ask the other side
-to retransmit, and only ever hand application code messages that
-arrived intact. The protocol library does that for every packet
-with a CRC and per-packet acknowledgements -- on by default; the
-application doesn't see the retries.
+USB-CDC doesn't drop bytes silently in normal operation, but UART
+does (when the host stops servicing the port quickly enough), and a
+serial cable unplugged and reseated can leave one side with a
+partial packet. The right thing to do is to detect the corruption,
+ask the other side to retransmit, and only ever hand application
+code messages that arrived intact. The protocol library does that
+for every packet with a CRC and per-packet acknowledgements -- on
+by default; the application doesn't see the retries.
 
 **Multiplexing.**
 There's exactly one USB-CDC port between the cam and the host. If
@@ -66,4 +64,5 @@ format, the framing rules, the reliability machinery, the channel
 model, and finally the Python classes on both ends. By the end the
 reader can build a host GUI that talks to the cam, a script that
 streams sensor data from cam to laptop, and the kind of interactive
-calibration tool that ships in ``openmv-projects/tools/``.
+calibration tool that ships in `openmv-projects/tools/
+<https://github.com/openmv/openmv-projects/tree/master/tools>`_.
