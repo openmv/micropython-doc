@@ -46,8 +46,9 @@ deque -- a bounded ring buffer
 A list is fast at the *end* (``append`` / ``pop``) and slow at the
 *start* (``insert(0, ...)`` / ``pop(0)`` both shift every other
 element). A :class:`collections.deque` is fast at both ends -- it's
-a ring buffer indexed by head and tail pointers, with O(1) append
-and pop on either side.
+a ring buffer indexed by head and tail pointers, so append and pop
+on either side run in the same fixed amount of work regardless of
+how many items the deque holds.
 
 Construction in MicroPython requires both an initial iterable *and*
 a max length, in that order::

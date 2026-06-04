@@ -20,10 +20,10 @@ Each of those is faster, easier to read, and harder to get wrong than
 the equivalent regex. Use regex when the *form* of the string matters
 and the exact substring does not.
 
-The five things you'll use
+The four things you'll use
 --------------------------
 
-The MicroPython :mod:`re` module surfaces five things:
+The MicroPython :mod:`re` module surfaces four things:
 
 * :func:`re.compile` -- turn a pattern string into a compiled pattern
   object you can reuse.
@@ -32,8 +32,6 @@ The MicroPython :mod:`re` module surfaces five things:
 * :func:`re.search` -- try the pattern *anywhere* in a string. Returns
   the first match.
 * :func:`re.sub` -- find every match and replace it.
-* :data:`re.DEBUG` -- a flag for dumping the compiled regex (rarely
-  useful).
 
 Notable omissions vs CPython: no ``re.findall``, no ``re.finditer``,
 no ``re.split`` at module level (compiled patterns have a ``split``
@@ -44,7 +42,7 @@ build the equivalent from :func:`re.search` in a loop.
 A first pattern
 ---------------
 
-The pattern ``r'\d+'`` matches *one or more digits*::
+The pattern ``r'\d+'`` matches one or more digits::
 
     >>> import re
     >>> m = re.search(r'\d+', 'sensor reading 42 ok')
@@ -105,6 +103,17 @@ backslash: ``\.`` matches a literal dot.
 Combining: ``\d{3}-\d{4}`` matches three digits, a dash, four digits.
 ``\s+`` matches one or more whitespace characters. ``hello.*world``
 matches ``hello``, anything (including nothing), then ``world``.
+
+.. note::
+
+   *Greedy* means the quantifier consumes as much of the input as it
+   can while still letting the rest of the pattern match. Against
+   ``hello x world y world``, the ``.*`` in ``hello.*world`` matches
+   the longest run that still leaves a ``world`` at the end -- it
+   captures ``x world y``, not the shorter ``x``. The same is true of
+   ``+`` and the ``{m,n}`` range form: the engine takes the longest
+   match it can, then backs off only if the rest of the pattern
+   fails.
 
 Substitution
 ------------

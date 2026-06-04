@@ -72,10 +72,13 @@ pattern match the *entire* string and nothing else::
     >>> re.search(r'^\d+$', '12345 ok') is None
     True
 
-In MicroPython :mod:`re` the anchors are single-line only. They mark
-the start and end of the whole string passed to :func:`re.search`,
-not the start and end of each line. To match line-by-line, split the
-input on newlines first and run the pattern on each line.
+``^`` and ``$`` in MicroPython :mod:`re` always mean the start and
+end of the *whole* string passed to :func:`re.search`. There is no
+``re.MULTILINE`` flag to make them match at every embedded newline,
+and ``$`` does not match the position before a trailing ``\n`` either
+-- it has to be the absolute end of the input. To get per-line
+behaviour, split the input on newlines first and run the pattern on
+each line.
 
 Character sets
 --------------

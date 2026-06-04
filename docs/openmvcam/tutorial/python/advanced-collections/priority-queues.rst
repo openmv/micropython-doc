@@ -14,10 +14,13 @@ A min-heap is a list arranged so that the item at every index is
 less-than-or-equal-to the items at indices ``2*i + 1`` and
 ``2*i + 2``. That arrangement makes three operations cheap:
 
-* Finding the smallest item -- it's at ``heap[0]``. O(1).
-* Adding an item -- bubbles up through ``log N`` parents. O(log N).
-* Removing the smallest item -- swaps in the last element and bubbles
-  it down through ``log N`` children. O(log N).
+* Finding the smallest item -- it's at ``heap[0]``. A single index
+  lookup, no scan.
+* Adding an item -- it bubbles up through the tree, comparing against
+  one parent per level. A thousand items is about ten comparisons; a
+  million is about twenty.
+* Removing the smallest item -- the same walk in reverse, with the
+  same handful of comparisons.
 
 The list is *not* sorted. Iterating over it gives the items in
 arbitrary order. Only ``heap[0]`` is guaranteed to be the minimum.
@@ -62,8 +65,8 @@ Starting from existing data::
     >>> heapq.heappop(samples)
     1
 
-Heapifying is O(N) -- noticeably faster than pushing N items one at
-a time, which is O(N log N).
+Heapifying touches each item once and is noticeably faster than
+pushing the same items one at a time.
 
 Top-N over a stream
 -------------------
@@ -86,8 +89,9 @@ keep or discard each incoming item::
                 heapq.heappush(heap, r)
         return sorted(heap, reverse=True)
 
-The final ``sorted`` is the only O(N log N) step; the streaming work
-is O(stream length * log N).
+The heap never grows past *N*, so each incoming value costs the same
+handful of comparisons no matter how long the stream is. The final
+``sorted`` is the only step whose cost depends on *N* directly.
 
 Scheduled events
 ----------------
@@ -124,7 +128,8 @@ ordering::
         heapq.heappush(queue, (deadline, counter, task))
 
 Now the smallest-deadline-first behaviour is intact, ties break on
-the counter (FIFO), and ``task`` doesn't have to be comparable.
+the counter so earlier-scheduled tasks run first, and ``task`` doesn't
+have to be comparable.
 
 What ``heapq`` does not give you
 --------------------------------
