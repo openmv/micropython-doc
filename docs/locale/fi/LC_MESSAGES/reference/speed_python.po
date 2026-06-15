@@ -1,0 +1,803 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fi <LL@li.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/speed_python.rst:4
+msgid "Maximising MicroPython speed"
+msgstr "MicroPythonin nopeuden maksimointi"
+
+#: ../../reference/speed_python.rst:10
+msgid ""
+"This tutorial describes ways of improving the performance of MicroPython "
+"code. Optimisations involving other languages are covered elsewhere, namely "
+"the use of modules written in C and the MicroPython inline assembler."
+msgstr ""
+"Tämä opastus kuvaa tapoja parantaa MicroPython-koodin suorituskykyä. Muita "
+"kieliä hyödyntäviä optimointeja käsitellään muualla, nimittäin C-kielellä "
+"kirjoitettujen moduulien käyttöä ja MicroPythonin inline-assembleria."
+
+#: ../../reference/speed_python.rst:14
+msgid ""
+"The process of developing high performance code comprises the following "
+"stages which should be performed in the order listed."
+msgstr ""
+"Korkean suorituskyvyn koodin kehitysprosessi koostuu seuraavista vaiheista, "
+"jotka tulee suorittaa luetellussa järjestyksessä."
+
+#: ../../reference/speed_python.rst:17
+msgid "Design for speed."
+msgstr "Suunnittele nopeutta varten."
+
+#: ../../reference/speed_python.rst:18
+msgid "Code and debug."
+msgstr "Koodaa ja korjaa virheet."
+
+#: ../../reference/speed_python.rst:20
+msgid "Optimisation steps:"
+msgstr "Optimointivaiheet:"
+
+#: ../../reference/speed_python.rst:22
+msgid "Identify the slowest section of code."
+msgstr "Tunnista koodin hitain osa."
+
+#: ../../reference/speed_python.rst:23
+msgid "Improve the efficiency of the Python code."
+msgstr "Paranna Python-koodin tehokkuutta."
+
+#: ../../reference/speed_python.rst:24
+msgid "Use the native code emitter."
+msgstr "Käytä natiivikoodin emitteriä."
+
+#: ../../reference/speed_python.rst:25
+msgid "Use the viper code emitter."
+msgstr "Käytä Viper-koodin emitteriä."
+
+#: ../../reference/speed_python.rst:26
+msgid "Use hardware-specific optimisations."
+msgstr "Käytä laitteistokohtaisia optimointeja."
+
+#: ../../reference/speed_python.rst:29
+msgid "Designing for speed"
+msgstr "Suunnittelu nopeutta varten"
+
+#: ../../reference/speed_python.rst:31
+msgid ""
+"Performance issues should be considered at the outset. This involves taking "
+"a view on the sections of code which are most performance critical and "
+"devoting particular attention to their design. The process of optimisation "
+"begins when the code has been tested: if the design is correct at the outset"
+" optimisation will be straightforward and may actually be unnecessary."
+msgstr ""
+"Suorituskykyä koskevat seikat tulee ottaa huomioon jo alusta alkaen. Tämä "
+"tarkoittaa kannan ottamista koodin suorituskyvyn kannalta kriittisimpiin "
+"osiin ja erityishuomion kiinnittämistä niiden suunnitteluun. "
+"Optimointiprosessi alkaa, kun koodi on testattu: jos suunnittelu on alusta "
+"lähtien oikea, optimointi on suoraviivaista ja saattaa itse asiassa olla "
+"tarpeetonta."
+
+#: ../../reference/speed_python.rst:38
+msgid "Algorithms"
+msgstr "Algoritmit"
+
+#: ../../reference/speed_python.rst:40
+msgid ""
+"The most important aspect of designing any routine for performance is "
+"ensuring that the best algorithm is employed. This is a topic for textbooks "
+"rather than for a MicroPython guide but spectacular performance gains can "
+"sometimes be achieved by adopting algorithms known for their efficiency."
+msgstr ""
+"Tärkein näkökohta minkä tahansa rutiinin suunnittelussa suorituskyvyn "
+"kannalta on varmistaa, että käytetään parasta algoritmia. Tämä on aihe "
+"pikemminkin oppikirjoille kuin MicroPython-oppaalle, mutta toisinaan voidaan"
+" saavuttaa näyttäviä suorituskyvyn parannuksia ottamalla käyttöön "
+"tehokkuudestaan tunnettuja algoritmeja."
+
+#: ../../reference/speed_python.rst:46
+msgid "RAM allocation"
+msgstr "RAM-muistin varaaminen"
+
+#: ../../reference/speed_python.rst:48
+msgid ""
+"To design efficient MicroPython code it is necessary to have an "
+"understanding of the way the interpreter allocates RAM. When an object is "
+"created or grows in size (for example where an item is appended to a list) "
+"the necessary RAM is allocated from a block known as the heap. This takes a "
+"significant amount of time; further it will on occasion trigger a process "
+"known as garbage collection which can take several milliseconds."
+msgstr ""
+"Tehokkaan MicroPython-koodin suunnittelu edellyttää ymmärrystä siitä, miten "
+"tulkki varaa RAM-muistia. Kun olio luodaan tai sen koko kasvaa (esimerkiksi "
+"kun listaan lisätään alkio), tarvittava RAM-muisti varataan kekona (heap) "
+"tunnetusta lohkosta. Tämä vie merkittävästi aikaa; lisäksi se laukaisee "
+"ajoittain roskien keruuna (garbage collection) tunnetun prosessin, joka voi "
+"kestää useita millisekunteja."
+
+#: ../../reference/speed_python.rst:55
+msgid ""
+"Consequently the performance of a function or method can be improved if an "
+"object is created once only and not permitted to grow in size. This implies "
+"that the object persists for the duration of its use: typically it will be "
+"instantiated in a class constructor and used in various methods."
+msgstr ""
+"Tämän seurauksena funktion tai metodin suorituskykyä voidaan parantaa, jos "
+"olio luodaan vain kerran eikä sen anneta kasvaa kooltaan. Tämä tarkoittaa, "
+"että olio säilyy koko käyttönsä ajan: tyypillisesti se luodaan luokan "
+"konstruktorissa ja sitä käytetään eri metodeissa."
+
+#: ../../reference/speed_python.rst:60
+msgid ""
+"This is covered in further detail :ref:`Controlling garbage collection "
+"<controlling_gc>` below."
+msgstr ""
+"Tätä käsitellään tarkemmin alla kohdassa :ref:`Roskien keruun hallinta "
+"<controlling_gc>`\\ ."
+
+#: ../../reference/speed_python.rst:65
+msgid "Buffers"
+msgstr "Puskurit"
+
+#: ../../reference/speed_python.rst:67
+msgid ""
+"An example of the above is the common case where a buffer is required, such "
+"as one used for communication with a device. A typical driver will create "
+"the buffer in the constructor and use it in its I/O methods which will be "
+"called repeatedly."
+msgstr ""
+"Esimerkki edellä mainitusta on yleinen tapaus, jossa tarvitaan puskuria, "
+"kuten laitteen kanssa kommunikointiin käytettävää. Tyypillinen ajuri luo "
+"puskurin konstruktorissa ja käyttää sitä I/O-metodeissaan, joita kutsutaan "
+"toistuvasti."
+
+#: ../../reference/speed_python.rst:71
+msgid ""
+"The MicroPython libraries typically provide support for pre-allocated "
+"buffers. For example, objects which support stream interface (e.g., file or "
+"UART) provide ``read()`` method which allocates new buffer for read data, "
+"but also a ``readinto()`` method to read data into an existing buffer."
+msgstr ""
+"MicroPython-kirjastot tarjoavat tyypillisesti tuen ennalta varatuille "
+"puskureille. Esimerkiksi oliot, jotka tukevat stream-rajapintaa (esim. "
+"tiedosto tai UART), tarjoavat ``read()``\\ -metodin, joka varaa uuden "
+"puskurin luetulle datalle, mutta myös ``readinto()``\\ -metodin datan "
+"lukemiseksi olemassa olevaan puskuriin."
+
+#: ../../reference/speed_python.rst:76
+msgid "Some useful classes for creating reusable buffer objects:"
+msgstr ""
+"Joitakin hyödyllisiä luokkia uudelleenkäytettävien puskuriolioiden "
+"luomiseen:"
+
+#: ../../reference/speed_python.rst:78
+msgid ":class:`bytearray`"
+msgstr ":class:`bytearray`"
+
+#: ../../reference/speed_python.rst:79
+msgid ":mod:`array` (:ref:`discussed below<speed_arrays>`)"
+msgstr ":mod:`array` (\\ :ref:`käsitellään alla<speed_arrays>`\\ )"
+
+#: ../../reference/speed_python.rst:80
+msgid ":class:`io.StringIO` and :class:`io.BytesIO`"
+msgstr ":class:`io.StringIO` ja :class:`io.BytesIO`"
+
+#: ../../reference/speed_python.rst:81
+msgid ":class:`micropython.RingIO`"
+msgstr ":class:`micropython.RingIO`"
+
+#: ../../reference/speed_python.rst:84
+msgid "Floating point"
+msgstr "Liukuluvut"
+
+#: ../../reference/speed_python.rst:86
+msgid ""
+"Some MicroPython ports allocate floating point numbers on heap. Some other "
+"ports may lack dedicated floating-point coprocessor, and perform arithmetic "
+"operations on them in \"software\" at considerably lower speed than on "
+"integers. Where performance is important, use integer operations and "
+"restrict the use of floating point to sections of the code where performance"
+" is not paramount. For example, capture ADC readings as integer values to an"
+" array in one quick go, and only then convert them to floating-point numbers"
+" for signal processing."
+msgstr ""
+"Jotkin MicroPython-portit varaavat liukuluvut keosta. Joistakin muista "
+"porteista saattaa puuttua oma liukulukuyksikkö, ja ne suorittavat "
+"liukulukuaritmetiikan \"ohjelmistollisesti\" huomattavasti hitaammin kuin "
+"kokonaisluvuilla. Kun suorituskyky on tärkeää, käytä "
+"kokonaislukuoperaatioita ja rajoita liukulukujen käyttö koodin osiin, joissa"
+" suorituskyky ei ole ratkaisevaa. Kerää esimerkiksi ADC-lukemat "
+"kokonaislukuarvoina taulukkoon yhdellä nopealla kerralla, ja muunna ne vasta"
+" sen jälkeen liukuluvuiksi signaalinkäsittelyä varten."
+
+#: ../../reference/speed_python.rst:97
+msgid "Arrays"
+msgstr "Taulukot"
+
+#: ../../reference/speed_python.rst:99
+msgid ""
+"Consider the use of the various types of array classes as an alternative to "
+"lists. The :mod:`array` module supports various element types with 8-bit "
+"elements supported by Python's built in `bytes` and `bytearray` classes. "
+"These data structures all store elements in contiguous memory locations. "
+"Once again to avoid memory allocation in critical code these should be pre-"
+"allocated and passed as arguments or as bound objects."
+msgstr ""
+"Harkitse erilaisten taulukkoluokkien käyttöä listojen vaihtoehtona. "
+":mod:`array`\\ -moduuli tukee erilaisia alkiotyyppejä, ja 8-bittisiä "
+"alkioita tukevat Pythonin sisäänrakennetut `bytes`\\ - ja `bytearray`\\ "
+"-luokat. Kaikki nämä tietorakenteet tallentavat alkiot peräkkäisiin "
+"muistipaikkoihin. Jälleen kerran muistinvarauksen välttämiseksi kriittisessä"
+" koodissa nämä tulee varata ennalta ja välittää argumentteina tai sidottuina"
+" olioina."
+
+#: ../../reference/speed_python.rst:106
+msgid "Memoryviews"
+msgstr "Memoryview-näkymät"
+
+#: ../../reference/speed_python.rst:108
+msgid ""
+"When passing slices of objects such as `bytearray` instances, Python creates"
+" a copy which involves allocation of the size proportional to the size of "
+"slice. This can be alleviated using a `memoryview` object. The `memoryview` "
+"itself is allocated on the heap, but is a small, fixed-size object, "
+"regardless of the size of slice it points to. Slicing a `memoryview` creates"
+" a new `memoryview`, so this cannot be done in an interrupt service routine."
+" Further, the slice syntax ``a:b`` causes further allocation by "
+"instantiating a ``slice(a, b)`` object."
+msgstr ""
+"Kun välitetään viipaleita olioista, kuten `bytearray`\\ -instansseista, "
+"Python luo kopion, mikä edellyttää viipaleen kokoon suhteutetun muistin "
+"varaamista. Tätä voidaan lieventää käyttämällä `memoryview`\\ -oliota. "
+"`memoryview` itse varataan keosta, mutta se on pieni, kiinteäkokoinen olio "
+"riippumatta siitä, kuinka suureen viipaleeseen se osoittaa. `memoryview`\\ "
+"-näkymän viipalointi luo uuden `memoryview`\\ -näkymän, joten tätä ei voida "
+"tehdä keskeytyspalvelurutiinissa. Lisäksi viipalointisyntaksi ``a:b`` "
+"aiheuttaa lisävarauksen luomalla ``slice(a, b)``\\ -olion."
+
+#: ../../reference/speed_python.rst:123
+msgid ""
+"A `memoryview` can only be applied to objects supporting the buffer protocol"
+" - this includes arrays but not lists. Small caveat is that while memoryview"
+" object is live, it also keeps alive the original buffer object. So, a "
+"memoryview isn't a universal panacea. For instance, in the example above, if"
+" you are done with 10K buffer and just need those bytes 30:2000 from it, it "
+"may be better to make a slice, and let the 10K buffer go (be ready for "
+"garbage collection), instead of making a long-living memoryview and keeping "
+"10K blocked for GC."
+msgstr ""
+"`memoryview`\\ -näkymää voidaan soveltaa vain olioihin, jotka tukevat "
+"puskuriprotokollaa - tämä sisältää taulukot mutta ei listoja. Pieni varaus "
+"on, että niin kauan kuin memoryview-olio on elossa, se pitää myös "
+"alkuperäisen puskuriolion elossa. Memoryview ei siis ole yleispätevä "
+"ihmelääke. Esimerkiksi yllä olevassa esimerkissä, jos olet valmis 10K:n "
+"puskurin kanssa ja tarvitset siitä vain tavut 30:2000, voi olla parempi "
+"tehdä viipale ja antaa 10K:n puskurin vapautua (olla valmiina roskien "
+"keruuseen), sen sijaan että tekisit pitkäikäisen memoryview'n ja pitäisit "
+"10K:ta varattuna GC:ltä."
+
+#: ../../reference/speed_python.rst:131
+msgid ""
+"Nonetheless, `memoryview` is indispensable for advanced preallocated buffer "
+"management. ``readinto()`` method discussed above puts data at the beginning"
+" of buffer and fills in entire buffer. What if you need to put data in the "
+"middle of existing buffer? Just create a memoryview into the needed section "
+"of buffer and pass it to ``readinto()``."
+msgstr ""
+"Siitä huolimatta `memoryview` on korvaamaton kehittyneessä ennalta "
+"varattujen puskureiden hallinnassa. Edellä käsitelty ``readinto()``\\ "
+"-metodi sijoittaa datan puskurin alkuun ja täyttää koko puskurin. Entä jos "
+"sinun täytyy sijoittaa data olemassa olevan puskurin keskelle? Luo vain "
+"memoryview puskurin tarvittavaan osaan ja välitä se ``readinto()``\\ "
+"-metodille."
+
+#: ../../reference/speed_python.rst:138
+msgid "Strings vs Bytes"
+msgstr "Merkkijonot vs. tavut"
+
+#: ../../reference/speed_python.rst:140
+msgid ""
+"MicroPython uses :ref:`string interning <qstr>` to save space when there are"
+" multiple identical strings. Each time a new string is allocated at runtime "
+"(for example, when two other strings are concatenated), MicroPython checks "
+"whether the new string can be interned to save RAM."
+msgstr ""
+"MicroPython käyttää :ref:`merkkijonojen internöintiä <qstr>` (string "
+"interning) säästääkseen tilaa, kun samanlaisia merkkijonoja on useita. Aina "
+"kun uusi merkkijono varataan suorituksen aikana (esimerkiksi kun kaksi muuta"
+" merkkijonoa yhdistetään), MicroPython tarkistaa, voidaanko uusi merkkijono "
+"internöidä RAM-muistin säästämiseksi."
+
+#: ../../reference/speed_python.rst:145
+msgid ""
+"If you have code which performs performance-critical string operations then "
+"consider using :class:`bytes` objects and literals (i.e. ``b\"abc\"``). This"
+" skips the interning check, and can be several times faster than performing "
+"the same operations with string objects."
+msgstr ""
+"Jos sinulla on koodia, joka suorittaa suorituskyvyn kannalta kriittisiä "
+"merkkijono-operaatioita, harkitse :class:`bytes`\\ -olioiden ja -literaalien"
+" käyttöä (esim. ``b\"abc\"``\\ ). Tämä ohittaa internöintitarkistuksen ja "
+"voi olla useita kertoja nopeampi kuin samojen operaatioiden suorittaminen "
+"merkkijono-olioilla."
+
+#: ../../reference/speed_python.rst:150
+msgid ""
+"The fastest performance will always be achieved by avoiding new object "
+"creation entirely, for example with a reusable :ref:`buffer as described "
+"above<speed_buffers>`."
+msgstr ""
+"Nopein suorituskyky saavutetaan aina välttämällä uusien olioiden luomista "
+"kokonaan, esimerkiksi käyttämällä uudelleenkäytettävää :ref:`puskuria edellä"
+" kuvatulla tavalla<speed_buffers>`\\ ."
+
+#: ../../reference/speed_python.rst:155
+msgid "Identifying the slowest section of code"
+msgstr "Koodin hitaimman osan tunnistaminen"
+
+#: ../../reference/speed_python.rst:157
+msgid ""
+"This is a process known as profiling and is covered in textbooks and (for "
+"standard Python) supported by various software tools. For the type of "
+"smaller embedded application likely to be running on MicroPython platforms "
+"the slowest function or method can usually be established by judicious use "
+"of the timing ``ticks`` group of functions documented in `time`. Code "
+"execution time can be measured in ms, us, or CPU cycles."
+msgstr ""
+"Tämä on prosessi, joka tunnetaan profilointina ja jota käsitellään "
+"oppikirjoissa ja (standardi-Pythonin osalta) tuetaan erilaisilla "
+"ohjelmistotyökaluilla. MicroPython-alustoilla todennäköisesti ajettavan "
+"pienemmän sulautetun sovelluksen tyypin osalta hitain funktio tai metodi "
+"voidaan yleensä määrittää käyttämällä harkiten `time`\\ -moduulissa "
+"dokumentoitua ajanmittauksen ``ticks``\\ -funktioryhmää. Koodin suoritusaika"
+" voidaan mitata millisekunteina, mikrosekunteina tai CPU-jaksoina."
+
+#: ../../reference/speed_python.rst:164
+msgid ""
+"The following enables any function or method to be timed by adding an "
+"``@timed_function`` decorator:"
+msgstr ""
+"Seuraava mahdollistaa minkä tahansa funktion tai metodin ajan mittaamisen "
+"lisäämällä ``@timed_function``\\ -koristeen:"
+
+#: ../../reference/speed_python.rst:180
+msgid "MicroPython code improvements"
+msgstr "MicroPython-koodin parannukset"
+
+#: ../../reference/speed_python.rst:183
+msgid "The const() declaration"
+msgstr "const()-määrittely"
+
+#: ../../reference/speed_python.rst:185
+msgid ""
+"MicroPython provides a ``const()`` declaration. This works in a similar way "
+"to ``#define`` in C in that when the code is compiled to bytecode the "
+"compiler substitutes the numeric value for the identifier. This avoids a "
+"dictionary lookup at runtime. The argument to ``const()`` may be anything "
+"which, at compile time, evaluates to an integer e.g. ``0x100`` or ``1 << "
+"8``."
+msgstr ""
+"MicroPython tarjoaa ``const()``\\ -määrittelyn. Tämä toimii samalla tavalla "
+"kuin ``#define`` C-kielessä siinä mielessä, että kun koodi käännetään "
+"tavukoodiksi, kääntäjä korvaa tunnisteen numeerisella arvolla. Tämä välttää "
+"sanakirjahaun suorituksen aikana. ``const()``\\ -funktion argumentti voi "
+"olla mikä tahansa, joka käännöshetkellä evaluoituu kokonaisluvuksi, esim. "
+"``0x100`` tai ``1 << 8``\\ ."
+
+#: ../../reference/speed_python.rst:194
+msgid "Caching object references"
+msgstr "Olioviittausten välimuistitus"
+
+#: ../../reference/speed_python.rst:196
+msgid ""
+"Where a function or method repeatedly accesses objects performance is "
+"improved by caching the object in a local variable:"
+msgstr ""
+"Kun funktio tai metodi käyttää olioita toistuvasti, suorituskykyä "
+"parannetaan välimuistittamalla olio paikalliseen muuttujaan:"
+
+#: ../../reference/speed_python.rst:209
+msgid ""
+"This avoids the need repeatedly to look up ``self.ba`` and "
+"``obj_display.framebuffer`` in the body of the method ``bar()``."
+msgstr ""
+"Tämä välttää tarpeen etsiä toistuvasti ``self.ba`` ja "
+"``obj_display.framebuffer`` metodin ``bar()`` rungossa."
+
+#: ../../reference/speed_python.rst:215
+msgid "Controlling garbage collection"
+msgstr "Roskien keruun hallinta"
+
+#: ../../reference/speed_python.rst:217
+msgid ""
+"When memory allocation is required, MicroPython attempts to locate an "
+"adequately sized block on the heap. This may fail, usually because the heap "
+"is cluttered with objects which are no longer referenced by code. If a "
+"failure occurs, the process known as garbage collection reclaims the memory "
+"used by these redundant objects and the allocation is then tried again - a "
+"process which can take several milliseconds."
+msgstr ""
+"Kun muistinvaraus tarvitaan, MicroPython yrittää paikantaa riittävän "
+"kokoisen lohkon keosta. Tämä voi epäonnistua, yleensä siksi, että keko on "
+"täynnä olioita, joihin koodi ei enää viittaa. Jos epäonnistuminen tapahtuu, "
+"roskien keruuna tunnettu prosessi vapauttaa näiden tarpeettomien olioiden "
+"käyttämän muistin, ja varausta yritetään sitten uudelleen - prosessi, joka "
+"voi kestää useita millisekunteja."
+
+#: ../../reference/speed_python.rst:224
+msgid ""
+"There may be benefits in pre-empting this by periodically issuing "
+"``gc.collect()``. Firstly doing a collection before it is actually required "
+"is quicker - typically on the order of 1ms if done frequently. Secondly you "
+"can determine the point in code where this time is used rather than have a "
+"longer delay occur at random points, possibly in a speed critical section. "
+"Finally performing collections regularly can reduce fragmentation in the "
+"heap. Severe fragmentation can lead to non-recoverable allocation failures."
+msgstr ""
+"Tätä voi olla hyödyllistä ennakoida antamalla ``gc.collect()`` "
+"säännöllisesti. Ensinnäkin keruun tekeminen ennen kuin sitä todella "
+"tarvitaan on nopeampaa - tyypillisesti noin 1ms, jos se tehdään usein. "
+"Toiseksi voit määrittää koodin kohdan, jossa tämä aika käytetään, sen sijaan"
+" että pidempi viive tapahtuisi satunnaisissa kohdissa, mahdollisesti "
+"nopeuden kannalta kriittisessä osassa. Lopuksi keruiden suorittaminen "
+"säännöllisesti voi vähentää keon pirstoutumista. Vakava pirstoutuminen voi "
+"johtaa palautumattomiin varauksen epäonnistumisiin."
+
+#: ../../reference/speed_python.rst:233
+msgid "The Native code emitter"
+msgstr "Natiivikoodin emitteri"
+
+#: ../../reference/speed_python.rst:235
+msgid ""
+"This causes the MicroPython compiler to emit native CPU opcodes rather than "
+"bytecode. It covers the bulk of the MicroPython functionality, so most "
+"functions will require no adaptation (but see below). It is invoked by means"
+" of a function decorator:"
+msgstr ""
+"Tämä saa MicroPython-kääntäjän tuottamaan natiiveja CPU-käskykoodeja "
+"tavukoodin sijaan. Se kattaa suurimman osan MicroPythonin "
+"toiminnallisuudesta, joten useimmat funktiot eivät vaadi mukautusta (mutta "
+"katso alla). Se otetaan käyttöön funktiokoristeen avulla:"
+
+#: ../../reference/speed_python.rst:246
+msgid ""
+"There are certain limitations in the current implementation of the native "
+"code emitter."
+msgstr ""
+"Natiivikoodin emitterin nykyisessä toteutuksessa on tiettyjä rajoituksia."
+
+#: ../../reference/speed_python.rst:248
+msgid "If ``raise`` is used an argument must be supplied."
+msgstr "Jos käytetään ``raise``\\ -lausetta, argumentti on annettava."
+
+#: ../../reference/speed_python.rst:249
+msgid ""
+"The background scheduler (see `micropython.schedule`) is not run during "
+"execution of native code."
+msgstr ""
+"Taustaskeduleria (katso `micropython.schedule`\\ ) ei ajeta natiivikoodin "
+"suorituksen aikana."
+
+#: ../../reference/speed_python.rst:251
+msgid ""
+"On targets with threading and the GIL, the GIL is not released during "
+"execution of native code."
+msgstr ""
+"Kohteissa, joissa on säikeistys ja GIL, GIL:iä ei vapauteta natiivikoodin "
+"suorituksen aikana."
+
+#: ../../reference/speed_python.rst:254
+msgid ""
+"To mitigate the last two points, long running native functions should call "
+"``time.sleep(0)`` periodically, which will run the scheduler and bounce the "
+"GIL."
+msgstr ""
+"Kahden viimeisen seikan lieventämiseksi pitkään suoritettavien "
+"natiivifunktioiden tulisi kutsua ``time.sleep(0)``\\ -funktiota "
+"säännöllisesti, mikä ajaa skedulerin ja vapauttaa hetkellisesti GIL:in."
+
+#: ../../reference/speed_python.rst:257
+msgid ""
+"The trade-off for the improved performance (roughly twice as fast as "
+"bytecode) is an increase in compiled code size."
+msgstr ""
+"Vastineena parantuneesta suorituskyvystä (suunnilleen kaksi kertaa nopeampi "
+"kuin tavukoodi) on käännetyn koodin koon kasvu."
+
+#: ../../reference/speed_python.rst:261
+msgid "The Viper code emitter"
+msgstr "Viper-koodin emitteri"
+
+#: ../../reference/speed_python.rst:263
+msgid ""
+"The optimisations discussed above involve standards-compliant Python code. "
+"The Viper code emitter is not fully compliant. It supports special Viper "
+"native data types in pursuit of performance. Integer processing is non-"
+"compliant because it uses machine words: arithmetic on 32 bit hardware is "
+"performed modulo 2**32."
+msgstr ""
+"Edellä käsitellyt optimoinnit koskevat standardien mukaista Python-koodia. "
+"Viper-koodin emitteri ei ole täysin standardien mukainen. Se tukee erityisiä"
+" Viperin natiiveja tietotyyppejä suorituskyvyn tavoittelemiseksi. "
+"Kokonaislukujen käsittely on epästandardia, koska se käyttää konesanoja: "
+"aritmetiikka 32-bittisellä laitteistolla suoritetaan modulo 2**32."
+
+#: ../../reference/speed_python.rst:268
+msgid ""
+"Like the Native emitter Viper produces machine instructions but further "
+"optimisations are performed, substantially increasing performance especially"
+" for integer arithmetic and bit manipulations. It is invoked using a "
+"decorator:"
+msgstr ""
+"Natiiviemitterin tavoin Viper tuottaa konekäskyjä, mutta lisäksi suoritetaan"
+" optimointeja, jotka kasvattavat suorituskykyä huomattavasti erityisesti "
+"kokonaislukuaritmetiikassa ja bittien käsittelyssä. Se otetaan käyttöön "
+"koristeen avulla:"
+
+#: ../../reference/speed_python.rst:278
+msgid ""
+"As the above fragment illustrates it is beneficial to use Python type hints "
+"to assist the Viper optimiser. Type hints provide information on the data "
+"types of arguments and of the return value; these are a standard Python "
+"language feature formally defined here `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_. Viper supports its own set of"
+" types namely ``int``, ``uint`` (unsigned integer), ``ptr``, ``ptr8``, "
+"``ptr16`` and ``ptr32``. The ``ptrX`` types are discussed below. Currently "
+"the ``uint`` type serves a single purpose: as a type hint for a function "
+"return value. If such a function returns ``0xffffffff`` Python will "
+"interpret the result as 2**32 -1 rather than as -1."
+msgstr ""
+"Kuten yllä oleva katkelma havainnollistaa, on hyödyllistä käyttää Pythonin "
+"tyyppivihjeitä Viper-optimoijan avuksi. Tyyppivihjeet antavat tietoa "
+"argumenttien ja paluuarvon tietotyypeistä; nämä ovat Python-kielen "
+"standardiominaisuus, joka on muodollisesti määritelty täällä `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_\\ . Viper tukee omaa "
+"tyyppijoukkoaan, nimittäin ``int``\\ , ``uint`` (etumerkitön kokonaisluku), "
+"``ptr``\\ , ``ptr8``\\ , ``ptr16`` ja ``ptr32``\\ . ``ptrX``\\ -tyyppejä "
+"käsitellään alla. Tällä hetkellä ``uint``\\ -tyypillä on yksi tarkoitus: "
+"tyyppivihjeenä funktion paluuarvolle. Jos tällainen funktio palauttaa "
+"``0xffffffff``\\ , Python tulkitsee tuloksen arvoksi 2**32 -1 eikä -1."
+
+#: ../../reference/speed_python.rst:286
+msgid ""
+"In addition to the restrictions imposed by the native emitter the following "
+"constraints apply:"
+msgstr ""
+"Natiiviemitterin asettamien rajoitusten lisäksi sovelletaan seuraavia "
+"rajoituksia:"
+
+#: ../../reference/speed_python.rst:288
+msgid "Default argument values are not permitted."
+msgstr "Argumenttien oletusarvoja ei sallita."
+
+#: ../../reference/speed_python.rst:289
+msgid "Floating point may be used but is not optimised."
+msgstr "Liukulukuja voidaan käyttää, mutta niitä ei optimoida."
+
+#: ../../reference/speed_python.rst:291
+msgid "Viper provides pointer types to assist the optimiser. These comprise"
+msgstr "Viper tarjoaa osoitintyyppejä optimoijan avuksi. Näihin kuuluvat"
+
+#: ../../reference/speed_python.rst:293
+msgid "``ptr`` Pointer to an object."
+msgstr "``ptr`` Osoitin olioon."
+
+#: ../../reference/speed_python.rst:294
+msgid "``ptr8`` Points to a byte."
+msgstr "``ptr8`` Osoittaa tavuun."
+
+#: ../../reference/speed_python.rst:295
+msgid "``ptr16`` Points to a 16 bit half-word."
+msgstr "``ptr16`` Osoittaa 16-bittiseen puolisanaan."
+
+#: ../../reference/speed_python.rst:296
+msgid "``ptr32`` Points to a 32 bit machine word."
+msgstr "``ptr32`` Osoittaa 32-bittiseen konesanaan."
+
+#: ../../reference/speed_python.rst:298
+msgid ""
+"The concept of a pointer may be unfamiliar to Python programmers. It has "
+"similarities to a Python `memoryview` object in that it provides direct "
+"access to data stored in memory. Items are accessed using subscript "
+"notation, but slices are not supported: a pointer can return a single item "
+"only. Its purpose is to provide fast random access to data stored in "
+"contiguous memory locations - such as data stored in objects which support "
+"the buffer protocol, and memory-mapped peripheral registers in a "
+"microcontroller. It should be noted that programming using pointers is "
+"hazardous: bounds checking is not performed and the compiler does nothing to"
+" prevent buffer overrun errors."
+msgstr ""
+"Osoittimen käsite saattaa olla Python-ohjelmoijille vieras. Sillä on "
+"yhtäläisyyksiä Pythonin `memoryview`\\ -olion kanssa siinä, että se tarjoaa "
+"suoran pääsyn muistiin tallennettuun dataan. Alkioihin päästään käyttäen "
+"alaindeksinotaatiota, mutta viipaleita ei tueta: osoitin voi palauttaa vain "
+"yhden alkion. Sen tarkoitus on tarjota nopea satunnaispääsy peräkkäisiin "
+"muistipaikkoihin tallennettuun dataan - kuten puskuriprotokollaa tukeviin "
+"olioihin tallennettuun dataan ja mikro-ohjaimen muistikartoitettuihin "
+"oheislaiterekistereihin. On huomattava, että osoittimilla ohjelmointi on "
+"vaarallista: rajatarkistusta ei suoriteta, eikä kääntäjä tee mitään puskurin"
+" ylivuotovirheiden estämiseksi."
+
+#: ../../reference/speed_python.rst:307
+msgid "Typical usage is to cache variables:"
+msgstr "Tyypillinen käyttötapa on muuttujien välimuistitus:"
+
+#: ../../reference/speed_python.rst:318
+msgid ""
+"In this instance the compiler \"knows\" that ``buf`` is the address of an "
+"array of bytes; it can emit code to rapidly compute the address of "
+"``buf[x]`` at runtime. Where casts are used to convert objects to Viper "
+"native types these should be performed at the start of the function rather "
+"than in critical timing loops as the cast operation can take several "
+"microseconds. The rules for casting are as follows:"
+msgstr ""
+"Tässä tapauksessa kääntäjä \"tietää\", että ``buf`` on tavutaulukon osoite; "
+"se voi tuottaa koodia, joka laskee nopeasti ``buf[x]``\\ :n osoitteen "
+"suorituksen aikana. Kun olioiden muuntamiseen Viperin natiiveiksi tyypeiksi "
+"käytetään tyyppimuunnoksia (cast), nämä tulisi suorittaa funktion alussa "
+"eikä ajoituksen kannalta kriittisissä silmukoissa, koska muunnosoperaatio "
+"voi kestää useita mikrosekunteja. Muuntamisen säännöt ovat seuraavat:"
+
+#: ../../reference/speed_python.rst:324
+msgid ""
+"Casting operators are currently: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` and ``ptr32``."
+msgstr ""
+"Muunnosoperaattorit ovat tällä hetkellä: ``int``\\ , ``bool``\\ , ``uint``\\"
+" , ``ptr``\\ , ``ptr8``\\ , ``ptr16`` ja ``ptr32``\\ ."
+
+#: ../../reference/speed_python.rst:325
+msgid "The result of a cast will be a native Viper variable."
+msgstr "Muunnoksen tulos on natiivi Viper-muuttuja."
+
+#: ../../reference/speed_python.rst:326
+msgid "Arguments to a cast can be a Python object or a native Viper variable."
+msgstr ""
+"Muunnoksen argumentti voi olla Python-olio tai natiivi Viper-muuttuja."
+
+#: ../../reference/speed_python.rst:327
+msgid ""
+"If argument is a native Viper variable, then cast is a no-op (i.e. costs "
+"nothing at runtime) that just changes the type (e.g. from ``uint`` to "
+"``ptr8``) so that you can then store/load using this pointer."
+msgstr ""
+"Jos argumentti on natiivi Viper-muuttuja, muunnos on no-op (eli ei maksa "
+"mitään suorituksen aikana), joka vain muuttaa tyyppiä (esim. ``uint``\\ "
+"-tyypistä ``ptr8``\\ -tyyppiin), jotta voit sitten tallentaa/ladata käyttäen"
+" tätä osoitinta."
+
+#: ../../reference/speed_python.rst:330
+msgid ""
+"If the argument is a Python object and the cast is ``int`` or ``uint``, then"
+" the Python object must be of integral type and the value of that integral "
+"object is returned."
+msgstr ""
+"Jos argumentti on Python-olio ja muunnos on ``int`` tai ``uint``\\ , niin "
+"Python-olion on oltava kokonaislukutyyppinen, ja kyseisen kokonaislukuolion "
+"arvo palautetaan."
+
+#: ../../reference/speed_python.rst:332
+msgid ""
+"The argument to a bool cast must be integral type (boolean or integer); when"
+" used as a return type the viper function will return True or False objects."
+msgstr ""
+"Bool-muunnoksen argumentin on oltava kokonaislukutyyppinen (totuusarvo tai "
+"kokonaisluku); kun sitä käytetään paluutyyppinä, viper-funktio palauttaa "
+"True- tai False-olioita."
+
+#: ../../reference/speed_python.rst:334
+msgid ""
+"If the argument is a Python object and the cast is ``ptr``, ``ptr8``, "
+"``ptr16`` or ``ptr32``, then the Python object must either have the buffer "
+"protocol (in which case a pointer to the start of the buffer is returned) or"
+" it must be of integral type (in which case the value of that integral "
+"object is returned)."
+msgstr ""
+"Jos argumentti on Python-olio ja muunnos on ``ptr``\\ , ``ptr8``\\ , "
+"``ptr16`` tai ``ptr32``\\ , niin Python-oliolla on joko oltava "
+"puskuriprotokolla (jolloin palautetaan osoitin puskurin alkuun) tai sen on "
+"oltava kokonaislukutyyppinen (jolloin kyseisen kokonaislukuolion arvo "
+"palautetaan)."
+
+#: ../../reference/speed_python.rst:339
+msgid ""
+"Writing to a pointer which points to a read-only object will lead to "
+"undefined behaviour."
+msgstr ""
+"Kirjoittaminen osoittimeen, joka osoittaa vain luettavissa olevaan olioon, "
+"johtaa määrittelemättömään toimintaan."
+
+#: ../../reference/speed_python.rst:343
+msgid ""
+"The code examples below are given for the STM32-based OpenMV Cams, which "
+"provide the ``stm`` module. The techniques described apply generally."
+msgstr ""
+"Alla olevat koodiesimerkit on annettu STM32-pohjaisille OpenMV Cameille, "
+"jotka tarjoavat ``stm``\\ -moduulin. Kuvatut tekniikat pätevät yleisesti."
+
+#: ../../reference/speed_python.rst:346
+msgid ""
+"The ``stm`` module exposes the memory addresses of the MCU's peripheral "
+"registers. Each GPIO port has an *output data register* (ODR) whose bits map"
+" one-to-one to that port's pins: writing the register drives those pins "
+"directly, without the overhead of a :class:`machine.Pin` method call, and "
+"XOR-ing a bit toggles its pin. On the original OpenMV Cam the blue LED is "
+"wired to ``GPIOC`` pin 2, so the following example uses a ``ptr16`` cast to "
+"toggle the blue LED ``n`` times:"
+msgstr ""
+"``stm``\\ -moduuli paljastaa MCU:n oheislaiterekistereiden muistiosoitteet. "
+"Jokaisella GPIO-portilla on *lähtödatarekisteri* (ODR), jonka bitit "
+"kuvautuvat yksi yhteen kyseisen portin nastoihin: rekisteriin kirjoittaminen"
+" ohjaa näitä nastoja suoraan ilman :class:`machine.Pin`\\ -metodikutsun "
+"ylimääräistä kuormaa, ja bitin XOR-operaatio vaihtaa sen nastan tilan. "
+"Alkuperäisessä OpenMV Camissa sininen LED on kytketty ``GPIOC``\\ -portin "
+"nastaan 2, joten seuraava esimerkki käyttää ``ptr16``\\ -muunnosta sinisen "
+"LEDin tilan vaihtamiseen ``n`` kertaa:"
+
+#: ../../reference/speed_python.rst:363
+msgid ""
+"A detailed technical description of the three code emitters may be found on "
+"Kickstarter here `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ and here `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+msgstr ""
+"Yksityiskohtainen tekninen kuvaus kolmesta koodiemitteristä löytyy "
+"Kickstarterista täältä `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ ja täältä `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+
+#: ../../reference/speed_python.rst:368
+msgid "Accessing hardware directly"
+msgstr "Laitteiston suora käyttö"
+
+#: ../../reference/speed_python.rst:370
+msgid ""
+"This comes into the category of more advanced programming and involves some "
+"knowledge of the target MCU. Consider the example of toggling an output pin "
+"on an OpenMV Cam. The standard approach would be to write"
+msgstr ""
+"Tämä kuuluu kehittyneemmän ohjelmoinnin luokkaan ja edellyttää jonkin verran"
+" tietoa kohde-MCU:sta. Tarkastellaan esimerkkiä lähtönastan tilan "
+"vaihtamisesta OpenMV Camissa. Tavanomainen lähestymistapa olisi kirjoittaa"
+
+#: ../../reference/speed_python.rst:378
+msgid ""
+"This involves the overhead of two calls to the :class:`~machine.Pin` "
+"instance's :meth:`~machine.Pin.value()` method. This overhead can be "
+"eliminated by performing a read/write to the relevant bit of the chip's GPIO"
+" port output data register (ODR). To facilitate this the ``stm`` module "
+"provides a set of constants giving the addresses of the relevant registers "
+"(``stm.GPIOC`` is the base address of the GPIOC port, ``stm.GPIO_ODR`` the "
+"offset of its output data register). As above, the blue LED on the original "
+"OpenMV Cam is ``GPIOC`` pin 2, so a fast toggle of it can be performed as "
+"follows:"
+msgstr ""
+"Tähän liittyy kahden kutsun ylimääräinen kuorma :class:`~machine.Pin`\\ "
+"-instanssin :meth:`~machine.Pin.value()`\\ -metodiin. Tämä ylimääräinen "
+"kuorma voidaan poistaa suorittamalla luku/kirjoitus sirun GPIO-portin "
+"lähtödatarekisterin (ODR) asiaankuuluvaan bittiin. Tämän helpottamiseksi "
+"``stm``\\ -moduuli tarjoaa joukon vakioita, jotka antavat asiaankuuluvien "
+"rekistereiden osoitteet (\\ ``stm.GPIOC`` on GPIOC-portin perusosoite, "
+"``stm.GPIO_ODR`` sen lähtödatarekisterin siirtymä). Kuten edellä, sininen "
+"LED alkuperäisessä OpenMV Camissa on ``GPIOC``\\ -portin nasta 2, joten sen "
+"tilan nopea vaihtaminen voidaan suorittaa seuraavasti:"

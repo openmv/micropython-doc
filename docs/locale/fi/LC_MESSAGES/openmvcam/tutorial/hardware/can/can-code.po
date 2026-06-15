@@ -1,0 +1,328 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fi <LL@li.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:2
+msgid "CAN bus in code"
+msgstr "CAN-väylä koodissa"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:4
+msgid ""
+":class:`machine.CAN` wraps a hardware CAN controller. Bring it up with the "
+"bus id and a bit rate:"
+msgstr ""
+":class:`machine.CAN` kääräisee laitteiston CAN-ohjaimen. Tuo se käyttöön "
+"väylän tunnisteella ja bittinopeudella:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:14
+msgid ""
+"The bit rate must match every other node on the bus exactly -- ``125_000``, "
+"``250_000``, ``500_000`` and ``1_000_000`` are the common values. "
+":meth:`~machine.CAN.set_filters` configures which IDs the controller will "
+"pass through; ``None`` means accept everything (useful while bringing up a "
+"link, less useful once the bus is busy)."
+msgstr ""
+"Bittinopeuden on vastattava jokaista muuta väylän solmua täsmälleen -- "
+"``125_000``\\ , ``250_000``\\ , ``500_000`` ja ``1_000_000`` ovat tavallisia"
+" arvoja. :meth:`~machine.CAN.set_filters` määrittää, mitkä tunnisteet ohjain"
+" päästää läpi; ``None`` tarkoittaa kaiken hyväksymistä (hyödyllistä linkkiä "
+"käyttöön tuotaessa, vähemmän hyödyllistä, kun väylä on kiireinen)."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:22
+msgid "Inside the controller"
+msgstr "Ohjaimen sisällä"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:24
+msgid ""
+"Three pieces of hardware sit between the camera's Python code and the bus --"
+" the *TX mailboxes*, an *acceptance filter*, and the *RX FIFO*. Each one "
+"maps to a piece of the :class:`~machine.CAN` API used below."
+msgstr ""
+"Kolme laitteistopalaa sijaitsee kameran Python-koodin ja väylän välissä -- "
+"*TX-postilaatikot*\\ , *hyväksyntäsuodatin* ja *RX-FIFO*\\ . Kukin niistä "
+"kuvautuu osaan alla käytetystä :class:`~machine.CAN`\\ -API:sta."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:29
+msgid ""
+"Block diagram of the CAN controller. On the TX side\n"
+"(top), can.send() drops frames into one of three TX\n"
+"mailboxes, and an arbitrate block picks which mailbox\n"
+"goes to the bus next. On the RX side (bottom),\n"
+"incoming frames pass through an acceptance filter;\n"
+"accepted frames land in the RX FIFO and can.recv()\n"
+"reads the FIFO from its oldest end."
+msgstr ""
+"CAN-ohjaimen lohkokaavio. TX-puolella\n"
+"(ylhäällä) can.send() pudottaa kehyksiä yhteen kolmesta TX-\n"
+"postilaatikosta, ja arbitrointilohko valitsee, mikä postilaatikko\n"
+"menee seuraavaksi väylälle. RX-puolella (alhaalla)\n"
+"saapuvat kehykset kulkevat hyväksyntäsuodattimen läpi;\n"
+"hyväksytyt kehykset päätyvät RX-FIFO:on ja can.recv()\n"
+"lukee FIFO:a sen vanhimmasta päästä."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:38
+msgid ""
+"The controller's TX mailboxes, acceptance filter, and RX FIFO between the "
+"software and the bus."
+msgstr ""
+"Ohjaimen TX-postilaatikot, hyväksyntäsuodatin ja RX-FIFO ohjelmiston ja "
+"väylän välissä."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:41
+msgid ""
+"**TX mailboxes.** A small set of hardware slots (typically three) that hold "
+"outgoing frames the camera has handed off via :meth:`~machine.CAN.send` but "
+"that have not yet reached the bus. When the bus is idle, the controller "
+"picks the mailbox with the lowest-numbered ID (highest priority) and "
+"arbitrates for the bus on its behalf. The camera does not pick the mailbox; "
+"the controller assigns one and returns its index from "
+":meth:`~machine.CAN.send`."
+msgstr ""
+"**TX-postilaatikot.** Pieni joukko laitteistopaikkoja (tyypillisesti kolme),"
+" jotka pitävät lähteviä kehyksiä, jotka kamera on luovuttanut "
+":meth:`~machine.CAN.send`\\ -kutsulla mutta jotka eivät ole vielä "
+"saavuttaneet väylää. Kun väylä on vapaana, ohjain valitsee postilaatikon, "
+"jolla on pienin tunnisteen numero (korkein prioriteetti), ja arbitroi "
+"väylästä sen puolesta. Kamera ei valitse postilaatikkoa; ohjain määrää sen "
+"ja palauttaa sen indeksin :meth:`~machine.CAN.send`\\ -kutsusta."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:50
+msgid ""
+"**Acceptance filter.** Configurable hardware that compares each incoming "
+"frame's ID against a list of patterns and discards anything that does not "
+"match. Frames that pass continue into the RX FIFO; rejected frames are "
+"thrown away by the controller without ever reaching Python. "
+":meth:`~machine.CAN.set_filters` configures these patterns."
+msgstr ""
+"**Hyväksyntäsuodatin.** Määritettävä laitteisto, joka vertaa kunkin saapuvan"
+" kehyksen tunnistetta kuvioluetteloon ja hylkää kaiken, mikä ei täsmää. "
+"Läpäisevät kehykset jatkavat RX-FIFO:on; hylätyt kehykset ohjain heittää "
+"pois ne koskaan saavuttamatta Pythonia. :meth:`~machine.CAN.set_filters` "
+"määrittää nämä kuviot."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:57
+msgid ""
+"**RX FIFO.** A *first-in, first-out* queue -- the first frame in is also the"
+" first frame out, like a line at a ticket counter. The controller appends "
+"received frames to the back of the queue as they arrive, and "
+":meth:`~machine.CAN.recv` pulls them off the front in the same order. The "
+"queue matters because the bus catches frames in the background while Python "
+"is busy elsewhere; the camera then drains them one at a time without losing "
+"any, as long as the FIFO has not overflowed."
+msgstr ""
+"**RX-FIFO.** *First-in, first-out* -jono -- ensimmäinen sisään tullut kehys "
+"on myös ensimmäinen ulos tuleva, kuten jono lipunmyyntiluukulla. Ohjain "
+"lisää vastaanotetut kehykset jonon perään niiden saapuessa, ja "
+":meth:`~machine.CAN.recv` poimii ne edestä samassa järjestyksessä. Jonolla "
+"on merkitystä, koska väylä nappaa kehyksiä taustalla Pythonin ollessa "
+"kiireinen muualla; kamera tyhjentää ne sitten yksitellen menettämättä "
+"yhtäkään, kunhan FIFO ei ole ylivuotanut."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:68
+msgid "Sending a frame"
+msgstr "Kehyksen lähettäminen"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:70
+msgid ":meth:`~machine.CAN.send` queues a frame for transmission:"
+msgstr ":meth:`~machine.CAN.send` asettaa kehyksen jonoon lähetystä varten:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:76
+msgid ""
+"The first argument is the ID (an 11-bit integer for a standard frame); the "
+"second is the payload (0 to 8 bytes for CAN Classic). The call returns a "
+"small integer index identifying the hardware mailbox the frame went into. "
+"The controller arbitrates with any other transmitters on the bus and re-"
+"transmits as needed without further help from software."
+msgstr ""
+"Ensimmäinen argumentti on tunniste (11-bittinen kokonaisluku "
+"vakiokehykselle); toinen on hyötykuorma (0–8 tavua CAN Classicissa). Kutsu "
+"palauttaa pienen kokonaislukuindeksin, joka yksilöi laitteiston "
+"postilaatikon, johon kehys meni. Ohjain arbitroi väylän muiden lähettimien "
+"kanssa ja lähettää uudelleen tarpeen mukaan ilman ohjelmiston lisäapua."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:83
+msgid ""
+"For extended (29-bit) IDs, OR the :data:`CAN.FLAG_EXT_ID` flag into the "
+"third argument:"
+msgstr ""
+"Laajennettuihin (29-bittisiin) tunnisteisiin yhdistä :data:`CAN.FLAG_EXT_ID`"
+" -lippu OR-operaatiolla kolmanteen argumenttiin:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:91
+msgid "Receiving frames"
+msgstr "Kehysten vastaanottaminen"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:93
+msgid ""
+"The controller starts up with no filter installed and drops every incoming "
+"frame. Before :meth:`~machine.CAN.recv` will return anything, call "
+":meth:`~machine.CAN.set_filters` once -- the simplest form is ``None``, "
+"which accepts every ID:"
+msgstr ""
+"Ohjain käynnistyy ilman asennettua suodatinta ja pudottaa jokaisen saapuvan "
+"kehyksen. Ennen kuin :meth:`~machine.CAN.recv` palauttaa mitään, kutsu "
+":meth:`~machine.CAN.set_filters` kerran -- yksinkertaisin muoto on "
+"``None``\\ , joka hyväksyy jokaisen tunnisteen:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:102
+msgid ""
+":meth:`~machine.CAN.recv` then returns the next frame in the receive FIFO, "
+"or ``None`` if nothing is waiting:"
+msgstr ""
+":meth:`~machine.CAN.recv` palauttaa sitten seuraavan kehyksen vastaanotto-"
+"FIFO:sta tai ``None``\\ , jos mitään ei odota:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:112
+msgid ""
+"The bus fills the RX FIFO in the background, so the main loop just drains it"
+" as fast as it iterates. As long as the FIFO is deeper than the longest gap "
+"between drains, no frames are lost."
+msgstr ""
+"Väylä täyttää RX-FIFO:n taustalla, joten pääsilmukka vain tyhjentää sitä "
+"niin nopeasti kuin se iteroi. Niin kauan kuin FIFO on syvempi kuin pisin "
+"tyhjennysten välinen aukko, kehyksiä ei häviä."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:118
+msgid "Filters"
+msgstr "Suodattimet"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:120
+msgid ""
+"A real bus is usually busy with frames the camera does not care about. "
+"Hardware filters let the controller drop unwanted IDs before they reach the "
+"FIFO. :meth:`~machine.CAN.set_filters` takes a list of ``(id, mask, flags)``"
+" tuples; a frame passes the filter if its ID, masked by ``mask``, matches "
+"the configured ``id``:"
+msgstr ""
+"Todellinen väylä on yleensä kiireinen kehyksistä, joista kamera ei välitä. "
+"Laitteistosuodattimet antavat ohjaimen pudottaa ei-toivotut tunnisteet ennen"
+" kuin ne saavuttavat FIFO:n. :meth:`~machine.CAN.set_filters` ottaa listan "
+"``(id, mask, flags)`` -monikoita; kehys läpäisee suodattimen, jos sen "
+"tunniste, ``mask``\\ :lla maskattuna, vastaa määritettyä ``id``\\ :tä:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:136
+msgid ""
+"Unmatched frames are discarded by the controller and never appear at "
+":meth:`~machine.CAN.recv`, which saves both buffer space and CPU time."
+msgstr ""
+"Vastaamattomat kehykset ohjain hylkää, eivätkä ne koskaan ilmesty "
+":meth:`~machine.CAN.recv`\\ :ssä, mikä säästää sekä puskuritilaa että "
+"suoritinaikaa."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:141
+msgid "Error states and recovery"
+msgstr "Virhetilat ja palautuminen"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:143
+msgid ""
+"A real CAN bus picks up transmission errors -- shorts to ground, missing "
+"nodes, electrical noise corrupting bits. The controller keeps two counters "
+"that track this behaviour: a Transmit Error Counter (TEC) and a Receive "
+"Error Counter (REC), each incremented when the controller detects an error "
+"and decremented after a successful transfer. The counter values put the "
+"controller into one of four states:"
+msgstr ""
+"Todellinen CAN-väylä kerää lähetysvirheitä -- oikosulkuja maahan, puuttuvia "
+"solmuja, bittejä turmelevaa sähköistä kohinaa. Ohjain pitää kahta laskuria, "
+"jotka seuraavat tätä käyttäytymistä: Transmit Error Counter (TEC) ja Receive"
+" Error Counter (REC), joista kumpaakin kasvatetaan ohjaimen havaitessa "
+"virheen ja vähennetään onnistuneen siirron jälkeen. Laskurien arvot "
+"asettavat ohjaimen yhteen neljästä tilasta:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:151
+msgid ""
+"**Error Active** (TEC and REC both below 96). Normal operation. When the "
+"node detects a bus error it transmits a dominant *active error frame*, which"
+" forces every other node to discard the in-progress frame so the sender can "
+"retry."
+msgstr ""
+"**Error Active** (TEC ja REC molemmat alle 96). Normaali toiminta. Kun solmu"
+" havaitsee väylävirheen, se lähettää dominantin *aktiivisen virhekehyksen*\\"
+" , joka pakottaa jokaisen muun solmun hylkäämään käynnissä olevan kehyksen, "
+"jotta lähettäjä voi yrittää uudelleen."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:157
+msgid ""
+"**Error Warning** (either counter reaches 96). Still fully active on the bus"
+" -- the warning state is a software signal that errors are accumulating, not"
+" a behaviour change."
+msgstr ""
+"**Error Warning** (jompikumpi laskuri saavuttaa 96). Yhä täysin aktiivinen "
+"väylällä -- varoitustila on ohjelmistosignaali siitä, että virheitä kertyy, "
+"ei käyttäytymismuutos."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:162
+msgid ""
+"**Error Passive** (either counter reaches 128). The node is still on the bus"
+" but stops sending dominant error frames; errors are now signalled with "
+"*passive* (recessive) error frames so a faulty node cannot keep tearing up "
+"the bus for everyone else."
+msgstr ""
+"**Error Passive** (jompikumpi laskuri saavuttaa 128). Solmu on yhä väylällä "
+"mutta lopettaa dominanttien virhekehysten lähettämisen; virheet ilmoitetaan "
+"nyt *passiivisilla* (resessiivisillä) virhekehyksillä, jottei viallinen "
+"solmu voi jatkuvasti repiä väylää muiden vahingoksi."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:168
+msgid ""
+"**Bus Off** (TEC reaches 256). The controller has decided this node is too "
+"unreliable to participate. It disconnects from the bus, stops transmitting "
+"and acknowledging, and stays out until software explicitly restarts it."
+msgstr ""
+"**Bus Off** (TEC saavuttaa 256). Ohjain on päättänyt, että tämä solmu on "
+"liian epäluotettava osallistumaan. Se irtoaa väylästä, lopettaa lähettämisen"
+" ja kuittaamisen ja pysyy poissa, kunnes ohjelmisto nimenomaisesti "
+"käynnistää sen uudelleen."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:173
+msgid ""
+"The first three transitions are entirely automatic -- as the counters "
+"decrement after successful frames, the controller moves itself back toward "
+"Error Active without intervention."
+msgstr ""
+"Kolme ensimmäistä siirtymää ovat täysin automaattisia -- kun laskurit "
+"vähenevät onnistuneiden kehysten jälkeen, ohjain siirtää itsensä takaisin "
+"kohti Error Active -tilaa ilman puuttumista."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:177
+msgid ""
+"Bus Off is the one state that requires software action. "
+":meth:`~machine.CAN.restart` resets the controller and returns it to Error "
+"Active. A typical pattern is to check the state from the main loop and "
+"restart after a short delay to give the bus time to settle:"
+msgstr ""
+"Bus Off on se yksi tila, joka vaatii ohjelmistotoimia. "
+":meth:`~machine.CAN.restart` nollaa ohjaimen ja palauttaa sen Error Active "
+"-tilaan. Tyypillinen kuvio on tarkistaa tila pääsilmukasta ja käynnistää "
+"uudelleen lyhyen viiveen jälkeen, jotta väylä ehtii asettua:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:197
+msgid ""
+"The current counter values are available from "
+":meth:`~machine.CAN.get_counters` for diagnostics -- a TEC that climbs "
+"steadily on an otherwise-quiet bus usually points at wiring, termination, or"
+" a misconfigured bit rate."
+msgstr ""
+"Nykyiset laskuriarvot ovat saatavilla :meth:`~machine.CAN.get_counters`\\ "
+"-kutsusta diagnostiikkaa varten -- TEC, joka kohoaa tasaisesti muuten "
+"hiljaisella väylällä, viittaa yleensä johdotukseen, päätevastukseen tai "
+"väärin määritettyyn bittinopeuteen."

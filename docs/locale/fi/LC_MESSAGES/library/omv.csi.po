@@ -1,0 +1,2072 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fi <LL@li.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.csi.rst:4
+msgid ":mod:`csi` --- camera sensors"
+msgstr ":mod:`csi` --- kennot"
+
+#: ../../library/omv.csi.rst:9
+msgid ""
+"The :mod:`csi` module is the modern, object-oriented interface to the camera"
+" sensor(s) on an OpenMV Cam. Each physical sensor is represented by a "
+":class:`CSI` instance, so the multispectral imager boards that pair a colour"
+" sensor with a thermal or event sensor can drive each one independently by "
+"passing a different ``cid`` to the constructor. Single-sensor cams just "
+"instantiate one :class:`CSI`."
+msgstr ""
+":mod:`csi`\\ -moduuli on moderni, oliopohjainen rajapinta OpenMV Camin "
+"kennoihin. Kutakin fyysistä kennoa edustaa :class:`CSI`\\ -instanssi, joten "
+"monispektriset kuvauslevyt, jotka yhdistävät värikennon lämpö- tai "
+"tapahtumakennoon, voivat ohjata kutakin itsenäisesti antamalla "
+"konstruktorille eri ``cid``\\ -arvon. Yhden kennon kamerat luovat vain yhden"
+" :class:`CSI`\\ -instanssin."
+
+#: ../../library/omv.csi.rst:16
+msgid ""
+"A :class:`CSI` object owns the full sensor configuration -- pixel format, "
+"framesize / window, exposure / gain / white-balance, hardware mirror and "
+"flip, colour-bar test pattern, frame-rate clock, ROI for auto-exposure, and "
+"chip-specific :meth:`ioctl <CSI.ioctl>` commands. Frames are captured with "
+":meth:`CSI.snapshot`, which returns an :class:`image.Image` backed by the "
+"frame buffer."
+msgstr ""
+":class:`CSI`\\ -olio hallitsee kennon koko konfiguraation -- "
+"pikseliformaatin, kehyskoon / ikkunan, valotuksen / vahvistuksen / "
+"valkotasapainon, laitteistotason peilauksen ja kääntämisen, väripalkkien "
+"testikuvion, kehysnopeuden kellon, automaattivalotuksen kohdealueen sekä "
+"siruyksilölliset :meth:`ioctl <CSI.ioctl>`\\ -komennot. Kehykset kaapataan "
+":meth:`CSI.snapshot`\\ -metodilla, joka palauttaa kehyspuskurin tukeman "
+":class:`image.Image`\\ -olion."
+
+#: ../../library/omv.csi.rst:23
+msgid ""
+"This module supersedes the legacy :mod:`sensor` module (which exposed the "
+"same functionality as module-level functions tied to a single hidden "
+"sensor). New code should use :class:`CSI`."
+msgstr ""
+"Tämä moduuli korvaa vanhan :mod:`sensor`\\ -moduulin (joka tarjosi saman "
+"toiminnallisuuden moduulitason funktioina, jotka oli sidottu yhteen "
+"piilotettuun kennoon). Uuden koodin tulisi käyttää :class:`CSI`\\ -luokkaa."
+
+#: ../../library/omv.csi.rst:27
+msgid "Example usage::"
+msgstr "Esimerkkikäyttö::"
+
+#: ../../library/omv.csi.rst:43
+msgid "Asyncio usage"
+msgstr "Asyncio-käyttö"
+
+#: ../../library/omv.csi.rst:45
+msgid ""
+"The blocking :meth:`CSI.snapshot` loop above does not cooperate with the "
+":mod:`asyncio` event loop -- while ``snapshot`` is waiting on the next "
+"frame, every other coroutine in the program is frozen. To let a capture loop"
+" coexist with other concurrent work (a UART client, a button watcher, a "
+"network task) wrap :class:`CSI` in a small adapter that turns ``snapshot`` "
+"into an :keyword:`await`-friendly coroutine by polling "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` and yielding to the event "
+"loop between checks::"
+msgstr ""
+"Yllä oleva estävä :meth:`CSI.snapshot`\\ -silmukka ei toimi yhteistyössä "
+":mod:`asyncio`\\ -tapahtumasilmukan kanssa -- kun ``snapshot`` odottaa "
+"seuraavaa kehystä, jokainen muu ohjelman korutiini on jäädytettynä. Jotta "
+"kaappaussilmukka voi toimia rinnakkain muun samanaikaisen työn kanssa (UART-"
+"asiakas, painikkeen tarkkailija, verkkotehtävä), kääri :class:`CSI` pieneen "
+"sovittimeen, joka muuttaa ``snapshot``\\ -kutsun :keyword:`await`\\ "
+"-yhteensopivaksi korutiiniksi pollaamalla :meth:`snapshot(blocking=False) "
+"<CSI.snapshot>` -metodia ja luovuttamalla vuoron tapahtumasilmukalle "
+"tarkistusten välissä::"
+
+#: ../../library/omv.csi.rst:72
+msgid ""
+"``__getattr__`` forwards every other attribute (``reset``, ``pixformat``, "
+"``framesize``, the sensor knobs) to the underlying :class:`CSI` so the "
+"wrapper is a drop-in replacement. The first non-blocking call also starts "
+"the camera's DMA capture if it was not already running, so no extra "
+"bootstrap is needed."
+msgstr ""
+"``__getattr__`` välittää kaikki muut attribuutit (\\ ``reset``\\ , "
+"``pixformat``\\ , ``framesize``\\ , kennon säätimet) taustalla olevalle "
+":class:`CSI`\\ -oliolle, joten kääre on suora korvaaja. Ensimmäinen "
+"estämätön kutsu myös käynnistää kameran DMA-kaappauksen, jos se ei ollut "
+"vielä käynnissä, joten erillistä alustusta ei tarvita."
+
+#: ../../library/omv.csi.rst:78
+msgid ""
+"A capture loop then fits into a larger asyncio program as just another "
+"coroutine::"
+msgstr ""
+"Kaappaussilmukka sopii sitten suurempaan asyncio-ohjelmaan vain yhtenä "
+"korutiinina muiden joukossa::"
+
+#: ../../library/omv.csi.rst:97
+msgid ""
+"The :meth:`framebuffers <CSI.framebuffers>` setting still matters in this "
+"shape -- single-buffer mode makes ``snapshot(blocking=False)`` return "
+":data:`None` until the next frame is captured, while double or triple "
+"buffering smooths that over so the wrapper usually finds a buffered frame "
+"waiting on the first poll. See the *AsyncCSI* capstone on the asyncio "
+"tutorial for the full walkthrough."
+msgstr ""
+":meth:`framebuffers <CSI.framebuffers>` -asetuksella on edelleen merkitystä "
+"tässä muodossa -- yhden puskurin tila saa ``snapshot(blocking=False)`` "
+"-kutsun palauttamaan :data:`None`\\ , kunnes seuraava kehys on kaapattu, kun"
+" taas kaksois- tai kolmoispuskurointi tasoittaa tämän niin, että kääre "
+"yleensä löytää puskuroidun kehyksen valmiina jo ensimmäisellä pollauksella. "
+"Katso *AsyncCSI*\\ -päätösharjoitus asyncio-oppaasta täydellistä läpikäyntiä"
+" varten."
+
+#: ../../library/omv.csi.rst:106
+msgid "class CSI -- Camera Sensor Interface"
+msgstr "class CSI -- Camera Sensor Interface"
+
+#: ../../library/omv.csi.rst:108
+msgid "The `CSI` class is used to control a camera sensor."
+msgstr "`CSI`\\ -luokkaa käytetään kennon ohjaamiseen."
+
+#: ../../library/omv.csi.rst:112
+msgid ""
+"Create an object to talk with a camera sensor. On boards with multiple "
+"sensors, the particular CSI object may be selected by passing a ``cid`` like"
+" `csi.LEPTON` to select a FLIR Lepton sensor module. If ``cid`` is -1 the "
+"primary sensor is selected (typically a color camera module on multi-sensor "
+"boards)."
+msgstr ""
+"Luo olio kennon kanssa kommunikointia varten. Useamman kennon levyillä "
+"tietty CSI-olio voidaan valita antamalla ``cid`` kuten `csi.LEPTON`\\ , "
+"jolla valitaan FLIR Lepton -kennomoduuli. Jos ``cid`` on -1, valitaan "
+"ensisijainen kenno (yleensä värikameramoduuli usean kennon levyillä)."
+
+#: ../../library/omv.csi.rst:117
+msgid ""
+"If ``delays`` is ``False`` then all settling time delays in the csi driver "
+"are disabled. By default the sensor driver delays after reset / mode change "
+"to prevent corrupt frames being returned by `CSI.snapshot`. Disabling delays"
+" lets you batch updates and apply a single delay at the end before calling "
+"`CSI.snapshot`."
+msgstr ""
+"Jos ``delays`` on ``False``\\ , kaikki csi-ajurin asettumisaikaviiveet "
+"poistetaan käytöstä. Oletuksena kennoajuri viivyttää nollauksen / "
+"tilanvaihdon jälkeen estääkseen `CSI.snapshot`\\ -metodin palauttamasta "
+"vioittuneita kehyksiä. Viiveiden poistaminen käytöstä antaa sinun niputtaa "
+"päivitykset ja soveltaa yhtä viivettä lopuksi ennen `CSI.snapshot`\\ "
+"-kutsua."
+
+#: ../../library/omv.csi.rst:122
+msgid ""
+"If ``fflush`` is ``False`` then automatic framebuffer flushing mentioned in "
+"`CSI.framebuffers` is disabled. This removes any time limit on frames in the"
+" frame buffer fifo."
+msgstr ""
+"Jos ``fflush`` on ``False``\\ , `CSI.framebuffers`\\ -kohdassa mainittu "
+"automaattinen kehyspuskurin tyhjennys poistetaan käytöstä. Tämä poistaa "
+"kaikki aikarajoitukset kehyspuskurin fifo:ssa olevilta kehyksiltä."
+
+#: ../../library/omv.csi.rst:125
+msgid ""
+"``stream`` selects whether this CSI is the stream source sent to the IDE. If"
+" ``None`` (default) the CSI becomes the stream source only if it is the "
+"primary (non-auxiliary) sensor. Pass ``True`` to force this CSI to be the "
+"stream source, or any false value to leave the existing stream source "
+"unchanged."
+msgstr ""
+"``stream`` valitsee, onko tämä CSI IDE:lle lähetettävä virtalähde. Jos "
+"``None`` (oletus), CSI:stä tulee virtalähde vain, jos se on ensisijainen "
+"(ei-apukenno). Anna ``True`` pakottaaksesi tämän CSI:n virtalähteeksi, tai "
+"mikä tahansa epätosi arvo jättääksesi nykyisen virtalähteen ennalleen."
+
+#: ../../library/omv.csi.rst:131
+msgid "Methods"
+msgstr "Metodit"
+
+#: ../../library/omv.csi.rst:135
+msgid ""
+"Initializes the camera sensor. Performs a hardware reset by toggling the "
+"RESET signal GPIO to the camera module if ``hard`` is ``True``. ``hard`` "
+"should be set to false when resetting auxiliary camera sensors that share "
+"the same RESET signal GPIO as the primary module."
+msgstr ""
+"Alustaa kennon. Suorittaa laitteistotason nollauksen kytkemällä "
+"kameramoduulin RESET-signaalin GPIO:ta, jos ``hard`` on ``True``\\ . "
+"``hard`` tulisi asettaa epätodeksi nollattaessa apukennoja, jotka jakavat "
+"saman RESET-signaalin GPIO:n ensisijaisen moduulin kanssa."
+
+#: ../../library/omv.csi.rst:141
+msgid ""
+"Puts the camera into a lower power mode than sleep (but the camera must be "
+"reset on being woken up)."
+msgstr ""
+"Asettaa kameran lepotilaa pienempään virrankulutustilaan (mutta kamera on "
+"nollattava herätettäessä)."
+
+#: ../../library/omv.csi.rst:146
+msgid ""
+"Puts the camera to sleep if ``enable`` is True. Otherwise, wakes it back up."
+msgstr ""
+"Asettaa kameran lepotilaan, jos ``enable`` on True. Muutoin herättää sen "
+"takaisin."
+
+#: ../../library/omv.csi.rst:150
+msgid ""
+"Copies the current frame buffer contents to the IDE preview. Call this after"
+" the last `CSI.snapshot` if the script terminates so the IDE shows the last "
+"frame."
+msgstr ""
+"Kopioi nykyisen kehyspuskurin sisällön IDE:n esikatseluun. Kutsu tätä "
+"viimeisen `CSI.snapshot`\\ -kutsun jälkeen, jos komentosarja päättyy, jotta "
+"IDE näyttää viimeisen kehyksen."
+
+#: ../../library/omv.csi.rst:155
+msgid "Takes a picture using the camera and returns an `image.Image` object."
+msgstr "Ottaa kuvan kameralla ja palauttaa `image.Image`\\ -olion."
+
+#: ../../library/omv.csi.rst:157
+msgid ""
+"If ``time`` and/or ``frames`` is passed snapshot will block for that many "
+"``time`` milliseconds and/or ``frames`` captured from the camera. Both "
+"arguments may be used at the same time. After ``time`` and/or ``frames`` has"
+" passed snapshot will return ``None``."
+msgstr ""
+"Jos ``time`` ja/tai ``frames`` annetaan, snapshot estää sen verran ``time`` "
+"millisekuntia ja/tai ``frames`` kameralta kaapattua kehystä. Molempia "
+"argumentteja voidaan käyttää samanaikaisesti. Kun ``time`` ja/tai ``frames``"
+" on kulunut, snapshot palauttaa ``None``\\ ."
+
+#: ../../library/omv.csi.rst:161
+msgid ""
+"``blocking`` may be ``False`` to enable non-blocking behavior which will "
+"cause snapshot to return ``None`` when the next image from the camera is not"
+" ready versus waiting."
+msgstr ""
+"``blocking`` voi olla ``False``\\ , jolloin otetaan käyttöön estämätön "
+"toiminta, joka saa snapshotin palauttamaan ``None``\\ , kun seuraava kuva "
+"kameralta ei ole valmis, sen sijaan että odotettaisiin."
+
+#: ../../library/omv.csi.rst:164
+msgid ""
+"``image`` may be another `image.Image` object to update with the new image "
+"captured from the camera instead of returning a new `image.Image` object. "
+"The previous image contents are overwritten via a deep copy."
+msgstr ""
+"``image`` voi olla toinen `image.Image`\\ -olio, joka päivitetään kameralta "
+"kaapatulla uudella kuvalla sen sijaan, että palautettaisiin uusi "
+"`image.Image`\\ -olio. Aiemman kuvan sisältö korvataan syväkopiolla."
+
+#: ../../library/omv.csi.rst:168
+msgid ""
+"If `CSI.auto_rotation` is enabled this method will return an already-rotated"
+" `image.Image`."
+msgstr ""
+"Jos `CSI.auto_rotation` on käytössä, tämä metodi palauttaa jo käännetyn "
+"`image.Image`\\ -olion."
+
+#: ../../library/omv.csi.rst:172
+msgid "Returns the sensor resolution width."
+msgstr "Palauttaa kennon resoluution leveyden."
+
+#: ../../library/omv.csi.rst:176
+msgid "Returns the sensor resolution height."
+msgstr "Palauttaa kennon resoluution korkeuden."
+
+#: ../../library/omv.csi.rst:180
+msgid ""
+"Returns the camera module chip ID. Compare against any of `csi.OV2640`, "
+"`csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, `csi.OV9650`, "
+"`csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, `csi.MT9M114`, "
+"`csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, `csi.HM0360`, "
+"`csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, `csi.PAG7936`, "
+"`csi.PAJ6100`, `csi.FROGEYE2020`, or `csi.SOFTCSI`."
+msgstr ""
+"Palauttaa kameramoduulin sirun tunnuksen (chip ID). Vertaa johonkin "
+"seuraavista: `csi.OV2640`\\ , `csi.OV5640`\\ , `csi.OV7670`\\ , "
+"`csi.OV7690`\\ , `csi.OV7725`\\ , `csi.OV9650`\\ , `csi.MT9V022`\\ , "
+"`csi.MT9V024`\\ , `csi.MT9V032`\\ , `csi.MT9V034`\\ , `csi.MT9M114`\\ , "
+"`csi.BOSON320`\\ , `csi.BOSON640`\\ , `csi.LEPTON`\\ , `csi.HM01B0`\\ , "
+"`csi.HM0360`\\ , `csi.GC2145`\\ , `csi.GENX320ES`\\ , `csi.GENX320`\\ , "
+"`csi.PAG7920`\\ , `csi.PAG7936`\\ , `csi.PAJ6100`\\ , `csi.FROGEYE2020` tai "
+"`csi.SOFTCSI`\\ ."
+
+#: ../../library/omv.csi.rst:188
+msgid ""
+"Returns ``True`` if there is an image ready to be returned by `CSI.snapshot`"
+" so a call to snapshot will not block."
+msgstr ""
+"Palauttaa ``True``\\ , jos `CSI.snapshot`\\ -metodilla on palautettavissa "
+"kuva, jolloin snapshot-kutsu ei esty."
+
+#: ../../library/omv.csi.rst:193
+msgid ""
+"Sets the pixel format for the camera module to one of `csi.GRAYSCALE`, "
+"`csi.RGB565`, `csi.BAYER`, `csi.YUV422`, or `csi.JPEG` (only on the "
+"OV2640/OV5640)."
+msgstr ""
+"Asettaa kameramoduulin pikseliformaatiksi yhden seuraavista: "
+"`csi.GRAYSCALE`\\ , `csi.RGB565`\\ , `csi.BAYER`\\ , `csi.YUV422` tai "
+"`csi.JPEG` (vain OV2640/OV5640)."
+
+#: ../../library/omv.csi.rst:196
+msgid "Returns the current pixformat if called with no arguments."
+msgstr ""
+"Palauttaa nykyisen pikseliformaatin, jos kutsutaan ilman argumentteja."
+
+#: ../../library/omv.csi.rst:200
+msgid ""
+"Sets the frame size for the camera module to one of the size constants (e.g."
+" `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- see the constants section)."
+msgstr ""
+"Asettaa kameramoduulin kehyskooksi yhden kokovakioista (esim. `csi.QVGA`\\ ,"
+" `csi.VGA`\\ , `csi.HD` jne. --- katso vakiot-osio)."
+
+#: ../../library/omv.csi.rst:203
+msgid ""
+"Alternatively, you may pass a custom framesize as a ``(w, h)`` tuple. When "
+"`CSI.snapshot` is called the custom framesize will be evaluated against DMA "
+"rules. Generally framesizes need to be a multiple of 8 pixels and/or 16 "
+"bytes."
+msgstr ""
+"Vaihtoehtoisesti voit antaa mukautetun kehyskoon ``(w, h)``\\ -monikkona. "
+"Kun `CSI.snapshot` kutsutaan, mukautettu kehyskoko arvioidaan DMA-sääntöjä "
+"vasten. Yleensä kehyskokojen on oltava 8 pikselin ja/tai 16 tavun "
+"monikertoja."
+
+#: ../../library/omv.csi.rst:207
+msgid "Returns the current framesize if called with no arguments."
+msgstr "Palauttaa nykyisen kehyskoon, jos kutsutaan ilman argumentteja."
+
+#: ../../library/omv.csi.rst:211
+msgid "Sets the frame rate in Hz for the camera module."
+msgstr "Asettaa kameramoduulin kehysnopeuden hertseinä (Hz)."
+
+#: ../../library/omv.csi.rst:213
+msgid "Returns the current framerate if called with no arguments."
+msgstr "Palauttaa nykyisen kehysnopeuden, jos kutsutaan ilman argumentteja."
+
+#: ../../library/omv.csi.rst:217
+msgid ""
+"`CSI.framerate` works by dropping frames received by the camera module to "
+"keep the frame rate at or below the rate specified. By default the camera "
+"will run at the maximum frame rate. If implemented for the particular camera"
+" sensor `CSI.framerate` will also reduce the camera sensor frame rate "
+"internally to save power and improve image quality by increasing the sensor "
+"exposure. `CSI.framerate` may conflict with `CSI.auto_exposure` on some "
+"cameras."
+msgstr ""
+"`CSI.framerate` toimii pudottamalla kameramoduulin vastaanottamia kehyksiä "
+"pitääkseen kehysnopeuden määritetyn nopeuden tasolla tai sen alapuolella. "
+"Oletuksena kamera toimii maksimikehysnopeudella. Jos kyseiselle kennolle on "
+"toteutettu, `CSI.framerate` myös pienentää kennon kehysnopeutta sisäisesti "
+"säästääkseen virtaa ja parantaakseen kuvanlaatua lisäämällä kennon "
+"valotusta. `CSI.framerate` voi olla ristiriidassa `CSI.auto_exposure`\\ "
+"-asetuksen kanssa joissakin kameroissa."
+
+#: ../../library/omv.csi.rst:226
+msgid ""
+"Sets the resolution of the camera to a sub-region of the current resolution."
+" ``roi`` is a ``(x, y, w, h)`` tuple. You may also pass ``(w, h)`` and the "
+"window will be centered."
+msgstr ""
+"Asettaa kameran resoluution nykyisen resoluution osa-alueeksi. ``roi`` on "
+"``(x, y, w, h)``\\ -monikko. Voit myös antaa ``(w, h)``\\ , jolloin ikkuna "
+"keskitetään."
+
+#: ../../library/omv.csi.rst:229
+msgid ""
+"Returns the current ``(x, y, w, h)`` tuple if called with no arguments."
+msgstr ""
+"Palauttaa nykyisen ``(x, y, w, h)``\\ -monikon, jos kutsutaan ilman "
+"argumentteja."
+
+#: ../../library/omv.csi.rst:233
+msgid ""
+"Set the camera image gainceiling to one of 2, 4, 8, 16, 32, 64, or 128."
+msgstr ""
+"Aseta kameran kuvan vahvistuksen yläraja (gainceiling) yhdeksi seuraavista: "
+"2, 4, 8, 16, 32, 64 tai 128."
+
+#: ../../library/omv.csi.rst:235 ../../library/omv.csi.rst:241
+#: ../../library/omv.csi.rst:247 ../../library/omv.csi.rst:253
+#: ../../library/omv.csi.rst:259 ../../library/omv.csi.rst:269
+#: ../../library/omv.csi.rst:390 ../../library/omv.csi.rst:398
+msgid "Returns ``True`` on success and ``False`` on failure."
+msgstr "Palauttaa ``True`` onnistuessaan ja ``False`` epäonnistuessaan."
+
+#: ../../library/omv.csi.rst:239
+msgid "Set the camera image brightness."
+msgstr "Aseta kameran kuvan kirkkaus."
+
+#: ../../library/omv.csi.rst:245
+msgid "Set the camera image contrast."
+msgstr "Aseta kameran kuvan kontrasti."
+
+#: ../../library/omv.csi.rst:251
+msgid "Set the camera image saturation."
+msgstr "Aseta kameran kuvan värikylläisyys."
+
+#: ../../library/omv.csi.rst:257
+msgid "Set the camera image JPEG compression quality. 0 - 100."
+msgstr "Aseta kameran kuvan JPEG-pakkauslaatu. 0 - 100."
+
+#: ../../library/omv.csi.rst:263
+msgid "Only for the OV2640/OV5640 cameras."
+msgstr "Vain OV2640/OV5640-kameroille."
+
+#: ../../library/omv.csi.rst:267
+msgid ""
+"Turns color bar mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Kytkee väripalkkitilan päälle (\\ ``True``\\ ) tai pois (\\ ``False``\\ ). "
+"Oletuksena pois päältä."
+
+#: ../../library/omv.csi.rst:273
+msgid ""
+"``enable`` turns auto gain control on (``True``) or off (``False``). The "
+"camera starts up with auto gain control on."
+msgstr ""
+"``enable`` kytkee automaattisen vahvistuksen säädön päälle (\\ ``True``\\ ) "
+"tai pois (\\ ``False``\\ ). Kamera käynnistyy automaattinen vahvistuksen "
+"säätö päällä."
+
+#: ../../library/omv.csi.rst:276
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels with "
+"``gain_db``."
+msgstr ""
+"Jos ``enable`` on ``False``\\ , voit asettaa kiinteän vahvistuksen "
+"desibeleinä argumentilla ``gain_db``\\ ."
+
+#: ../../library/omv.csi.rst:278
+msgid ""
+"If ``enable`` is ``True`` you may set the maximum gain ceiling in decibels "
+"with ``gain_db_ceiling`` for the automatic gain control algorithm."
+msgstr ""
+"Jos ``enable`` on ``True``\\ , voit asettaa automaattisen vahvistuksen "
+"säätöalgoritmille vahvistuksen ylärajan desibeleinä argumentilla "
+"``gain_db_ceiling``\\ ."
+
+#: ../../library/omv.csi.rst:283
+msgid "You need to turn off white balance too if you want to track colors."
+msgstr ""
+"Sinun on kytkettävä myös valkotasapaino pois päältä, jos haluat seurata "
+"värejä."
+
+#: ../../library/omv.csi.rst:287
+msgid "Returns the current camera gain value in decibels."
+msgstr "Palauttaa kameran nykyisen vahvistuksen arvon desibeleinä."
+
+#: ../../library/omv.csi.rst:291
+msgid ""
+"``enable`` turns auto exposure control on (``True``) or off (``False``). The"
+" camera starts up with auto exposure control on."
+msgstr ""
+"``enable`` kytkee automaattisen valotuksen säädön päälle (\\ ``True``\\ ) "
+"tai pois (\\ ``False``\\ ). Kamera käynnistyy automaattinen valotuksen säätö"
+" päällä."
+
+#: ../../library/omv.csi.rst:294
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed exposure time in microseconds"
+" with ``exposure_us``."
+msgstr ""
+"Jos ``enable`` on ``False``\\ , voit asettaa kiinteän valotusajan "
+"mikrosekunteina argumentilla ``exposure_us``\\ ."
+
+#: ../../library/omv.csi.rst:299
+msgid ""
+"Camera auto exposure algorithms are pretty conservative about how much they "
+"adjust the exposure value by and will generally avoid changing the exposure "
+"value by much. Instead, they change the gain value a lot to deal with "
+"changing lighting."
+msgstr ""
+"Kameran automaattiset valotusalgoritmit ovat melko varovaisia sen suhteen, "
+"kuinka paljon ne säätävät valotusarvoa, ja yleensä välttävät valotusarvon "
+"muuttamista suuresti. Sen sijaan ne muuttavat vahvistuksen arvoa paljon "
+"sopeutuakseen muuttuvaan valaistukseen."
+
+#: ../../library/omv.csi.rst:305
+msgid "Returns the current camera exposure value in microseconds."
+msgstr "Palauttaa kameran nykyisen valotusarvon mikrosekunteina."
+
+#: ../../library/omv.csi.rst:309
+msgid ""
+"``enable`` turns auto white balance on (``True``) or off (``False``). The "
+"camera starts up with auto white balance on."
+msgstr ""
+"``enable`` kytkee automaattisen valkotasapainon päälle (\\ ``True``\\ ) tai "
+"pois (\\ ``False``\\ ). Kamera käynnistyy automaattinen valkotasapaino "
+"päällä."
+
+#: ../../library/omv.csi.rst:312
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels for the red,"
+" green, and blue channels respectively with ``rgb_gain_db``."
+msgstr ""
+"Jos ``enable`` on ``False``\\ , voit asettaa kiinteän vahvistuksen "
+"desibeleinä punaiselle, vihreälle ja siniselle kanavalle argumentilla "
+"``rgb_gain_db``\\ ."
+
+#: ../../library/omv.csi.rst:317
+msgid "You need to turn off gain control too if you want to track colors."
+msgstr ""
+"Sinun on kytkettävä myös vahvistuksen säätö pois päältä, jos haluat seurata "
+"värejä."
+
+#: ../../library/omv.csi.rst:321
+msgid ""
+"Returns a tuple ``(r, g, b)`` of the current camera red, green, and blue "
+"gain values in decibels."
+msgstr ""
+"Palauttaa monikon ``(r, g, b)``\\ , joka sisältää kameran nykyiset punaisen,"
+" vihreän ja sinisen vahvistusarvot desibeleinä."
+
+#: ../../library/omv.csi.rst:326
+msgid "Sets the auto black-level calibration (BLC) on the camera."
+msgstr "Asettaa kameran automaattisen mustatason kalibroinnin (BLC)."
+
+#: ../../library/omv.csi.rst:328
+msgid ""
+"``enable`` pass ``True`` or ``False`` to turn BLC on or off. You typically "
+"always want this on."
+msgstr ""
+"``enable`` anna ``True`` tai ``False`` kytkeäksesi BLC:n päälle tai pois. "
+"Yleensä tämän halutaan aina olevan päällä."
+
+#: ../../library/omv.csi.rst:331
+msgid ""
+"``regs`` if disabled then you can manually set the BLC register values from "
+"a previous call to `CSI.blc_regs`."
+msgstr ""
+"``regs`` jos pois käytöstä, voit asettaa BLC-rekisterien arvot manuaalisesti"
+" aiemmasta `CSI.blc_regs`\\ -kutsusta."
+
+#: ../../library/omv.csi.rst:336
+msgid ""
+"Returns the sensor BLC registers as a list of integers. For use with "
+"`CSI.auto_blc`."
+msgstr ""
+"Palauttaa kennon BLC-rekisterit kokonaislukulistana. Käytetään "
+"`CSI.auto_blc`\\ -metodin kanssa."
+
+#: ../../library/omv.csi.rst:340
+msgid ""
+"Turns horizontal mirror mode on (``True``) or off (``False``). Defaults to "
+"off."
+msgstr ""
+"Kytkee vaakapeilaustilan päälle (\\ ``True``\\ ) tai pois (\\ ``False``\\ )."
+" Oletuksena pois päältä."
+
+#: ../../library/omv.csi.rst:342 ../../library/omv.csi.rst:348
+#: ../../library/omv.csi.rst:359 ../../library/omv.csi.rst:365
+#: ../../library/omv.csi.rst:628
+msgid "Returns the current setting if called with no arguments."
+msgstr "Palauttaa nykyisen asetuksen, jos kutsutaan ilman argumentteja."
+
+#: ../../library/omv.csi.rst:346
+msgid ""
+"Turns vertical flip mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Kytkee pystykääntötilan päälle (\\ ``True``\\ ) tai pois (\\ ``False``\\ ). "
+"Oletuksena pois päältä."
+
+#: ../../library/omv.csi.rst:352
+msgid ""
+"Turns transpose mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Kytkee transponointitilan päälle (\\ ``True``\\ ) tai pois (\\ ``False``\\ "
+"). Oletuksena pois päältä."
+
+#: ../../library/omv.csi.rst:354
+msgid "vflip=False, hmirror=False, transpose=False -> 0 degree rotation"
+msgstr "vflip=False, hmirror=False, transpose=False -> 0 asteen kierto"
+
+#: ../../library/omv.csi.rst:355
+msgid "vflip=True,  hmirror=False, transpose=True  -> 90 degree rotation"
+msgstr "vflip=True,  hmirror=False, transpose=True  -> 90 asteen kierto"
+
+#: ../../library/omv.csi.rst:356
+msgid "vflip=True,  hmirror=True,  transpose=False -> 180 degree rotation"
+msgstr "vflip=True,  hmirror=True,  transpose=False -> 180 asteen kierto"
+
+#: ../../library/omv.csi.rst:357
+msgid "vflip=False, hmirror=True,  transpose=True  -> 270 degree rotation"
+msgstr "vflip=False, hmirror=True,  transpose=True  -> 270 asteen kierto"
+
+#: ../../library/omv.csi.rst:363
+msgid ""
+"Turns auto rotation mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Kytkee automaattisen kiertotilan päälle (\\ ``True``\\ ) tai pois (\\ "
+"``False``\\ ). Oletuksena pois päältä."
+
+#: ../../library/omv.csi.rst:369
+msgid ""
+"This method only works when the OpenMV Cam has an :py:mod:`imu` installed "
+"and is enabled automatically."
+msgstr ""
+"Tämä metodi toimii vain, kun OpenMV Camiin on asennettu :py:mod:`imu`\\ , ja"
+" se otetaan käyttöön automaattisesti."
+
+#: ../../library/omv.csi.rst:374
+msgid ""
+"Sets the number of frame buffers used to receive image data. By default the "
+"OpenMV Cam will try to allocate the maximum number of frame buffers it can. "
+"Reallocation occurs whenever `CSI.pixformat`, `CSI.framesize`, or "
+"`CSI.window` are called."
+msgstr ""
+"Asettaa kuvadatan vastaanottoon käytettävien kehyspuskureiden määrän. "
+"Oletuksena OpenMV Cam yrittää varata mahdollisimman monta kehyspuskuria. "
+"Uudelleenvaraus tapahtuu aina, kun `CSI.pixformat`\\ , `CSI.framesize` tai "
+"`CSI.window` kutsutaan."
+
+#: ../../library/omv.csi.rst:378
+msgid ""
+"``count`` of 1 (single buffer), 2 (double buffer), or 3 (triple buffer) "
+"selects the corresponding capture mode. Pass 4 or greater to put the driver "
+"into video FIFO mode where ``count`` buffers are queued --- useful for video"
+" recording to an SD card. On frame drop, all frame buffers except the active"
+" one are cleared so `CSI.snapshot` always returns a recent frame."
+msgstr ""
+"``count`` arvo 1 (yksi puskuri), 2 (kaksoispuskuri) tai 3 (kolmoispuskuri) "
+"valitsee vastaavan kaappaustilan. Anna 4 tai suurempi asettaaksesi ajurin "
+"video-FIFO-tilaan, jossa ``count`` puskuria asetetaan jonoon --- hyödyllistä"
+" videon tallennukseen SD-kortille. Kehyksen pudotessa kaikki kehyspuskurit "
+"aktiivista lukuun ottamatta tyhjennetään, joten `CSI.snapshot` palauttaa "
+"aina tuoreen kehyksen."
+
+#: ../../library/omv.csi.rst:384
+msgid "Returns the current count if called with no arguments."
+msgstr "Palauttaa nykyisen määrän, jos kutsutaan ilman argumentteja."
+
+#: ../../library/omv.csi.rst:388
+msgid ""
+"Sets the special digital effect (one of `csi.NORMAL` or `csi.NEGATIVE`)."
+msgstr ""
+"Asettaa erityisen digitaalisen tehosteen (yksi seuraavista: `csi.NORMAL` tai"
+" `csi.NEGATIVE`\\ )."
+
+#: ../../library/omv.csi.rst:394
+msgid ""
+"``enable`` ``True`` to enable, ``False`` to disable. ``radi`` integer radius"
+" of pixels to correct. ``coef`` power of correction."
+msgstr ""
+"``enable`` ``True`` ottaa käyttöön, ``False`` poistaa käytöstä. ``radi`` "
+"korjattavien pikseleiden säde kokonaislukuna. ``coef`` korjauksen "
+"voimakkuus."
+
+#: ../../library/omv.csi.rst:402
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame (but before the frame is received)."
+msgstr ""
+"Rekisteröi takaisinkutsun ``cb`` suoritettavaksi (keskeytyskontekstissa) "
+"aina, kun kameramoduuli generoi uuden kehyksen (mutta ennen kuin kehys "
+"vastaanotetaan)."
+
+#: ../../library/omv.csi.rst:405
+msgid ""
+"``cb`` takes one argument and is passed the current state of the vsync pin "
+"after changing."
+msgstr ""
+"``cb`` ottaa yhden argumentin, jolle välitetään vsync-nastan nykyinen tila "
+"muutoksen jälkeen."
+
+#: ../../library/omv.csi.rst:407 ../../library/omv.csi.rst:418
+msgid ""
+"Returns the registered callback if called with no arguments. Pass any non-"
+"callable to clear the callback."
+msgstr ""
+"Palauttaa rekisteröidyn takaisinkutsun, jos kutsutaan ilman argumentteja. "
+"Anna mikä tahansa ei-kutsuttava arvo tyhjentääksesi takaisinkutsun."
+
+#: ../../library/omv.csi.rst:412
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame and the frame is ready to be read via "
+"`CSI.snapshot`."
+msgstr ""
+"Rekisteröi takaisinkutsun ``cb`` suoritettavaksi (keskeytyskontekstissa) "
+"aina, kun kameramoduuli generoi uuden kehyksen ja kehys on valmis "
+"luettavaksi `CSI.snapshot`\\ -metodilla."
+
+#: ../../library/omv.csi.rst:415
+msgid ""
+"``cb`` takes no arguments. Use this to schedule reading a frame later with "
+"``micropython.schedule()``."
+msgstr ""
+"``cb`` ei ota argumentteja. Käytä tätä ajoittaaksesi kehyksen lukemisen "
+"myöhemmin ``micropython.schedule()``\\ -funktiolla."
+
+#: ../../library/omv.csi.rst:423
+msgid ""
+"Execute a sensor-specific request. ``request`` is one of the :data:`IOCTL_*`"
+" constants; the remaining positional arguments and the return value depend "
+"on the request. The supported requests are grouped by sensor family below."
+msgstr ""
+"Suorittaa kennokohtaisen pyynnön. ``request`` on yksi :data:`IOCTL_*`\\ "
+"-vakioista; loput positioargumentit ja paluuarvo riippuvat pyynnöstä. Tuetut"
+" pyynnöt on ryhmitelty kennoperheittäin alla."
+
+#: ../../library/omv.csi.rst:428
+msgid "**Generic (any sensor):**"
+msgstr "**Yleiset (mikä tahansa kenno):**"
+
+#: ../../library/omv.csi.rst:430
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:431
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:433
+msgid ""
+"Set the sensor readout window. A smaller window raises the frame rate at the"
+" cost of field-of-view."
+msgstr ""
+"Aseta kennon lukuikkuna. Pienempi ikkuna nostaa kehysnopeutta näkökentän "
+"kustannuksella."
+
+#: ../../library/omv.csi.rst:436
+msgid "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+msgstr "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+
+#: ../../library/omv.csi.rst:437
+msgid "Returns the current readout window as an ``(x, y, w, h)`` tuple."
+msgstr "Palauttaa nykyisen lukuikkunan ``(x, y, w, h)``\\ -monikkona."
+
+#: ../../library/omv.csi.rst:440
+msgid "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:441
+msgid ""
+"Enable (``True``) or disable (``False``) triggered mode on the MT9V034."
+msgstr ""
+"Ota käyttöön (\\ ``True``\\ ) tai poista käytöstä (\\ ``False``\\ ) "
+"liipaistu tila MT9V034:ssä."
+
+#: ../../library/omv.csi.rst:444
+msgid "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+msgstr "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+
+#: ../../library/omv.csi.rst:445
+msgid "Returns the current triggered-mode state as a ``bool``."
+msgstr "Palauttaa nykyisen liipaistun tilan tilan ``bool``\\ -arvona."
+
+#: ../../library/omv.csi.rst:447
+msgid "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+msgstr "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+
+#: ../../library/omv.csi.rst:448
+msgid ""
+"When ``True``, instruct :meth:`framesize` to optimize for field-of-view "
+"rather than frame rate."
+msgstr ""
+"Kun ``True``\\ , ohjeistaa :meth:`framesize`\\ -metodin optimoimaan "
+"näkökentän mukaan kehysnopeuden sijaan."
+
+#: ../../library/omv.csi.rst:451
+msgid "``ioctl(IOCTL_GET_FOV_WIDE)``"
+msgstr "``ioctl(IOCTL_GET_FOV_WIDE)``"
+
+#: ../../library/omv.csi.rst:452
+msgid "Returns the current FOV-wide state as a ``bool``."
+msgstr "Palauttaa nykyisen FOV-wide-tilan ``bool``\\ -arvona."
+
+#: ../../library/omv.csi.rst:454
+msgid "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:455
+msgid ""
+"Enable (``True``) or disable (``False``) the sensor's low-light \"night "
+"mode\". OV7725 and OV5640 only."
+msgstr ""
+"Ota käyttöön (\\ ``True``\\ ) tai poista käytöstä (\\ ``False``\\ ) kennon "
+"hämärän valon \"yötila\". Vain OV7725 ja OV5640."
+
+#: ../../library/omv.csi.rst:458
+msgid "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+msgstr "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+
+#: ../../library/omv.csi.rst:459
+msgid "Returns the current night-mode state as a ``bool``."
+msgstr "Palauttaa nykyisen yötilan tilan ``bool``\\ -arvona."
+
+#: ../../library/omv.csi.rst:461
+msgid "``ioctl(IOCTL_GET_RGB_STATS)``"
+msgstr "``ioctl(IOCTL_GET_RGB_STATS)``"
+
+#: ../../library/omv.csi.rst:462
+msgid ""
+"Returns a 4-tuple of raw RGB-channel statistics ``(r, gb, gr, b)`` read from"
+" the sensor (typically used for white-balance tuning)."
+msgstr ""
+"Palauttaa nelikon, joka sisältää kennolta luetut raa'at RGB-kanavien "
+"tilastot ``(r, gb, gr, b)`` (käytetään tyypillisesti valkotasapainon "
+"viritykseen)."
+
+#: ../../library/omv.csi.rst:466
+msgid "**OV5640 FPC -- auto-focus:**"
+msgstr "**OV5640 FPC -- automaattitarkennus:**"
+
+#: ../../library/omv.csi.rst:468
+msgid "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:469
+msgid "Start an auto-focus sweep on the OV5640 FPC module."
+msgstr "Käynnistä automaattitarkennuksen pyyhkäisy OV5640 FPC -moduulissa."
+
+#: ../../library/omv.csi.rst:471
+msgid "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:472
+msgid "Pause an in-progress auto-focus sweep."
+msgstr "Keskeytä käynnissä oleva automaattitarkennuksen pyyhkäisy."
+
+#: ../../library/omv.csi.rst:474
+msgid "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:475
+msgid "Reset the auto-focus position to the default."
+msgstr "Nollaa automaattitarkennuksen asema oletukseen."
+
+#: ../../library/omv.csi.rst:477
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:478
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+
+#: ../../library/omv.csi.rst:480
+msgid ""
+"Block until the current auto-focus sweep finishes. ``timeout_ms`` defaults "
+"to 5000 if omitted."
+msgstr ""
+"Estä, kunnes nykyinen automaattitarkennuksen pyyhkäisy on valmis. "
+"``timeout_ms`` on oletuksena 5000, jos jätetään pois."
+
+#: ../../library/omv.csi.rst:483
+msgid "**FLIR Lepton:**"
+msgstr "**FLIR Lepton:**"
+
+#: ../../library/omv.csi.rst:485
+msgid "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+
+#: ../../library/omv.csi.rst:486
+msgid "Returns the Lepton image width in pixels."
+msgstr "Palauttaa Lepton-kuvan leveyden pikseleinä."
+
+#: ../../library/omv.csi.rst:488
+msgid "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+
+#: ../../library/omv.csi.rst:489
+msgid "Returns the Lepton image height in pixels."
+msgstr "Palauttaa Lepton-kuvan korkeuden pikseleinä."
+
+#: ../../library/omv.csi.rst:491
+msgid "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+
+#: ../../library/omv.csi.rst:492
+msgid "Returns the Lepton's type (radiometric or not) as an int."
+msgstr "Palauttaa Leptonin tyypin (radiometrinen vai ei) kokonaislukuna."
+
+#: ../../library/omv.csi.rst:494
+msgid "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+
+#: ../../library/omv.csi.rst:495
+msgid "Returns the Lepton's refresh rate in Hz."
+msgstr "Palauttaa Leptonin virkistystaajuuden hertseinä (Hz)."
+
+#: ../../library/omv.csi.rst:497
+msgid "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+
+#: ../../library/omv.csi.rst:498
+msgid "Returns the Lepton's ADC resolution in bits."
+msgstr "Palauttaa Leptonin ADC-resoluution bitteinä."
+
+#: ../../library/omv.csi.rst:500
+msgid "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+msgstr "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+
+#: ../../library/omv.csi.rst:501
+msgid ""
+"Run a FLIR Lepton SDK command. ``cmd`` is the 16-bit command id defined by "
+"the SDK."
+msgstr ""
+"Suorita FLIR Lepton SDK -komento. ``cmd`` on SDK:n määrittelemä 16-bittinen "
+"komennon tunnus."
+
+#: ../../library/omv.csi.rst:504
+msgid "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+
+#: ../../library/omv.csi.rst:505
+msgid ""
+"Write a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``payload`` is a ``bytes``/``bytearray`` whose length must be a multiple of "
+"16 bits."
+msgstr ""
+"Kirjoita Lepton SDK -attribuutti. ``attr_id`` on 16-bittinen attribuutin "
+"tunnus; ``payload`` on ``bytes``\\ /\\ ``bytearray``\\ , jonka pituuden on "
+"oltava 16 bitin monikerta."
+
+#: ../../library/omv.csi.rst:509
+msgid "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+
+#: ../../library/omv.csi.rst:510
+msgid ""
+"Read a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``words`` is the number of 16-bit words to read. Returns a ``bytearray``."
+msgstr ""
+"Lue Lepton SDK -attribuutti. ``attr_id`` on 16-bittinen attribuutin tunnus; "
+"``words`` on luettavien 16-bittisten sanojen määrä. Palauttaa "
+"``bytearray``\\ -arvon."
+
+#: ../../library/omv.csi.rst:514
+msgid "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+
+#: ../../library/omv.csi.rst:515
+msgid "Returns the Lepton focal-plane-array temperature in degrees Celsius."
+msgstr ""
+"Palauttaa Leptonin polttotasomatriisin (FPA) lämpötilan celsiusasteina."
+
+#: ../../library/omv.csi.rst:518
+msgid "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+
+#: ../../library/omv.csi.rst:519
+msgid "Returns the Lepton auxiliary temperature in degrees Celsius."
+msgstr "Palauttaa Leptonin apulämpötilan celsiusasteina."
+
+#: ../../library/omv.csi.rst:522
+msgid "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+
+#: ../../library/omv.csi.rst:523
+msgid ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+msgstr ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+
+#: ../../library/omv.csi.rst:525
+msgid ""
+"Switch the Lepton between AGC and direct-temperature output. "
+"``measurement_enabled=True`` enables direct temperature output. The optional"
+" ``high_temp_enabled`` flag selects the high-temperature range."
+msgstr ""
+"Vaihda Lepton AGC:n ja suoran lämpötilatulosteen välillä. "
+"``measurement_enabled=True`` ottaa käyttöön suoran lämpötilatulosteen. "
+"Valinnainen ``high_temp_enabled``\\ -lippu valitsee korkean lämpötilan "
+"alueen."
+
+#: ../../library/omv.csi.rst:530
+msgid "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+
+#: ../../library/omv.csi.rst:531
+msgid "Returns a 2-tuple ``(measurement_enabled, high_temp_enabled)``."
+msgstr "Palauttaa kaksikon ``(measurement_enabled, high_temp_enabled)``\\ ."
+
+#: ../../library/omv.csi.rst:534
+msgid "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+
+#: ../../library/omv.csi.rst:535
+msgid ""
+"Set the temperature range mapped to ``0..255`` when measurement mode is "
+"enabled."
+msgstr ""
+"Aseta lämpötila-alue, joka kuvataan väliin ``0..255``\\ , kun mittaustila on"
+" käytössä."
+
+#: ../../library/omv.csi.rst:538
+msgid "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+
+#: ../../library/omv.csi.rst:539
+msgid "Returns the current ``(min_celsius, max_celsius)`` range."
+msgstr "Palauttaa nykyisen ``(min_celsius, max_celsius)``\\ -alueen."
+
+#: ../../library/omv.csi.rst:541
+msgid "**Himax HM01B0 -- motion detection:**"
+msgstr "**Himax HM01B0 -- liikkeentunnistus:**"
+
+#: ../../library/omv.csi.rst:543
+msgid "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:544
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's on-sensor motion-"
+"detection block."
+msgstr ""
+"Ota käyttöön (\\ ``True``\\ ) tai poista käytöstä (\\ ``False``\\ ) HM01B0:n"
+" kennossa oleva liikkeentunnistuslohko."
+
+#: ../../library/omv.csi.rst:547
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:548
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:550
+msgid "Set the motion-detection window on the HM01B0."
+msgstr "Aseta liikkeentunnistusikkuna HM01B0:ssa."
+
+#: ../../library/omv.csi.rst:552
+msgid "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+
+#: ../../library/omv.csi.rst:553
+msgid "Set the motion-detection threshold (``0`` -- ``255``)."
+msgstr "Aseta liikkeentunnistuksen kynnysarvo (\\ ``0`` -- ``255``\\ )."
+
+#: ../../library/omv.csi.rst:555
+msgid "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+
+#: ../../library/omv.csi.rst:556
+msgid "Clear the motion-detection interrupt latch."
+msgstr "Tyhjennä liikkeentunnistuksen keskeytyssalpa."
+
+#: ../../library/omv.csi.rst:558
+msgid "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:559
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's internal oscillator."
+msgstr ""
+"Ota käyttöön (\\ ``True``\\ ) tai poista käytöstä (\\ ``False``\\ ) HM01B0:n"
+" sisäinen oskillaattori."
+
+#: ../../library/omv.csi.rst:562
+msgid "**Prophesee GENX320 -- event sensor:**"
+msgstr "**Prophesee GENX320 -- tapahtumakenno:**"
+
+#: ../../library/omv.csi.rst:564
+msgid "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+
+#: ../../library/omv.csi.rst:565
+msgid ""
+"Apply a bias preset. ``preset`` is one of the :data:`GENX320_BIASES_*` "
+"constants."
+msgstr ""
+"Sovella bias-esiasetus. ``preset`` on yksi :data:`GENX320_BIASES_*`\\ "
+"-vakioista."
+
+#: ../../library/omv.csi.rst:568
+msgid "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+
+#: ../../library/omv.csi.rst:569
+msgid ""
+"Set a single bias. ``bias`` is one of the :data:`GENX320_BIAS_*` constants; "
+"``value`` is the integer setting."
+msgstr ""
+"Aseta yksittäinen bias. ``bias`` on yksi :data:`GENX320_BIAS_*`\\ "
+"-vakioista; ``value`` on kokonaislukuasetus."
+
+#: ../../library/omv.csi.rst:573
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+
+#: ../../library/omv.csi.rst:574
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+
+#: ../../library/omv.csi.rst:576
+msgid ""
+"Configure the anti-flicker filter. ``enable`` is a bool; the optional "
+"frequency arguments set the filter passband."
+msgstr ""
+"Määritä välkynnänestosuodatin. ``enable`` on bool; valinnaiset "
+"taajuusargumentit asettavat suodattimen päästökaistan."
+
+#: ../../library/omv.csi.rst:580
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+
+#: ../../library/omv.csi.rst:581
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+
+#: ../../library/omv.csi.rst:583
+msgid ""
+"Configure the spatio-temporal contrast filter. ``mode`` is one of the "
+":data:`GENX320_STC_*` constants; up to two further arguments are mode-"
+"specific."
+msgstr ""
+"Määritä spatiotemporaalinen kontrastisuodatin. ``mode`` on yksi "
+":data:`GENX320_STC_*`\\ -vakioista; enintään kaksi muuta argumenttia ovat "
+"tilakohtaisia."
+
+#: ../../library/omv.csi.rst:587
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+
+#: ../../library/omv.csi.rst:588
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+
+#: ../../library/omv.csi.rst:590
+msgid ""
+"Switch the sensor between frame and event modes. ``mode`` is one of the "
+":data:`GENX320_MODE_*` constants. For event mode, ``evt_res`` is the row-"
+"axis length of the event buffer passed to :data:`IOCTL_GENX320_READ_EVENTS`."
+msgstr ""
+"Vaihda kenno kehys- ja tapahtumatilojen välillä. ``mode`` on yksi "
+":data:`GENX320_MODE_*`\\ -vakioista. Tapahtumatilassa ``evt_res`` on "
+":data:`IOCTL_GENX320_READ_EVENTS`\\ -pyynnölle välitettävän "
+"tapahtumapuskurin rivisuunnan pituus."
+
+#: ../../library/omv.csi.rst:595
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+
+#: ../../library/omv.csi.rst:596
+msgid ""
+"Read events into ``buf``, a ``uint16`` ``ndarray`` of shape ``(EVT_res, 6)``"
+" where ``EVT_res`` is a power of two between 1024 and 65536. The columns "
+"are:"
+msgstr ""
+"Lue tapahtumat ``buf``\\ -puskuriin, joka on ``uint16``\\ -tyyppinen "
+"``ndarray`` muotoa ``(EVT_res, 6)``\\ , jossa ``EVT_res`` on kahden potenssi"
+" väliltä 1024--65536. Sarakkeet ovat:"
+
+#: ../../library/omv.csi.rst:600
+msgid ""
+"``[0]`` -- event type (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+msgstr ""
+"``[0]`` -- tapahtuman tyyppi (\\ :data:`PIX_OFF_EVENT` / "
+":data:`PIX_ON_EVENT` / liipaisin)."
+
+#: ../../library/omv.csi.rst:603
+msgid "``[1]`` -- seconds."
+msgstr "``[1]`` -- sekunnit."
+
+#: ../../library/omv.csi.rst:604
+msgid "``[2]`` -- milliseconds."
+msgstr "``[2]`` -- millisekunnit."
+
+#: ../../library/omv.csi.rst:605
+msgid "``[3]`` -- microseconds."
+msgstr "``[3]`` -- mikrosekunnit."
+
+#: ../../library/omv.csi.rst:606
+msgid "``[4]`` -- ``x`` coordinate."
+msgstr "``[4]`` -- ``x``\\ -koordinaatti."
+
+#: ../../library/omv.csi.rst:607
+msgid "``[5]`` -- ``y`` coordinate."
+msgstr "``[5]`` -- ``y``\\ -koordinaatti."
+
+#: ../../library/omv.csi.rst:609
+msgid "Returns the number of events written."
+msgstr "Palauttaa kirjoitettujen tapahtumien määrän."
+
+#: ../../library/omv.csi.rst:611
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+
+#: ../../library/omv.csi.rst:612
+msgid ""
+"Returns an :class:`image.Image` containing the raw event frame from the "
+"GENX320."
+msgstr ""
+"Palauttaa :class:`image.Image`\\ -olion, joka sisältää raa'an "
+"tapahtumakehyksen GENX320:lta."
+
+#: ../../library/omv.csi.rst:615
+msgid "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+msgstr "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+
+#: ../../library/omv.csi.rst:616
+msgid ""
+"Turn off pixels whose noise is more than ``sigma`` standard deviations from "
+"the normal distribution. ``iterations`` is the integer number of calibration"
+" passes. Returns the number of pixels disabled."
+msgstr ""
+"Kytke pois pikselit, joiden kohina on yli ``sigma`` keskihajontaa "
+"normaalijakaumasta. ``iterations`` on kalibrointikertojen määrä "
+"kokonaislukuna. Palauttaa pois kytkettyjen pikselien määrän."
+
+#: ../../library/omv.csi.rst:623
+msgid ""
+"Sets the color palette to use for things like FLIR Lepton grayscale to "
+"RGB565 conversion or GENX320 event visualization. One of "
+"`image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, and (when supported) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, or "
+"`image.PALETTE_EVT_LIGHT`."
+msgstr ""
+"Asettaa väripaletin, jota käytetään esimerkiksi FLIR Lepton -harmaasävyn "
+"muuntamiseen RGB565:ksi tai GENX320:n tapahtumien visualisointiin. Yksi "
+"seuraavista: `image.PALETTE_RAINBOW`\\ , `image.PALETTE_IRONBOW`\\ , ja (kun"
+" tuettu) `image.PALETTE_DEPTH`\\ , `image.PALETTE_EVT_DARK` tai "
+"`image.PALETTE_EVT_LIGHT`\\ ."
+
+#: ../../library/omv.csi.rst:632
+msgid "Write ``value`` to the camera register at ``address``."
+msgstr "Kirjoita ``value`` kameran rekisteriin osoitteessa ``address``\\ ."
+
+#: ../../library/omv.csi.rst:634 ../../library/omv.csi.rst:640
+msgid "See the camera data sheet for register info."
+msgstr "Katso rekisteritiedot kameran datalehdestä."
+
+#: ../../library/omv.csi.rst:638
+msgid "Read the camera register at ``address``."
+msgstr "Lue kameran rekisteri osoitteessa ``address``\\ ."
+
+#: ../../library/omv.csi.rst:643
+msgid "Functions"
+msgstr "Funktiot"
+
+#: ../../library/omv.csi.rst:647
+msgid "Returns a list of the detected sensor chip IDs."
+msgstr "Palauttaa listan havaituista kennojen sirutunnuksista."
+
+#: ../../library/omv.csi.rst:650
+msgid "Constants"
+msgstr "Vakiot"
+
+#: ../../library/omv.csi.rst:655
+msgid ""
+"BINARY (bitmap) pixel format. Each pixel is 1-bit. Useful for mask storage; "
+"can be used with `image.Image()`."
+msgstr ""
+"BINARY (bittikartta) -pikseliformaatti. Kukin pikseli on 1-bittinen. "
+"Hyödyllinen maskien tallennukseen; voidaan käyttää `image.Image()`\\ "
+"-funktion kanssa."
+
+#: ../../library/omv.csi.rst:661
+msgid "GRAYSCALE pixel format (Y from YUV422). Each pixel is 8-bits."
+msgstr ""
+"GRAYSCALE-pikseliformaatti (Y arvosta YUV422). Kukin pikseli on 8-bittinen."
+
+#: ../../library/omv.csi.rst:666
+msgid ""
+"RGB565 pixel format. Each pixel is 16-bits (5-bits red, 6-bits green, 5-bits"
+" blue)."
+msgstr ""
+"RGB565-pikseliformaatti. Kukin pikseli on 16-bittinen (5 bittiä punaista, 6 "
+"bittiä vihreää, 5 bittiä sinistä)."
+
+#: ../../library/omv.csi.rst:671
+msgid "RAW BAYER image pixel format."
+msgstr "RAW BAYER -kuvan pikseliformaatti."
+
+#: ../../library/omv.csi.rst:676
+msgid ""
+"YUV422 pixel format. Each pixel is stored as a grayscale 8-bit Y value "
+"followed by alternating 8-bit U/V color values shared between two Y values "
+"(Y1, U, Y2, V, ...). Only some image processing methods work with YUV422."
+msgstr ""
+"YUV422-pikseliformaatti. Kukin pikseli tallennetaan harmaasävyisenä "
+"8-bittisenä Y-arvona, jota seuraavat vuorottelevat 8-bittiset U/V-väriarvot,"
+" jotka jaetaan kahden Y-arvon kesken (Y1, U, Y2, V, ...). Vain osa "
+"kuvankäsittelymetodeista toimii YUV422:n kanssa."
+
+#: ../../library/omv.csi.rst:683
+msgid ""
+"JPEG mode. The camera module outputs compressed JPEG images. Use "
+"`CSI.quality` to control the JPEG quality. Only works for the OV2640/OV5640 "
+"cameras."
+msgstr ""
+"JPEG-tila. Kameramoduuli tuottaa pakattuja JPEG-kuvia. Käytä `CSI.quality`\\"
+" -asetusta JPEG-laadun säätämiseen. Toimii vain OV2640/OV5640-kameroille."
+
+#: ../../library/omv.csi.rst:689
+msgid "`CSI.cid` returns this for the OV2640 camera."
+msgstr "`CSI.cid` palauttaa tämän OV2640-kameralle."
+
+#: ../../library/omv.csi.rst:694
+msgid "`CSI.cid` returns this for the OV5640 camera."
+msgstr "`CSI.cid` palauttaa tämän OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:699
+msgid "`CSI.cid` returns this for the OV7670 camera."
+msgstr "`CSI.cid` palauttaa tämän OV7670-kameralle."
+
+#: ../../library/omv.csi.rst:704
+msgid "`CSI.cid` returns this for the OV7690 camera."
+msgstr "`CSI.cid` palauttaa tämän OV7690-kameralle."
+
+#: ../../library/omv.csi.rst:709
+msgid "`CSI.cid` returns this for the OV7725 camera."
+msgstr "`CSI.cid` palauttaa tämän OV7725-kameralle."
+
+#: ../../library/omv.csi.rst:714
+msgid "`CSI.cid` returns this for the OV9650 camera."
+msgstr "`CSI.cid` palauttaa tämän OV9650-kameralle."
+
+#: ../../library/omv.csi.rst:719
+msgid "`CSI.cid` returns this for the MT9V022 camera."
+msgstr "`CSI.cid` palauttaa tämän MT9V022-kameralle."
+
+#: ../../library/omv.csi.rst:724
+msgid "`CSI.cid` returns this for the MT9V024 camera."
+msgstr "`CSI.cid` palauttaa tämän MT9V024-kameralle."
+
+#: ../../library/omv.csi.rst:729
+msgid "`CSI.cid` returns this for the MT9V032 camera."
+msgstr "`CSI.cid` palauttaa tämän MT9V032-kameralle."
+
+#: ../../library/omv.csi.rst:734
+msgid "`CSI.cid` returns this for the MT9V034 camera."
+msgstr "`CSI.cid` palauttaa tämän MT9V034-kameralle."
+
+#: ../../library/omv.csi.rst:739
+msgid "`CSI.cid` returns this for the MT9M114 camera."
+msgstr "`CSI.cid` palauttaa tämän MT9M114-kameralle."
+
+#: ../../library/omv.csi.rst:744
+msgid "`CSI.cid` returns this for the BOSON 320x256 camera."
+msgstr "`CSI.cid` palauttaa tämän BOSON 320x256 -kameralle."
+
+#: ../../library/omv.csi.rst:749
+msgid "`CSI.cid` returns this for the BOSON 640x512 camera."
+msgstr "`CSI.cid` palauttaa tämän BOSON 640x512 -kameralle."
+
+#: ../../library/omv.csi.rst:754
+msgid "`CSI.cid` returns this for the LEPTON1/2/3 cameras."
+msgstr "`CSI.cid` palauttaa tämän LEPTON1/2/3-kameroille."
+
+#: ../../library/omv.csi.rst:759
+msgid "`CSI.cid` returns this for the HM01B0 camera."
+msgstr "`CSI.cid` palauttaa tämän HM01B0-kameralle."
+
+#: ../../library/omv.csi.rst:764
+msgid "`CSI.cid` returns this for the HM0360 camera."
+msgstr "`CSI.cid` palauttaa tämän HM0360-kameralle."
+
+#: ../../library/omv.csi.rst:769
+msgid "`CSI.cid` returns this for the GC2145 camera."
+msgstr "`CSI.cid` palauttaa tämän GC2145-kameralle."
+
+#: ../../library/omv.csi.rst:774
+msgid "`CSI.cid` returns this for the GENX320 (engineering sample) camera."
+msgstr "`CSI.cid` palauttaa tämän GENX320-kameralle (insinöörinäyte)."
+
+#: ../../library/omv.csi.rst:779
+msgid "`CSI.cid` returns this for the GENX320 camera."
+msgstr "`CSI.cid` palauttaa tämän GENX320-kameralle."
+
+#: ../../library/omv.csi.rst:784
+msgid "`CSI.cid` returns this for the PAG7920 camera."
+msgstr "`CSI.cid` palauttaa tämän PAG7920-kameralle."
+
+#: ../../library/omv.csi.rst:789
+msgid "`CSI.cid` returns this for the PAG7936 camera."
+msgstr "`CSI.cid` palauttaa tämän PAG7936-kameralle."
+
+#: ../../library/omv.csi.rst:794
+msgid "`CSI.cid` returns this for the PAJ6100 camera."
+msgstr "`CSI.cid` palauttaa tämän PAJ6100-kameralle."
+
+#: ../../library/omv.csi.rst:799
+msgid "`CSI.cid` returns this for the FROGEYE2020 camera."
+msgstr "`CSI.cid` palauttaa tämän FROGEYE2020-kameralle."
+
+#: ../../library/omv.csi.rst:804
+msgid "`CSI.cid` returns this for the software CSI camera."
+msgstr "`CSI.cid` palauttaa tämän ohjelmistopohjaiselle CSI-kameralle."
+
+#: ../../library/omv.csi.rst:809
+msgid "Normal mode for `CSI.special_effect`."
+msgstr "Normaalitila `CSI.special_effect`\\ -asetukselle."
+
+#: ../../library/omv.csi.rst:814
+msgid "Negative mode for `CSI.special_effect`."
+msgstr "Negatiivitila `CSI.special_effect`\\ -asetukselle."
+
+#: ../../library/omv.csi.rst:819
+msgid "176x144 resolution for the camera sensor."
+msgstr "176x144-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:824
+msgid "352x288 resolution for the camera sensor."
+msgstr "352x288-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:829
+msgid "176x120 resolution for the camera sensor."
+msgstr "176x120-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:834
+msgid "352x240 resolution for the camera sensor."
+msgstr "352x240-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:839
+msgid "80x60 resolution for the camera sensor."
+msgstr "80x60-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:844
+msgid "160x120 resolution for the camera sensor."
+msgstr "160x120-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:849
+msgid "320x240 resolution for the camera sensor."
+msgstr "320x240-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:854
+msgid "640x480 resolution for the camera sensor."
+msgstr "640x480-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:859
+msgid "240x160 resolution for the camera sensor."
+msgstr "240x160-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:864
+msgid "480x320 resolution for the camera sensor."
+msgstr "480x320-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:869
+msgid "720x480 resolution for the MT9V034 camera sensor."
+msgstr "720x480-resoluutio MT9V034-kennolle."
+
+#: ../../library/omv.csi.rst:874
+msgid "752x480 resolution for the MT9V034 camera sensor."
+msgstr "752x480-resoluutio MT9V034-kennolle."
+
+#: ../../library/omv.csi.rst:879
+msgid "800x600 resolution for the camera sensor."
+msgstr "800x600-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:884
+msgid "1024x768 resolution for the camera sensor."
+msgstr "1024x768-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:889
+msgid "1280x768 resolution for the MT9M114 camera sensor."
+msgstr "1280x768-resoluutio MT9M114-kennolle."
+
+#: ../../library/omv.csi.rst:894
+msgid ""
+"1280x1024 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "1280x1024-resoluutio kennolle. Toimii vain OV2640/OV5640-kameroille."
+
+#: ../../library/omv.csi.rst:899
+msgid "1280x960 resolution for the MT9M114 camera sensor."
+msgstr "1280x960-resoluutio MT9M114-kennolle."
+
+#: ../../library/omv.csi.rst:904
+msgid ""
+"1600x1200 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "1600x1200-resoluutio kennolle. Toimii vain OV2640/OV5640-kameroille."
+
+#: ../../library/omv.csi.rst:909
+msgid "1280x720 resolution for the camera sensor."
+msgstr "1280x720-resoluutio kennolle."
+
+#: ../../library/omv.csi.rst:914
+msgid ""
+"1920x1080 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "1920x1080-resoluutio kennolle. Toimii vain OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:919
+msgid ""
+"2560x1440 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "2560x1440-resoluutio kennolle. Toimii vain OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:924
+msgid ""
+"2048x1536 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "2048x1536-resoluutio kennolle. Toimii vain OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:929
+msgid ""
+"2560x1600 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "2560x1600-resoluutio kennolle. Toimii vain OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:934
+msgid ""
+"2592x1944 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "2592x1944-resoluutio kennolle. Toimii vain OV5640-kameralle."
+
+#: ../../library/omv.csi.rst:939
+msgid "Sets the readout window. See `CSI.ioctl`."
+msgstr "Asettaa lukuikkunan. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:944
+msgid "Gets the readout window. See `CSI.ioctl`."
+msgstr "Hakee lukuikkunan. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:949
+msgid "Sets triggered mode for the MT9V034. See `CSI.ioctl`."
+msgstr "Asettaa liipaistun tilan MT9V034:lle. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:954
+msgid "Gets the triggered mode state for the MT9V034. See `CSI.ioctl`."
+msgstr "Hakee liipaistun tilan tilan MT9V034:lle. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:959
+msgid ""
+"Enable `CSI.framesize` to optimize for field-of-view over FPS. See "
+"`CSI.ioctl`."
+msgstr ""
+"Ota `CSI.framesize` optimoimaan näkökentän mukaan FPS:n sijaan. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:964
+msgid ""
+"Returns whether `CSI.framesize` is optimizing for field-of-view over FPS. "
+"See `CSI.ioctl`."
+msgstr ""
+"Palauttaa, optimoiko `CSI.framesize` näkökentän mukaan FPS:n sijaan. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:969
+msgid "Trigger auto focus on the OV5640 FPC camera module. See `CSI.ioctl`."
+msgstr ""
+"Liipaise automaattitarkennus OV5640 FPC -kameramoduulissa. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:974
+msgid ""
+"Pause auto focus (while running) for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Keskeytä automaattitarkennus (käynnissä olevana) OV5640 FPC "
+"-kameramoduulissa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:979
+msgid ""
+"Reset auto focus to default for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Nollaa automaattitarkennus oletukseen OV5640 FPC -kameramoduulissa. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:984
+msgid ""
+"Wait for auto focus to finish on the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Odota automaattitarkennuksen valmistumista OV5640 FPC -kameramoduulissa. "
+"Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:989
+msgid ""
+"Turn night mode on or off. Reduces frame rate to increase exposure "
+"dynamically. See `CSI.ioctl`."
+msgstr ""
+"Kytke yötila päälle tai pois. Pienentää kehysnopeutta lisätäkseen valotusta "
+"dynaamisesti. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:994
+msgid "Returns whether night mode is enabled. See `CSI.ioctl`."
+msgstr "Palauttaa, onko yötila käytössä. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:999
+msgid ""
+"Returns the FLIR Lepton image resolution width in pixels. See `CSI.ioctl`."
+msgstr ""
+"Palauttaa FLIR Lepton -kuvan resoluution leveyden pikseleinä. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1004
+msgid ""
+"Returns the FLIR Lepton image resolution height in pixels. See `CSI.ioctl`."
+msgstr ""
+"Palauttaa FLIR Lepton -kuvan resoluution korkeuden pikseleinä. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1009
+msgid "Returns the FLIR Lepton type (radiometric or not). See `CSI.ioctl`."
+msgstr ""
+"Palauttaa FLIR Lepton -tyypin (radiometrinen vai ei). Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1014
+msgid "Returns the FLIR Lepton refresh rate in Hz. See `CSI.ioctl`."
+msgstr ""
+"Palauttaa FLIR Lepton -virkistystaajuuden hertseinä (Hz). Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1019
+msgid "Returns the FLIR Lepton ADC resolution in bits. See `CSI.ioctl`."
+msgstr "Palauttaa FLIR Lepton -ADC-resoluution bitteinä. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1024
+msgid "Executes a 16-bit command from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Suorittaa 16-bittisen komennon FLIR Lepton SDK:sta. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1029
+msgid ""
+"Sets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Asettaa FLIR Lepton -attribuutin FLIR Lepton SDK:sta. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1034
+msgid ""
+"Gets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Hakee FLIR Lepton -attribuutin FLIR Lepton SDK:sta. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1039
+msgid "Gets the FLIR Lepton FPA temp in Celsius. See `CSI.ioctl`."
+msgstr "Hakee FLIR Lepton -FPA-lämpötilan celsiusasteina. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1044
+msgid "Gets the FLIR Lepton AUX temp in Celsius. See `CSI.ioctl`."
+msgstr "Hakee FLIR Lepton -AUX-lämpötilan celsiusasteina. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1049
+msgid ""
+"Sets the FLIR Lepton driver into a mode where each pixel is a temperature "
+"value. See `CSI.ioctl`."
+msgstr ""
+"Asettaa FLIR Lepton -ajurin tilaan, jossa kukin pikseli on lämpötila-arvo. "
+"Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1055
+msgid ""
+"Returns whether measurement mode is enabled for the FLIR Lepton sensor. See "
+"`CSI.ioctl`."
+msgstr ""
+"Palauttaa, onko mittaustila käytössä FLIR Lepton -kennolle. Katso "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1060
+msgid ""
+"Sets the temperature range mapped to pixel values in measurement mode. See "
+"`CSI.ioctl`."
+msgstr ""
+"Asettaa lämpötila-alueen, joka kuvataan pikseliarvoiksi mittaustilassa. "
+"Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1065
+msgid ""
+"Returns the temperature range used for measurement mode. See `CSI.ioctl`."
+msgstr ""
+"Palauttaa mittaustilassa käytettävän lämpötila-alueen. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1070
+msgid ""
+"Controls the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Ohjaa liikkeentunnistuksen keskeytystä HM01B0:ssa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1075
+msgid "Sets the motion detection window on the HM01B0. See `CSI.ioctl`."
+msgstr "Asettaa liikkeentunnistusikkunan HM01B0:ssa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1080
+msgid "Sets the motion detection threshold on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Asettaa liikkeentunnistuksen kynnysarvon HM01B0:ssa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1085
+msgid "Clears the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Tyhjentää liikkeentunnistuksen keskeytyksen HM01B0:ssa. Katso `CSI.ioctl`\\ "
+"."
+
+#: ../../library/omv.csi.rst:1090
+msgid "Controls the internal oscillator on the HM01B0. See `CSI.ioctl`."
+msgstr "Ohjaa sisäistä oskillaattoria HM01B0:ssa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1095
+msgid "Returns the RGB statistics from the camera sensor. See `CSI.ioctl`."
+msgstr "Palauttaa RGB-tilastot kennolta. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1100
+msgid ""
+"Sets the GENX320 sensor biases to one of the ``GENX320_BIASES_*`` presets. "
+"See `CSI.ioctl`. After `CSI.reset` the driver applies "
+"`csi.GENX320_BIASES_LOW_NOISE`, not `csi.GENX320_BIASES_DEFAULT` --- use "
+"this ioctl to switch to a different preset when the application needs more "
+"sensitivity or bandwidth."
+msgstr ""
+"Asettaa GENX320-kennon biasit yhdeksi ``GENX320_BIASES_*``\\ "
+"-esiasetuksista. Katso `CSI.ioctl`\\ . `CSI.reset`\\ -kutsun jälkeen ajuri "
+"soveltaa esiasetusta `csi.GENX320_BIASES_LOW_NOISE`\\ , ei "
+"`csi.GENX320_BIASES_DEFAULT` --- käytä tätä ioctl-kutsua vaihtaaksesi eri "
+"esiasetukseen, kun sovellus tarvitsee lisää herkkyyttä tai kaistanleveyttä."
+
+#: ../../library/omv.csi.rst:1110
+msgid ""
+"GenX320 datasheet defaults --- balanced sensitivity, noise, and bandwidth "
+"for general scenes."
+msgstr ""
+"GenX320:n datalehden oletukset --- tasapainotettu herkkyys, kohina ja "
+"kaistanleveys yleisiin näkymiin."
+
+#: ../../library/omv.csi.rst:1116
+msgid ""
+"Tuned for low-light conditions --- both contrast thresholds loosened for "
+"higher sensitivity, FO lowered, HPF disabled so slow brightness changes "
+"still register."
+msgstr ""
+"Viritetty hämärän valon olosuhteisiin --- molempia kontrastikynnyksiä on "
+"löysennetty suuremman herkkyyden saavuttamiseksi, FO on laskettu, HPF on "
+"poistettu käytöstä, jotta hitaat kirkkauden muutokset rekisteröityvät "
+"edelleen."
+
+#: ../../library/omv.csi.rst:1123
+msgid ""
+"Tuned for tracking high-contrast blinking LEDs (active markers) --- contrast"
+" thresholds raised so only sharp transitions trigger, FO and HPF cranked "
+"high to maximize bandwidth and reject slow ambient drift, REFR=0 so every "
+"blink edge is captured."
+msgstr ""
+"Viritetty seuraamaan korkeakontrastisia vilkkuvia LEDejä (aktiivisia "
+"merkkejä) --- kontrastikynnyksiä on nostettu niin, että vain terävät "
+"siirtymät laukaisevat, FO ja HPF on viritetty korkealle maksimoidakseen "
+"kaistanleveyden ja hylätäkseen hitaan ympäristön ajautumisen, REFR=0 niin "
+"että jokainen vilkkureuna kaapataan."
+
+#: ../../library/omv.csi.rst:1131
+msgid ""
+"Driver default --- lower sensitivity than ``DEFAULT`` (raised contrast "
+"thresholds) and a lower FO for less background-noise activity. Best for "
+"static or slow scenes where false events would dominate."
+msgstr ""
+"Ajurin oletus --- pienempi herkkyys kuin ``DEFAULT`` (nostetut "
+"kontrastikynnykset) ja pienempi FO vähemmän taustakohina-aktiivisuuden "
+"vuoksi. Paras staattisille tai hitaille näkymille, joissa virhetapahtumat "
+"dominoisivat."
+
+#: ../../library/omv.csi.rst:1139
+msgid ""
+"Tuned for fast-motion scenes --- higher FO for wider pixel bandwidth, higher"
+" HPF to reject slow changes, higher REFR for a longer dead time after each "
+"event so the readout doesn't saturate."
+msgstr ""
+"Viritetty nopean liikkeen näkymiin --- korkeampi FO laajempaa "
+"pikselikaistanleveyttä varten, korkeampi HPF hitaiden muutosten "
+"hylkäämiseksi, korkeampi REFR pidempää kuollutta aikaa varten kunkin "
+"tapahtuman jälkeen, jotta luku ei kyllästy."
+
+#: ../../library/omv.csi.rst:1147
+msgid ""
+"Sets a single GENX320 sensor bias to a DAC value. Pass a ``GENX320_BIAS_*`` "
+"constant (`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, or `csi.GENX320_BIAS_REFR`) "
+"and an integer DAC value. Each bias is independent --- call this ioctl "
+"repeatedly to tweak only the biases you need after applying a preset. See "
+"`CSI.ioctl`."
+msgstr ""
+"Asettaa yksittäisen GENX320-kennon biasin DAC-arvoksi. Anna "
+"``GENX320_BIAS_*``\\ -vakio (\\ `csi.GENX320_BIAS_DIFF_OFF`\\ , "
+"`csi.GENX320_BIAS_DIFF_ON`\\ , `csi.GENX320_BIAS_FO`\\ , "
+"`csi.GENX320_BIAS_HPF` tai `csi.GENX320_BIAS_REFR`\\ ) ja kokonaisluku-DAC-"
+"arvo. Kukin bias on itsenäinen --- kutsu tätä ioctl-kutsua toistuvasti "
+"säätääksesi vain tarvitsemiasi biaseja esiasetuksen soveltamisen jälkeen. "
+"Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1158
+msgid ""
+"Negative comparator contrast threshold --- controls how much a pixel has to "
+"darken before a `csi.PIX_OFF_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Negatiivisen komparaattorin kontrastikynnys --- ohjaa, kuinka paljon "
+"pikselin on tummennuttava ennen kuin `csi.PIX_OFF_EVENT` laukeaa. Pienempi "
+"arvo = herkempi (enemmän tapahtumia)."
+
+#: ../../library/omv.csi.rst:1165
+msgid ""
+"Positive comparator contrast threshold --- controls how much a pixel has to "
+"brighten before a `csi.PIX_ON_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Positiivisen komparaattorin kontrastikynnys --- ohjaa, kuinka paljon "
+"pikselin on kirkastuttava ennen kuin `csi.PIX_ON_EVENT` laukeaa. Pienempi "
+"arvo = herkempi (enemmän tapahtumia)."
+
+#: ../../library/omv.csi.rst:1172
+msgid ""
+"Pixel low-pass cut-off frequency --- trades pixel bandwidth (speed/latency) "
+"against background-noise activity. Higher value = faster pixel response, "
+"more noise."
+msgstr ""
+"Pikselin alipäästön rajataajuus --- tasapainottaa pikselin kaistanleveyttä "
+"(nopeus/viive) taustakohina-aktiivisuutta vasten. Korkeampi arvo = nopeampi "
+"pikselivaste, enemmän kohinaa."
+
+#: ../../library/omv.csi.rst:1179
+msgid ""
+"Pixel high-pass cut-off frequency --- rejects slow brightness changes. "
+"Higher value = slower changes filtered out (only fast transitions register)."
+msgstr ""
+"Pikselin ylipäästön rajataajuus --- hylkää hitaat kirkkauden muutokset. "
+"Korkeampi arvo = hitaat muutokset suodatetaan pois (vain nopeat siirtymät "
+"rekisteröityvät)."
+
+#: ../../library/omv.csi.rst:1186
+msgid ""
+"Pixel refractory period --- dead time after a pixel emits an event during "
+"which it cannot fire again. Higher value = longer dead time, fewer events "
+"from a busy pixel."
+msgstr ""
+"Pikselin lepoaika (refractory) --- kuollut aika sen jälkeen, kun pikseli "
+"lähettää tapahtuman, jonka aikana se ei voi laueta uudelleen. Korkeampi arvo"
+" = pidempi kuollut aika, vähemmän tapahtumia kiireiseltä pikseliltä."
+
+#: ../../library/omv.csi.rst:1193
+msgid ""
+"Sets the GENX320 anti-flicker (AFK) filter, which rejects events from pixels"
+" toggling at a periodic frequency band (fluorescent lighting, LED-driven "
+"displays, etc.). Pass ``enable`` (1 to enable, 0 to disable) and, when "
+"enabling, the band edges in hertz: ``(enable, freq_low_hz, freq_high_hz)``. "
+"See `CSI.ioctl`."
+msgstr ""
+"Asettaa GENX320:n välkynnänesto- (AFK) suodattimen, joka hylkää tapahtumat "
+"pikseleiltä, jotka vaihtelevat jaksollisella taajuuskaistalla "
+"(loisteputkivalaistus, LED-ohjatut näytöt jne.). Anna ``enable`` (1 ottaa "
+"käyttöön, 0 poistaa käytöstä) ja, käyttöön otettaessa, kaistan reunat "
+"hertseinä: ``(enable, freq_low_hz, freq_high_hz)``\\ . Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1203
+msgid ""
+"Sets the GENX320 spatio-temporal contrast (STC) filter mode. Pass a "
+"``GENX320_STC_*`` constant (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) followed by the threshold(s) the mode requires (in "
+"milliseconds). See `CSI.ioctl`."
+msgstr ""
+"Asettaa GENX320:n spatiotemporaalisen kontrastin (STC) suodattimen tilan. "
+"Anna ``GENX320_STC_*``\\ -vakio (\\ `csi.GENX320_STC_DISABLE`\\ , "
+"`csi.GENX320_STC_ONLY`\\ , `csi.GENX320_STC_TRAIL_ONLY`\\ , "
+"`csi.GENX320_STC_TRAIL`\\ ), jota seuraavat tilan vaatimat kynnysarvo(t) "
+"(millisekunteina). Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1213
+msgid "Disable the GENX320 STC/trail filter --- every event passes through."
+msgstr ""
+"Poista käytöstä GENX320:n STC/trail-suodatin --- jokainen tapahtuma menee "
+"läpi."
+
+#: ../../library/omv.csi.rst:1219
+msgid ""
+"*Keeps the second event of a burst*; drops the first event and any later "
+"events. Takes one parameter, ``stc_threshold`` in milliseconds --- events "
+"within that window of a prior event on the same pixel are considered part of"
+" the same burst."
+msgstr ""
+"*Säilyttää purskeen toisen tapahtuman*\\ ; pudottaa ensimmäisen tapahtuman "
+"ja kaikki myöhemmät tapahtumat. Ottaa yhden parametrin, ``stc_threshold`` "
+"millisekunteina --- tapahtumat, jotka osuvat tähän ikkunaan saman pikselin "
+"aiemmasta tapahtumasta, katsotaan osaksi samaa purskettä."
+
+#: ../../library/omv.csi.rst:1227
+msgid ""
+"*Keeps the first event of a burst*; drops subsequent events on the same "
+"pixel until ``trail_threshold`` has elapsed. Takes one parameter, "
+"``trail_threshold`` in milliseconds."
+msgstr ""
+"*Säilyttää purskeen ensimmäisen tapahtuman*\\ ; pudottaa myöhemmät "
+"tapahtumat samalta pikseliltä, kunnes ``trail_threshold`` on kulunut. Ottaa "
+"yhden parametrin, ``trail_threshold`` millisekunteina."
+
+#: ../../library/omv.csi.rst:1234
+msgid ""
+"*Keeps the first event of a burst plus subsequent edges* --- combines "
+"`csi.GENX320_STC_ONLY` and `csi.GENX320_STC_TRAIL_ONLY`. Takes two "
+"parameters, ``stc_threshold`` and ``trail_threshold`` (both ms); the sensor "
+"requires the two to stay within roughly a 13:1 ratio."
+msgstr ""
+"*Säilyttää purskeen ensimmäisen tapahtuman sekä myöhemmät reunat* --- "
+"yhdistää `csi.GENX320_STC_ONLY` ja `csi.GENX320_STC_TRAIL_ONLY`\\ . Ottaa "
+"kaksi parametria, ``stc_threshold`` ja ``trail_threshold`` (molemmat ms); "
+"kenno vaatii näiden pysyvän suunnilleen 13:1-suhteen sisällä."
+
+#: ../../library/omv.csi.rst:1243
+msgid ""
+"Sets the GENX320 operating mode. Pass `csi.GENX320_MODE_HISTO` for the on-"
+"chip event histogram (the cam behaves like a regular grayscale camera at the"
+" configured framerate) or `csi.GENX320_MODE_EVENT` followed by the row-axis "
+"length of the event ``ndarray`` (a power of two between 1024 and 65536) for "
+"raw event streaming. See `CSI.ioctl`."
+msgstr ""
+"Asettaa GENX320:n toimintatilan. Anna `csi.GENX320_MODE_HISTO` kennolla "
+"olevaa tapahtumahistogrammia varten (kamera käyttäytyy kuten tavallinen "
+"harmaasävykamera määritetyllä kehysnopeudella) tai "
+"`csi.GENX320_MODE_EVENT`\\ , jota seuraa tapahtuma-\\ ``ndarray``\\ :n "
+"rivisuunnan pituus (kahden potenssi väliltä 1024--65536) raa'an "
+"tapahtumavirran lähetystä varten. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1253
+msgid ""
+"Histogram mode --- events are accumulated on-chip into per-pixel bins and "
+"reported as a 320x320 grayscale frame at the configured rate (~20-350 FPS). "
+"The cam looks like a regular camera, so all the standard image-processing "
+"routines work directly."
+msgstr ""
+"Histogrammitila --- tapahtumat kerätään kennolla pikselikohtaisiin "
+"lokeroihin ja raportoidaan 320x320-harmaasävykehyksenä määritetyllä "
+"nopeudella (~20--350 FPS). Kamera näyttää tavalliselta kameralta, joten "
+"kaikki tavanomaiset kuvankäsittelyrutiinit toimivat suoraan."
+
+#: ../../library/omv.csi.rst:1262
+msgid ""
+"Event mode --- bypasses the on-chip histogram and streams raw events into a "
+"numpy ``ndarray`` with microsecond timestamps, for applications that need "
+"full temporal detail rather than a pre-binned frame."
+msgstr ""
+"Tapahtumatila --- ohittaa kennolla olevan histogrammin ja lähettää raa'at "
+"tapahtumat numpy-\\ ``ndarray``\\ :hin mikrosekuntiaikaleimoilla "
+"sovelluksille, jotka tarvitsevat täyden ajallisen yksityiskohdan ennalta "
+"lokeroidun kehyksen sijaan."
+
+#: ../../library/omv.csi.rst:1270
+msgid ""
+"Reads raw events into a uint16 ``ndarray`` of shape ``(EVT_res, 6)`` (with "
+"``EVT_res`` matching the buffer size passed to "
+"`csi.IOCTL_GENX320_SET_MODE`). The columns are ``[0]`` event type "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` seconds timestamp, ``[2]`` milliseconds, ``[3]`` microseconds, "
+"``[4]`` X coord (0-319), ``[5]`` Y coord (0-319). Returns the number of "
+"events written into the buffer, leaving older rows beyond that count "
+"untouched. See `CSI.ioctl`."
+msgstr ""
+"Lukee raa'at tapahtumat uint16-\\ ``ndarray``\\ :hin muotoa ``(EVT_res, 6)``"
+" (jossa ``EVT_res`` vastaa `csi.IOCTL_GENX320_SET_MODE`\\ -kutsulle "
+"välitettyä puskurin kokoa). Sarakkeet ovat ``[0]`` tapahtuman tyyppi (\\ "
+"`csi.PIX_OFF_EVENT`\\ , `csi.PIX_ON_EVENT`\\ , `csi.EXT_TRIGGER_RISING`\\ "
+"/\\ ``FALLING``\\ , `csi.RST_TRIGGER_RISING`\\ /\\ ``FALLING``\\ ), ``[1]`` "
+"sekuntiaikaleima, ``[2]`` millisekunnit, ``[3]`` mikrosekunnit, ``[4]`` "
+"X-koordinaatti (0--319), ``[5]`` Y-koordinaatti (0--319). Palauttaa "
+"puskuriin kirjoitettujen tapahtumien määrän jättäen sen määrän ylittävät "
+"vanhemmat rivit koskemattomiksi. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1284
+msgid ""
+"Automatically disables hot pixels --- pixels that fire spuriously even on a "
+"static scene. The driver builds a 320x320 per-pixel hit count, computes the "
+"mean and standard deviation, and disables any pixel whose count exceeds "
+"``mean + sigma * stddev``. Pass an event-count budget (events to tally "
+"before computing statistics --- higher = more reliable estimate, slower; "
+"~10000 is a good default) and a sigma float (lower = more aggressive, ~0.5 "
+"default). Returns the number of pixels disabled. Aim the cam at a static "
+"scene first so motion-driven events don't get counted against pixels that "
+"are actually fine. See `CSI.ioctl`."
+msgstr ""
+"Poistaa automaattisesti käytöstä kuumat pikselit --- pikselit, jotka "
+"laukeavat virheellisesti jopa staattisessa näkymässä. Ajuri rakentaa "
+"320x320-pikselikohtaisen osumalaskurin, laskee keskiarvon ja keskihajonnan, "
+"ja poistaa käytöstä kaikki pikselit, joiden laskuri ylittää ``mean + sigma *"
+" stddev``\\ . Anna tapahtumamäärän budjetti (laskettavat tapahtumat ennen "
+"tilastojen laskemista --- korkeampi = luotettavampi arvio, hitaampi; ~10000 "
+"on hyvä oletus) ja sigma-liukuluku (pienempi = aggressiivisempi, ~0,5 "
+"oletus). Palauttaa pois käytöstä poistettujen pikselien määrän. Suuntaa "
+"kamera ensin staattiseen näkymään, jotta liikkeen aiheuttamat tapahtumat "
+"eivät kirjaudu sellaisia pikseleitä vastaan, jotka ovat itse asiassa "
+"kunnossa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1299
+msgid ""
+"Returns a raw event-frame `image.Image` from the GENX320, with the events "
+"still in the chip's native packed encoding --- useful if you want to forward"
+" the raw stream to a PC for off-line decoding rather than process it on the "
+"cam. See `CSI.ioctl`."
+msgstr ""
+"Palauttaa raa'an tapahtumakehyksen `image.Image`\\ -oliona GENX320:lta, "
+"tapahtumat edelleen sirun alkuperäisessä pakatussa koodauksessa --- "
+"hyödyllinen, jos haluat välittää raa'an virran PC:lle offline-purkua varten "
+"sen sijaan, että käsittelisit sen kamerassa. Katso `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1308
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"decrease (the negative-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- pikseli havaitsi "
+"kirkkauden vähenemisen (negatiivisen kontrastin kynnys ylittyi). Sarakkeet "
+"``[4]/[5]`` kantavat pikselin X/Y:n."
+
+#: ../../library/omv.csi.rst:1315
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"increase (the positive-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- pikseli havaitsi "
+"kirkkauden lisääntymisen (positiivisen kontrastin kynnys ylittyi). Sarakkeet"
+" ``[4]/[5]`` kantavat pikselin X/Y:n."
+
+#: ../../library/omv.csi.rst:1322
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, rising edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- pikselin "
+"nollausliipaisin, nouseva reuna. X/Y eivät ole käytössä. Laiteohjelmisto ei "
+"generoi tätä tällä hetkellä."
+
+#: ../../library/omv.csi.rst:1329
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, falling edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- pikselin "
+"nollausliipaisin, laskeva reuna. X/Y eivät ole käytössä. Laiteohjelmisto ei "
+"generoi tätä tällä hetkellä."
+
+#: ../../library/omv.csi.rst:1336
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a rising edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- kennon ulkoinen "
+"liipaisinnasta havaitsi nousevan reunan. GENX320:n ulkoinen liipaisintulo on"
+" kytketty kameran kehyssynkronointilinjaan, joka on reititetty myös "
+"prosessorin **P10**\\ -nastaan ja nastariviin. X/Y eivät ole käytössä."
+
+#: ../../library/omv.csi.rst:1345
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a falling edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320:n tapahtuman tyyppi (sarake ``[0]``\\ ) --- kennon ulkoinen "
+"liipaisinnasta havaitsi laskevan reunan. GENX320:n ulkoinen liipaisintulo on"
+" kytketty kameran kehyssynkronointilinjaan, joka on reititetty myös "
+"prosessorin **P10**\\ -nastaan ja nastariviin. X/Y eivät ole käytössä."
