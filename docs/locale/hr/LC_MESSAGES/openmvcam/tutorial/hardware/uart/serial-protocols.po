@@ -1,0 +1,573 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hr <LL@li.org>\n"
+"Language: hr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Serijski protokoli, uokvirivanje i CRC-ovi"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` premjestio je bajtove između dvaju krajeva. Sam po sebi, to"
+" nije dovoljno za izgradnju pouzdane veze. Tri se problema pojavljuju u "
+"trenutku kada se na drugom kraju žice nalazi stvarni uređaj:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Gdje poruka počinje i završava?** Bajtovi stižu u toku bez ugrađenog "
+"razdjelnika. Ako prijemnik propusti prvi bajt (uključen nakon pošiljatelja; "
+"kratak električni poremećaj na liniji), svaki bajt nakon njega pomaknut je "
+"za jedan sve dok prijemnik ne pronađe novu točku ponovne sinkronizacije."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Koliko je duga svaka poruka?** Očitanje senzora od 32 bajta i statusni "
+"odgovor od 4 bajta izgledaju jednako na razini bajtova. Prijemniku je "
+"potreban način da zna koliko bajtova pripada trenutnoj poruci."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Jesu li bajtovi stigli neoštećeni?** Šum može preokrenuti pojedinačne "
+"bitove. Bez provjere, prijemnik spremno djeluje na temelju oštećenih "
+"podataka."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Standardni odgovor na sva tri problema jest umotati podatke u okvir paketa: "
+"poznati niz bajtova na početku, polje duljine, sam korisni sadržaj te "
+"kontrolni zbroj na kraju."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Uokvirivanje paketa"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Tipičan format uokvirivanja:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Šest polja prikazanih u nizu: dvobajtni HEADER\n"
+"označen kao 0xAA 0x55, jednobajtno polje CMD koje odabire\n"
+"koju naredbu ovaj paket prenosi, dvobajtno polje LEN\n"
+"koje daje veličinu korisnog sadržaja, jednobajtno polje HCRC koje\n"
+"pokriva HEADER plus CMD plus LEN, korisni sadržaj PAYLOAD\n"
+"promjenjive duljine od LEN bajtova čiji format ovisi o CMD,\n"
+"te četverobajtno polje DCRC koje pokriva korisni sadržaj."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Uokvireni paket s odvojenim CRC-ovima zaglavlja i podataka: zaglavlje "
+"(magični bajtovi), naredba, duljina, CRC zaglavlja, korisni sadržaj, CRC "
+"podataka."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Svako polje obavlja jedan posao:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Zaglavlje (magični bajtovi).** Fiksan, neuobičajen niz bajtova -- često "
+"dva bajta poput ``0xAA 0x55`` -- koji prijemnik traži u dolaznom toku. Kada "
+"pronađe taj niz, zna da počinje novi paket i može odbaciti sve smeće koje je"
+" stiglo prije."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Naredba.** Pojedinačni bajt koji govori *što* paket jest. Različite "
+"vrijednosti naredbe koriste različite formate korisnog sadržaja -- jedna "
+"naredba može značiti \"postavi kut servomotora\" s dva bajta korisnog "
+"sadržaja, druga može značiti \"očitaj senzor\" bez korisnog sadržaja, a "
+"treća može biti \"zabilježi poruku\" s nizom znakova. Prijemnik se na "
+"temelju bajta naredbe odlučuje kako interpretirati ostatak paketa."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Duljina.** Dva bajta koja daju veličinu korisnog sadržaja u bajtovima "
+"(ovdje little-endian), dopuštajući korisni sadržaj do otprilike 64 KiB. "
+"Prijemnik čita točno toliko bajtova nakon što je CRC zaglavlja provjeren."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**CRC zaglavlja.** Jednobajtni kontrolni zbroj nad poljima HEADER, CMD i "
+"LEN. Prijemnik ga provjerava prije čitanja bilo kakvog korisnog sadržaja, "
+"tako da se oštećeni LEN uhvati već nakon nekolicine bajtova (pogledajte "
+"odjeljak o CRC-u u nastavku za razlog zašto je to važno)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Korisni sadržaj.** Aplikacijski podaci specifični za naredbu, dugi točno "
+"LEN bajtova. Format je određen bajtom naredbe: zapis spakiran pomoću "
+":mod:`struct` od polja fiksne širine, niz znakova, sirova memorija -- što "
+"god obje strane dogovore za tu naredbu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**CRC podataka.** Četverobajtni CRC nad bajtovima korisnog sadržaja. "
+"Prijemnik ga ponovno izračunava iz bajtova koje je upravo pročitao i "
+"odbacuje paket ako se ne podudara."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC-ovi"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"Najjednostavniji \"kontrolni zbroj\" jest zbroj svih bajtova, modulo 256 ili"
+" 65536. Hvata većinu jednobitnih preokreta, ali propušta mnoge višebitne "
+"pogreške i zanemaruje redoslijed bajtova."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"*Ciklička provjera redundancije* (CRC) standardna je nadogradnja. Ona "
+"tretira ulaz kao jedan dugačak binarni broj i dijeli ga (na poseban način) "
+"fiksnim *polinomom*\\ ; ostatak dijeljenja je CRC. Različiti polinomi "
+"hvataju različite klase pogrešaka; uobičajeni 8-, 16- i 32-bitni polinomi "
+"svaki hvataju svaki niz pogrešaka kraći od njihove širine plus veliki dio "
+"dužih nizova."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Zašto dva CRC-a"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"Dijagram paketa iznad nosi *dva* odvojena CRC-a -- jedan nad zaglavljem "
+"(HEADER, CMD, LEN) i jedan nad korisnim sadržajem. Upravo to robusno "
+"uokvirivanje zapravo treba, zbog načina na koji jedan jedini završni CRC "
+"zakaže kada se samo polje LEN ošteti tijekom prijenosa:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Prijemnik djeluje na temelju oštećenog LEN-a i čita toliko bajtova s žice --"
+" možda daleko više nego što je pošiljatelj namjeravao."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Tek završni CRC naposljetku javlja prijemniku da je nešto pošlo po zlu, i to"
+" tek nakon što su svi ti bajtovi potrošeni."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Dok parser čeka pogrešan broj bajtova, stvarni paketi koji stižu iza "
+"oštećenog bivaju progutani kao korisni sadržaj, pa prijemnik gubi nekoliko "
+"paketa umjesto samo jednoga."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "Razdvajanje CRC-a rješava ovo:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**CRC zaglavlja** pokriva HEADER, CMD i LEN. Prijemnik ga provjerava prije "
+"čitanja bilo kakvog korisnog sadržaja, tako da se oštećeni LEN uhvati nakon "
+"nekolicine bajtova, a parser se odmah ponovno sinkronizira, obarajući samo "
+"taj jedan loš paket."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**CRC podataka** pokriva korisni sadržaj. Nakon što CRC zaglavlja prođe, "
+"prijemnik zna da može vjerovati LEN-u, čita točno toliko bajtova korisnog "
+"sadržaja i provjerava ih prema CRC-u podataka."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"Uobičajeno dimenzioniranje -- i ono koje ova stranica koristi -- jest jedan "
+"bajt za CRC zaglavlja (CRC-8 je sasvim dovoljan za petobajtno zaglavlje) i "
+"četiri bajta za CRC podataka (CRC-32 pokriva mnogo kilobajta korisnog "
+"sadržaja s iščezavajuće niskom stopom kolizije)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Pomoćne funkcije"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython isporučuje :func:`binascii.crc32` izravno za četverobajtni CRC. "
+"Za jednobajtni CRC zaglavlja, mala pomoćna funkcija koja koristi polinom "
+"kakav koriste Maximovi 1-wire uređaji (\\ ``0x8C`` u reflektiranom obliku) "
+"dovoljno je kratka da se napiše ugrađeno:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "Potpuni koder kombinira dva CRC-a u jednoj funkciji:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Inverzna funkcija oporavlja naredbu i korisni sadržaj iz potpunog paketa, "
+"ili vraća ``None`` ako bilo koja CRC provjera ne uspije:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"U praksi prijemnik ne dobiva cijeli paket predan u ruke -- bajtovi stižu "
+"jedan po jedan preko UART-a, a pošiljatelj koji zastane usred paketa (ili "
+"bučna linija koja izgubi bajt) ne može se jednostavno ``read()``\\ -ati u "
+"međuspremnik prave veličine. Sljedeći odjeljak provodi istu logiku "
+"dekodiranja bajt po bajt kao stroj stanja."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "Prijemnik kao stroj stanja"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Prijemnik ne može jednostavno pozvati ``uart.read(N)`` za neki fiksni ``N`` "
+"-- ne zna koliko će bajtova imati sljedeći paket, a bilo kakvo smeće na "
+"liniji izbacuje poravnanje iz takta. Rješenje je mali stroj stanja koji "
+"troši bajtove jedan po jedan i reagira ovisno o tome gdje se nalazi u "
+"paketu. Glavna petlja ispituje :meth:`~machine.UART.any` kako bi vidjela "
+"koliko je bajtova u međuspremniku, isprazni ih u jednom pozivu "
+":meth:`~machine.UART.read` te svaki bajt provodi kroz stroj stanja:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Svaki bajt pomiče stroj stanja za jedan korak, ili se vraća na "
+"``HUNT_FOR_HEADER`` nakon potpunog paketa, lošeg CRC-a zaglavlja ili lošeg "
+"CRC-a podataka. Smeće na liniji koje se ne podudara sa zaglavljem tiho se "
+"odbacuje; sljedeće valjano zaglavlje ponovno sinkronizira prijemnik. Ključno"
+" sigurnosno svojstvo dolazi od CRC-a zaglavlja: ako je polje LEN oštećeno, "
+"parser to uhvati nakon provjere CRC-a zaglavlja (nekolicina bajtova), a ne "
+"nakon što se obveže pročitati posve pogrešan broj bajtova korisnog sadržaja."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Iznad osnovne razine"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Gore opisano uokvirivanje *minimum* je koji serijskoj vezi treba za oporavak"
+" od šuma na liniji: magični bajtovi zaglavlja, duljina, naredba i dva CRC-a."
+" Otkriva oštećenja i ponovno se sinkronizira nakon izobličenih bajtova, ali "
+"odustaje od oštećenih paketa umjesto da ih progura, a pošiljatelja ostavlja "
+"bez ikakve predodžbe o tome što je prijemnik zapravo čuo."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Serijski protokoli iz stvarnog svijeta slažu značajke povrh te osnovne "
+"razine. Ne treba svakoj ugrađenoj vezi sve od njih -- odaberite ono što "
+"aplikacija zapravo zahtijeva:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Redni brojevi.** Mali brojač koji se uvećava pri svakom slanju. Prijemnik "
+"otkriva praznine (paket je izgubljen), duplikate (pošiljatelj je ponovno "
+"prenio, ali je prijemnik već prihvatio prvu kopiju) te -- gdje kanal može "
+"preurediti -- dolaske izvan redoslijeda."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Potvrde.** Namjenski ACK paket (ili pridruženi bit u odgovoru) koji "
+"prijemnik šalje natrag kako bi potvrdio svaki paket. Bez ACK-ova pošiljatelj"
+" nema načina znati da su njegovi podaci stigli."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Negativne potvrde.** NACK koji se šalje kada prijemnik vidi neuspjeh CRC-a"
+" ili prazninu u rednim brojevima. Pošiljatelj odmah ponovno prenosi, umjesto"
+" da čeka istek vremenskog ograničenja ACK-a."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Ponovni prijenos.** Pošiljatelj zadržava svaki nepotvrđeni paket u maloj "
+"redu i ponovno ga šalje nakon isteka vremenskog ograničenja (ili na NACK). "
+"Ograničenje broja pokušaja i određeno odgađanje između pokušaja sprječavaju "
+"trajno pokvarenu vezu da se vrti zauvijek."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Klizni prozori.** Dopuštanje nekoliko paketa u letu prije nego se zatraži "
+"ACK održava propusnost visokom na vezama gdje je vrijeme povratnog puta dugo"
+" u usporedbi s vremenom slanja po paketu. Cijena je više stanja na strani "
+"pošiljatelja -- jedno mjesto po paketu u letu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Kontrola toka.** Signal od prijemnika koji govori pošiljatelju da uspori "
+"ili zastane kada se njegov međuspremnik puni. Implementacije variraju -- "
+"eksplicitni XON / XOFF bajtovi, dodjele temeljene na kreditima gdje "
+"prijemnik odjednom licencira N dodatnih paketa, ili hardverske RTS / CTS "
+"linije na samoj žici. Bez kontrole toka brz pošiljatelj naposljetku preplavi"
+" spor prijemnik i paketi se odbacuju."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Verzija protokola.** Polje verzije rano u paketu omogućuje formatu da se "
+"razvija. Svaka strana može pri pokretanju ispregovarati najvišu verziju koju"
+" obje podržavaju, ili odbiti pakete od nekompatibilnih sudionika."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Fragmentacija i ponovno sastavljanje.** Dvobajtni LEN ograničava paket na "
+"64 KiB; poruke veće od toga dijele se na više paketa i ponovno sastavljaju "
+"na drugoj strani. Metapodaci o fragmentaciji (indeks fragmenta, ukupni broj "
+"ili oznaka \"još fragmenata\") žive unutar korisnog sadržaja."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Otkucaji srca.** Mali periodični paket koji govori \"još sam tu\". Druga "
+"strana primijeti kada otkucaji prestanu i ponovno se poveže (ili glasno "
+"zakaže) umjesto da tiho visi."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Kanali.** Identifikator kanala ili toka u zaglavlju kako bi jedna fizička "
+"veza nosila nekoliko logičkih tokova -- upravljački kanal, telemetrijski "
+"kanal, kanal zapisa -- razlikovanih samo tim poljem."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Autentikacija.** Kratka oznaka izračunata iz korisnog sadržaja i tajne "
+"vrijednosti koju znaju samo legitimni pošiljatelj i prijemnik. Prijemnik "
+"ponovno izračunava oznaku iz bajtova koje je primio i odbacuje paket ako se "
+"dvije ne podudaraju. Ovo hvata i neovlašteno mijenjanje (napadač je "
+"izmijenio bajtove) i -- ako su redni broj ili vremenska oznaka dio onoga što"
+" oznaka pokriva -- ponavljanje, gdje napadač snimi stvarni paket s žice i "
+"ponovno ga pošalje kasnije kako bi naveo prijemnik da na temelju njega "
+"djeluje dvaput."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Šifriranje.** Razmrsivanje bajtova korisnog sadržaja zajedničkim tajnim "
+"ključem tako da svatko tko čita liniju bez tog ključa vidi samo šum. Obično "
+"se kombinira s gore opisanom oznakom autentikacije -- bez nje, napadač može "
+"dovesti smeće koje slučajno prođe CRC, pa prijemnik troši cikluse "
+"pokušavajući dešifrirati besmislice."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Tipičan \"dobar\" protokol za industrijsku opremu naposljetku dolazi s "
+"uokvirivanjem, dvostrukim CRC-om, rednim brojevima, ACK / NACK s ponovnim "
+"prijenosom te otkucajima srca. Primjeri iz stvarnog svijeta vrijedni "
+"pogleda: *MAVLink* (telemetrija dronova, s rednim brojevima, ID-ovima "
+"sustava / komponenti i opcionalnim potpisima paketa), *Modbus* (industrijski"
+" PLC-ovi, s funkcijskim kodovima i CRC-om) te *NMEA 0183* (ASCII protokol "
+"koji govori svaki potrošački GPS prijemnik -- poruke temeljene na linijama s"
+" kontrolnim zbrojem nakon razdjelnika zvjezdice)."
