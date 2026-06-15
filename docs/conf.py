@@ -352,6 +352,17 @@ html_context["languages"] = [
     ("Italiano",  "/it/%s.html",    "it"),
     ("Português", "/pt_BR/%s.html", "pt-BR"),
     ("Nederlands","/nl/%s.html",    "nl"),
+    ("Română",    "/ro/%s.html",    "ro"),
+    ("Hrvatski",  "/hr/%s.html",    "hr"),
+    ("Čeština",   "/cs/%s.html",    "cs"),
+    ("Polski",    "/pl/%s.html",    "pl"),
+    ("Suomi",     "/fi/%s.html",    "fi"),
+    ("Svenska",   "/sv/%s.html",    "sv"),
+    ("Magyar",    "/hu/%s.html",    "hu"),
+    ("Türkçe",    "/tr/%s.html",    "tr"),
+    # RTL — added in Step 4b only after the layout check passes:
+    # ("עברית",    "/he/%s.html",    "he"),
+    # ("العربية",  "/ar/%s.html",    "ar"),
 ]
 
 # There are two options for replacing |today|: either, you set today to some

@@ -16,7 +16,10 @@
   "use strict";
 
   // Language subdirectories that actually exist (mirror conf.py languages).
-  var SUBDIRS = ["zh_CN", "zh_TW", "de", "ja", "es", "ru", "fr", "ko", "it", "pt_BR", "nl"];
+  // he/ar are translated but intentionally excluded until their RTL layout is
+  // verified (kept out of conf.py's switcher too); add them here at the same time.
+  var SUBDIRS = ["zh_CN", "zh_TW", "de", "ja", "es", "ru", "fr", "ko", "it", "pt_BR", "nl",
+                 "ro", "hr", "cs", "pl", "fi", "sv", "hu", "tr"];
 
   // Browser locale prefix (lowercased BCP-47) -> subdirectory.
   // Ordered most-specific first so e.g. "zh-tw" beats the generic "zh".
@@ -25,7 +28,10 @@
     ["zh-hans", "zh_CN"], ["zh-cn", "zh_CN"], ["zh-sg", "zh_CN"], ["zh", "zh_CN"],
     ["pt-br", "pt_BR"], ["pt", "pt_BR"],
     ["de", "de"], ["ja", "ja"], ["es", "es"], ["ru", "ru"],
-    ["fr", "fr"], ["ko", "ko"], ["it", "it"], ["nl", "nl"]
+    ["fr", "fr"], ["ko", "ko"], ["it", "it"], ["nl", "nl"],
+    ["ro", "ro"], ["hr", "hr"], ["cs", "cs"], ["pl", "pl"],
+    ["fi", "fi"], ["sv", "sv"], ["hu", "hu"], ["tr", "tr"]
+    // RTL (add with switcher once layout verified): ["he","he"], ["ar","ar"]
   ];
 
   var STORE_KEY = "omvLangPref"; // "en" or a subdir; set on manual switch.

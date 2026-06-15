@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ro <LL@li.org>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:2
+msgid "Multiple sensors"
+msgstr "Senzori multipli"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:4
+msgid ""
+"A handful of OpenMV Cams pair two image sensors on the same board -- most "
+"commonly a colour camera alongside a FLIR® Lepton® thermal sensor, but the "
+"same shape applies to the colour-plus-event boards and any future dual-"
+"sensor hardware. Each sensor has its own pixel array, its own control bus, "
+"and runs its own pipeline at its own frame rate. The :class:`~csi.CSI` API "
+"extends to cover them by letting the application instantiate one "
+":class:`~csi.CSI` object per physical sensor."
+msgstr ""
+"Câteva camere OpenMV Cam asociază doi senzori de imagine pe aceeași placă --"
+" cel mai frecvent o cameră color alături de un senzor termic FLIR® Lepton®, "
+"dar aceeași structură se aplică și plăcilor color-plus-event și oricărui "
+"viitor hardware cu doi senzori. Fiecare senzor are propriul său grilaj de "
+"pixeli, propria sa magistrală de control și rulează propriul flux la propria"
+" rată de cadre. API-ul :class:`~csi.CSI` se extinde pentru a le acoperi, "
+"permițând aplicației să instanțieze câte un obiect :class:`~csi.CSI` pentru "
+"fiecare senzor fizic."
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:15
+msgid "Selecting which sensor"
+msgstr "Selectarea senzorului"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:17
+msgid ""
+"The :class:`~csi.CSI` constructor takes a ``cid`` argument that names a "
+"specific sensor on the board. ``cid=-1`` (the default) selects the *primary*"
+" sensor; the named ``cid`` constants select a secondary by chip ID::"
+msgstr ""
+"Constructorul :class:`~csi.CSI` acceptă un argument ``cid`` care denumește "
+"un senzor specific de pe placă. ``cid=-1`` (valoarea implicită) selectează "
+"senzorul *principal*\\ ; constantele ``cid`` denumite selectează un senzor "
+"secundar după ID-ul cipului::"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:27
+msgid ""
+"Each instance owns its own configuration -- pixel format, framesize, "
+"exposure / gain knobs, framebuffer pool -- and is reset, configured, and "
+"read independently of the other. The constants for the supported secondary "
+"sensors (:data:`~csi.LEPTON`, :data:`~csi.GENX320`, and the others listed in"
+" the :class:`~csi.CSI` reference) name the chip the application expects on "
+"the secondary port; the driver fails the construction if the actual chip "
+"does not match."
+msgstr ""
+"Fiecare instanță deține propria configurație -- format de pixel, framesize, "
+"comenzi de expunere / amplificare (gain), rezervă de tampoane de cadre -- și"
+" este resetată, configurată și citită independent de cealaltă. Constantele "
+"pentru senzorii secundari acceptați (\\ :data:`~csi.LEPTON`\\ , "
+":data:`~csi.GENX320` și celelalte enumerate în referința :class:`~csi.CSI`\\"
+" ) denumesc cipul pe care aplicația îl așteaptă pe portul secundar; driverul"
+" eșuează construcția dacă cipul efectiv nu corespunde."
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:37
+msgid "Capturing from both sensors"
+msgstr "Captura de la ambii senzori"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:39
+msgid ""
+"Each sensor runs its capture pipeline independently of the other -- the "
+"colour sensor might deliver thirty frames a second while the Lepton® "
+"delivers nine. The straightforward way to handle that mismatch is to let the"
+" *faster* sensor drive the loop and read the slower sensor non-blockingly, "
+"taking whatever is ready and skipping the iteration when nothing is::"
+msgstr ""
+"Fiecare senzor își rulează fluxul de captură independent de celălalt -- "
+"senzorul color ar putea livra treizeci de cadre pe secundă, în timp ce "
+"Lepton® livrează nouă. Modalitatea simplă de a gestiona această nepotrivire "
+"este de a lăsa senzorul *mai rapid* să conducă bucla și de a citi senzorul "
+"mai lent în mod neblocant, preluând orice este disponibil și sărind peste "
+"iterație atunci când nu este nimic::"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:70
+msgid ""
+"The blocking :meth:`~csi.CSI.snapshot` paces the loop; the non-blocking one "
+"returns the most recent thermal frame when a fresh one has landed since the "
+"previous call, and ``None`` otherwise. The application keeps running at the "
+"colour sensor's frame rate and gets a thermal frame whenever the Lepton® "
+"produces one."
+msgstr ""
+"Metoda blocantă :meth:`~csi.CSI.snapshot` ritmizează bucla; cea neblocantă "
+"returnează cel mai recent cadru termic atunci când a sosit unul nou de la "
+"apelul anterior, și ``None`` în caz contrar. Aplicația continuă să ruleze la"
+" rata de cadre a senzorului color și primește un cadru termic ori de câte "
+"ori Lepton® produce unul."
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:77
+msgid ""
+"The opposite pattern -- two blocking snapshots back to back -- works too, "
+"but the loop then runs at the *slower* of the two sensors' rates, with the "
+"faster sensor's pipeline stalling between iterations. Pick whichever rate "
+"the application's downstream processing actually wants to drive."
+msgstr ""
+"Tiparul opus -- două instantanee blocante consecutive -- funcționează și el,"
+" însă bucla rulează atunci la cea *mai lentă* dintre ratele celor doi "
+"senzori, fluxul senzorului mai rapid stagnând între iterații. Alegeți rata "
+"pe care procesarea ulterioară a aplicației dorește cu adevărat să o impună."
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:84
+msgid "Reset on shared power rails"
+msgstr "Resetarea pe linii de alimentare partajate"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:86
+msgid ""
+"Some dual-sensor boards run both chips off a single power rail or share a "
+"reset line. On those, the first :meth:`~csi.CSI.reset` brings the rail up "
+"and pulses the shared signal; subsequent resets on the other "
+":class:`~csi.CSI` instances should pass ``hard=False`` so they reprogram "
+"only their own chip without dragging the neighbour through a reset::"
+msgstr ""
+"Unele plăci cu doi senzori alimentează ambele cipuri de pe o singură linie "
+"de alimentare sau partajează o linie de resetare. Pe acestea, prima "
+":meth:`~csi.CSI.reset` ridică linia și emite un impuls pe semnalul partajat;"
+" resetările ulterioare pe celelalte instanțe :class:`~csi.CSI` ar trebui să "
+"transmită ``hard=False`` astfel încât să își reprogrameze doar propriul cip "
+"fără a antrena vecinul printr-o resetare::"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:97
+msgid ""
+"A ``hard=True`` on a secondary in this shape would re-reset the primary as a"
+" side effect, undoing any setup the application had already pushed. The "
+"reference page for each dual-sensor board calls out whether the rails are "
+"shared."
+msgstr ""
+"Un ``hard=True`` pe un senzor secundar în această structură ar reseta din "
+"nou senzorul principal ca efect secundar, anulând orice configurație pe care"
+" aplicația o aplicase deja. Pagina de referință a fiecărei plăci cu doi "
+"senzori indică dacă liniile sunt partajate."
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:103
+msgid "Selecting the stream source"
+msgstr "Selectarea sursei fluxului"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:105
+msgid ""
+"Cameras with two sensors have two :class:`~csi.CSI` instances but still only"
+" one stream framebuffer between them. A constructor argument picks which "
+"sensor's frames feed the preview::"
+msgstr ""
+"Camerele cu doi senzori au două instanțe :class:`~csi.CSI`\\ , dar tot un "
+"singur tampon de cadre pentru flux între ele. Un argument al constructorului"
+" alege cadrele cărui senzor alimentează previzualizarea::"
+
+#: ../../openmvcam/tutorial/vision/advanced/multi-sensor.rst:114
+msgid ""
+"``stream=True`` makes the named instance the source. With no ``stream=`` "
+"argument the primary sensor (``cid=-1``, the default) is the source; "
+"instances built with ``cid=`` of a secondary sensor stay silent on the "
+"preview unless ``stream=True`` is passed explicitly. Calls to "
+":meth:`~csi.CSI.snapshot` on the non-selected sensor still capture frames "
+"into that sensor's framebuffers normally -- they just do not update the "
+"preview."
+msgstr ""
+"``stream=True`` face din instanța denumită sursa. Fără argumentul "
+"``stream=``\\ , senzorul principal (\\ ``cid=-1``\\ , valoarea implicită) "
+"este sursa; instanțele construite cu ``cid=`` al unui senzor secundar rămân "
+"tăcute în previzualizare, cu excepția cazului în care ``stream=True`` este "
+"transmis explicit. Apelurile :meth:`~csi.CSI.snapshot` pe senzorul "
+"neselectat capturează în continuare cadre în tampoanele de cadre ale acelui "
+"senzor în mod normal -- doar că nu actualizează previzualizarea."
