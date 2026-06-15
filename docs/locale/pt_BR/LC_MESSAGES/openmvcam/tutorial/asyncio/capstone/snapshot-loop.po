@@ -1,0 +1,185 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pt_BR <LL@li.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:2
+msgid "AsyncCSI"
+msgstr "AsyncCSI"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:4
+msgid ""
+"A typical OpenMV Cam script ends in ``while True: img = csi0.snapshot()`` --"
+" a blocking snapshot loop that does not need asyncio at all. The moment the "
+"application has to do *something else* alongside captures -- listen for a "
+"button, send data to a peer, run a background task -- the blocking call gets"
+" in the way. While ``snapshot`` is waiting on the next frame the event loop "
+"is not running, so every other coroutine in the program is frozen until the "
+"frame arrives."
+msgstr ""
+"Um script típico da OpenMV Cam termina em ``while True: img = "
+"csi0.snapshot()`` -- um laço de snapshot bloqueante que não precisa de "
+"asyncio nenhum. No momento em que a aplicação precisa fazer *outra coisa* "
+"paralelamente às capturas -- escutar um botão, enviar dados para um par, "
+"executar uma tarefa em segundo plano -- a chamada bloqueante atrapalha. "
+"Enquanto ``snapshot`` aguarda o próximo quadro, o laço de eventos não está "
+"em execução, de modo que todas as outras corrotinas do programa ficam "
+"congeladas até o quadro chegar."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:14
+msgid ""
+"This page builds a small wrapper around :class:`~csi.CSI` that turns "
+"``snapshot`` into an :keyword:`await`-friendly coroutine. The result is a "
+"drop-in replacement that lets a capture loop coexist with the rest of an "
+"asyncio program."
+msgstr ""
+"Esta página constrói um pequeno wrapper em torno de :class:`~csi.CSI` que "
+"transforma ``snapshot`` em uma corrotina compatível com :keyword:`await`\\ ."
+" O resultado é um substituto direto que permite que um laço de captura "
+"coexista com o restante de um programa asyncio."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:20
+msgid "The pieces"
+msgstr "As peças"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:22
+msgid ""
+"One piece of the :class:`~csi.CSI` API does most of the work -- "
+":meth:`~csi.CSI.snapshot` in its non-blocking mode. Calling "
+"``snapshot(blocking=False)`` either returns the next frame (if one is ready)"
+" or :data:`None` (if not). The first non-blocking call also *starts* the "
+"camera's DMA capture if it wasn't already running, so the wrapper does not "
+"have to do anything special to bootstrap."
+msgstr ""
+"Uma parte da API de :class:`~csi.CSI` faz a maior parte do trabalho -- "
+":meth:`~csi.CSI.snapshot` em seu modo não bloqueante. Chamar "
+"``snapshot(blocking=False)`` retorna o próximo quadro (se houver um pronto) "
+"ou :data:`None` (caso contrário). A primeira chamada não bloqueante também "
+"*inicia* a captura por DMA da câmera, caso ainda não esteja em execução, de "
+"modo que o wrapper não precisa fazer nada de especial para iniciar."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:30
+msgid ""
+"The other piece is :func:`asyncio.sleep_ms`. The wrapper polls non-blocking "
+"snapshots in a loop, yielding to the event loop with ``await "
+"asyncio.sleep_ms(0)`` between checks so every other ready coroutine gets a "
+"chance to run before the next poll."
+msgstr ""
+"A outra parte é :func:`asyncio.sleep_ms`\\ . O wrapper consulta snapshots "
+"não bloqueantes em um laço, cedendo o controle ao laço de eventos com "
+"``await asyncio.sleep_ms(0)`` entre as verificações, para que todas as "
+"outras corrotinas prontas tenham a chance de executar antes da próxima "
+"consulta."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:37
+msgid "The wrapper"
+msgstr "O wrapper"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:59
+msgid ""
+"The constructor wraps a :class:`~csi.CSI` instance. ``__getattr__`` forwards"
+" every attribute the wrapper does not itself define -- ``reset``, "
+"``pixformat``, ``framesize``, all the :doc:`sensor knobs "
+"<../../vision/csi/sensor-knobs>` -- to the underlying :class:`~csi.CSI`, so "
+"the wrapper looks identical to the unwrapped object except for the one "
+"method that matters."
+msgstr ""
+"O construtor envolve uma instância de :class:`~csi.CSI`\\ . ``__getattr__`` "
+"encaminha cada atributo que o próprio wrapper não define -- ``reset``\\ , "
+"``pixformat``\\ , ``framesize``\\ , todos os :doc:`controles do sensor "
+"<../../vision/csi/sensor-knobs>` -- para o :class:`~csi.CSI` subjacente, de "
+"modo que o wrapper parece idêntico ao objeto original, exceto pelo único "
+"método que importa."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:67
+msgid ""
+"``async def snapshot`` is the new piece. It calls "
+"``snapshot(blocking=False)``; if the call returns an image, the coroutine "
+"returns it. Otherwise it yields back to the event loop with ``await "
+"asyncio.sleep_ms(0)`` so other coroutines get a chance to run, then loops "
+"back and tries again. The first iteration starts the DMA; subsequent "
+"iterations pick up frames as they become available."
+msgstr ""
+"``async def snapshot`` é a parte nova. Ele chama "
+"``snapshot(blocking=False)``\\ ; se a chamada retornar uma imagem, a "
+"corrotina a retorna. Caso contrário, ela cede o controle de volta ao laço de"
+" eventos com ``await asyncio.sleep_ms(0)`` para que outras corrotinas tenham"
+" a chance de executar e, em seguida, repete o laço e tenta novamente. A "
+"primeira iteração inicia o DMA; as iterações seguintes captam os quadros à "
+"medida que ficam disponíveis."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:76
+msgid "A snapshot loop with company"
+msgstr "Um laço de snapshot acompanhado"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:78
+msgid ""
+"With the wrapper in place, a snapshot loop fits into a larger asyncio "
+"program the same way any other coroutine does. The example below runs three "
+"coroutines concurrently: the capture loop, an LED blinker, and a heartbeat "
+"that prints ``hello`` once a second::"
+msgstr ""
+"Com o wrapper no lugar, um laço de snapshot se encaixa em um programa "
+"asyncio maior da mesma forma que qualquer outra corrotina. O exemplo abaixo "
+"executa três corrotinas simultaneamente: o laço de captura, um piscador de "
+"LED e um heartbeat que imprime ``hello`` uma vez por segundo::"
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:118
+msgid ""
+"All three coroutines make progress on the same event loop. While "
+"``capture_loop`` is yielding between non-blocking snapshot polls, "
+"``blinker`` toggles the LED and ``hello`` prints. While ``blinker`` and "
+"``hello`` are sleeping, ``capture_loop`` polls the camera. The polling "
+"interval is short -- a single event-loop tick -- so it adds negligible "
+"latency to when the application sees a new frame."
+msgstr ""
+"Todas as três corrotinas avançam no mesmo laço de eventos. Enquanto "
+"``capture_loop`` cede o controle entre as consultas de snapshot não "
+"bloqueantes, ``blinker`` alterna o LED e ``hello`` imprime. Enquanto "
+"``blinker`` e ``hello`` estão dormindo, ``capture_loop`` consulta a câmera. "
+"O intervalo de consulta é curto -- um único tick do laço de eventos -- de "
+"modo que adiciona uma latência desprezível ao momento em que a aplicação vê "
+"um novo quadro."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:126
+msgid ""
+"The capture loop does *not* block the event loop. Adding more concurrent "
+"work -- a UART client, for instance -- is just another "
+":func:`~asyncio.create_task` call inside ``main``."
+msgstr ""
+"O laço de captura *não* bloqueia o laço de eventos. Adicionar mais trabalho "
+"simultâneo -- um cliente UART, por exemplo -- é apenas mais uma chamada de "
+":func:`~asyncio.create_task` dentro de ``main``\\ ."
+
+#: ../../openmvcam/tutorial/asyncio/capstone/snapshot-loop.rst:133
+msgid ""
+"The :doc:`framebuffers <../../vision/csi/framebuffers>` setting still "
+"matters in this shape. Single-buffer mode makes ``snapshot(blocking=False)``"
+" return ``None`` until the next frame is captured; double or triple "
+"buffering smooths that over so that the wrapper usually finds a buffered "
+"frame waiting on the first poll after the previous frame has been processed."
+msgstr ""
+"A configuração de :doc:`framebuffers <../../vision/csi/framebuffers>` ainda "
+"importa neste formato. O modo de buffer único faz com que "
+"``snapshot(blocking=False)`` retorne ``None`` até o próximo quadro ser "
+"capturado; o buffer duplo ou triplo suaviza isso, de modo que o wrapper "
+"geralmente encontra um quadro em buffer aguardando na primeira consulta após"
+" o quadro anterior ter sido processado."

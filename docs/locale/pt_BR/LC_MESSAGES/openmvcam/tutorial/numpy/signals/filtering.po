@@ -1,0 +1,270 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pt_BR <LL@li.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:2
+msgid "Filtering and spectrograms"
+msgstr "Filtragem e espectrogramas"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:4
+msgid ""
+"Filtering, smoothing, and magnitude spectra are the adjacent jobs to a raw "
+"FFT: smoothing or band-pass-filtering a stream of samples, computing "
+"magnitude spectra in a streaming loop without allocating, and re-"
+"interpreting raw peripheral buffers as float arrays. The available tools:"
+msgstr ""
+"Filtragem, suavização e espectros de magnitude são as tarefas adjacentes a "
+"uma FFT bruta: suavizar ou filtrar com passa-banda um fluxo de amostras, "
+"computar espectros de magnitude em um laço de streaming sem alocar e "
+"reinterpretar buffers brutos de periféricos como arrays de ponto flutuante. "
+"As ferramentas disponíveis:"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:11
+msgid ""
+":func:`~scipy.signal.sosfilt` -- digital filter applied via cascaded second-"
+"order sections."
+msgstr ""
+":func:`~scipy.signal.sosfilt` -- filtro digital aplicado por meio de seções "
+"de segunda ordem em cascata."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:13
+msgid ""
+":func:`~ulab.utils.spectrogram` -- magnitude ``abs(fft(...))`` with no "
+"intermediate allocations."
+msgstr ""
+":func:`~ulab.utils.spectrogram` -- magnitude ``abs(fft(...))`` sem alocações"
+" intermediárias."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:15
+msgid ""
+":func:`~ulab.utils.from_int16_buffer` and the other :mod:`ulab.utils` "
+"``from_*_buffer`` helpers -- pull a float array out of a buffer whose dtype "
+"the built-in :func:`~numpy.frombuffer` does not cover."
+msgstr ""
+":func:`~ulab.utils.from_int16_buffer` e os demais auxiliares "
+"``from_*_buffer`` de :mod:`ulab.utils` -- extraem um array de ponto "
+"flutuante de um buffer cujo dtype a função embutida "
+":func:`~numpy.frombuffer` não cobre."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:22
+msgid "Filtering with sosfilt"
+msgstr "Filtragem com sosfilt"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:24
+msgid ""
+":func:`~scipy.signal.sosfilt` applies a digital *infinite impulse response* "
+"(IIR) filter as a cascade of *second-order sections* (SOS) -- a numerically "
+"robust form. ``sos`` is a sequence of length-6 sections; ``x`` is the 1-D "
+"input::"
+msgstr ""
+":func:`~scipy.signal.sosfilt` aplica um filtro digital de *resposta ao "
+"impulso infinita* (IIR) como uma cascata de *seções de segunda ordem* (SOS) "
+"-- uma forma numericamente robusta. ``sos`` é uma sequência de seções de "
+"comprimento 6; ``x`` é a entrada unidimensional::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:38
+msgid ""
+"Each row of ``sos`` holds six coefficients ``[b0, b1, b2, a0, a1, a2]`` for "
+"one biquad section. The ``sos`` array is usually pre-computed on a PC with "
+"``scipy.signal.iirfilter(..., output='sos')`` and copied into the camera "
+"script as a Python literal."
+msgstr ""
+"Cada linha de ``sos`` contém seis coeficientes ``[b0, b1, b2, a0, a1, a2]`` "
+"para uma seção biquad. O array ``sos`` é geralmente pré-computado em um PC "
+"com ``scipy.signal.iirfilter(..., output='sos')`` e copiado para o script da"
+" câmera como um literal Python."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:44
+msgid ""
+"The optional ``zi=`` keyword carries filter state across buffers. Pass an "
+"initial state of shape ``(n_sections, 2)`` and the function returns ``(y, "
+"zf)`` -- the filtered output and the final state -- so the final state of "
+"one buffer feeds the initial state of the next::"
+msgstr ""
+"A palavra-chave opcional ``zi=`` carrega o estado do filtro entre buffers. "
+"Passe um estado inicial de forma ``(n_sections, 2)`` e a função retorna "
+"``(y, zf)`` -- a saída filtrada e o estado final -- de modo que o estado "
+"final de um buffer alimenta o estado inicial do próximo::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:55
+msgid ""
+"This is the standard pattern for a streaming filter on buffered data -- "
+"microphone input read 1024 samples at a time, ADC samples accumulated in "
+"DMA-driven chunks, IMU readings collected over a window."
+msgstr ""
+"Esse é o padrão padrão para um filtro de streaming sobre dados em buffer -- "
+"entrada de microfone lida 1024 amostras por vez, amostras de ADC acumuladas "
+"em blocos guiados por DMA, leituras de IMU coletadas ao longo de uma janela."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:61
+msgid "Spectrograms"
+msgstr "Espectrogramas"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:63
+msgid ""
+":func:`~ulab.utils.spectrogram` computes the magnitude of the Fourier "
+"transform. It is conceptually equivalent to ``np.sqrt(real * real + imag * "
+"imag)`` after a call to :func:`~numpy.fft.fft`, but folds the work into one "
+"call -- without holding the intermediate ``real * real``, ``imag * imag``, "
+"the sum, or the explicit magnitude array in RAM at any point. That makes it "
+"the right tool in any loop where spectra are computed repeatedly::"
+msgstr ""
+":func:`~ulab.utils.spectrogram` computa a magnitude da transformada de "
+"Fourier. É conceitualmente equivalente a ``np.sqrt(real * real + imag * "
+"imag)`` após uma chamada a :func:`~numpy.fft.fft`\\ , mas concentra o "
+"trabalho em uma única chamada -- sem manter na RAM, em momento algum, os "
+"intermediários ``real * real``\\ , ``imag * imag``\\ , a soma ou o array "
+"explícito de magnitude. Isso a torna a ferramenta certa em qualquer laço "
+"onde espectros são computados repetidamente::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:79
+msgid ""
+"The argument form mirrors :func:`~numpy.fft.fft`: one real array, or a "
+"``(real, imag)`` pair when the input has an imaginary part."
+msgstr ""
+"A forma dos argumentos espelha :func:`~numpy.fft.fft`\\ : um array real, ou "
+"um par ``(real, imag)`` quando a entrada tem uma parte imaginária."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:83
+msgid "Three keyword arguments help with allocation:"
+msgstr "Três argumentos de palavra-chave ajudam com a alocação:"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:85
+msgid ""
+"``scratchpad=None`` -- a 1-D dense float array of length ``2 * len(signal)``"
+" :func:`spectrogram` uses for working space."
+msgstr ""
+"``scratchpad=None`` -- um array de ponto flutuante denso unidimensional de "
+"comprimento ``2 * len(signal)`` que :func:`spectrogram` usa como espaço de "
+"trabalho."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:88
+msgid "``out=None`` -- a 1-D float array to write the result into."
+msgstr ""
+"``out=None`` -- um array de ponto flutuante unidimensional onde gravar o "
+"resultado."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:90
+msgid ""
+"``log=False`` -- when ``True``, take :func:`~numpy.log` of the magnitude "
+"before returning, folded into the same call."
+msgstr ""
+"``log=False`` -- quando ``True``\\ , calcula o :func:`~numpy.log` da "
+"magnitude antes de retornar, integrado à mesma chamada."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:94
+msgid ""
+"The streaming pattern is to allocate everything once and never allocate "
+"again::"
+msgstr "O padrão de streaming é alocar tudo uma vez e nunca mais alocar::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:110
+msgid "Compare to the obvious-but-wasteful version::"
+msgstr "Compare com a versão óbvia, porém desperdiçadora::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:116
+msgid ""
+"Both produce the same numbers, but the first version allocates nothing "
+"inside the loop -- the cam keeps the same memory in use every iteration, and"
+" the loop runs faster."
+msgstr ""
+"Ambas produzem os mesmos números, mas a primeira versão não aloca nada "
+"dentro do laço -- a câmera mantém a mesma memória em uso a cada iteração e o"
+" laço roda mais rápido."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:122
+msgid "Wider-than-16-bit peripheral buffers"
+msgstr "Buffers de periféricos com mais de 16 bits"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:124
+msgid ""
+":func:`~numpy.frombuffer` only handles the dtypes :mod:`numpy` itself "
+"defines (``uint8`` / ``int8``, ``uint16`` / ``int16``, ``float``). When a "
+"peripheral produces 32-bit integer samples -- a 24- or 32-bit ADC, a high-"
+"resolution microphone -- :mod:`ulab.utils` exposes explicit conversion "
+"helpers:"
+msgstr ""
+":func:`~numpy.frombuffer` só lida com os dtypes que o próprio :mod:`numpy` "
+"define (\\ ``uint8`` / ``int8``\\ , ``uint16`` / ``int16``\\ , ``float``\\ "
+"). Quando um periférico produz amostras inteiras de 32 bits -- um ADC de 24 "
+"ou 32 bits, um microfone de alta resolução -- :mod:`ulab.utils` expõe "
+"auxiliares de conversão explícitos:"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:132
+msgid ""
+":func:`~ulab.utils.from_int16_buffer`, "
+":func:`~ulab.utils.from_uint16_buffer`"
+msgstr ""
+":func:`~ulab.utils.from_int16_buffer`\\ , "
+":func:`~ulab.utils.from_uint16_buffer`"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:134
+msgid ""
+":func:`~ulab.utils.from_int32_buffer`, "
+":func:`~ulab.utils.from_uint32_buffer`"
+msgstr ""
+":func:`~ulab.utils.from_int32_buffer`\\ , "
+":func:`~ulab.utils.from_uint32_buffer`"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:137
+msgid ""
+"Each takes a bytes-like buffer and returns a float :class:`~numpy.ndarray`::"
+msgstr ""
+"Cada um recebe um buffer do tipo bytes e retorna um :class:`~numpy.ndarray` "
+"de ponto flutuante::"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:146
+msgid ""
+"The functions accept the same allocation-saving knobs as "
+":func:`~ulab.utils.spectrogram`:"
+msgstr ""
+"As funções aceitam os mesmos controles de economia de alocação que "
+":func:`~ulab.utils.spectrogram`\\ :"
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:149
+msgid "``count=`` and ``offset=`` to skip a header or limit the read."
+msgstr ""
+"``count=`` e ``offset=`` para pular um cabeçalho ou limitar a leitura."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:151
+msgid "``out=`` to write into a pre-allocated float array."
+msgstr "``out=`` para gravar em um array de ponto flutuante pré-alocado."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:152
+msgid ""
+"``byteswap=True`` when the peripheral disagrees with the MCU on byte order."
+msgstr ""
+"``byteswap=True`` quando o periférico discorda do MCU quanto à ordem dos "
+"bytes."
+
+#: ../../openmvcam/tutorial/numpy/signals/filtering.rst:155
+msgid ""
+"The combined pattern -- one :func:`~ulab.utils.from_int32_buffer` call "
+"straight into one :func:`~ulab.utils.spectrogram` call, both with ``out=`` "
+"buffers from outside the loop -- is the right template for a streaming "
+"spectrum analyser running on a high-resolution microphone."
+msgstr ""
+"O padrão combinado -- uma chamada a :func:`~ulab.utils.from_int32_buffer` "
+"diretamente para uma chamada a :func:`~ulab.utils.spectrogram`\\ , ambas com"
+" buffers ``out=`` vindos de fora do laço -- é o modelo certo para um "
+"analisador de espectro de streaming rodando em um microfone de alta "
+"resolução."
