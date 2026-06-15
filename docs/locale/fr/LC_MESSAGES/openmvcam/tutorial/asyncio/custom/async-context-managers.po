@@ -1,0 +1,154 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:2
+msgid "Async context managers"
+msgstr "Gestionnaires de contexte asynchrones"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:4
+msgid ""
+"The :doc:`Python Overview <../../python/classes/context-managers>` "
+"introduced context managers -- the objects ``with`` blocks drive, with "
+"``__enter__`` running on the way in and ``__exit__`` running on the way out "
+"no matter how the block ends. Async context managers are the same idea moved"
+" into asyncio: ``__aenter__`` and ``__aexit__`` are *coroutines*, so the "
+"setup or the cleanup can ``await`` something. The block that drives them is "
+"``async with``."
+msgstr ""
+"L':doc:`aperçu de Python <../../python/classes/context-managers>` a présenté"
+" les gestionnaires de contexte -- les objets que pilotent les blocs "
+"``with``, avec ``__enter__`` qui s'exécute à l'entrée et ``__exit__`` qui "
+"s'exécute à la sortie, quelle que soit la manière dont le bloc se termine. "
+"Les gestionnaires de contexte asynchrones sont la même idée transposée dans "
+"asyncio : ``__aenter__`` et ``__aexit__`` sont des *coroutines*, de sorte "
+"que la mise en place ou le nettoyage peut ``await`` quelque chose. Le bloc "
+"qui les pilote est ``async with``."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:13
+msgid ""
+"We have already used one. :class:`asyncio.Lock` is an async context manager;"
+" the :doc:`locks <../primitives/locks>` page used it as ``async with "
+"bus_lock: ...``. This page is about writing one for an application's own "
+"resource."
+msgstr ""
+"Nous en avons déjà utilisé un. :class:`asyncio.Lock` est un gestionnaire de "
+"contexte asynchrone ; la page sur les :doc:`verrous <../primitives/locks>` "
+"l'a utilisé sous la forme ``async with bus_lock: ...``. Cette page traite de"
+" la manière d'en écrire un pour la propre ressource d'une application."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:19
+msgid "When to write one"
+msgstr "Quand en écrire un"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:21
+msgid ""
+"When the application has a resource that needs *paired* setup and teardown, "
+"and at least one of those sides has to ``await`` something. Network "
+"connections, sensors that need a settling delay after configuration, "
+"anything that locks something on entry and unlocks it on exit. The plain "
+"synchronous ``with`` form does not apply because its ``__enter__`` and "
+"``__exit__`` cannot be coroutines."
+msgstr ""
+"Lorsque l'application a une ressource qui nécessite une mise en place et un "
+"démantèlement *appariés*, et qu'au moins l'un de ces deux côtés doit "
+"``await`` quelque chose. Connexions réseau, capteurs nécessitant un délai de"
+" stabilisation après configuration, tout ce qui verrouille quelque chose à "
+"l'entrée et le déverrouille à la sortie. La forme synchrone ordinaire "
+"``with`` ne s'applique pas, car ses ``__enter__`` et ``__exit__`` ne peuvent"
+" pas être des coroutines."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:30
+msgid "The two methods"
+msgstr "Les deux méthodes"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:32
+msgid ""
+"``async def __aenter__(self)`` runs when the block is entered. Whatever it "
+"returns is what the optional ``as name`` clause of ``async with`` binds to. "
+"Returning ``self`` is the most common shape, but any value works."
+msgstr ""
+"``async def __aenter__(self)`` s'exécute à l'entrée du bloc. Ce qu'il "
+"renvoie est ce à quoi la clause facultative ``as name`` de ``async with`` "
+"est liée. Renvoyer ``self`` est la forme la plus courante, mais n'importe "
+"quelle valeur convient."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:36
+msgid ""
+"``async def __aexit__(self, exc_type, exc, tb)`` runs when the block is "
+"exited. ``exc_type`` is :data:`None` on a normal exit; on an exception (or a"
+" cancellation) it is the exception's class, and ``exc`` is the instance. "
+"Returning a truthy value tells Python the exception has been *handled* and "
+"should not propagate. Returning :data:`None` (the usual case) lets the "
+"exception continue up the call chain after the cleanup runs."
+msgstr ""
+"``async def __aexit__(self, exc_type, exc, tb)`` s'exécute à la sortie du "
+"bloc. ``exc_type`` vaut :data:`None` lors d'une sortie normale ; en cas "
+"d'exception (ou d'annulation), il s'agit de la classe de l'exception, et "
+"``exc`` est l'instance. Renvoyer une valeur vraie indique à Python que "
+"l'exception a été *gérée* et ne doit pas se propager. Renvoyer :data:`None` "
+"(le cas habituel) laisse l'exception poursuivre sa remontée dans la chaîne "
+"d'appels après l'exécution du nettoyage."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:46
+msgid "A worked example"
+msgstr "Un exemple concret"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:48
+msgid ""
+"A spotlight wrapper that turns an LED on for the body of the block, with a "
+"short settling delay so the illumination is stable before any captures "
+"happen, and turns the LED off again on the way out::"
+msgstr ""
+"Un wrapper de projecteur qui allume une LED pendant le corps du bloc, avec "
+"un court délai de stabilisation afin que l'éclairage soit stable avant que "
+"toute capture ne se produise, et éteint à nouveau la LED à la sortie ::"
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:78
+msgid ""
+"When the block is entered, ``__aenter__`` runs: the LED goes on, the 50 ms "
+"settle ``await`` yields to the loop so other coroutines can make progress in"
+" the meantime, and the block body starts once the wait completes. When the "
+"block ends -- on a normal exit, on an exception, or on cancellation -- "
+"``__aexit__`` runs and the LED goes back off. The cleanup runs in every "
+"case; that is the guarantee ``async with`` provides."
+msgstr ""
+"Lorsque le bloc est entré, ``__aenter__`` s'exécute : la LED s'allume, "
+"l'``await`` de stabilisation de 50 ms redonne la main à la boucle afin que "
+"d'autres coroutines puissent progresser pendant ce temps, et le corps du "
+"bloc démarre une fois l'attente terminée. Lorsque le bloc se termine -- lors"
+" d'une sortie normale, d'une exception ou d'une annulation -- ``__aexit__`` "
+"s'exécute et la LED s'éteint de nouveau. Le nettoyage s'exécute dans tous "
+"les cas ; c'est la garantie qu'offre ``async with``."
+
+#: ../../openmvcam/tutorial/asyncio/custom/async-context-managers.rst:87
+msgid ""
+"The :doc:`frame capture page <../capstone/snapshot-loop>` shows how to make "
+":meth:`csi.CSI.snapshot` ``await``\\ -friendly; once that wrapper is in "
+"hand, the body of an ``async with Spotlight(led):`` block would typically be"
+" a capture loop running under the steady illumination."
+msgstr ""
+"La :doc:`page sur la capture de trames <../capstone/snapshot-loop>` montre "
+"comment rendre :meth:`csi.CSI.snapshot` compatible avec ``await`` ; une fois"
+" ce wrapper en main, le corps d'un bloc ``async with Spotlight(led):`` "
+"serait généralement une boucle de capture s'exécutant sous l'éclairage "
+"constant."

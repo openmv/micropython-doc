@@ -1,0 +1,242 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:2
+msgid "Concurrent roles and multiple connections"
+msgstr "Rôles concurrents et connexions multiples"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:4
+msgid ""
+"The peripheral and central pages each show a single role serving a single "
+"connection at a time. Real applications are rarely that simple. A camera may"
+" publish a sensor service to a phone *while also* reading values from a "
+"heart-rate strap, or accept connections from two simultaneously paired "
+"phones. The :mod:`aioble` API supports both patterns because the radio "
+"multiplexes underneath and every operation is already a coroutine -- run "
+"more coroutines, and the work happens in parallel on one event loop."
+msgstr ""
+"Les pages consacrées au périphérique et au central présentent chacune un "
+"seul rôle servant une seule connexion à la fois. Les applications réelles "
+"sont rarement aussi simples. Une caméra peut publier un service de capteur "
+"vers un téléphone *tout en* lisant des valeurs depuis une ceinture de "
+"fréquence cardiaque, ou accepter des connexions de deux téléphones appairés "
+"simultanément. L'API :mod:`aioble` prend en charge ces deux schémas car la "
+"radio multiplexe en arrière-plan et chaque opération est déjà une coroutine "
+"-- exécutez davantage de coroutines, et le travail se déroule en parallèle "
+"sur une seule boucle d'événements."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:15
+msgid "This page collects the patterns that come up."
+msgstr "Cette page rassemble les schémas qui se présentent couramment."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:18
+msgid "Multiple clients connecting to one peripheral"
+msgstr "Plusieurs clients se connectant à un seul périphérique"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:20
+msgid ""
+"The simple peripheral loop on "
+":doc:`/openmvcam/tutorial/bluetooth/aioble/peripheral` serves one connected "
+"central at a time:"
+msgstr ""
+"La boucle de périphérique simple présentée sur "
+":doc:`/openmvcam/tutorial/bluetooth/aioble/peripheral` sert un seul central "
+"connecté à la fois :"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:32
+msgid ""
+"The pattern that lets it accept *more than one* client is to fire off a per-"
+"connection task and immediately loop back to :func:`aioble.advertise` so the"
+" next client can connect too::"
+msgstr ""
+"Le schéma qui lui permet d'accepter *plus d'un* client consiste à lancer une"
+" tâche par connexion et à revenir immédiatement en boucle vers "
+":func:`aioble.advertise` afin que le client suivant puisse lui aussi se "
+"connecter ::"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:52
+msgid ""
+"Each connection runs in its own task. The GATT database is shared -- all "
+"clients see the same services and characteristics -- but per-connection "
+"state lives inside the task. Notifications go to *every* subscribed client "
+"when :meth:`~aioble.Characteristic.write` is called with "
+"``send_update=True``; directed pushes that should only reach one client use "
+":meth:`~aioble.Characteristic.notify` / "
+":meth:`~aioble.Characteristic.indicate` with the specific "
+":class:`~aioble.DeviceConnection` argument."
+msgstr ""
+"Chaque connexion s'exécute dans sa propre tâche. La base de données GATT est"
+" partagée -- tous les clients voient les mêmes services et caractéristiques "
+"-- mais l'état propre à chaque connexion réside dans la tâche. Les "
+"notifications sont envoyées à *tous* les clients abonnés lorsque "
+":meth:`~aioble.Characteristic.write` est appelée avec ``send_update=True`` ;"
+" les envois dirigés qui ne doivent atteindre qu'un seul client utilisent "
+":meth:`~aioble.Characteristic.notify` / "
+":meth:`~aioble.Characteristic.indicate` avec l'argument "
+":class:`~aioble.DeviceConnection` spécifique."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:64
+msgid ""
+"Keep the fan-out small. Each held connection costs radio time, RAM, and a "
+"slot in the controller's connection table, and the camera is not designed to"
+" be a hub for dozens of clients. Two or three centrals (a phone, a tablet, a"
+" companion microcontroller) are well within reach; designs that need more "
+"belong on a proper BLE gateway rather than on the cam."
+msgstr ""
+"Gardez la diffusion réduite. Chaque connexion maintenue coûte du temps "
+"radio, de la RAM et un emplacement dans la table de connexions du "
+"contrôleur, et la caméra n'est pas conçue pour servir de concentrateur à des"
+" dizaines de clients. Deux ou trois centraux (un téléphone, une tablette, un"
+" microcontrôleur compagnon) restent tout à fait à portée ; les conceptions "
+"nécessitant davantage relèvent d'une véritable passerelle BLE plutôt que de "
+"la caméra."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:73
+msgid "Peripheral and central at the same time"
+msgstr "Périphérique et central simultanément"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:75
+msgid ""
+"A camera can advertise its own service to a phone while *also* acting as a "
+"central to a wearable. :mod:`aioble` does not have a \"mode\" switch -- the "
+"advertise loop and the scan-and-connect loop are just independent "
+"coroutines::"
+msgstr ""
+"Une caméra peut annoncer son propre service à un téléphone tout en agissant "
+"*aussi* comme central vis-à-vis d'un objet connecté. :mod:`aioble` ne "
+"dispose pas d'un commutateur de « mode » -- la boucle d'annonce et la boucle"
+" de scan-et-connexion sont simplement des coroutines indépendantes ::"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:107
+msgid ""
+"The radio time-shares between the two roles -- a scan window here, an "
+"advertising burst there, a connection event when one of either side's "
+"connections is live. Throughput on each role drops when both are active "
+"because the radio cannot literally do two things at once, but for the low-"
+"bandwidth conversations BLE was designed for, the cost is usually invisible."
+msgstr ""
+"La radio partage le temps entre les deux rôles -- une fenêtre de scan ici, "
+"une rafale d'annonce là, un événement de connexion lorsqu'une connexion de "
+"l'un ou l'autre côté est active. Le débit de chaque rôle diminue lorsque les"
+" deux sont actifs car la radio ne peut littéralement pas faire deux choses à"
+" la fois, mais pour les échanges à faible bande passante pour lesquels le "
+"BLE a été conçu, ce coût est généralement imperceptible."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:116
+msgid "Two practical things to keep in mind:"
+msgstr "Deux points pratiques à garder à l'esprit :"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:118
+msgid ""
+"**Both roles need to be in their own coroutine.** Calling "
+":func:`aioble.scan` from inside the per-client task that handles a connected"
+" central works, but blocks that client's notifications until the scan "
+"finishes -- run scanning on its own task instead."
+msgstr ""
+"**Chaque rôle doit se trouver dans sa propre coroutine.** Appeler "
+":func:`aioble.scan` depuis la tâche par client qui gère un central connecté "
+"fonctionne, mais bloque les notifications de ce client jusqu'à la fin du "
+"scan -- exécutez plutôt le scan dans sa propre tâche."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:124
+msgid ""
+"**Only one scan runs at a time.** If you need to scan from two different "
+"places, share the scan iterator or coordinate access; do not enter two "
+":func:`aioble.scan` context managers in parallel."
+msgstr ""
+"**Un seul scan s'exécute à la fois.** Si vous devez scanner depuis deux "
+"endroits différents, partagez l'itérateur de scan ou coordonnez les accès ; "
+"n'entrez pas en parallèle dans deux gestionnaires de contexte "
+":func:`aioble.scan`."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:130
+msgid "Coordinating multiple connections from one task"
+msgstr "Coordonner plusieurs connexions depuis une seule tâche"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:132
+msgid ""
+"When several connections need to be combined into one logical operation -- "
+"for example, the camera talks to two sensors at once and only reports the "
+"result after both have answered -- the standard :mod:`asyncio` primitives "
+"apply directly. :func:`asyncio.gather` runs the per-connection coroutines "
+"concurrently and returns when all have finished; :func:`asyncio.wait_for` "
+"adds a deadline."
+msgstr ""
+"Lorsque plusieurs connexions doivent être combinées en une seule opération "
+"logique -- par exemple, la caméra communique avec deux capteurs "
+"simultanément et ne rapporte le résultat qu'après que les deux ont répondu "
+"-- les primitives standard :mod:`asyncio` s'appliquent directement. "
+":func:`asyncio.gather` exécute les coroutines par connexion de manière "
+"concurrente et retourne lorsqu'elles sont toutes terminées ; "
+":func:`asyncio.wait_for` ajoute une échéance."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:152
+msgid ""
+"Same pattern that the asyncio chapter "
+"(:doc:`/openmvcam/tutorial/asyncio/index`) uses for networking -- BLE "
+"coroutines plug into ``gather`` / ``wait_for`` / ``Event`` / ``Lock`` the "
+"same way TCP ones do."
+msgstr ""
+"C'est le même schéma que celui utilisé par le chapitre asyncio "
+"(:doc:`/openmvcam/tutorial/asyncio/index`) pour le réseau -- les coroutines "
+"BLE s'intègrent à ``gather`` / ``wait_for`` / ``Event`` / ``Lock`` "
+"exactement comme le font celles du TCP."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:159
+msgid "When one role finishes per-cycle and the other does not"
+msgstr "Lorsqu'un rôle se termine à chaque cycle et que l'autre non"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:161
+msgid "A cycle in a battery-powered cam might look like:"
+msgstr ""
+"Un cycle dans une caméra alimentée par batterie pourrait ressembler à ceci :"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:163
+msgid "Wake."
+msgstr "Réveil."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:164
+msgid "As a central, read fresh values from a paired sensor strap."
+msgstr ""
+"En tant que central, lire les valeurs fraîches depuis une ceinture de "
+"capteur appairée."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:166
+msgid ""
+"As a peripheral, advertise for a phone to download the day's measurements."
+msgstr ""
+"En tant que périphérique, annoncer pour qu'un téléphone télécharge les "
+"mesures de la journée."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:168
+msgid "When both are idle, call :func:`aioble.stop` and sleep."
+msgstr ""
+"Lorsque les deux sont inactifs, appeler :func:`aioble.stop` et passer en "
+"veille."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:171
+msgid ""
+"The sequencing is straightforward with two tasks and an "
+":class:`asyncio.Event`::"
+msgstr ""
+"Le séquencement est simple avec deux tâches et un :class:`asyncio.Event` ::"

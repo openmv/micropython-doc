@@ -1,0 +1,193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:2
+msgid "SPI in code"
+msgstr "Le SPI en code"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:4
+msgid ""
+":class:`machine.SPI` wraps a hardware SPI controller; CS lines are ordinary "
+":class:`~machine.Pin` outputs managed by the script. Construct an SPI "
+"instance with the bus id, the desired clock rate, and (if needed) the mode:"
+msgstr ""
+":class:`machine.SPI` encapsule un contrôleur SPI matériel ; les lignes CS "
+"sont de simples sorties :class:`~machine.Pin` gérées par le script. "
+"Construisez une instance SPI avec l'identifiant du bus, le débit d'horloge "
+"souhaité et (si nécessaire) le mode :"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:16
+msgid ""
+"The ``id`` selects which hardware SPI block to use; the available numbers "
+"and the SCK/MOSI/MISO pins they map to depend on the board (see the "
+":doc:`/openmvcam/quickref`). ``baudrate`` is the SCK frequency in hertz -- "
+"the actual rate the hardware achieves may be slightly lower due to clock "
+"division, which the printed value of the SPI object will show."
+msgstr ""
+"L'``id`` sélectionne le bloc SPI matériel à utiliser ; les numéros "
+"disponibles et les broches SCK/MOSI/MISO auxquelles ils correspondent "
+"dépendent de la carte (voir la :doc:`/openmvcam/quickref`). ``baudrate`` est"
+" la fréquence de SCK en hertz -- le débit réellement atteint par le matériel"
+" peut être légèrement inférieur en raison de la division d'horloge, ce que "
+"la valeur affichée de l'objet SPI indiquera."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:23
+msgid ""
+"The CS pin is constructed with ``value=1`` so it idles deasserted. Every "
+"transaction asserts CS (drives it low), moves the bytes, and deasserts CS "
+"(drives it high) again."
+msgstr ""
+"La broche CS est construite avec ``value=1`` afin d'être au repos "
+"désactivée. Chaque transaction active CS (la met à l'état bas), déplace les "
+"octets, puis désactive de nouveau CS (la met à l'état haut)."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:28
+msgid "Reading, writing, exchanging"
+msgstr "Lecture, écriture, échange"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:30
+msgid "Three methods cover the common cases:"
+msgstr "Trois méthodes couvrent les cas courants :"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:47
+msgid ""
+":meth:`~machine.SPI.write` is the write-only fast path; the controller "
+"pushes the bytes and discards whatever the peripheral sent back on MISO. "
+":meth:`~machine.SPI.read` is the mirror image -- it clocks ``N`` SCK pulses "
+"while sending a fixed dummy byte (``0`` by default) on MOSI and stores the "
+"MISO bytes. :meth:`~machine.SPI.write_readinto` is the full-duplex form: it "
+"sends the bytes from one buffer and stores the simultaneous MISO bytes into "
+"another. Many peripherals use this pattern -- \"send a command byte, then "
+"read the response in the next transfer\" -- so the two operations naturally "
+"fit into one ``write_readinto`` call."
+msgstr ""
+":meth:`~machine.SPI.write` est le chemin rapide en écriture seule ; le "
+"contrôleur pousse les octets et ignore ce que le périphérique renvoie sur "
+"MISO. :meth:`~machine.SPI.read` en est l'image miroir -- elle génère ``N`` "
+"impulsions SCK tout en envoyant un octet factice fixe (``0`` par défaut) sur"
+" MOSI et stocke les octets reçus sur MISO. "
+":meth:`~machine.SPI.write_readinto` est la forme full-duplex : elle envoie "
+"les octets d'un tampon et stocke les octets MISO simultanés dans un autre. "
+"De nombreux périphériques suivent ce schéma -- \"envoyer un octet de "
+"commande, puis lire la réponse dans le transfert suivant\" -- de sorte que "
+"les deux opérations s'intègrent naturellement dans un seul appel à "
+"``write_readinto``."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:60
+msgid ""
+"Most peripherals expect the CS line to stay asserted for the entire "
+"transaction (command bytes through response bytes), so keep the "
+"``cs.value(0)`` / ``cs.value(1)`` brackets around the *whole* sequence, not "
+"around each method call."
+msgstr ""
+"La plupart des périphériques s'attendent à ce que la ligne CS reste active "
+"pendant toute la transaction (des octets de commande jusqu'aux octets de "
+"réponse) ; conservez donc l'encadrement ``cs.value(0)`` / ``cs.value(1)`` "
+"autour de la séquence *complète*, et non autour de chaque appel de méthode."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:66
+msgid "A typical sensor read"
+msgstr "Une lecture de capteur typique"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:68
+msgid ""
+"Many SPI sensors organise their state as a set of internal registers and "
+"follow the same exchange shape: send the register address (with a read/write"
+" flag in the top bit), then read or write the register's bytes. A read of "
+"register ``0x0F`` on such a device:"
+msgstr ""
+"De nombreux capteurs SPI organisent leur état sous forme d'un ensemble de "
+"registres internes et suivent la même forme d'échange : envoyer l'adresse du"
+" registre (avec un indicateur lecture/écriture dans le bit de poids fort), "
+"puis lire ou écrire les octets du registre. Une lecture du registre ``0x0F``"
+" sur un tel composant :"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:82
+msgid ""
+"The first MISO byte is junk (the device was still receiving the command at "
+"that point); the second MISO byte holds the register contents. The exact "
+"command byte format -- which bit is the read/write flag, whether the address"
+" auto-increments on multi-byte reads -- is in the device's data sheet."
+msgstr ""
+"Le premier octet MISO est inutilisable (le composant recevait encore la "
+"commande à ce moment-là) ; le second octet MISO contient le contenu du "
+"registre. Le format exact de l'octet de commande -- quel bit est "
+"l'indicateur lecture/écriture, si l'adresse s'auto-incrémente lors des "
+"lectures multi-octets -- figure dans la fiche technique du composant."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:89
+msgid "Bit-banging"
+msgstr "Bit-banging"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:91
+msgid ""
+"The :class:`SPI` instance above uses a hardware SPI block: a dedicated "
+"peripheral inside the MCU with its own shift register and clock generator "
+"that produces the SCK / MOSI / MISO waveforms in silicon. Software just "
+"hands it a byte; the bits move on the wire without further CPU help, leaving"
+" the CPU free to do other work in parallel."
+msgstr ""
+"L'instance :class:`SPI` ci-dessus utilise un bloc SPI matériel : un "
+"périphérique dédié à l'intérieur du MCU, doté de son propre registre à "
+"décalage et de son propre générateur d'horloge, qui produit les signaux SCK "
+"/ MOSI / MISO directement en silicium. Le logiciel se contente de lui "
+"transmettre un octet ; les bits se déplacent sur le fil sans autre "
+"intervention du CPU, laissant ce dernier libre d'effectuer d'autres tâches "
+"en parallèle."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:98
+msgid ""
+"The alternative is bit-banging: software loops over each bit and toggles "
+"GPIO pins directly to produce the same waveform. There is no hardware "
+"peripheral involved -- the CPU drives SCK low, sets MOSI, drives SCK high, "
+"samples MISO, and so on for every bit of every byte. That ties the CPU up "
+"for the whole transaction and runs slower than the hardware block can, but "
+"it works on any pin and does not need a hardware block to be free."
+msgstr ""
+"L'alternative est le bit-banging : le logiciel boucle sur chaque bit et "
+"bascule directement les broches GPIO pour produire la même forme d'onde. "
+"Aucun périphérique matériel n'est impliqué -- le CPU met SCK à l'état bas, "
+"positionne MOSI, met SCK à l'état haut, échantillonne MISO, et ainsi de "
+"suite pour chaque bit de chaque octet. Cela monopolise le CPU pendant toute "
+"la transaction et s'exécute plus lentement que ne le permet le bloc "
+"matériel, mais cela fonctionne sur n'importe quelle broche et ne nécessite "
+"pas qu'un bloc matériel soit disponible."
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:107
+msgid ""
+":class:`machine.SoftSPI` is the bit-bang implementation of the same SPI API:"
+msgstr ""
+":class:`machine.SoftSPI` est l'implémentation en bit-banging de la même API "
+"SPI :"
+
+#: ../../openmvcam/tutorial/hardware/spi/spi-code.rst:117
+msgid ""
+"Use it when the device needs to be on pins that are not wired to a hardware "
+"SPI block, or when the hardware blocks are all in use. ``500 kHz`` is a "
+"comfortable ceiling on most cams; the CPU stays busy for the whole "
+"transaction."
+msgstr ""
+"Utilisez-la lorsque le composant doit être relié à des broches qui ne sont "
+"pas câblées à un bloc SPI matériel, ou lorsque tous les blocs matériels sont"
+" déjà utilisés. ``500 kHz`` constitue un plafond confortable sur la plupart "
+"des cams ; le CPU reste occupé pendant toute la transaction."

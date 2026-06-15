@@ -1,0 +1,1120 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.image.rst:2
+msgid ":mod:`image` --- machine vision"
+msgstr ":mod:`image` --- vision industrielle"
+
+#: ../../library/omv.image.rst:7
+msgid ""
+"The :mod:`image` module is the heart of the OpenMV machine-vision stack. It "
+"exposes the :class:`Image` class -- the in-memory pixel buffer that every "
+"drawing, filtering, transformation and feature- extraction routine operates "
+"on -- together with the supporting result objects returned by those routines"
+" (:class:`Blob <blob>`, :class:`Line <line>`, :class:`Circle <circle>`, "
+":class:`Rect <rect>`, :class:`QRCode <qrcode>`, :class:`AprilTag "
+"<apriltag>`, :class:`DataMatrix <datamatrix>`, :class:`BarCode <barcode>`, "
+"...) and the helper classes used to configure them (:class:`Threshold "
+"<threshold>`, :class:`Histogram <histogram>`, :class:`Statistics "
+"<statistics>`, :class:`HaarCascade <Cascade>`, :class:`Similarity "
+"<similarity>`, :class:`Percentile <percentile>`, :class:`Displacement "
+"<displacement>`, :class:`ImageIO`)."
+msgstr ""
+"Le module :mod:`image` est au cœur de la pile de vision industrielle "
+"d'OpenMV. Il expose la classe :class:`Image` -- le tampon de pixels en "
+"mémoire sur lequel opère chaque routine de dessin, de filtrage, de "
+"transformation et d'extraction de caractéristiques -- ainsi que les objets "
+"de résultat renvoyés par ces routines (:class:`Blob <blob>`, :class:`Line "
+"<line>`, :class:`Circle <circle>`, :class:`Rect <rect>`, :class:`QRCode "
+"<qrcode>`, :class:`AprilTag <apriltag>`, :class:`DataMatrix <datamatrix>`, "
+":class:`BarCode <barcode>`, ...) et les classes auxiliaires utilisées pour "
+"les configurer (:class:`Threshold <threshold>`, :class:`Histogram "
+"<histogram>`, :class:`Statistics <statistics>`, :class:`HaarCascade "
+"<Cascade>`, :class:`Similarity <similarity>`, :class:`Percentile "
+"<percentile>`, :class:`Displacement <displacement>`, :class:`ImageIO`)."
+
+#: ../../library/omv.image.rst:22
+msgid "Acquiring an Image"
+msgstr "Acquérir une image"
+
+#: ../../library/omv.image.rst:24
+msgid "There are four ways to get an :class:`Image` into RAM:"
+msgstr "Il existe quatre façons de charger une :class:`Image` en RAM :"
+
+#: ../../library/omv.image.rst:26
+msgid ""
+"**Live capture from the camera sensor.** Call :meth:`csi.CSI.snapshot` to "
+"capture the next frame straight into the frame buffer; the returned "
+":class:`Image` references that buffer."
+msgstr ""
+"**Capture en direct depuis le capteur de la caméra.** Appelez "
+":meth:`csi.CSI.snapshot` pour capturer la trame suivante directement dans le"
+" tampon d'image ; l':class:`Image` renvoyée référence ce tampon."
+
+#: ../../library/omv.image.rst:30
+msgid ""
+"**From a file.** Pass a path to the :class:`Image` constructor "
+"(``image.Image(\"/sd/photo.jpg\")``); supported on-disk formats are BMP, "
+"PPM/PGM, JPEG, PNG and the OpenMV :class:`ImageIO` recording format."
+msgstr ""
+"**Depuis un fichier.** Passez un chemin au constructeur :class:`Image` "
+"(``image.Image(\"/sd/photo.jpg\")``) ; les formats sur disque pris en charge"
+" sont BMP, PPM/PGM, JPEG, PNG et le format d'enregistrement :class:`ImageIO`"
+" d'OpenMV."
+
+#: ../../library/omv.image.rst:34
+msgid ""
+"**From an ndarray.** Pass a float32 ``(h, w)`` or ``(h, w, 3)`` ``ndarray`` "
+"to the :class:`Image` constructor. The pixels are scaled from ``0.0 -- "
+"255.0`` into a GRAYSCALE or RGB565 image respectively. Use this to bring "
+"tensor output from :mod:`ml` (or any :mod:`ulab` pipeline) back into a "
+"drawable image."
+msgstr ""
+"**Depuis un ndarray.** Passez un ``ndarray`` float32 ``(h, w)`` ou ``(h, w, "
+"3)`` au constructeur :class:`Image`. Les pixels sont mis à l'échelle de "
+"``0.0 -- 255.0`` vers une image GRAYSCALE ou RGB565 respectivement. Utilisez"
+" ceci pour ramener la sortie tensorielle de :mod:`ml` (ou de tout pipeline "
+":mod:`ulab`) dans une image que l'on peut dessiner."
+
+#: ../../library/omv.image.rst:39
+msgid ""
+"**Empty buffer.** Construct an :class:`Image` with a given size and pixel "
+"format (``image.Image(320, 240, image.RGB565)``) to draw into from scratch, "
+"or to use as a scratch surface for image arithmetic."
+msgstr ""
+"**Tampon vide.** Construisez une :class:`Image` avec une taille et un format"
+" de pixel donnés (``image.Image(320, 240, image.RGB565)``) pour y dessiner à"
+" partir de zéro, ou pour l'utiliser comme surface de travail pour des "
+"opérations arithmétiques sur les images."
+
+#: ../../library/omv.image.rst:45 ../../library/omv.image.rst:325
+msgid "Pixel formats"
+msgstr "Formats de pixel"
+
+#: ../../library/omv.image.rst:47
+msgid ""
+"Every :class:`Image` has one of the following pixel formats; the choice "
+"trades off memory, processing cost and what algorithms can run on it. Use "
+":data:`BINARY`, :data:`GRAYSCALE`, :data:`RGB565`, :data:`BAYER`, "
+":data:`YUV422`, :data:`JPEG` or :data:`PNG` as the ``pixformat`` argument "
+"when constructing an image or configuring the camera sensor:"
+msgstr ""
+"Chaque :class:`Image` possède l'un des formats de pixel suivants ; ce choix "
+"arbitre entre la mémoire, le coût de traitement et les algorithmes qui "
+"peuvent s'y exécuter. Utilisez :data:`BINARY`, :data:`GRAYSCALE`, "
+":data:`RGB565`, :data:`BAYER`, :data:`YUV422`, :data:`JPEG` ou :data:`PNG` "
+"comme argument ``pixformat`` lors de la construction d'une image ou de la "
+"configuration du capteur de la caméra :"
+
+#: ../../library/omv.image.rst:54
+msgid ""
+"**BINARY (1 bpp)** -- one bit per pixel. The smallest format; used "
+"internally by thresholding and morphology routines but rarely captured "
+"directly from the sensor."
+msgstr ""
+"**BINARY (1 bpp)** -- un bit par pixel. Le format le plus compact ; utilisé "
+"en interne par les routines de seuillage et de morphologie mais rarement "
+"capturé directement depuis le capteur."
+
+#: ../../library/omv.image.rst:57
+msgid ""
+"**GRAYSCALE (8 bpp)** -- one byte per pixel (the Y channel of YUV422). "
+"Fastest format for most computer-vision algorithms (AprilTag, edge "
+"detection, optical flow)."
+msgstr ""
+"**GRAYSCALE (8 bpp)** -- un octet par pixel (le canal Y de YUV422). Le "
+"format le plus rapide pour la plupart des algorithmes de vision par "
+"ordinateur (AprilTag, détection de contours, flux optique)."
+
+#: ../../library/omv.image.rst:60
+msgid ""
+"**RGB565 (16 bpp)** -- two bytes per pixel, 5-bit red / 6-bit green / 5-bit "
+"blue. The default colour format."
+msgstr ""
+"**RGB565 (16 bpp)** -- deux octets par pixel, 5 bits de rouge / 6 bits de "
+"vert / 5 bits de bleu. Le format couleur par défaut."
+
+#: ../../library/omv.image.rst:62
+msgid ""
+"**BAYER (8 bpp)** -- raw Bayer-pattern colour data straight off the sensor. "
+"Useful for custom de-mosaicing or for storing more pixels in less memory "
+"before debayering on demand."
+msgstr ""
+"**BAYER (8 bpp)** -- données couleur brutes en mosaïque de Bayer directement"
+" issues du capteur. Utile pour un dématriçage personnalisé ou pour stocker "
+"plus de pixels dans moins de mémoire avant de débayeriser à la demande."
+
+#: ../../library/omv.image.rst:65
+msgid ""
+"**YUV422 (16 bpp)** -- 4:2:2 chroma-subsampled colour, two bytes per pixel. "
+"Useful when you want chroma-specific algorithms without paying the full RGB "
+"cost."
+msgstr ""
+"**YUV422 (16 bpp)** -- couleur avec sous-échantillonnage chromatique 4:2:2, "
+"deux octets par pixel. Utile lorsque vous voulez des algorithmes spécifiques"
+" à la chrominance sans payer le coût complet du RGB."
+
+#: ../../library/omv.image.rst:68
+msgid ""
+"**JPEG / PNG** -- compressed buffers. Best for storage and network "
+"transmission. Pixel-level operations require :meth:`Image.to_grayscale` or "
+":meth:`Image.to_rgb565` first."
+msgstr ""
+"**JPEG / PNG** -- tampons compressés. Idéal pour le stockage et la "
+"transmission réseau. Les opérations au niveau du pixel nécessitent d'abord "
+":meth:`Image.to_grayscale` ou :meth:`Image.to_rgb565`."
+
+#: ../../library/omv.image.rst:73
+msgid "Working with results"
+msgstr "Travailler avec les résultats"
+
+#: ../../library/omv.image.rst:75
+msgid ""
+"The detection / feature-extraction methods on :class:`Image` return objects "
+"you can iterate over and combine -- a :meth:`Image.find_blobs` call returns "
+"a list of :class:`Blob <blob>`, a :meth:`Image.find_apriltags` call returns "
+"a list of :class:`AprilTag <apriltag>`, etc. Each result class exposes the "
+"geometric properties of the detection (centroid, bounding box, area, code "
+"value, etc.) so you can act on them directly or pass them back into drawing "
+"methods (:meth:`Image.draw_rectangle`, :meth:`Image.draw_string`, ...)."
+msgstr ""
+"Les méthodes de détection / extraction de caractéristiques de :class:`Image`"
+" renvoient des objets que vous pouvez parcourir et combiner -- un appel à "
+":meth:`Image.find_blobs` renvoie une liste de :class:`Blob <blob>`, un appel"
+" à :meth:`Image.find_apriltags` renvoie une liste d':class:`AprilTag "
+"<apriltag>`, etc. Chaque classe de résultat expose les propriétés "
+"géométriques de la détection (centroïde, boîte englobante, surface, valeur "
+"de code, etc.) afin que vous puissiez agir directement dessus ou les "
+"repasser aux méthodes de dessin (:meth:`Image.draw_rectangle`, "
+":meth:`Image.draw_string`, ...)."
+
+#: ../../library/omv.image.rst:86
+msgid "Color-space helpers"
+msgstr "Fonctions d'aide pour les espaces colorimétriques"
+
+#: ../../library/omv.image.rst:88
+msgid ""
+"The module also exposes small pure functions for converting individual pixel"
+" values between the binary / grayscale / RGB / LAB / YUV colour spaces. "
+"These are useful when you need to convert threshold values or palette "
+"entries in Python before passing them into image operations -- for full-"
+"image conversion use the :class:`Image` ``to_*`` methods, which are much "
+"faster than calling these helpers in a loop."
+msgstr ""
+"Le module expose également de petites fonctions pures pour convertir des "
+"valeurs de pixel individuelles entre les espaces colorimétriques binaire / "
+"niveaux de gris / RGB / LAB / YUV. Elles sont utiles lorsque vous devez "
+"convertir des valeurs de seuil ou des entrées de palette en Python avant de "
+"les passer à des opérations sur image -- pour une conversion d'image "
+"entière, utilisez les méthodes ``to_*`` de :class:`Image`, qui sont bien "
+"plus rapides que d'appeler ces fonctions d'aide dans une boucle."
+
+#: ../../library/omv.image.rst:97
+msgid "Classes"
+msgstr "Classes"
+
+#: ../../library/omv.image.rst:122
+msgid "Functions"
+msgstr "Fonctions"
+
+#: ../../library/omv.image.rst:125
+msgid "Color-space conversion helpers"
+msgstr "Fonctions d'aide pour la conversion d'espaces colorimétriques"
+
+#: ../../library/omv.image.rst:127
+msgid ""
+"Each of the ``X_to_Y`` functions below performs a single pixel-value "
+"conversion. They all take/return values in the canonical OpenMV ranges:"
+msgstr ""
+"Chacune des fonctions ``X_to_Y`` ci-dessous effectue une seule conversion de"
+" valeur de pixel. Elles prennent/renvoient toutes des valeurs dans les "
+"plages canoniques d'OpenMV :"
+
+#: ../../library/omv.image.rst:130
+msgid "binary -- ``int`` 0 -- 1."
+msgstr "binaire -- ``int`` 0 -- 1."
+
+#: ../../library/omv.image.rst:131
+msgid "grayscale -- ``int`` 0 -- 255."
+msgstr "niveaux de gris -- ``int`` 0 -- 255."
+
+#: ../../library/omv.image.rst:132
+msgid "RGB -- ``(r, g, b)`` tuple of 8-bit integers (each 0 -- 255)."
+msgstr "RGB -- tuple ``(r, g, b)`` d'entiers 8 bits (chacun 0 -- 255)."
+
+#: ../../library/omv.image.rst:133
+msgid ""
+"LAB -- ``(l, a, b)`` tuple with ``L`` in 0 -- 100 and ``A``/``B`` in -128 --"
+" 127."
+msgstr ""
+"LAB -- tuple ``(l, a, b)`` avec ``L`` dans 0 -- 100 et ``A``/``B`` dans -128"
+" -- 127."
+
+#: ../../library/omv.image.rst:135
+msgid ""
+"YUV -- ``(y, u, v)`` tuple with ``Y`` in 0 -- 255 and ``U``/``V`` in -128 --"
+" 127."
+msgstr ""
+"YUV -- tuple ``(y, u, v)`` avec ``Y`` dans 0 -- 255 et ``U``/``V`` dans -128"
+" -- 127."
+
+#: ../../library/omv.image.rst:138
+msgid ""
+"For full-image conversion use the :class:`Image` ``to_*`` methods, which are"
+" much faster than calling these helpers in a loop."
+msgstr ""
+"Pour une conversion d'image entière, utilisez les méthodes ``to_*`` de "
+":class:`Image`, qui sont bien plus rapides que d'appeler ces fonctions "
+"d'aide dans une boucle."
+
+#: ../../library/omv.image.rst:143
+msgid "Convert a binary value to a grayscale value."
+msgstr "Convertit une valeur binaire en valeur en niveaux de gris."
+
+#: ../../library/omv.image.rst:147
+msgid "Convert a binary value to an RGB tuple."
+msgstr "Convertit une valeur binaire en tuple RGB."
+
+#: ../../library/omv.image.rst:151
+msgid "Convert a binary value to a LAB tuple."
+msgstr "Convertit une valeur binaire en tuple LAB."
+
+#: ../../library/omv.image.rst:155
+msgid "Convert a binary value to a YUV tuple."
+msgstr "Convertit une valeur binaire en tuple YUV."
+
+#: ../../library/omv.image.rst:159
+msgid "Convert a grayscale value to a binary value."
+msgstr "Convertit une valeur en niveaux de gris en valeur binaire."
+
+#: ../../library/omv.image.rst:163
+msgid "Convert a grayscale value to an RGB tuple."
+msgstr "Convertit une valeur en niveaux de gris en tuple RGB."
+
+#: ../../library/omv.image.rst:167
+msgid "Convert a grayscale value to a LAB tuple."
+msgstr "Convertit une valeur en niveaux de gris en tuple LAB."
+
+#: ../../library/omv.image.rst:171
+msgid "Convert a grayscale value to a YUV tuple."
+msgstr "Convertit une valeur en niveaux de gris en tuple YUV."
+
+#: ../../library/omv.image.rst:175
+msgid "Convert an RGB tuple to a binary value."
+msgstr "Convertit un tuple RGB en valeur binaire."
+
+#: ../../library/omv.image.rst:179
+msgid "Convert an RGB tuple to a grayscale value."
+msgstr "Convertit un tuple RGB en valeur en niveaux de gris."
+
+#: ../../library/omv.image.rst:183
+msgid "Convert an RGB tuple to a LAB tuple."
+msgstr "Convertit un tuple RGB en tuple LAB."
+
+#: ../../library/omv.image.rst:187
+msgid "Convert an RGB tuple to a YUV tuple."
+msgstr "Convertit un tuple RGB en tuple YUV."
+
+#: ../../library/omv.image.rst:191
+msgid "Convert a LAB tuple to a binary value."
+msgstr "Convertit un tuple LAB en valeur binaire."
+
+#: ../../library/omv.image.rst:195
+msgid "Convert a LAB tuple to a grayscale value."
+msgstr "Convertit un tuple LAB en valeur en niveaux de gris."
+
+#: ../../library/omv.image.rst:199
+msgid "Convert a LAB tuple to an RGB tuple."
+msgstr "Convertit un tuple LAB en tuple RGB."
+
+#: ../../library/omv.image.rst:203
+msgid "Convert a LAB tuple to a YUV tuple."
+msgstr "Convertit un tuple LAB en tuple YUV."
+
+#: ../../library/omv.image.rst:207
+msgid "Convert a YUV tuple to a binary value."
+msgstr "Convertit un tuple YUV en valeur binaire."
+
+#: ../../library/omv.image.rst:211
+msgid "Convert a YUV tuple to a grayscale value."
+msgstr "Convertit un tuple YUV en valeur en niveaux de gris."
+
+#: ../../library/omv.image.rst:215
+msgid "Convert a YUV tuple to an RGB tuple."
+msgstr "Convertit un tuple YUV en tuple RGB."
+
+#: ../../library/omv.image.rst:219
+msgid "Convert a YUV tuple to a LAB tuple."
+msgstr "Convertit un tuple YUV en tuple LAB."
+
+#: ../../library/omv.image.rst:222
+msgid "Feature descriptors"
+msgstr "Descripteurs de caractéristiques"
+
+#: ../../library/omv.image.rst:226
+msgid ""
+"Load a Haar Cascade and return a :class:`Cascade <Cascade>` handle for use "
+"with `Image.find_features()`."
+msgstr ""
+"Charge un Haar Cascade et renvoie un handle :class:`Cascade <Cascade>` à "
+"utiliser avec `Image.find_features()`."
+
+#: ../../library/omv.image.rst:229
+msgid "``path`` may be either:"
+msgstr "``path`` peut être soit :"
+
+#: ../../library/omv.image.rst:231
+msgid ""
+"the literal string ``\"frontalface\"`` or ``\"eye\"`` to load one of the two"
+" cascades baked into firmware ROM, or"
+msgstr ""
+"la chaîne littérale ``\"frontalface\"`` ou ``\"eye\"`` pour charger l'une "
+"des deux cascades intégrées dans la ROM du micrologiciel, ou"
+
+#: ../../library/omv.image.rst:233
+msgid ""
+"a filesystem path to a custom ``.cascade`` binary file produced by the "
+"OpenMV cascade-converter tools."
+msgstr ""
+"un chemin de système de fichiers vers un fichier binaire ``.cascade`` "
+"personnalisé produit par les outils de conversion de cascade d'OpenMV."
+
+#: ../../library/omv.image.rst:236
+msgid ""
+"``stages`` selects how many cascade stages to evaluate at detection time. "
+"``-1`` uses every stage stored in the file. Reducing this value speeds up "
+"detection at the cost of more false positives."
+msgstr ""
+"``stages`` sélectionne le nombre d'étapes de cascade à évaluer au moment de "
+"la détection. ``-1`` utilise toutes les étapes stockées dans le fichier. "
+"Réduire cette valeur accélère la détection au prix de davantage de faux "
+"positifs."
+
+#: ../../library/omv.image.rst:242
+msgid ""
+"Load a descriptor from the file at ``path`` and return it. The file's "
+"internal type tag selects which descriptor class is reconstructed:"
+msgstr ""
+"Charge un descripteur depuis le fichier situé à ``path`` et le renvoie. "
+"L'étiquette de type interne du fichier sélectionne la classe de descripteur "
+"à reconstruire :"
+
+#: ../../library/omv.image.rst:245
+msgid ""
+"ORB keypoint descriptor -- saved by `Image.find_keypoints()` followed by "
+"`image.save_descriptor()`."
+msgstr ""
+"Descripteur de point clé ORB -- sauvegardé par `Image.find_keypoints()` "
+"suivi de `image.save_descriptor()`."
+
+#: ../../library/omv.image.rst:247
+msgid ""
+"LBP descriptor -- saved by `Image.find_lbp()` followed by "
+"`image.save_descriptor()`."
+msgstr ""
+"Descripteur LBP -- sauvegardé par `Image.find_lbp()` suivi de "
+"`image.save_descriptor()`."
+
+#: ../../library/omv.image.rst:252
+msgid ""
+"Serialise ``descriptor`` (an ORB keypoint or LBP descriptor) to the file at "
+"``path`` in the OpenMV descriptor file format. The same file can later be "
+"reloaded via `image.load_descriptor()`."
+msgstr ""
+"Sérialise ``descriptor`` (un descripteur de point clé ORB ou LBP) vers le "
+"fichier situé à ``path`` au format de fichier de descripteur OpenMV. Le même"
+" fichier peut être rechargé ultérieurement via `image.load_descriptor()`."
+
+#: ../../library/omv.image.rst:258
+msgid "Match two descriptors of the same type."
+msgstr "Met en correspondance deux descripteurs du même type."
+
+#: ../../library/omv.image.rst:260
+msgid ""
+"For two LBP descriptors -- returns an integer Hamming distance between them "
+"(lower is a closer match)."
+msgstr ""
+"Pour deux descripteurs LBP -- renvoie une distance de Hamming entière entre "
+"eux (plus elle est faible, plus la correspondance est proche)."
+
+#: ../../library/omv.image.rst:262
+msgid ""
+"For two ORB keypoint descriptors -- returns a :class:`kptmatch <kptmatch>` "
+"describing the matched-keypoint cluster, or ``None`` if no match passes "
+"``threshold``."
+msgstr ""
+"Pour deux descripteurs de point clé ORB -- renvoie un :class:`kptmatch "
+"<kptmatch>` décrivant le cluster de points clés correspondants, ou ``None`` "
+"si aucune correspondance ne dépasse ``threshold``."
+
+#: ../../library/omv.image.rst:266
+msgid ""
+"``threshold`` (0 -- 100) sets how strict ORB matching is when accepting a "
+"keypoint pair. Lower values tighten matching by rejecting weak nearest-"
+"neighbour matches."
+msgstr ""
+"``threshold`` (0 -- 100) définit la rigueur de la mise en correspondance ORB"
+" lors de l'acceptation d'une paire de points clés. Des valeurs plus basses "
+"resserrent la correspondance en rejetant les faibles correspondances par "
+"plus proche voisin."
+
+#: ../../library/omv.image.rst:270
+msgid ""
+"``filter_outliers`` enables RANSAC-style outlier rejection across the set of"
+" matched keypoints. Use it when you expect a single rigid transform between "
+"the two views; disable it when the matched keypoints span multiple objects."
+msgstr ""
+"``filter_outliers`` active un rejet des valeurs aberrantes de style RANSAC "
+"sur l'ensemble des points clés correspondants. Utilisez-le lorsque vous "
+"attendez une transformation rigide unique entre les deux vues ; désactivez-"
+"le lorsque les points clés correspondants couvrent plusieurs objets."
+
+#: ../../library/omv.image.rst:276
+msgid "Blob geometry helpers"
+msgstr "Fonctions d'aide pour la géométrie des blobs"
+
+#: ../../library/omv.image.rst:278
+msgid ""
+"These helpers take a :class:`Blob <blob>` (as returned by "
+"`Image.find_blobs()`) and compute additional geometric properties on demand."
+" They live at module scope -- not on :class:`Blob <blob>` -- so the basic "
+"``find_blobs()`` path doesn't pay for them unless you ask."
+msgstr ""
+"Ces fonctions d'aide prennent un :class:`Blob <blob>` (tel que renvoyé par "
+"`Image.find_blobs()`) et calculent à la demande des propriétés géométriques "
+"supplémentaires. Elles résident au niveau du module -- et non sur "
+":class:`Blob <blob>` -- de sorte que le chemin de base ``find_blobs()`` n'en"
+" paie pas le coût à moins que vous ne le demandiez."
+
+#: ../../library/omv.image.rst:285
+msgid ""
+"Return the solidity (``blob.pixels / convex_hull_area``) of ``blob``. Float,"
+" 0 -- 1; 1.0 means the blob fully fills its convex hull."
+msgstr ""
+"Renvoie la solidité (``blob.pixels / convex_hull_area``) de ``blob``. "
+"Flottant, 0 -- 1 ; 1.0 signifie que le blob remplit entièrement son "
+"enveloppe convexe."
+
+#: ../../library/omv.image.rst:290
+msgid ""
+"Return the convexity (``convex_hull_perimeter / blob.perimeter``) of "
+"``blob``. Float, 0 -- 1; 1.0 is a perfectly convex blob."
+msgstr ""
+"Renvoie la convexité (``convex_hull_perimeter / blob.perimeter``) de "
+"``blob``. Flottant, 0 -- 1 ; 1.0 correspond à un blob parfaitement convexe."
+
+#: ../../library/omv.image.rst:295
+msgid ""
+"Return a :class:`Line <line>` along the major axis of ``blob`` (the longer "
+"of the two principal axes of the minimum-area rotated rectangle)."
+msgstr ""
+"Renvoie une :class:`Line <line>` le long du grand axe de ``blob`` (le plus "
+"long des deux axes principaux du rectangle pivoté d'aire minimale)."
+
+#: ../../library/omv.image.rst:301
+msgid ""
+"Return a :class:`Line <line>` along the minor axis of ``blob`` (the shorter "
+"of the two principal axes of the minimum-area rotated rectangle)."
+msgstr ""
+"Renvoie une :class:`Line <line>` le long du petit axe de ``blob`` (le plus "
+"court des deux axes principaux du rectangle pivoté d'aire minimale)."
+
+#: ../../library/omv.image.rst:307
+msgid "Return a :class:`Circle <circle>` that encloses ``blob``."
+msgstr "Renvoie un :class:`Circle <circle>` qui englobe ``blob``."
+
+#: ../../library/omv.image.rst:311
+msgid ""
+"Return a 5-tuple ``(cx, cy, a, b, rotation)`` describing the ellipse "
+"inscribed in the minimum-area rotated rectangle around ``blob``:"
+msgstr ""
+"Renvoie un 5-tuple ``(cx, cy, a, b, rotation)`` décrivant l'ellipse inscrite"
+" dans le rectangle pivoté d'aire minimale autour de ``blob`` :"
+
+#: ../../library/omv.image.rst:314
+msgid "``cx`` / ``cy`` -- ellipse centre in pixels (integer)."
+msgstr "``cx`` / ``cy`` -- centre de l'ellipse en pixels (entier)."
+
+#: ../../library/omv.image.rst:315
+msgid "``a`` / ``b`` -- semi-axis lengths in pixels (integer)."
+msgstr "``a`` / ``b`` -- longueurs des demi-axes en pixels (entier)."
+
+#: ../../library/omv.image.rst:316
+msgid "``rotation`` -- ellipse rotation **in degrees** (integer)."
+msgstr "``rotation`` -- rotation de l'ellipse **en degrés** (entier)."
+
+#: ../../library/omv.image.rst:318
+msgid ""
+"This is a plain tuple, not an attrtuple, so the fields are accessible only "
+"by index."
+msgstr ""
+"Il s'agit d'un tuple ordinaire, pas d'un attrtuple, donc les champs ne sont "
+"accessibles que par index."
+
+#: ../../library/omv.image.rst:322
+msgid "Constants"
+msgstr "Constantes"
+
+#: ../../library/omv.image.rst:327
+msgid ""
+"Pass any of the following as the ``pixformat`` argument to the "
+":class:`Image` constructor or to :meth:`csi.CSI.pixformat`."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``pixformat`` au "
+"constructeur :class:`Image` ou à :meth:`csi.CSI.pixformat`."
+
+#: ../../library/omv.image.rst:333
+msgid ""
+"1-bit-per-pixel bitmap. Smallest format -- used internally by thresholding "
+"and morphology, rarely captured directly from a sensor."
+msgstr ""
+"Bitmap à 1 bit par pixel. Le format le plus compact -- utilisé en interne "
+"par le seuillage et la morphologie, rarement capturé directement depuis un "
+"capteur."
+
+#: ../../library/omv.image.rst:339
+msgid ""
+"8-bit-per-pixel grayscale (one byte per pixel). The fastest format for most "
+"computer-vision algorithms (AprilTag, edge detection, optical flow)."
+msgstr ""
+"Niveaux de gris à 8 bits par pixel (un octet par pixel). Le format le plus "
+"rapide pour la plupart des algorithmes de vision par ordinateur (AprilTag, "
+"détection de contours, flux optique)."
+
+#: ../../library/omv.image.rst:346
+msgid ""
+"16-bit-per-pixel colour packed as 5 bits red / 6 bits green / 5 bits blue. "
+"The default colour format."
+msgstr ""
+"Couleur à 16 bits par pixel encodée en 5 bits de rouge / 6 bits de vert / 5 "
+"bits de bleu. Le format couleur par défaut."
+
+#: ../../library/omv.image.rst:352
+msgid ""
+"8-bit-per-pixel raw Bayer data straight off the sensor. Most image "
+"processing methods are not available on Bayer images; use this when you want"
+" to debayer on demand or store more pixels in less memory."
+msgstr ""
+"Données Bayer brutes à 8 bits par pixel directement issues du capteur. La "
+"plupart des méthodes de traitement d'image ne sont pas disponibles sur les "
+"images Bayer ; utilisez ce format lorsque vous voulez débayeriser à la "
+"demande ou stocker plus de pixels dans moins de mémoire."
+
+#: ../../library/omv.image.rst:359
+msgid ""
+"4:2:2 chroma-subsampled colour, two bytes per pixel, packed as ``Y1, U, Y2, "
+"V`` per pixel pair. Only some image processing methods work directly on "
+"YUV422."
+msgstr ""
+"Couleur avec sous-échantillonnage chromatique 4:2:2, deux octets par pixel, "
+"encodée en ``Y1, U, Y2, V`` par paire de pixels. Seules certaines méthodes "
+"de traitement d'image fonctionnent directement sur YUV422."
+
+#: ../../library/omv.image.rst:366
+msgid ""
+"Compressed JPEG buffer. Pixel-level operations require "
+":meth:`Image.to_grayscale` or :meth:`Image.to_rgb565` first."
+msgstr ""
+"Tampon JPEG compressé. Les opérations au niveau du pixel nécessitent d'abord"
+" :meth:`Image.to_grayscale` ou :meth:`Image.to_rgb565`."
+
+#: ../../library/omv.image.rst:372
+msgid ""
+"Compressed PNG buffer. Pixel-level operations require "
+":meth:`Image.to_grayscale` or :meth:`Image.to_rgb565` first."
+msgstr ""
+"Tampon PNG compressé. Les opérations au niveau du pixel nécessitent d'abord "
+":meth:`Image.to_grayscale` ou :meth:`Image.to_rgb565`."
+
+#: ../../library/omv.image.rst:376
+msgid "Colour palettes"
+msgstr "Palettes de couleurs"
+
+#: ../../library/omv.image.rst:378
+msgid ""
+"Pass any of the following to :meth:`Image.to_rainbow`, "
+":meth:`Image.to_ironbow`, :meth:`Image.draw_image` (``color_palette=``) or "
+"to :meth:`csi.CSI.color_palette` to colorize a grayscale image."
+msgstr ""
+"Passez l'une des valeurs suivantes à :meth:`Image.to_rainbow`, "
+":meth:`Image.to_ironbow`, :meth:`Image.draw_image` (``color_palette=``) ou à"
+" :meth:`csi.CSI.color_palette` pour coloriser une image en niveaux de gris."
+
+#: ../../library/omv.image.rst:385
+msgid ""
+"Smooth rainbow colour wheel. The default OpenMV palette for thermal imagery."
+msgstr ""
+"Roue chromatique arc-en-ciel lisse. La palette OpenMV par défaut pour "
+"l'imagerie thermique."
+
+#: ../../library/omv.image.rst:391
+msgid ""
+"Non-linear \"ironbow\" palette that mimics the look of the FLIR Lepton "
+"thermal viewfinder."
+msgstr ""
+"Palette « ironbow » non linéaire qui imite l'apparence du viseur thermique "
+"FLIR Lepton."
+
+#: ../../library/omv.image.rst:397
+msgid ""
+"Depth-image palette. Only available on builds with depth-sensor support (the"
+" ToF pipeline -- e.g. OpenMV Cam AE3 or any cam with a ToF Pmod attached)."
+msgstr ""
+"Palette d'image de profondeur. Disponible uniquement sur les builds avec "
+"prise en charge du capteur de profondeur (le pipeline ToF -- p. ex. OpenMV "
+"Cam AE3 ou toute caméra avec un Pmod ToF connecté)."
+
+#: ../../library/omv.image.rst:404
+msgid ""
+"Palette for visualising GENX320 event-camera frames on a dark background. "
+"Pass to `csi.CSI.color_palette` to have the GENX320 driver emit colorized "
+"RGB565 frames in histogram mode, or to :meth:`Image.draw_image` "
+"``color_palette=`` when colorising a grayscale event image."
+msgstr ""
+"Palette pour visualiser les trames de la caméra événementielle GENX320 sur "
+"fond sombre. Passez-la à `csi.CSI.color_palette` pour que le pilote GENX320 "
+"émette des trames RGB565 colorisées en mode histogramme, ou à "
+":meth:`Image.draw_image` ``color_palette=`` lors de la colorisation d'une "
+"image événementielle en niveaux de gris."
+
+#: ../../library/omv.image.rst:410
+msgid ""
+"Only available on builds with GENX320 support (OpenMV Cam AE3 and the "
+"GENX320 Pmod)."
+msgstr ""
+"Disponible uniquement sur les builds avec prise en charge du GENX320 (OpenMV"
+" Cam AE3 et le Pmod GENX320)."
+
+#: ../../library/omv.image.rst:416
+msgid ""
+"Palette for visualising GENX320 event-camera frames on a light background. "
+"Same dispatch and availability as :data:`PALETTE_EVT_DARK`."
+msgstr ""
+"Palette pour visualiser les trames de la caméra événementielle GENX320 sur "
+"fond clair. Même répartition et même disponibilité que "
+":data:`PALETTE_EVT_DARK`."
+
+#: ../../library/omv.image.rst:421
+msgid "Scaling modes"
+msgstr "Modes de mise à l'échelle"
+
+#: ../../library/omv.image.rst:423
+msgid ""
+"Pass any of the following as the ``hint`` argument to "
+":meth:`Image.draw_image`, :meth:`Image.scale`, or similar scaling methods."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``hint`` à "
+":meth:`Image.draw_image`, :meth:`Image.scale`, ou à des méthodes de mise à "
+"l'échelle similaires."
+
+#: ../../library/omv.image.rst:430
+msgid ""
+"Area-averaging scaler. Used when downscaling; Nearest-Neighbor is used for "
+"upscaling."
+msgstr ""
+"Scaler par moyennage de zone. Utilisé lors de la réduction d'échelle ; le "
+"plus proche voisin est utilisé pour l'agrandissement."
+
+#: ../../library/omv.image.rst:436
+msgid "Bilinear scaler. Subsamples when downscaling."
+msgstr "Scaler bilinéaire. Sous-échantillonne lors de la réduction d'échelle."
+
+#: ../../library/omv.image.rst:441
+msgid ""
+"Bicubic scaler. Higher quality than :data:`BILINEAR` but slower. Subsamples "
+"when downscaling."
+msgstr ""
+"Scaler bicubique. Meilleure qualité que :data:`BILINEAR` mais plus lent. "
+"Sous-échantillonne lors de la réduction d'échelle."
+
+#: ../../library/omv.image.rst:445
+msgid "Drawing / draw_image hints"
+msgstr "Indices de dessin / draw_image"
+
+#: ../../library/omv.image.rst:447
+msgid ""
+"Bit-OR any of these together and pass as the ``hint`` argument of "
+":meth:`Image.draw_image`."
+msgstr ""
+"Combinez par OU binaire l'une de ces valeurs et passez-les comme argument "
+"``hint`` de :meth:`Image.draw_image`."
+
+#: ../../library/omv.image.rst:453
+msgid "Vertically flip the source while drawing."
+msgstr "Retourne verticalement la source pendant le dessin."
+
+#: ../../library/omv.image.rst:458
+msgid "Horizontally mirror the source while drawing."
+msgstr "Met en miroir horizontalement la source pendant le dessin."
+
+#: ../../library/omv.image.rst:463
+msgid "Transpose (swap x/y) the source while drawing."
+msgstr "Transpose (échange x/y) la source pendant le dessin."
+
+#: ../../library/omv.image.rst:468
+msgid ""
+"Centre the source on the destination. Any explicit x/y offsets then become "
+"offsets from the centre instead of from the top-left."
+msgstr ""
+"Centre la source sur la destination. Tout décalage x/y explicite devient "
+"alors un décalage par rapport au centre au lieu du coin supérieur gauche."
+
+#: ../../library/omv.image.rst:474
+msgid ""
+"When extracting an RGB channel via :meth:`Image.draw_image`, extract the "
+"channel **before** scaling. Without this hint, the channel is extracted "
+"after scaling."
+msgstr ""
+"Lors de l'extraction d'un canal RGB via :meth:`Image.draw_image`, extrait le"
+" canal **avant** la mise à l'échelle. Sans cet indice, le canal est extrait "
+"après la mise à l'échelle."
+
+#: ../../library/omv.image.rst:481
+msgid ""
+"When applying a colour palette via :meth:`Image.draw_image`, apply the "
+"palette **before** scaling. Without this hint, the palette is applied after "
+"scaling."
+msgstr ""
+"Lors de l'application d'une palette de couleurs via "
+":meth:`Image.draw_image`, applique la palette **avant** la mise à l'échelle."
+" Sans cet indice, la palette est appliquée après la mise à l'échelle."
+
+#: ../../library/omv.image.rst:488
+msgid ""
+"Scale the source to fit inside the destination while maintaining aspect "
+"ratio (letterboxes when ratios differ)."
+msgstr ""
+"Met la source à l'échelle pour qu'elle tienne à l'intérieur de la "
+"destination tout en conservant le rapport d'aspect (ajoute des bandes noires"
+" lorsque les rapports diffèrent)."
+
+#: ../../library/omv.image.rst:494
+msgid ""
+"Scale the source to fill the destination while maintaining aspect ratio "
+"(crops when ratios differ)."
+msgstr ""
+"Met la source à l'échelle pour qu'elle remplisse la destination tout en "
+"conservant le rapport d'aspect (recadre lorsque les rapports diffèrent)."
+
+#: ../../library/omv.image.rst:500
+msgid "Scale the source to fill the destination, ignoring aspect ratio."
+msgstr ""
+"Met la source à l'échelle pour qu'elle remplisse la destination, en ignorant"
+" le rapport d'aspect."
+
+#: ../../library/omv.image.rst:505
+msgid ""
+"Tell the alpha-blending path that the destination is known-black so it can "
+"skip the read-back of the destination pixel. Speeds up alpha effects on "
+"freshly-cleared buffers."
+msgstr ""
+"Indique au chemin de mélange alpha que la destination est connue pour être "
+"noire afin qu'il puisse omettre la relecture du pixel de destination. "
+"Accélère les effets alpha sur les tampons fraîchement effacés."
+
+#: ../../library/omv.image.rst:512
+msgid "Shortcut for ``VFLIP | TRANSPOSE`` (rotate 90 degrees clockwise)."
+msgstr ""
+"Raccourci pour ``VFLIP | TRANSPOSE`` (rotation de 90 degrés dans le sens "
+"horaire)."
+
+#: ../../library/omv.image.rst:517
+msgid "Shortcut for ``HMIRROR | VFLIP`` (rotate 180 degrees)."
+msgstr "Raccourci pour ``HMIRROR | VFLIP`` (rotation de 180 degrés)."
+
+#: ../../library/omv.image.rst:522
+msgid "Shortcut for ``HMIRROR | TRANSPOSE`` (rotate 270 degrees clockwise)."
+msgstr ""
+"Raccourci pour ``HMIRROR | TRANSPOSE`` (rotation de 270 degrés dans le sens "
+"horaire)."
+
+#: ../../library/omv.image.rst:525
+msgid "JPEG subsampling"
+msgstr "Sous-échantillonnage JPEG"
+
+#: ../../library/omv.image.rst:527
+msgid ""
+"Pass any of the following as the ``subsampling`` argument to "
+":meth:`Image.to_jpeg`, :meth:`Image.compress`, or :meth:`Image.save` when "
+"writing a JPEG."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``subsampling`` à "
+":meth:`Image.to_jpeg`, :meth:`Image.compress`, ou :meth:`Image.save` lors de"
+" l'écriture d'un JPEG."
+
+#: ../../library/omv.image.rst:534
+msgid ""
+"Pick chroma subsampling automatically based on the JPEG quality setting."
+msgstr ""
+"Choisit automatiquement le sous-échantillonnage chromatique en fonction du "
+"réglage de qualité JPEG."
+
+#: ../../library/omv.image.rst:540
+msgid "Force 4:4:4 chroma subsampling (no chroma compression)."
+msgstr ""
+"Force un sous-échantillonnage chromatique 4:4:4 (aucune compression de la "
+"chrominance)."
+
+#: ../../library/omv.image.rst:545
+msgid ""
+"Force 4:2:2 chroma subsampling. Recommended when streaming MJPEG to third-"
+"party video players that misbehave with 4:2:0."
+msgstr ""
+"Force un sous-échantillonnage chromatique 4:2:2. Recommandé lors de la "
+"diffusion de MJPEG vers des lecteurs vidéo tiers qui se comportent mal avec "
+"le 4:2:0."
+
+#: ../../library/omv.image.rst:551
+msgid "Force 4:2:0 chroma subsampling."
+msgstr "Force un sous-échantillonnage chromatique 4:2:0."
+
+#: ../../library/omv.image.rst:554
+msgid "Template matching"
+msgstr "Mise en correspondance de modèle"
+
+#: ../../library/omv.image.rst:556
+msgid ""
+"Pass either of the following as the ``search`` argument to "
+":meth:`Image.find_template`."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``search`` à "
+":meth:`Image.find_template`."
+
+#: ../../library/omv.image.rst:562
+msgid ""
+"Exhaustive search -- evaluates every position in the ROI. Slowest but "
+"guaranteed to find the best match."
+msgstr ""
+"Recherche exhaustive -- évalue chaque position dans la ROI. La plus lente "
+"mais garantit de trouver la meilleure correspondance."
+
+#: ../../library/omv.image.rst:568
+msgid ""
+"Diamond search -- coarse-to-fine search that is much faster than "
+":data:`SEARCH_EX` but may miss the global optimum on highly self-similar "
+"templates."
+msgstr ""
+"Recherche en diamant -- recherche du grossier au fin qui est bien plus "
+"rapide que :data:`SEARCH_EX` mais peut manquer l'optimum global sur des "
+"modèles fortement auto-similaires."
+
+#: ../../library/omv.image.rst:573
+msgid "Edge detection"
+msgstr "Détection de contours"
+
+#: ../../library/omv.image.rst:575
+msgid ""
+"Pass either of the following as the ``algorithm`` argument to "
+":meth:`Image.find_edges`."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``algorithm`` à "
+":meth:`Image.find_edges`."
+
+#: ../../library/omv.image.rst:581
+msgid ""
+"Canny edge detector -- gradient magnitude + non-max suppression + "
+"hysteresis. Higher quality, slower."
+msgstr ""
+"Détecteur de contours de Canny -- magnitude du gradient + suppression des "
+"non-maxima + hystérésis. Meilleure qualité, plus lent."
+
+#: ../../library/omv.image.rst:587
+msgid ""
+"Thresholded high-pass-filter edge detector. Faster but produces thicker, "
+"noisier edges than :data:`EDGE_CANNY`."
+msgstr ""
+"Détecteur de contours par filtre passe-haut seuillé. Plus rapide mais "
+"produit des contours plus épais et plus bruités que :data:`EDGE_CANNY`."
+
+#: ../../library/omv.image.rst:591
+msgid "ORB corner detectors"
+msgstr "Détecteurs de coins ORB"
+
+#: ../../library/omv.image.rst:593
+msgid ""
+"Pass either of the following as the ``corner_detector`` argument to "
+":meth:`Image.find_keypoints`."
+msgstr ""
+"Passez l'une des valeurs suivantes comme argument ``corner_detector`` à "
+":meth:`Image.find_keypoints`."
+
+#: ../../library/omv.image.rst:599
+msgid ""
+"FAST corner detector. Faster than :data:`CORNER_AGAST` but less accurate."
+msgstr ""
+"Détecteur de coins FAST. Plus rapide que :data:`CORNER_AGAST` mais moins "
+"précis."
+
+#: ../../library/omv.image.rst:605
+msgid ""
+"AGAST corner detector. Slower than :data:`CORNER_FAST` but produces more "
+"stable keypoints."
+msgstr ""
+"Détecteur de coins AGAST. Plus lent que :data:`CORNER_FAST` mais produit des"
+" points clés plus stables."
+
+#: ../../library/omv.image.rst:609
+msgid "AprilTag families"
+msgstr "Familles AprilTag"
+
+#: ../../library/omv.image.rst:611
+msgid ""
+"Bit-OR any combination of the following and pass as the ``families`` "
+"argument to :meth:`Image.find_apriltags`. Each family is gated by its own "
+"build option in firmware; unsupported families are absent at runtime rather "
+"than always-zero."
+msgstr ""
+"Combinez par OU binaire n'importe quelle combinaison des valeurs suivantes "
+"et passez-les comme argument ``families`` à :meth:`Image.find_apriltags`. "
+"Chaque famille est conditionnée par sa propre option de build dans le "
+"micrologiciel ; les familles non prises en charge sont absentes au moment de"
+" l'exécution plutôt que toujours nulles."
+
+#: ../../library/omv.image.rst:619
+msgid "AprilTag ``16h5`` family (30 unique IDs, 0-bit error correction)."
+msgstr ""
+"Famille AprilTag ``16h5`` (30 ID uniques, correction d'erreur de 0 bit)."
+
+#: ../../library/omv.image.rst:624
+msgid ""
+"AprilTag ``25h9`` family (35 unique IDs, up to 3-bit error correction)."
+msgstr ""
+"Famille AprilTag ``25h9`` (35 ID uniques, correction d'erreur jusqu'à 3 "
+"bits)."
+
+#: ../../library/omv.image.rst:630
+msgid ""
+"AprilTag ``36h10`` family (2320 unique IDs, up to 3-bit error correction)."
+msgstr ""
+"Famille AprilTag ``36h10`` (2320 ID uniques, correction d'erreur jusqu'à 3 "
+"bits)."
+
+#: ../../library/omv.image.rst:636
+msgid ""
+"AprilTag ``36h11`` family (587 unique IDs, up to 4-bit error correction). "
+"The most common family."
+msgstr ""
+"Famille AprilTag ``36h11`` (587 ID uniques, correction d'erreur jusqu'à 4 "
+"bits). La famille la plus courante."
+
+#: ../../library/omv.image.rst:642
+msgid "AprilTag ``Circle21h7`` family."
+msgstr "Famille AprilTag ``Circle21h7``."
+
+#: ../../library/omv.image.rst:647
+msgid "AprilTag ``Circle49h12`` family."
+msgstr "Famille AprilTag ``Circle49h12``."
+
+#: ../../library/omv.image.rst:652
+msgid "AprilTag ``Custom48h12`` family."
+msgstr "Famille AprilTag ``Custom48h12``."
+
+#: ../../library/omv.image.rst:657
+msgid "AprilTag ``Standard41h12`` family."
+msgstr "Famille AprilTag ``Standard41h12``."
+
+#: ../../library/omv.image.rst:662
+msgid "AprilTag ``Standard52h13`` family."
+msgstr "Famille AprilTag ``Standard52h13``."
+
+#: ../../library/omv.image.rst:665
+msgid "Barcode symbologies"
+msgstr "Symbologies de code-barres"
+
+#: ../../library/omv.image.rst:667
+msgid ""
+"The values reported in :attr:`BarCode.type <barcode.type>` for entries "
+"returned by :meth:`Image.find_barcodes`."
+msgstr ""
+"Les valeurs rapportées dans :attr:`BarCode.type <barcode.type>` pour les "
+"entrées renvoyées par :meth:`Image.find_barcodes`."
+
+#: ../../library/omv.image.rst:673
+msgid "EAN-2 supplemental barcode."
+msgstr "Code-barres supplémentaire EAN-2."
+
+#: ../../library/omv.image.rst:678
+msgid "EAN-5 supplemental barcode."
+msgstr "Code-barres supplémentaire EAN-5."
+
+#: ../../library/omv.image.rst:683
+msgid "EAN-8 barcode."
+msgstr "Code-barres EAN-8."
+
+#: ../../library/omv.image.rst:688
+msgid "UPC-E barcode."
+msgstr "Code-barres UPC-E."
+
+#: ../../library/omv.image.rst:693
+msgid "ISBN-10 barcode."
+msgstr "Code-barres ISBN-10."
+
+#: ../../library/omv.image.rst:698
+msgid "UPC-A barcode."
+msgstr "Code-barres UPC-A."
+
+#: ../../library/omv.image.rst:703
+msgid "EAN-13 barcode."
+msgstr "Code-barres EAN-13."
+
+#: ../../library/omv.image.rst:708
+msgid "ISBN-13 barcode."
+msgstr "Code-barres ISBN-13."
+
+#: ../../library/omv.image.rst:713
+msgid "Interleaved 2-of-5 barcode."
+msgstr "Code-barres Interleaved 2-of-5."
+
+#: ../../library/omv.image.rst:718
+msgid "GS1 DataBar barcode."
+msgstr "Code-barres GS1 DataBar."
+
+#: ../../library/omv.image.rst:723
+msgid "GS1 DataBar Expanded barcode."
+msgstr "Code-barres GS1 DataBar Expanded."
+
+#: ../../library/omv.image.rst:728
+msgid "Codabar barcode."
+msgstr "Code-barres Codabar."
+
+#: ../../library/omv.image.rst:733
+msgid "Code 39 barcode."
+msgstr "Code-barres Code 39."
+
+#: ../../library/omv.image.rst:738
+msgid ""
+"PDF417 2D stacked barcode. The constant exists for completeness, but the "
+"barcode decoder does not currently implement PDF417 -- "
+"`Image.find_barcodes()` will not return detections of this type."
+msgstr ""
+"Code-barres 2D empilé PDF417. La constante existe par souci d'exhaustivité, "
+"mais le décodeur de code-barres n'implémente pas actuellement le PDF417 -- "
+"`Image.find_barcodes()` ne renverra pas de détections de ce type."
+
+#: ../../library/omv.image.rst:745
+msgid "Code 93 barcode."
+msgstr "Code-barres Code 93."
+
+#: ../../library/omv.image.rst:750
+msgid "Code 128 barcode."
+msgstr "Code-barres Code 128."

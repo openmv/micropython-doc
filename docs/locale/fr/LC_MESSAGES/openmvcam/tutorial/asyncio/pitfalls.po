@@ -1,0 +1,260 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:2
+msgid "Pitfalls"
+msgstr "Pièges"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:4
+msgid ""
+"The same patterns that make asyncio nice -- no preemption, explicit "
+"``await``\\ s -- give it its own set of shapes that bite. This page is the "
+"catalogue of the ones that come up often enough to be worth knowing about."
+msgstr ""
+"Les mêmes schémas qui rendent asyncio agréable -- pas de préemption, des "
+"``await`` explicites -- lui donnent son propre lot de situations qui "
+"mordent. Cette page est le catalogue de celles qui reviennent assez souvent "
+"pour qu'il vaille la peine de les connaître."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:10
+msgid "Forgetting to ``await``"
+msgstr "Oublier d'``await``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:12
+msgid ""
+"Calling an ``async def`` function returns a *coroutine object*. It does not "
+"run the body of the function. To actually execute it, the coroutine has to "
+"be ``await``\\ ed or wrapped in a task::"
+msgstr ""
+"Appeler une fonction ``async def`` renvoie un *objet coroutine*. Cela "
+"n'exécute pas le corps de la fonction. Pour réellement l'exécuter, la "
+"coroutine doit être attendue (``await``) ou enveloppée dans une tâche::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:22
+msgid ""
+"The bug is silent -- the coroutine object is created, discarded, and never "
+"executed. The application proceeds as if everything worked. MicroPython will"
+" sometimes log a warning that a coroutine was *never awaited*; sometimes it "
+"will not. Audit for missing ``await``\\ s at every call site that looks like"
+" a function call."
+msgstr ""
+"Le bogue est silencieux -- l'objet coroutine est créé, abandonné et jamais "
+"exécuté. L'application poursuit comme si tout avait fonctionné. MicroPython "
+"journalisera parfois un avertissement signalant qu'une coroutine n'a *jamais"
+" été attendue* ; parfois non. Vérifiez l'absence de ``await`` à chaque site "
+"d'appel qui ressemble à un appel de fonction."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:30
+msgid "Tight loops without ``await``"
+msgstr "Boucles serrées sans ``await``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:32
+msgid ""
+"A coroutine that runs in a loop and never ``await``\\ s monopolises the "
+"event loop. No other task makes progress until the loop exits or yields::"
+msgstr ""
+"Une coroutine qui s'exécute en boucle et n'``await`` jamais monopolise la "
+"boucle d'événements. Aucune autre tâche ne progresse tant que la boucle ne "
+"se termine pas ou ne cède pas la main::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:41
+msgid ""
+"The fix is a yield inside the loop -- usually ``await asyncio.sleep_ms(0)`` "
+"-- so other ready tasks get a chance to run. Computation-heavy work belongs "
+"inside that shape too: an image-processing loop that runs for hundreds of "
+"milliseconds per iteration should yield at least once per iteration so the "
+"rest of the program does not stall."
+msgstr ""
+"Le correctif est un yield à l'intérieur de la boucle -- généralement ``await"
+" asyncio.sleep_ms(0)`` -- afin que les autres tâches prêtes aient une chance"
+" de s'exécuter. Les traitements gourmands en calcul relèvent aussi de cette "
+"forme : une boucle de traitement d'image qui dure des centaines de "
+"millisecondes par itération devrait céder la main au moins une fois par "
+"itération pour que le reste du programme ne se bloque pas."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:49
+msgid "Swallowing ``CancelledError``"
+msgstr "Avaler ``CancelledError``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:51
+msgid ""
+"The :doc:`cancellation page <coordination/timeouts-and-cancellation>` "
+"already covered this in detail. Repeating it here because it is the most "
+"common cause of \"my application will not shut down\": a coroutine catches "
+":exc:`asyncio.CancelledError` for cleanup purposes and forgets to re-raise "
+"it. The task continues to run; the caller that asked for the cancellation "
+"hangs forever waiting for it to finish. Always re-raise after cleanup, or "
+"use a ``try``/``finally`` block instead of an explicit ``except``."
+msgstr ""
+"La :doc:`page sur l'annulation <coordination/timeouts-and-cancellation>` a "
+"déjà traité ce point en détail. On le répète ici car c'est la cause la plus "
+"fréquente du « mon application refuse de s'arrêter » : une coroutine "
+"intercepte :exc:`asyncio.CancelledError` à des fins de nettoyage et oublie "
+"de la relever. La tâche continue de s'exécuter ; l'appelant qui a demandé "
+"l'annulation reste suspendu indéfiniment à attendre qu'elle se termine. "
+"Relevez toujours l'exception après le nettoyage, ou utilisez un bloc "
+"``try``/``finally`` plutôt qu'un ``except`` explicite."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:63
+msgid "Mutating shared state across awaits"
+msgstr "Muter un état partagé à travers des await"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:65
+msgid ""
+"Cooperative scheduling guarantees that a coroutine has the CPU to itself "
+"*between* awaits, but as soon as it ``await``\\ s, another coroutine can "
+"run. If two coroutines modify the same data structure in steps that include "
+"``await``, their operations can interleave in ways that corrupt the "
+"structure::"
+msgstr ""
+"L'ordonnancement coopératif garantit qu'une coroutine a le CPU pour elle "
+"seule *entre* les await, mais dès qu'elle ``await``, une autre coroutine "
+"peut s'exécuter. Si deux coroutines modifient la même structure de données "
+"par des étapes qui incluent un ``await``, leurs opérations peuvent "
+"s'entrelacer de manière à corrompre la structure::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:79
+msgid ""
+"For state that is *only* mutated between awaits inside one coroutine, no "
+"synchronisation is needed. For state mutated across awaits and accessed from"
+" more than one coroutine, wrap the critical section in an "
+":class:`~asyncio.Lock`."
+msgstr ""
+"Pour un état qui n'est muté *qu'entre* les await à l'intérieur d'une seule "
+"coroutine, aucune synchronisation n'est nécessaire. Pour un état muté à "
+"travers des await et accédé depuis plus d'une coroutine, enveloppez la "
+"section critique dans un :class:`~asyncio.Lock`."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:85
+msgid "Module-level ``await``"
+msgstr "``await`` au niveau du module"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:87
+msgid ""
+"``await`` is only valid inside an ``async def`` body. Writing it at module "
+"level -- outside any coroutine -- is a syntax error::"
+msgstr ""
+"``await`` n'est valide qu'à l'intérieur d'un corps ``async def``. L'écrire "
+"au niveau du module -- en dehors de toute coroutine -- est une erreur de "
+"syntaxe::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:94
+msgid ""
+"The fix is to put the work in a coroutine and call it from the program's "
+":func:`asyncio.run` entry point."
+msgstr ""
+"Le correctif consiste à placer le travail dans une coroutine et à l'appeler "
+"depuis le point d'entrée :func:`asyncio.run` du programme."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:98
+msgid "Multiple ``asyncio.run`` calls"
+msgstr "Plusieurs appels à ``asyncio.run``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:100
+msgid ""
+"MicroPython has *one* event loop. Calling :func:`asyncio.run` twice in a row"
+" -- once for setup, once for the main work -- still uses the same loop. "
+"Calling it *from inside* a running coroutine is an error: the loop is "
+"already running. Both cases come up most often when a script grows "
+"organically and the author tries to extend it by adding more "
+":func:`~asyncio.run` calls instead of folding the new work into the existing"
+" ``main``."
+msgstr ""
+"MicroPython possède *une seule* boucle d'événements. Appeler "
+":func:`asyncio.run` deux fois de suite -- une fois pour la configuration, "
+"une fois pour le travail principal -- utilise quand même la même boucle. "
+"L'appeler *depuis l'intérieur* d'une coroutine en cours d'exécution est une "
+"erreur : la boucle tourne déjà. Les deux cas surviennent le plus souvent "
+"lorsqu'un script grandit organiquement et que l'auteur tente de l'étendre en"
+" ajoutant d'autres appels à :func:`~asyncio.run` au lieu d'intégrer le "
+"nouveau travail dans le ``main`` existant."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:110
+msgid "Use of :class:`~asyncio.Event` from an interrupt"
+msgstr "Utilisation de :class:`~asyncio.Event` depuis une interruption"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:112
+msgid ""
+":meth:`asyncio.Event.set` is only safe to call from inside the event loop. "
+"Calling it from a GPIO interrupt handler is a corruption hazard. For waking "
+"a task from an interrupt, use :class:`~asyncio.ThreadSafeFlag` instead -- "
+"the :doc:`page on it <primitives/threadsafe-flag>` covers the shape."
+msgstr ""
+":meth:`asyncio.Event.set` ne peut être appelé en toute sécurité que depuis "
+"l'intérieur de la boucle d'événements. L'appeler depuis un gestionnaire "
+"d'interruption GPIO présente un risque de corruption. Pour réveiller une "
+"tâche depuis une interruption, utilisez plutôt "
+":class:`~asyncio.ThreadSafeFlag` -- la :doc:`page qui lui est consacrée "
+"<primitives/threadsafe-flag>` en décrit la forme."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:120
+msgid "Long synchronous calls"
+msgstr "Appels synchrones longs"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:122
+msgid ""
+"A coroutine can await asyncio's own waiting primitives; anything else it "
+"calls runs synchronously and blocks the loop until it returns. A 200 ms "
+"blocking :func:`time.sleep`, an SD-card write that takes 80 ms to flush, a "
+"large JPEG compression, a :meth:`csi.CSI.snapshot` call -- each of those "
+"holds the event loop for its full duration. The fix depends on the call:"
+msgstr ""
+"Une coroutine peut attendre les primitives d'attente propres à asyncio ; "
+"tout le reste de ce qu'elle appelle s'exécute de manière synchrone et bloque"
+" la boucle jusqu'à son retour. Un :func:`time.sleep` bloquant de 200 ms, une"
+" écriture sur carte SD qui met 80 ms à se vider, une grosse compression "
+"JPEG, un appel à :meth:`csi.CSI.snapshot` -- chacun d'eux retient la boucle "
+"d'événements pendant toute sa durée. Le correctif dépend de l'appel :"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:130
+msgid ""
+"For ``time.sleep``: replace it with ``await asyncio.sleep`` or ``await "
+"asyncio.sleep_ms``."
+msgstr ""
+"Pour ``time.sleep`` : remplacez-le par ``await asyncio.sleep`` ou ``await "
+"asyncio.sleep_ms``."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:132
+msgid ""
+"For ``csi.CSI.snapshot``: use the :doc:`async snapshot wrapper "
+"<capstone/snapshot-loop>` the capture page builds."
+msgstr ""
+"Pour ``csi.CSI.snapshot`` : utilisez le :doc:`wrapper de capture asynchrone "
+"<capstone/snapshot-loop>` que construit la page sur la capture."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:135
+msgid ""
+"For long compute (image processing, JPEG encode): accept the cost or break "
+"the work into chunks that ``await`` between iterations."
+msgstr ""
+"Pour les longs calculs (traitement d'image, encodage JPEG) : acceptez le "
+"coût ou découpez le travail en morceaux qui ``await`` entre les itérations."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:139
+msgid ""
+"Asyncio cannot make a synchronous call non-blocking. It can only let other "
+"coroutines run *while* something else is awaiting."
+msgstr ""
+"Asyncio ne peut pas rendre un appel synchrone non bloquant. Il peut "
+"seulement laisser d'autres coroutines s'exécuter *pendant* qu'autre chose "
+"est en attente."
