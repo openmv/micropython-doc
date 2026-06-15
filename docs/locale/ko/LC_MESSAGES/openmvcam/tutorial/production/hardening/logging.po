@@ -1,0 +1,562 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "로깅"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"출하된 제품은 :func:`print` 로 본사에 연락할 수 없습니다. ``print()`` 는 USB stdout에 기록하는데, 이것은"
+" 카메라가 개발자의 작업대에 놓여 있고 터미널이 열려 있을 때만 존재합니다. 현장에서는 아무것도 그것을 읽지 않으며, 모든 줄은 바닥에 "
+"버려집니다. :mod:`logging` 라이브러리가 그 대체물입니다 -- 레벨 필터, 애플리케이션이 선택한 대상, 그리고 무슨 일이 언제"
+" 일어났는지를 알려주는 형식을 제공합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"카메라의 :mod:`logging` 모듈은 CPython의 것을 간소화하여 이식한 것입니다 -- 동일한 사고 모델, 더 작은 표면적, "
+"그리고 프로덕션 설정에서 중요한 몇 가지 차이점을 가지고 있습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "사고 모델"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr ""
+"로깅은 네 가지 부분으로 구성됩니다. 각 부분은 하나의 역할을 가지며, 이 분리 덕분에 하나의 로거가 각각 고유한 형식과 레벨을 가진 "
+"여러 대상으로 갈라져 나갈 수 있습니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"카메라에서 ``sys.stdout`` 와 ``sys.stderr`` 는 동일한 USB CDC 파이프에 연결되어 있습니다 -- 둘 중 "
+"어디에 기록하든 개발자가 USB를 통해 열어 둔 동일한 터미널에 나타납니다. ``sys.stderr`` 에 기록하는 핸들러는 실질적으로 "
+"``print()`` 가 기록하는 것과 같은 곳에 기록하는 핸들러입니다. 핸들러 추상화는 여전히 대상별 필터링과 형식 지정을 제공합니다."
+" 다만 물리적으로 분리된 채널을 제공하지는 않습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"**레벨 필터**\\ 는 모든 로거와 모든 핸들러에 자리 잡고 있습니다. 레코드는 레벨(``DEBUG`` / ``INFO`` / "
+"``WARNING`` / ``ERROR`` / ``CRITICAL``)을 가집니다. 필터 레벨 이상의 레코드만 통과합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"이 분리가 중요한 이유는 일반적인 프로덕션 설정에 둘 이상의 대상이 있기 때문입니다: 사후 분석을 위해 ``DEBUG`` 까지 모든 것을"
+" 보관하는 SD 카드의 파일, 그리고 카메라에 연결된 개발자가 세부 사항에 파묻히지 않고 핵심만 볼 수 있도록 ``WARNING`` "
+"이상만 노출하는 USB로의 스트림입니다. 동일한 코드, 두 개의 대상, 두 개의 필터입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "레벨과 각각의 의미"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr ""
+"다섯 가지 레벨은 순서가 있는 척도입니다. 레코드는 레벨을 가지므로 각 핸들러의 필터가 관심 없는 레코드를 버릴 수 있습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr "``DEBUG`` -- 추적, 프레임별 카운터, 내부 상태 덤프. 가장 낮은 레벨이며, 양이 많습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr "``INFO`` -- 정상적인 운영 이벤트. Wi-Fi 연결됨, 모델 로드됨, 워치독 시작됨, 새 로그 파일로 교체됨."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr "``WARNING`` -- 예상치 못했지만 애플리케이션이 처리한 무언가. 프레임 누락, 재시도된 네트워크 요청."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr "``ERROR`` -- 작업이 실패하여 애플리케이션이 완료할 수 없었음. 모델 파일 누락, SD 카드 쓰기 거부됨."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr "``CRITICAL`` -- 애플리케이션이 전혀 계속할 수 없음. 메모리 부족, 필수 마운트 누락."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"기억해야 할 중요한 기본값 하나: 카메라의 :mod:`logging` 모듈은 모든 로거를 ``WARNING`` 으로 시작합니다. "
+":meth:`Logger.setLevel` 이 호출되지 않으면 -- 보통 아래의 :func:`basicConfig` 호출의 일부로 -- "
+"``DEBUG`` 와 ``INFO`` 레코드는 조용히 버려집니다. 로깅 설정이 \"작동하지 않는\" 흔한 첫 번째 증상은 애플리케이션이 "
+"``INFO`` 로 내보냈는데 기본 필터가 레코드를 먹어 버린 경우입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"레벨은 카메라의 :mod:`logging` 이 제공하는 유일한 필터입니다. 더 풍부한 레코드별 규칙을 위한 :class:`Filter` "
+"객체는 없습니다. 레코드의 레벨이 통과하면 내보내집니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig: 빠른 시작"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ""
+":func:`logging.basicConfig` 는 단일 호출로 루트 로거를 구성합니다. 가장 흔히 나타나는 두 가지 형태가 있습니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr "개발 설정으로, ``INFO`` 레벨에서 모든 것을 USB stderr로::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr "프로덕션 설정으로, 타임스탬프가 찍힌 형식으로 모든 것을 SD 카드의 파일에::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+":class:`FileHandler` 를 위한 ``filename=`` 또는 :class:`StreamHandler` 를 위한 "
+"``stream=`` 중 하나를 전달합니다. 이 둘은 :func:`basicConfig` 에서 상호 배타적입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr "형식 문자열은 ``%(field)s`` 스타일의 템플릿입니다. 카메라의 포매터가 지원하는 필드는 다음과 같습니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s`` -- :func:`time.localtime` 로부터 형식이 지정된 타임스탬프. 기본 형식은 "
+"``%Y-%m-%d %H:%M:%S`` 이며, ``datefmt=`` 를 전달하여 재정의할 수 있습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s`` -- 로거의 이름(다음 섹션 참조)."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s`` -- 레코드의 형식이 지정된 메시지."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d`` -- 레코드 타임스탬프의 밀리초 부분."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"아무것도 지정되지 않은 경우의 기본 형식은 ``%(levelname)s:%(name)s:%(message)s`` 입니다 -- 개발 "
+"설정에는 적합하지만, 몇 주 뒤에 파일을 유용하게 만드는 것이 타임스탬프인 현장 로그에는 부적합합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+":func:`basicConfig` 는 ``force=True`` 가 전달되지 않는 한 이후 호출에서는 아무 동작도 하지 않습니다. 시작"
+" 시 한 번 구성하십시오. 실행 중간에 \"대상을 전환\"하기 위해 다시 호출하지 마십시오."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"카메라의 :mod:`logging` 에는 :func:`dictConfig` 나 :func:`fileConfig` 가 없습니다. 구성은 "
+"항상 프로그래밍 방식입니다 -- ``main.py`` 에서 한 번 호출되는 하나의 ``setup_logging()`` 헬퍼가 관례입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "모듈별 이름이 지정된 로거"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"애플리케이션 코드는 모듈 수준의 단축 함수(:func:`logging.info`, :func:`logging.warning` 등)를 "
+"호출해서는 안 됩니다. 이들은 모두 루트 로거를 통해 흘러가며, 그 결과로 생성된 로그 레코드는 ``root`` 라는 이름을 가집니다 "
+"-- 레코드가 *어디서* 왔는지 알려주는 데는 쓸모가 없습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "관례는 모듈당 하나의 로거를 두고, 모듈의 이름을 따서 명명하는 것입니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr ""
+"그러면 모든 레코드는 ``%(name)s`` 에 ``app.detector`` 를 담게 되고, 로그 줄은 누가 내보냈는지를 알려줍니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"카메라의 :mod:`logging` 은 한 가지 중요한 점에서 CPython과 다릅니다: 로거 네임스페이스가 **평면적**\\ 입니다. "
+"``getLogger('app')`` 와 ``getLogger('app.detector')`` 는 부모/자식 관계가 없는 독립적인 "
+"로거입니다 -- ``app`` 에 레벨을 설정해도 ``app.detector`` 로 *전파되지 않습니다*. 작동하는 메커니즘은 다음과 "
+"같습니다: 자체 핸들러가 없는 이름이 지정된 로거는 루트 로거의 핸들러와 레벨을 빌려 옵니다. 이것이 루트에 대한 단일 "
+":func:`basicConfig` 호출이 애플리케이션의 다른 곳에 있는 모든 :func:`getLogger` 호출을 설정하는 "
+"방식입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "지연된 %-인자 형식 지정"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "이렇게 작성하십시오::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "이렇게 하지 마십시오::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"``%`` 인자 형식은 레벨 필터가 레코드를 내보낼지 결정한 *후에* 로거가 인자를 끼워 넣게 합니다. 핫 루프 안에서 필터링되어 걸러진"
+" ``DEBUG`` 호출은 형식 문자열에 대한 비용을 전혀 지불하지 않습니다. f-string은 호출이 로거에 도달하기도 전에, 매번 "
+"먼저 평가됩니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr ""
+"구조화된 필드를 위한 CPython의 ``extra=`` 키워드는 카메라에서 지원되지 않습니다. 대신 값을 메시지 인자로 전달하십시오."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "예외 로깅"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+":keyword:`except` 블록 안에서 :meth:`Logger.exception` 은 메시지를 ``ERROR`` 레벨로 로깅하고 "
+"*동시에* 현재 예외의 트레이스백을 레코드에 추가합니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"트레이스백은 :func:`sys.print_exception` 을 통해 캡처되며, 이것이 예외 로그에 여러 줄짜리 ``Traceback "
+"(most recent call last):`` 블록을 제공합니다. 이것은 최상위 예외 처리에 적합한 도구입니다 -- 잡고, 로깅하고, "
+"계속 진행합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "여러 핸들러"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"맨 위에서 언급한 프로덕션 분할 -- 모든 것을 ``DEBUG`` 로 파일에, 핵심만 ``WARNING`` 으로 stderr에 -- 은 "
+"동일한 로거에 연결된 두 개의 핸들러이며, 각각 고유한 레벨과 포매터를 가집니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"루트 로거의 레벨은 모든 레코드가 가장 *먼저* 부딪히는 필터입니다. 이를 어떤 핸들러든 보고 싶어 하는 가장 낮은 레벨 -- 여기서는 "
+"``DEBUG`` -- 로 설정하여 어떤 핸들러도 로거 자체에 의해 굶주리지 않도록 하십시오. 그러면 핸들러별 레벨이 어떤 레코드가 "
+"실제로 어떤 대상으로 내보내질지를 결정합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "로그 파일 순환"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"카메라의 :mod:`logging` 에는 :class:`RotatingFileHandler` 나 "
+":class:`TimedRotatingFileHandler` 가 없습니다. 순환은 애플리케이션의 일입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"패턴은 현재 :class:`FileHandler` 를 알려진 위치에 보관하고, 롤오버 기준이 발동하면 새 것으로 교체하며, 날짜가 포함된"
+" 경로가 자연스러운 파일 경계를 제공하도록 하는 것입니다. "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log`` 로의 시간별 롤오버의 경우::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"메인 루프 반복마다 ``rotate_if_needed()`` 를 한 번 호출하십시오. 경로 확인은 비용이 저렴하고 교체는 시간 경계에서만"
+" 일어납니다. :class:`FileHandler` 가 파일을 열 수 있으려면 그 전에 디렉터리 트리가 존재해야 합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "전력에 민감한 배포에서의 플러시"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+":class:`FileHandler` 의 쓰기는 기반 파일 객체의 Python 버퍼링을 거칩니다. 쓰기와 플러시 사이의 전력 손실은 "
+"마지막 레코드들을 잃습니다. 배터리 구동이나 플러그를 뽑는 배포의 경우, 중요한 레코드 이후에 또는 타이머에서 핸들러 스트림의 "
+"``flush()`` 를 호출하십시오."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr "루트 로거에 연결된 모든 핸들러를 플러시하는 작은 헬퍼::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr "애플리케이션이 잃어서는 안 되는 레코드 직후에 ``flush_handlers()`` 를 호출하십시오::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"백그라운드 안전을 위해서는 로그 최신성과 플래시 마모 사이의 균형을 맞추는 주기로 메인 루프에서 호출하십시오 -- 보통 초당 한 번이면 "
+"충분합니다. :meth:`Logger.critical` 은 그 자체로 플러시를 트리거하지 *않습니다*."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "부팅 시 진단"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"맥락이 없는 현장 로그는 거의 쓸모가 없습니다. 모든 콜드 부팅 시 첫 번째 레코드들은 *어떤* 카메라인지, *어떤 빌드*\\ 가 실행 "
+"중인지, 그리고 카메라가 *어떻게* 이 부팅에 이르렀는지를 식별해야 합니다. 기기상의 세 가지 소스가 이 모든 것을 함께 다룹니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv` -- OpenMV 펌웨어 버전."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ""
+":func:`os.uname` -- MicroPython 버전, 보드 이름 + MCU, 그리고 펌웨어가 빌드된 소스의 git 태그와 빌드"
+" 날짜."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ":mod:`machine` -- MCU의 고유 실리콘 ID와 이 부팅을 트리거한 리셋 원인."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr "각 마운트 지점에 대한 :func:`os.listdir` -- 실제로 올라온 파일시스템."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr "이 모든 것을 로그의 첫 번째 레코드로 끌어오는 헬퍼::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "일반적인 로그는 다음과 같은 것으로 시작합니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"모든 로그 파일의 여덟 줄 안에서, 운영자는 물리적 장치, 펌웨어 계보, 카메라가 부팅한 이유, 그리고 어떤 저장소가 올라왔는지를 알게 "
+"됩니다. ``unique id`` 는 MCU의 공장 프로그래밍된 실리콘 일련번호입니다. 재플래시 전반에 걸쳐, 그리고 SD 카드 교체 "
+"전반에 걸쳐 동일합니다. ``build`` 는 이미지가 빌드된 펌웨어 트리의 git 태그와 날짜입니다 -- \"이것이 정확히 이 시점에 "
+"이 장치로 출하된 바이너리다\"라고 말해주는 단일 필드입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "통합하기"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr "``main.py`` 가 시작 시 한 번 호출하는 헬퍼로 분리된, 완전한 프로덕션 로깅 설정::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "그런 다음 ``main.py`` 의 맨 위에서::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "애플리케이션의 다른 모든 모듈은 그저 이렇게만 하면::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr ""
+"구성된 출력을 거저 얻습니다 -- 전체 세부 정보가 담긴 파일, 경고가 담긴 스트림, 이름이 지정된 레코드, 타임스탬프가 찍힌 포매터, "
+"그리고 모든 콜드 부팅 시 문서화된 부트입니다."

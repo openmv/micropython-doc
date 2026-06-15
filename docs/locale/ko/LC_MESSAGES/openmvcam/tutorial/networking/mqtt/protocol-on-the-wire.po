@@ -1,0 +1,400 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT, 바이트 단위로 살펴보기"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"이 시점에서 카메라는 공개 인터넷의 실제 서비스와 통신하는 데 필요한 모든 요소를 갖추게 됩니다. TCP 소켓, 이를 감싸는 TLS, "
+"상대를 이름으로 지정하는 DNS, 그리고 연결이 열려 있는 동안 같은 스크립트가 다른 작업을 수행할 수 있게 해주는 asyncio가 "
+"그것입니다. MQTT는 이 모든 것을 한데 묶어 실제 배포된 제품이 사용하는 형태로 만들어 내는 첫 번째 와이어 프로토콜입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"이 페이지에서는 프로토콜 자체를 다룹니다. 즉 와이어상의 형식, 각 참여자가 맡는 역할, 그리고 그 설계에서의 절충점을 충분히 정직하게 "
+"설명하여, 함께 제공되는 :mod:`mqtt` 클라이언트가 미지의 영역으로의 도약이 아니라 이미 알고 있는 것을 명백하게 감싼 것처럼 "
+"보이도록 합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "Pub/sub 대 request/response"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"대부분의 카메라 프로젝트가 가장 먼저 사용하는 프로토콜인 HTTP는 *request/response* 방식입니다. 클라이언트가 특정 "
+"서버에 특정 리소스를 요청하면 서버가 응답합니다. 모든 교환은 일대일이며, 양쪽 끝 모두 서로의 주소를 미리 알고 있습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT는 *publish/subscribe* 방식입니다. 클라이언트는 중간에 있는 제3자인 **broker(브로커)** 에 연결합니다."
+" *publisher(발행자)* 는 누가 듣고 있는지 알지도, 신경 쓰지도 않은 채 이름이 붙은 **topic(토픽)** 으로 메시지를 "
+"보냅니다. *subscriber(구독자)* 는 자신이 원하는 토픽을 브로커에 알리고, 그 이후로 해당 토픽에 발행되는 모든 메시지를 "
+"받습니다. 브로커는 팬아웃 역할을 합니다. 즉 ``yard-cam/motion`` 에 한 번 발행하면 ``yard-cam/motion``"
+" 을 구독하는 모든 기기에 도달하며, 구독자가 0개든 1개든 50개든 상관없습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "이러한 모델의 변화로부터 세 가지가 뒤따릅니다:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**디커플링(분리).** 발행자는 구독자가 존재하는지 알 필요가 없습니다. 구독자는 발행자가 알아채지 못한 채 오갈 수 있습니다. 두 "
+"번째 대시보드를 추가하는 것은 새 대시보드 쪽에서 코드 한 줄을 작성하는 일이며, 카메라는 바뀌지 않습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**팬아웃.** 브로커가 모든 복제를 처리하므로 카메라는 몇 대의 기기가 읽든 상관없이 패킷 하나만 보냅니다. 이것이 바로 MQTT가 "
+"만들어진 용도입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**비대칭성.** 이제 브로커는 필수 인프라가 됩니다. 브로커가 없으면 프로토콜이 동작하지 않습니다. 가정용 프로젝트에서는 보통 무료 "
+"공개 브로커(``test.mosquitto.org``, ``broker.hivemq.com``)이거나 직접 운영하는 소규모 브로커입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"브로커의 yard-cam/motion 토픽에 발행하는 카메라 한 대와,\n"
+"두 개의 브라우저 대시보드 및 한 개의 클라우드 아카이버가\n"
+"각각 동일한 메시지를 받는 모습."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "토픽"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr "토픽은 슬래시로 구분된 문자열입니다. 관례상 가장 일반적인 것이 왼쪽에, 가장 구체적인 것이 오른쪽에 옵니다::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr "두 가지 와일드카드는 *구독(subscription)* 에서 동작합니다(발행에서는 동작하지 않습니다):"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` 는 단일 레벨에 매칭됩니다. ``+/motion`` 은 모든 카메라의 motion 토픽을 구독하고, ``yard-cam/+``"
+" 는 모든 yard-cam 하위 토픽을 구독합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` 는 하나 이상의 후행 레벨에 매칭됩니다. ``yard-cam/#`` 은 ``yard-cam/motion``, ``yard-"
+"cam/temperature``, ``yard-cam/temperature/sensor-3``, 그리고 ``yard-cam/`` 아래의 "
+"다른 모든 것을 구독합니다. 이것은 구독의 끝에 나와야 합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"토픽 문자열은 대소문자를 구분합니다. 사양에 따르면 앞에 붙은 ``$`` 는 발행자가 쓰면 안 되는 브로커 내부 "
+"토픽(``$SYS/...``)을 표시합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "패킷 형식"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"MQTT는 TCP 위에서 동작합니다. 모든 제어 패킷은 1바이트 *고정 헤더(fixed header)* 로 시작하고, 가변 길이의 "
+"*Remaining Length* 필드, 그다음 패킷 유형별 *가변 헤더(variable header)*, 마지막으로 "
+"*페이로드(payload)* 가 이어집니다. CONNECT, PUBLISH, SUBSCRIBE, PUBACK, DISCONNECT 등 "
+"모든 명령에 동일한 외부 형식이 적용되며, 그래서 MQTT 클라이언트를 수백 줄로 작성할 수 있는 것입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"MQTT PUBLISH 패킷의 바이트 레이아웃으로,\n"
+"고정 헤더의 유형 및 플래그 바이트, 가변 길이의\n"
+"Remaining Length 필드, 토픽 이름, 선택적 패킷\n"
+"식별자, 그리고 페이로드 바이트를 보여줍니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "고정 헤더는 1바이트입니다:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"비트 7..4는 **제어 패킷 유형(control packet type)** 입니다. ``0x3`` 은 PUBLISH입니다(따라서 첫 "
+"바이트는 보통 ``0x3?`` 로 시작합니다). ``0x1`` 은 CONNECT, ``0x2`` 는 CONNACK, ``0x8`` 은 "
+"SUBSCRIBE, ``0xC`` 는 PINGREQ, ``0xE`` 는 DISCONNECT 등입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"비트 3..0은 패킷 유형별 **플래그(flags)** 입니다. PUBLISH의 경우 플래그는 DUP 재전송 플래그, QoS "
+"레벨(2비트), 그리고 RETAIN 플래그를 인코딩합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"Remaining Length는 자신 이후의 모든 바이트를 세는 1~4바이트 가변 길이 정수입니다. 각 바이트의 최상위 비트는 연속 "
+"표시기입니다. 즉 1은 \"또 다른 길이 바이트가 뒤따른다\"는 뜻이고, 0은 \"이것이 마지막이다\"는 뜻입니다. 128 미만의 길이는"
+" 1바이트에 들어가며, 더 큰 페이로드는 더 많은 바이트를 사용합니다. 인코딩 가능한 최대 길이는 256 MiB입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"PUBLISH의 경우 가변 헤더는 토픽 이름(2바이트 길이, 그다음 UTF-8 바이트)이며, 그 뒤에 QoS가 1 또는 2일 때만 "
+"존재하는 2바이트 *패킷 식별자(packet identifier)* 가 옵니다. 나머지 바이트는 페이로드로, 프로토콜은 이를 불투명한 "
+"바이트로 취급합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "``a/b`` 로 ``ok`` 를 보내는 최소한의 QoS-0 PUBLISH는 다음과 같습니다::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH, 모든 플래그가 0."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- 7바이트가 뒤따름."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- 토픽 길이 3."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- 토픽."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- 페이로드."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr "와이어상 9바이트이며, 메시지는 브로커에서 ``a/b`` 를 구독하는 모든 구독자에게 도달합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "QoS 레벨"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"Quality-of-Service(서비스 품질)는 브로커(및 클라이언트)가 전달을 보장하기 위해 얼마나 노력하는지를 제어합니다. 세 가지"
+" 레벨은 다음과 같습니다:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- 최대 한 번(at most once).** 발사 후 망각(fire and forget) 방식입니다. PUBLISH "
+"패킷이 전송되고 확인되지 않습니다. TCP가 전달하면 브로커가 전달합니다. 전송 도중 연결이 끊기면 메시지는 사라집니다. 대부분의 센서 "
+"텔레메트리는 QoS 0이면 충분합니다. 30초마다 보내는 스트림에서 온도 측정값 하나를 놓친다고 해서 문제가 되지 않습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- 최소 한 번(at least once).** 발행자는 패킷 식별자를 포함하고 PUBACK을 기다립니다. 타임아웃 전에"
+" PUBACK이 도착하지 않으면 발행자는 DUP 플래그를 설정하여 재전송합니다. 브로커는 결국 같은 메시지를 같은 레벨의 구독자에게 두 "
+"번 전달할 수 있으므로, 구독자는 중복을 기꺼이 처리할 수 있어야 합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- 정확히 한 번(exactly once).** 4단계 핸드셰이크(PUBREC / PUBREL / PUBCOMP)를 통해"
+" 재연결을 거치더라도 메시지가 정확히 한 번 도달하도록 보장합니다. 왕복과 브로커 상태 측면에서 비용이 큽니다. 이를 필요로 하는 카메라"
+" 앱은 거의 없습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"함께 제공되는 :mod:`mqtt` 클라이언트는 QoS 0과 QoS 1을 구현합니다. QoS 2를 요청하면 예외를 발생시킵니다. 센서 "
+"측정값을 보고하는 카메라의 경우 거의 항상 QoS 0이 올바른 답입니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "보존 메시지(retained message)와 last will"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr "두 가지 기능은 브로커가 토픽에 대해 무엇을 기억하는지를 바꾸기 때문에 알아둘 가치가 있습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN.** PUBLISH에 RETAIN 플래그가 설정되어 있으면 브로커는 그 메시지를 저장해 두었다가 *향후* 모든 구독자가 "
+"구독하는 순간 그들에게 전달합니다. 이것이 MQTT가 \"현재 값이 무엇인가?\"를 처리하는 방식입니다. 즉 센서가 최신 측정값을 "
+"보존(retained)으로 발행하면, 10분 뒤에 구독하는 대시보드도 다음 발행을 기다리지 않고 가장 최근 값을 받게 됩니다. 같은 "
+"토픽으로 다시 발행하면 보존된 값을 덮어쓰고, 빈 페이로드를 발행하면 그것을 지웁니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**Last will.** 클라이언트는 연결할 때 브로커에 \"유언(last will and testament)\"을 줄 수 있습니다. "
+"즉 토픽, 페이로드, QoS, 그리고 retain 플래그입니다. 그 클라이언트가 *비정상적으로* 연결이 끊기면(TCP RESET, 전원 "
+"손실, DISCONNECT 패킷 없는 네트워크 단절), 브로커가 그 클라이언트를 대신해 유언을 발행합니다. 구독자는 이를 카메라가 "
+"오프라인이 되었다는 알림으로 받게 됩니다. 카메라 자신은 결코 유언을 보내지 않습니다. 그때쯤이면 카메라가 사라졌으므로 브로커가 "
+"보냅니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "keepalive와 재연결"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"CONNECT는 초 단위의 *keepalive* 간격을 담습니다. 클라이언트가 그 시간 동안 침묵하면 브로커는 그것을 죽은 것으로 "
+"간주합니다. 이를 방지하기 위해 클라이언트는 주기적으로 PINGREQ(1바이트: ``0xC0``)를 보내고 "
+"PINGRESP(``0xD0``)를 돌려받습니다. 이는 프로토콜이 담을 수 있는 가장 작고 저렴한 하트비트입니다. 대부분의 카메라 앱은 "
+"keepalive를 30초나 60초로 설정합니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"TCP 연결이 끊기면 양쪽 모두 이를 알아채고 처음부터 다시 연결합니다. 클라이언트가 연결 시 *지속 세션(persistent "
+"session)* 을 사용하지 않았다면 끊기기 전에 만든 구독은 사라집니다. 단순한 카메라 앱에서는 재연결 시 재구독하는 패턴이 더 짧고"
+" 그만큼 좋습니다."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"이 정도면 MQTT 사양을 읽거나 :class:`socket.socket` 위에서 클라이언트를 직접 작성하기에 충분합니다. "
+":mod:`mqtt` 에 함께 제공되는 클라이언트는 바로 그 일을 하며, 여기에 애플리케이션 코드를 위한 합리적인 API를 더합니다."

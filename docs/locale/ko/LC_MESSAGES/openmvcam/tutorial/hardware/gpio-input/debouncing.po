@@ -1,0 +1,348 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:2
+msgid "Debouncing"
+msgstr "디바운싱"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:4
+msgid ""
+"A switch is drawn as a perfect open-or-closed contact, but a real switch's "
+"contacts do not snap cleanly between the two states. They *chatter* -- make "
+"and break electrical contact many times within a few milliseconds before "
+"settling. A GPIO input reading the pin sees that as a burst of edges; a "
+"careless polling loop counts several \"presses\" for one real press, and an "
+"interrupt handler runs several times per actual press."
+msgstr ""
+"스위치는 완벽하게 열리거나 닫히는 접점으로 그려지지만, 실제 스위치의 접점은 두 상태 사이를 깔끔하게 전환하지 못합니다. 접점은 "
+"*채터링(chatter)* 을 일으킵니다 -- 안정되기 전 몇 밀리초 동안 전기적 접촉을 여러 번 붙였다 떼었다 합니다. 핀을 읽는 "
+"GPIO 입력은 이를 에지가 연속으로 발생하는 것으로 봅니다. 부주의한 폴링 루프는 실제로는 한 번 누른 것을 여러 번의 \"누름\"으로"
+" 세고, 인터럽트 핸들러는 실제 누름 한 번당 여러 번 실행됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:12
+msgid ""
+"An idealised scope trace showing a switch input\n"
+"signal. The signal starts high (open switch), drops\n"
+"low, bounces back and forth several times within a\n"
+"few milliseconds, then settles low (closed switch)."
+msgstr ""
+"스위치 입력 신호를 보여주는 이상화된 오실로스코프\n"
+"파형. 신호는 처음에 높음(스위치 열림)으로 시작하여\n"
+"낮음으로 떨어지고, 몇 밀리초 동안 여러 번 위아래로\n"
+"튀었다가 낮음(스위치 닫힘)으로 안정됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:18
+msgid ""
+"A bouncing switch produces a burst of fast transitions before settling."
+msgstr "바운싱하는 스위치는 안정되기 전에 빠른 전이가 연속으로 발생합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:21
+msgid ""
+"*Debouncing* is the practice of filtering the chatter so that each physical "
+"press registers as a single event. Two approaches solve this -- software (a "
+"timing rule in firmware) or hardware (a small filter on the wire). They are "
+"not mutually exclusive."
+msgstr ""
+"*디바운싱(debouncing)* 은 채터링을 필터링하여 물리적인 누름 한 번이 단일 이벤트로 등록되도록 하는 기법입니다. 이를 해결하는"
+" 두 가지 접근법이 있습니다 -- 소프트웨어(펌웨어 내의 타이밍 규칙) 또는 하드웨어(배선상의 작은 필터)입니다. 이 둘은 상호 "
+"배타적이지 않습니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:27
+msgid "Software debouncing"
+msgstr "소프트웨어 디바운싱"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:29
+msgid ""
+"The idea is to remember when the input last changed and reject further "
+"changes within a short window of that timestamp. Contact bounce typically "
+"lasts under 10 ms; a real press takes 50 -- 100 ms; a 30 -- 50 ms window "
+"catches all bounces without blocking real presses."
+msgstr ""
+"기본 아이디어는 입력이 마지막으로 변한 시점을 기억해 두고, 그 타임스탬프로부터 짧은 시간 내에 일어나는 추가 변화를 거부하는 것입니다."
+" 접점 바운스는 일반적으로 10 ms 미만 동안 지속되고, 실제 누름은 50 -- 100 ms가 걸립니다. 30 -- 50 ms 윈도우는"
+" 실제 누름을 막지 않으면서 모든 바운스를 잡아냅니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:35
+msgid ""
+"In a polling loop, read the pin, compare to the last stable value, and only "
+"accept a change after the debounce window has elapsed:"
+msgstr "폴링 루프에서는 핀을 읽고, 마지막 안정 값과 비교한 다음, 디바운스 윈도우가 경과한 후에만 변화를 받아들입니다:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:59
+msgid ""
+"For interrupt-driven reads, apply the same timing rule inside the handler, "
+"then hand the real press off to main context via "
+":func:`micropython.schedule` (see :doc:`gpio-input`):"
+msgstr ""
+"인터럽트 기반 읽기의 경우, 핸들러 내부에 동일한 타이밍 규칙을 적용한 다음, :func:`micropython.schedule` 를 "
+"통해 실제 누름을 메인 컨텍스트로 넘깁니다(:doc:`gpio-input` 참조):"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:86
+msgid ""
+"The ISR filters bounces by timestamp and queues the callback; "
+"``handle_press`` runs back in main context, where allocation and slow I/O "
+"are safe."
+msgstr ""
+"ISR은 타임스탬프로 바운스를 필터링하고 콜백을 큐에 넣습니다. ``handle_press`` 는 할당과 느린 I/O가 안전한 메인 "
+"컨텍스트로 돌아가 실행됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:91
+msgid "Hardware debouncing"
+msgstr "하드웨어 디바운싱"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:93
+msgid ""
+"Hardware debouncing filters the chatter electrically, before it ever reaches"
+" the pin. The standard tool is a capacitor."
+msgstr "하드웨어 디바운싱은 채터링이 핀에 도달하기 전에 전기적으로 필터링합니다. 표준적인 도구는 커패시터입니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:96
+msgid ""
+"A capacitor is a two-terminal component that stores electric charge. "
+"Physically, it is two conductive plates held a short distance apart, "
+"separated by an insulator (the *dielectric*)."
+msgstr ""
+"커패시터는 전하를 저장하는 2단자 부품입니다. 물리적으로는 절연체(*유전체(dielectric)*)로 분리된 채 짧은 거리를 두고 떨어진"
+" 두 개의 전도성 판으로 이루어져 있습니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:100
+msgid ""
+"A capacitor drawn as two parallel horizontal plates\n"
+"with a dielectric (insulator) between them. A lead\n"
+"connects each plate to an external terminal -- A on\n"
+"top, B on bottom. Equal and opposite charges +Q and\n"
+"-Q accumulate on the two plates when a voltage V is\n"
+"applied across the terminals."
+msgstr ""
+"유전체(절연체)를 사이에 두고 두 개의 수평 평행판으로\n"
+"그려진 커패시터. 각 판은 외부 단자로 리드선으로\n"
+"연결됩니다 -- 위는 A, 아래는 B입니다. 단자 양단에\n"
+"전압 V가 인가되면 두 판에 크기가 같고 부호가 반대인\n"
+"전하 +Q와 -Q가 축적됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:108
+msgid ""
+"A parallel-plate capacitor: two conductors separated by an insulating layer."
+msgstr "평행판 커패시터: 절연층으로 분리된 두 개의 도체."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:111
+msgid ""
+"Applying a voltage across its terminals drives equal and opposite charges "
+"onto the two plates; the relationship is"
+msgstr "단자 양단에 전압을 인가하면 두 판에 크기가 같고 부호가 반대인 전하가 몰립니다. 그 관계는 다음과 같습니다"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:118
+msgid ""
+"where ``Q`` is the stored charge (coulombs), ``V`` is the voltage across the"
+" capacitor, and ``C`` is its *capacitance* (farads). Capacitance is fixed by"
+" the device's construction; more capacitance means more charge stored at the"
+" same voltage."
+msgstr ""
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:123
+msgid ""
+"The consequence: a capacitor cannot change its voltage instantly. Charge "
+"flowing in or out has to pass through whatever resistance is in the path, "
+"and that resistance sets how fast the voltage can change."
+msgstr ""
+"그 결과: 커패시터는 전압을 순간적으로 바꿀 수 없습니다. 들어오거나 나가는 전하는 경로상의 저항을 통과해야 하며, 그 저항이 전압이 "
+"얼마나 빠르게 변할 수 있는지를 결정합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:129
+msgid "RC time constant"
+msgstr "RC 시정수"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:131
+msgid ""
+"Charging a capacitor through a resistor produces a smooth exponential rise "
+"toward the supply voltage, not a step. The characteristic time of that rise "
+"is the RC time constant:"
+msgstr ""
+"저항을 통해 커패시터를 충전하면 계단 모양이 아니라 공급 전압을 향해 매끄럽게 지수적으로 상승합니다. 그 상승의 특성 시간이 RC "
+"시정수입니다:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:139
+#, python-format
+msgid ""
+"After one ``τ``, the capacitor has reached about 63 % of the supply voltage."
+" After 5 ``τ``, it is over 99 % -- \"fully charged\" for practical purposes."
+msgstr ""
+"한 번의 ``τ`` 가 지나면 커패시터는 공급 전압의 약 63 %에 도달합니다. 5 ``τ`` 후에는 99 %를 넘어 -- 실용적으로 "
+"\"완전히 충전된\" 상태가 됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:143
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage rising along\n"
+"an exponential curve from 0 V toward the supply rail.\n"
+"The time τ = RC is marked on the x-axis where the\n"
+"curve reaches 63 % of the supply voltage."
+msgstr ""
+"커패시터의 전압이 0 V에서 공급 레일을 향해 지수\n"
+"곡선을 따라 상승하는 것을 보여주는 그래프. 곡선이\n"
+"공급 전압의 63 %에 도달하는 x축 지점에 시간\n"
+"τ = RC가 표시되어 있습니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:149
+#, python-format
+msgid ""
+"A capacitor charges along an exponential curve. ``τ = RC`` is the time to "
+"reach 63 % of the final voltage."
+msgstr "커패시터는 지수 곡선을 따라 충전됩니다. ``τ = RC`` 는 최종 전압의 63 %에 도달하는 시간입니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:152
+#, python-format
+msgid ""
+"Discharging through a resistor follows the mirror image: the voltage falls "
+"exponentially from its initial value toward zero, dropping to 37 % of the "
+"starting voltage after one ``τ``, and to under 1 % after 5 ``τ``."
+msgstr ""
+"저항을 통한 방전은 그 반대 모양을 따릅니다: 전압은 초기 값에서 0을 향해 지수적으로 감소하여, 한 번의 ``τ`` 후에는 시작 전압의"
+" 37 %로 떨어지고, 5 ``τ`` 후에는 1 % 미만이 됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:157
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage falling along\n"
+"an exponential curve from Vmax toward 0 V. The time\n"
+"τ = RC is marked on the x-axis where the curve drops\n"
+"to 37 % of the starting voltage."
+msgstr ""
+"커패시터의 전압이 Vmax에서 0 V를 향해 지수 곡선을\n"
+"따라 감소하는 것을 보여주는 그래프. 곡선이 시작\n"
+"전압의 37 %로 떨어지는 x축 지점에 시간 τ = RC가\n"
+"표시되어 있습니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:163
+#, python-format
+msgid ""
+"A capacitor discharges along an exponential decay. ``τ = RC`` is the time to"
+" fall to 37 % of the starting voltage."
+msgstr "커패시터는 지수 감쇠를 따라 방전됩니다. ``τ = RC`` 는 시작 전압의 37 %로 떨어지는 시간입니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:168
+msgid "The debounce circuit"
+msgstr "디바운스 회로"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:170
+msgid ""
+"A capacitor between an input pin and ground, fed through a series resistor, "
+"forms a *low-pass filter*. Fast spikes do not have time to charge or "
+"discharge the capacitor through that resistor; the pin stays close to "
+"whatever voltage it was at before the spike. Slow changes -- a deliberate "
+"press -- charge or discharge the capacitor and the reading follows."
+msgstr ""
+"직렬 저항을 거쳐 입력 핀과 접지 사이에 연결된 커패시터는 *저역 통과 필터(low-pass filter)* 를 형성합니다. 빠른 "
+"스파이크는 그 저항을 통해 커패시터를 충전하거나 방전할 시간이 없으므로, 핀은 스파이크 이전의 전압에 가깝게 유지됩니다. 느린 변화 --"
+" 의도적인 누름 -- 는 커패시터를 충전하거나 방전시키고 읽기 값이 이를 따라갑니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:177
+msgid ""
+"``R1`` pulls the switch's high side up to Vcc, producing a raw switch signal"
+" that bounces. ``R2`` and ``C`` then low-pass-filter that signal into the "
+"pin:"
+msgstr ""
+"``R1`` 은 스위치의 하이 측을 Vcc로 풀업하여 바운싱하는 원시 스위치 신호를 생성합니다. 그러면 ``R2`` 와 ``C`` 가 그"
+" 신호를 저역 통과 필터링하여 핀으로 전달합니다:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:181
+msgid ""
+"A switch input with hardware debouncing. Vcc connects\n"
+"through a 10 kΩ pull-up resistor down to a junction.\n"
+"That junction connects to ground through the switch\n"
+"on one branch, and through a 10 kΩ series resistor to\n"
+"the Pin on the other branch. A 100 nF capacitor\n"
+"between Pin and ground completes the low-pass filter."
+msgstr ""
+"하드웨어 디바운싱이 적용된 스위치 입력. Vcc는\n"
+"10 kΩ 풀업 저항을 거쳐 접점으로 내려갑니다.\n"
+"그 접점은 한쪽 분기에서는 스위치를 통해 접지에\n"
+"연결되고, 다른쪽 분기에서는 10 kΩ 직렬 저항을 통해\n"
+"Pin에 연결됩니다. Pin과 접지 사이의 100 nF\n"
+"커패시터가 저역 통과 필터를 완성합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:189
+msgid ""
+"Hardware debouncing: ``R2`` and ``C`` low-pass-filter the raw switch signal "
+"before it reaches the pin."
+msgstr "하드웨어 디바운싱: ``R2`` 와 ``C`` 는 원시 스위치 신호가 핀에 도달하기 전에 저역 통과 필터링합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:192
+msgid ""
+"Typical values: ``R1 = 10 kΩ`` (pull-up), ``R2 = 10 kΩ`` (series), ``C = 100"
+" nF``."
+msgstr "일반적인 값: ``R1 = 10 kΩ``(풀업), ``R2 = 10 kΩ``(직렬), ``C = 100 nF``."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:195
+msgid ""
+"When the switch is open, current flows Vcc → ``R1`` → ``R2`` → cap (in "
+"series), charging the cap to Vcc with ``τ_charge = (R1 + R2) × C = 2 ms``."
+msgstr ""
+"스위치가 열려 있을 때는 Vcc → ``R1`` → ``R2`` → 커패시터(직렬)로 전류가 흘러, ``τ_charge = (R1 + "
+"R2) × C = 2 ms`` 로 커패시터를 Vcc까지 충전합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:199
+msgid ""
+"When the switch closes, the switch node clamps to ground and the cap drains "
+"through ``R2`` alone to that ground with ``τ_discharge = R2 × C = 1 ms``."
+msgstr ""
+"스위치가 닫히면 스위치 노드가 접지로 클램프되고 커패시터는 ``R2`` 만을 통해 그 접지로 방전되며, ``τ_discharge = R2"
+" × C = 1 ms`` 가 됩니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:203
+msgid ""
+"Both edges are RC-filtered. Because the cap sits on its own node, downstream"
+" of ``R2`` from the switch, it swings cleanly between Vcc (open) and 0 V "
+"(closed) -- no current has to flow through ``R1`` at steady state in either "
+"case."
+msgstr ""
+"두 에지 모두 RC 필터링됩니다. 커패시터는 스위치로부터 ``R2`` 아래쪽의 자체 노드에 있기 때문에, Vcc(열림)와 0 V(닫힘) "
+"사이를 깔끔하게 스윙합니다 -- 어느 경우에도 정상 상태에서 ``R1`` 을 통해 전류가 흐를 필요가 없습니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:209
+msgid "Choosing between them"
+msgstr "둘 사이의 선택"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:211
+msgid ""
+"**Software** is the default. It costs nothing in components, the threshold "
+"is easy to tune, and it works on any pin that the CPU reads."
+msgstr "**소프트웨어** 가 기본입니다. 부품 비용이 들지 않고, 임계값을 조정하기 쉬우며, CPU가 읽는 모든 핀에서 동작합니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:214
+msgid ""
+"**Hardware** is worth the parts when the bounce reaches something other than"
+" the CPU's polling code -- an interrupt that must not double-fire, a "
+"hardware counter, a peripheral with no filter of its own."
+msgstr ""
+"**하드웨어** 는 바운스가 CPU의 폴링 코드 이외의 무언가에 도달할 때 부품을 들일 가치가 있습니다 -- 두 번 발화해서는 안 되는 "
+"인터럽트, 하드웨어 카운터, 자체 필터가 없는 주변장치 등입니다."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:219
+msgid ""
+"Software and hardware debouncing also coexist peacefully: a small RC filter "
+"suppresses the worst spikes, and a software debounce window covers what is "
+"left."
+msgstr ""
+"소프트웨어 디바운싱과 하드웨어 디바운싱은 또한 평화롭게 공존합니다: 작은 RC 필터가 최악의 스파이크를 억제하고, 소프트웨어 디바운스 "
+"윈도우가 남은 것을 처리합니다."

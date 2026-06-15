@@ -1,0 +1,177 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:2
+msgid "Building a ROMFS image"
+msgstr "ROMFS 이미지 빌드하기"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:4
+msgid ""
+"A *ROMFS image* is a flash-resident, read-only filesystem the runtime auto-"
+"mounts at ``/rom``. It solves the asset problem the previous page closed on:"
+" machine-learning model files, label tables, JSON configuration, image "
+"templates -- anything the application opens and reads but never writes -- "
+"ride into the build without paying the cost of being embedded as Python "
+"literals."
+msgstr ""
+"*ROMFS 이미지*\\ 는 런타임이 ``/rom`` 에 자동으로 마운트하는, 플래시에 상주하는 읽기 전용 파일시스템입니다. 이전 "
+"페이지에서 마무리했던 에셋 문제를 해결합니다: 머신러닝 모델 파일, 레이블 테이블, JSON 구성, 이미지 템플릿 -- 애플리케이션이 "
+"열어서 읽기만 하고 결코 쓰지 않는 모든 것 -- 이 Python 리터럴로 임베딩되는 비용을 치르지 않고 빌드에 실립니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:12
+msgid "Three things make ROMFS the right tool for shipped assets:"
+msgstr "세 가지가 ROMFS를 출하 에셋에 적합한 도구로 만듭니다:"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:14
+msgid ""
+"The filesystem is *part of the firmware image*. End users cannot delete a "
+"file out of ``/rom``, edit one, or replace one with their own."
+msgstr ""
+"이 파일시스템은 *펌웨어 이미지의 일부*\\ 입니다. 최종 사용자는 ``/rom`` 에서 파일을 삭제하거나, 편집하거나, 자신의 것으로 "
+"교체할 수 없습니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:17
+msgid ""
+"Files in ``/rom`` are accessible *in place*. Consumers like the :mod:`ml` "
+"module loading a model file get a direct view into flash with no RAM copy --"
+" a multi-megabyte model on ``/rom`` \"loads\" essentially for free, where "
+"the same file on ``/sdcard`` is read into RAM at load time and stays there "
+"for the lifetime of the reference. Ordinary :func:`open` + ``read`` copies "
+"on demand: each ``read(n)`` call copies ``n`` bytes from flash to RAM at the"
+" moment of the call, with a bare ``read()`` asking for the whole file."
+msgstr ""
+"``/rom`` 의 파일은 *제자리에서* 접근할 수 있습니다. 모델 파일을 로딩하는 :mod:`ml` 모듈과 같은 소비자는 RAM 복사 "
+"없이 플래시에 대한 직접적인 뷰를 얻습니다 -- ``/rom`` 에 있는 수 메가바이트짜리 모델은 사실상 공짜로 \"로드\"되지만, "
+"``/sdcard`` 에 있는 같은 파일은 로드 시점에 RAM으로 읽혀 들어가 참조가 유지되는 동안 거기에 머뭅니다. 일반적인 "
+":func:`open` + ``read`` 는 요청 시 복사합니다: 각 ``read(n)`` 호출은 호출 시점에 플래시에서 RAM으로 "
+"``n`` 바이트를 복사하며, 인자 없는 ``read()`` 는 파일 전체를 요청합니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:26
+msgid ""
+"``/rom`` and ``/rom/lib`` are added to :data:`sys.path` at boot. Python "
+"packages dropped into the image are importable by name; nothing special at "
+"the call site."
+msgstr ""
+"``/rom`` 과 ``/rom/lib`` 는 부팅 시 :data:`sys.path` 에 추가됩니다. 이미지에 넣은 Python 패키지는"
+" 이름으로 임포트할 수 있으며, 호출 지점에서 특별히 할 것이 없습니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:31
+msgid "Building an image"
+msgstr "이미지 빌드하기"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:33
+msgid ""
+"ROMFS images are created, edited, and flashed through the IDE. Use it as the"
+" source of truth for the contents of every shipped ROMFS partition."
+msgstr ""
+"ROMFS 이미지는 IDE를 통해 생성, 편집, 플래싱됩니다. 모든 출하 ROMFS 파티션의 내용에 대한 단일 진실 공급원으로 IDE를 "
+"사용하십시오."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:37
+msgid ""
+"The reason this matters: model files come with alignment requirements that "
+"the loader at runtime enforces. ``.tflite`` files must be padded to 16-byte "
+"boundaries, and the N6's NPU requires 32-byte alignment for compiled models."
+" The IDE applies that padding automatically when it writes the image. Tools "
+"that walk the source tree without applying the padding -- ``mpremote romfs``"
+" in particular -- produce an image that mounts cleanly but whose models fail"
+" at the first inference call."
+msgstr ""
+"이것이 중요한 이유: 모델 파일에는 런타임의 로더가 강제하는 정렬 요구사항이 따라옵니다. ``.tflite`` 파일은 16바이트 경계로 "
+"패딩되어야 하고, N6의 NPU는 컴파일된 모델에 32바이트 정렬을 요구합니다. IDE는 이미지를 기록할 때 그 패딩을 자동으로 "
+"적용합니다. 패딩을 적용하지 않고 소스 트리를 순회하는 도구 -- 특히 ``mpremote romfs`` -- 는 깔끔하게 마운트되지만 "
+"모델은 첫 추론 호출에서 실패하는 이미지를 만들어냅니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:47
+msgid ""
+"The IDE's ROMFS editor is an interactive view of the image's contents. Files"
+" and folders can be added, renamed, and deleted in memory; saving writes the"
+" result out as an ``.img`` file ready to flash. A typical structure for an "
+"application that ships a model alongside some assets and a Python package "
+"looks like::"
+msgstr ""
+"IDE의 ROMFS 편집기는 이미지 내용에 대한 대화형 뷰입니다. 파일과 폴더를 메모리상에서 추가, 이름 변경, 삭제할 수 있으며, "
+"저장하면 결과를 플래싱 준비가 된 ``.img`` 파일로 기록합니다. 모델을 일부 에셋 및 Python 패키지와 함께 출하하는 "
+"애플리케이션의 일반적인 구조는 다음과 같습니다::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:66
+msgid ""
+"Both the IDE and ``mpremote`` cross-compile ``.py`` files to ``.mpy`` "
+"bytecode on the way into a ROMFS image, so the cam imports them without "
+"paying the parse cost at load time. Source files in the editor stay ``.py``;"
+" the image contains ``.mpy``."
+msgstr ""
+"IDE와 ``mpremote`` 는 모두 ROMFS 이미지로 들어가는 과정에서 ``.py`` 파일을 ``.mpy`` 바이트코드로 크로스 "
+"컴파일하므로, cam은 로드 시점에 파싱 비용을 치르지 않고 그것들을 임포트합니다. 편집기의 소스 파일은 ``.py`` 로 남고, "
+"이미지에는 ``.mpy`` 가 들어 있습니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:72
+msgid ""
+"Once the image is flashed, the tree is visible from MicroPython at "
+"``/rom/``::"
+msgstr "이미지가 플래싱되면, 트리는 MicroPython에서 ``/rom/`` 에서 보입니다::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:83
+msgid "Most of the application lives in ROMFS"
+msgstr "애플리케이션의 대부분은 ROMFS에 있습니다"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:85
+msgid ""
+"ROMFS is the right home for almost everything an application ships: the "
+"libraries it imports, the model files it loads, the configuration it reads, "
+"any asset whose output came from a build tool that emits a file tree (model "
+"converters, image pipelines, asset packers), and -- importantly -- the "
+"application code itself."
+msgstr ""
+"ROMFS는 애플리케이션이 출하하는 거의 모든 것의 적합한 거처입니다: 임포트하는 라이브러리, 로드하는 모델 파일, 읽는 구성, 파일 "
+"트리를 산출하는 빌드 도구(모델 변환기, 이미지 파이프라인, 에셋 패커)에서 나온 출력물인 모든 에셋, 그리고 -- 중요하게는 -- "
+"애플리케이션 코드 자체."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:92
+msgid ""
+"The frozen-modules side should stay small: ``boot.py`` for pre-REPL setup, "
+"``main.py`` as a thin entry point, and only the libraries the cam genuinely "
+"cannot boot without. Everything else goes in ROMFS, where iterating on it is"
+" a fresh ``.img`` saved out of the IDE and reflashed -- no firmware rebuild "
+"required, no toolchain on hand to do it."
+msgstr ""
+"프리징된 모듈 쪽은 작게 유지되어야 합니다: REPL 이전 설정을 위한 ``boot.py``, 얇은 진입점으로서의 ``main.py``,"
+" 그리고 cam이 정말로 없이는 부팅할 수 없는 라이브러리만. 그 외 모든 것은 ROMFS로 가며, 거기서 반복 작업은 IDE에서 "
+"저장하여 다시 플래싱하는 새 ``.img`` 입니다 -- 펌웨어 재빌드가 필요 없고, 그것을 할 툴체인을 갖추고 있을 필요도 없습니다."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:99
+msgid ""
+"The pattern that falls out is a ``main.py`` that does nothing but delegate "
+"into the ROMFS-resident application::"
+msgstr ""
+"여기서 자연스럽게 나오는 패턴은 ROMFS에 상주하는 애플리케이션으로 위임하는 것 외에는 아무것도 하지 않는 ``main.py`` "
+"입니다::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:110
+msgid ""
+"A change to ``app`` is a ROMFS edit and a reflash. The firmware build stays "
+"put for the lifetime of the product unless something on the frozen side "
+"actually has to change."
+msgstr ""
+"``app`` 에 대한 변경은 ROMFS 편집과 재플래싱입니다. 프리징된 쪽의 무언가가 실제로 변경되어야 하지 않는 한, 펌웨어 빌드는 "
+"제품 수명 동안 그대로 유지됩니다."

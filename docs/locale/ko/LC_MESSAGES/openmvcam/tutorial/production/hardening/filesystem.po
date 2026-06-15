@@ -1,0 +1,277 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:2
+msgid "Filesystem hygiene"
+msgstr "파일 시스템 위생"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:4
+msgid ""
+"Flash and SD storage on a shipped cam fill up with files no operator is "
+"going to clean out by hand. Two decisions about that storage stay with the "
+"product for its lifetime: *which surface holds which kind of data*, and *how"
+" the directories are structured so file operations keep working as the "
+"application accumulates records*."
+msgstr ""
+"출하된 카메라의 플래시와 SD 저장소는 어떤 운영자도 손으로 정리하지 않을 파일들로 가득 차게 됩니다. 그 저장소에 관한 두 가지 결정은"
+" 제품의 수명 내내 함께합니다. *어떤 저장 매체가 어떤 종류의 데이터를 담는가*, 그리고 *애플리케이션이 레코드를 축적하는 동안에도 "
+"파일 작업이 계속 동작하도록 디렉터리를 어떻게 구성하는가* 입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:12
+msgid "Where things go"
+msgstr "어디에 무엇을 두는가"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:14
+msgid ""
+"Code and assets ride in the frozen modules and ROMFS the build commits at "
+"ship time. Application *state* -- anything the application writes at "
+"runtime, anything that grows, anything that changes between boots -- has to "
+"live somewhere else. The cam exposes two writable surfaces for it:"
+msgstr ""
+"코드와 자산은 빌드가 출하 시점에 커밋하는 frozen module과 ROMFS에 실립니다. 애플리케이션 *상태* -- 애플리케이션이 "
+"런타임에 쓰는 모든 것, 커지는 모든 것, 부팅 사이에 변하는 모든 것 -- 는 다른 곳에 있어야 합니다. 카메라는 이를 위해 두 가지 "
+"쓰기 가능한 저장 매체를 제공합니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:20
+msgid ""
+"**Internal flash** at ``/flash``: a small writable filesystem mounted before"
+" any application code runs. The right place for *small fixed-size records "
+"that survive reboots*: configuration the application updates at runtime, "
+"last-known calibration, a rolling counter, a one-line marker file saying "
+"\"this cam was provisioned.\" Limited write cycles -- modern internal flash "
+"tolerates thousands to tens of thousands of writes per sector, not millions,"
+" so writes need to be infrequent, not per frame."
+msgstr ""
+"``/flash`` 의 **내부 플래시**: 어떤 애플리케이션 코드가 실행되기 전에 마운트되는 작은 쓰기 가능 파일 시스템입니다. "
+"*재부팅에도 살아남는 작은 고정 크기 레코드* 를 두기에 적합한 곳입니다. 애플리케이션이 런타임에 갱신하는 설정, 마지막으로 알려진 보정"
+" 값, 롤링 카운터, \"이 카메라는 프로비저닝되었다\"고 적힌 한 줄짜리 마커 파일 등입니다. 쓰기 횟수가 제한적입니다 -- 최신 내부"
+" 플래시는 섹터당 수백만 회가 아니라 수천에서 수만 회의 쓰기를 견디므로, 쓰기는 프레임마다가 아니라 드물게 일어나야 합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:30
+msgid ""
+"**SD card** at ``/sdcard``: a larger writable filesystem mounted when a card"
+" is present. The right place for *bulky variable files*: image and video "
+"captures, log files, model fine-tuning data, anything that might grow to "
+"megabytes or gigabytes. Higher write capacity than internal flash but still "
+"finite; removable, replaceable, and the surface most likely to disappear "
+"when the application is mid-write."
+msgstr ""
+"``/sdcard`` 의 **SD 카드**: 카드가 있을 때 마운트되는 더 큰 쓰기 가능 파일 시스템입니다. *부피가 크고 가변적인 "
+"파일* 을 두기에 적합한 곳입니다. 이미지와 비디오 캡처, 로그 파일, 모델 파인튜닝 데이터, 메가바이트나 기가바이트까지 커질 수 있는 "
+"모든 것입니다. 내부 플래시보다 쓰기 용량이 크지만 여전히 유한합니다. 분리 및 교체가 가능하며, 애플리케이션이 쓰기 도중일 때 가장 "
+"사라지기 쉬운 저장 매체이기도 합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:38
+msgid ""
+"The right answer for *where to write something* is almost always \"flash for"
+" small fixed records, SD for everything else.\" The two are not "
+"interchangeable: an application that scribbles its rolling log file to "
+"``/flash`` will burn through the flash's write endurance in a deployment "
+"that would have been fine on SD."
+msgstr ""
+"*무언가를 어디에 쓸 것인가* 에 대한 올바른 답은 거의 항상 \"작은 고정 레코드는 플래시에, 나머지는 모두 SD에\" 입니다. 둘은 "
+"서로 바꿔 쓸 수 없습니다. 롤링 로그 파일을 ``/flash`` 에 휘갈겨 쓰는 애플리케이션은, SD에서라면 문제없었을 배포 환경에서 "
+"플래시의 쓰기 수명을 다 태워버리게 됩니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:46
+msgid "Treat both as can-fail"
+msgstr "둘 다 실패할 수 있다고 간주하라"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:48
+msgid ""
+"``/flash`` and ``/sdcard`` can both fail. The SD card can be ejected, the "
+"flash can be corrupted by a power loss mid-write, either can run out of "
+"space, and any operation on either can raise :exc:`OSError` for reasons the "
+"application will not get a chance to diagnose in the field."
+msgstr ""
+"``/flash`` 와 ``/sdcard`` 는 둘 다 실패할 수 있습니다. SD 카드는 빠질 수 있고, 플래시는 쓰기 도중 전원 손실로"
+" 손상될 수 있으며, 둘 다 공간이 부족해질 수 있고, 어느 쪽에 대한 작업이든 애플리케이션이 현장에서 진단할 기회조차 얻지 못할 이유로"
+" :exc:`OSError` 를 일으킬 수 있습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:54
+msgid "Two patterns make the application survive that:"
+msgstr "두 가지 패턴이 애플리케이션이 그 상황을 견뎌내게 합니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:56
+msgid ""
+"**Wrap mounts and operations in try blocks.** Every :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` against user-data paths is potentially"
+" failing. Catch :exc:`OSError`, log it, and fall back to a defined "
+"alternative -- write to ``/flash`` if ``/sdcard`` is gone, skip the "
+"operation if neither is available."
+msgstr ""
+"**마운트와 작업을 try 블록으로 감싸세요.** 사용자 데이터 경로에 대한 모든 :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` 은 실패할 가능성이 있습니다. :exc:`OSError` 를 잡아 "
+"로그를 남기고, 정의된 대안으로 폴백하세요 -- ``/sdcard`` 가 사라졌으면 ``/flash`` 에 쓰고, 둘 다 사용할 수 "
+"없으면 작업을 건너뜁니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:63
+msgid ""
+"**Atomic writes for files that must survive a power loss.** Write to a "
+"temporary path, close the handle, then :func:`os.rename` over the live name."
+" Either the rename succeeded and the file is the new version, or it did not "
+"and the file is the old version. There is no third state where the file is "
+"half-written::"
+msgstr ""
+"**전원 손실에도 살아남아야 하는 파일을 위한 원자적 쓰기.** 임시 경로에 쓰고, 핸들을 닫은 다음, 실제 이름 위로 "
+":func:`os.rename` 합니다. rename이 성공해서 파일이 새 버전이 되었거나, 성공하지 못해서 파일이 이전 버전 "
+"그대로이거나 둘 중 하나입니다. 파일이 절반만 쓰인 제3의 상태는 없습니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:79
+msgid ""
+"The pattern works on both flash and SD. It does *not* work for files large "
+"enough that the tmp file uses up the filesystem's free space; reserve it for"
+" small records."
+msgstr ""
+"이 패턴은 플래시와 SD 모두에서 동작합니다. tmp 파일이 파일 시스템의 여유 공간을 다 써버릴 만큼 큰 파일에는 *동작하지 "
+"않습니다*. 작은 레코드에만 사용하세요."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:84
+msgid "The slow-directory trap"
+msgstr "느린 디렉터리의 함정"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:86
+msgid ""
+"The MicroPython VFS does not index directory contents the way a desktop "
+"filesystem does. :func:`os.listdir` and :func:`os.stat` walk the underlying "
+"file table linearly. A directory with a hundred files is fine; a directory "
+"with ten thousand files is unusably slow, with every :func:`os.listdir` "
+"taking seconds and every :func:`open` checking against the table on its way "
+"through."
+msgstr ""
+"MicroPython VFS는 데스크톱 파일 시스템처럼 디렉터리 내용을 색인하지 않습니다. :func:`os.listdir` 과 "
+":func:`os.stat` 은 기저의 파일 테이블을 선형으로 훑습니다. 파일이 백 개인 디렉터리는 괜찮지만, 파일이 만 개인 디렉터리는"
+" 사용할 수 없을 만큼 느려서, :func:`os.listdir` 마다 수 초가 걸리고 모든 :func:`open` 이 처리 과정에서 "
+"테이블을 대조하게 됩니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:94
+msgid ""
+"Applications that write logs or captures to disk hit this fastest. A naive "
+"``/sdcard/logs/<timestamp>.log`` scheme that opens one new file per minute "
+"fills the ``logs/`` directory with half a million files in a year of "
+"deployment. Long before then the application starts missing its frame rate "
+"because every file open is taking longer than a frame interval."
+msgstr ""
+"로그나 캡처를 디스크에 쓰는 애플리케이션이 이 문제에 가장 빨리 부딪힙니다. 분당 새 파일 하나씩 여는 순진한 "
+"``/sdcard/logs/<timestamp>.log`` 방식은 1년간의 배포 동안 ``logs/`` 디렉터리를 오십만 개의 파일로 "
+"채웁니다. 그보다 훨씬 전부터 이미 애플리케이션은 파일 열기 하나가 프레임 간격보다 오래 걸리기 때문에 프레임 속도를 놓치기 시작합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:102
+msgid ""
+"The right pattern is to split files across a tree of dated subdirectories so"
+" no single directory ever holds more than a few hundred entries::"
+msgstr ""
+"올바른 패턴은 어떤 단일 디렉터리도 수백 개를 넘는 항목을 담지 않도록, 날짜별 하위 디렉터리 트리에 걸쳐 파일을 분산시키는 것입니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:130
+msgid ""
+"A year of one-file-per-hour logging is now spread across 365 day-"
+"directories, each containing at most 24 files; :func:`os.listdir` against "
+"any one directory stays cheap, and the application's frame loop does not "
+"stall on file operations as the deployment ages."
+msgstr ""
+"시간당 파일 하나씩 기록한 1년치가 이제 365개의 일별 디렉터리에 펼쳐지며, 각각은 최대 24개의 파일만 담습니다. 어느 한 디렉터리에"
+" 대한 :func:`os.listdir` 도 저렴하게 유지되고, 배포가 오래되어도 애플리케이션의 프레임 루프가 파일 작업에서 멈추지 "
+"않습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:136
+msgid ""
+"The same principle applies to image captures, sensor traces, or anything "
+"else the application writes a file per event for. If the event rate is high,"
+" the tree wants to be deeper (year/month/day/hour, or "
+"year/month/day/hour/minute) so each leaf directory stays small. If the event"
+" rate is low, a year/month tree is enough."
+msgstr ""
+"같은 원칙이 이미지 캡처, 센서 추적, 또는 애플리케이션이 이벤트당 파일 하나를 쓰는 그 밖의 모든 것에 적용됩니다. 이벤트 발생률이 "
+"높으면 각 리프 디렉터리가 작게 유지되도록 트리를 더 깊게(year/month/day/hour, 또는 "
+"year/month/day/hour/minute) 만드는 것이 좋습니다. 이벤트 발생률이 낮으면 year/month 트리로 충분합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:144
+msgid "Per-device paths"
+msgstr "장치별 경로"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:146
+msgid ""
+"In a fleet of more than one cam, log files need to identify which physical "
+"unit they came from. :func:`machine.unique_id` returns a hardware identifier"
+" baked into the cam at the factory; it is the same value across reboots, "
+"across firmware updates, and across SD card swaps. Embed it in the log path "
+"or in the log records and an operator looking at a pile of SD cards or a "
+"centralised log can tell which one is which::"
+msgstr ""
+"둘 이상의 카메라로 이루어진 플릿(fleet)에서는 로그 파일이 어느 물리적 유닛에서 나왔는지 식별할 수 있어야 합니다. "
+":func:`machine.unique_id` 는 공장에서 카메라에 새겨진 하드웨어 식별자를 반환합니다. 재부팅을 거쳐도, 펌웨어 "
+"업데이트를 거쳐도, SD 카드 교체를 거쳐도 동일한 값입니다. 이를 로그 경로나 로그 레코드에 포함하면, SD 카드 더미나 중앙 집중식 "
+"로그를 들여다보는 운영자가 어느 것이 어느 것인지 구분할 수 있습니다::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:161
+msgid ""
+"Combined with the dated-subdirectory pattern, the layout becomes "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- one unit's hour of records, "
+"in a directory shallow enough to walk, on a path that names the unit on the "
+"file system itself."
+msgstr ""
+"날짜별 하위 디렉터리 패턴과 결합하면 레이아웃은 ``/sdcard/logs/<unit-id>/2026/06/09/14.log`` 가 "
+"됩니다 -- 한 유닛의 한 시간치 레코드를, 훑기에 충분히 얕은 디렉터리에, 파일 시스템 자체에 유닛 이름을 담은 경로로 둡니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:168
+msgid "Pulling it together"
+msgstr "한데 모으기"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:170
+msgid "A shipped cam's writable storage looks roughly like this:"
+msgstr "출하된 카메라의 쓰기 가능 저장소는 대략 이렇게 보입니다:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:172
+msgid ""
+"``/flash`` -- configuration, calibration, a provisioning marker. Written "
+"rarely, read often. Atomic-rename pattern for any file whose loss would "
+"break the next boot."
+msgstr ""
+"``/flash`` -- 설정, 보정, 프로비저닝 마커. 드물게 쓰이고 자주 읽힙니다. 손실되면 다음 부팅이 망가질 모든 파일에는 원자적"
+" rename 패턴을 사용합니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:176
+msgid ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- the "
+"operational log. Written continuously, rotated by the path, never written "
+"through a directory with thousands of siblings."
+msgstr ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- 운영 로그. 지속적으로 "
+"쓰이고, 경로로 로테이션되며, 형제 항목이 수천 개인 디렉터리를 통해서는 절대 쓰이지 않습니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:181
+msgid ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- image or video "
+"captures the application makes. Same tree shape, same reason."
+msgstr ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- 애플리케이션이 만드는 이미지 또는 "
+"비디오 캡처. 같은 트리 모양, 같은 이유입니다."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:185
+msgid ""
+"That layout costs the application about twenty lines of code and saves it "
+"from the failure modes that take the cam down months into a deployment."
+msgstr ""
+"이 레이아웃은 애플리케이션에 약 스무 줄의 코드 비용이 들지만, 배포 후 몇 달이 지나 카메라를 다운시키는 실패 모드로부터 애플리케이션을"
+" 구해줍니다."

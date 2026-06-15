@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:2
+msgid "Post-processors"
+msgstr "후처리기(Post-processors)"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:4
+msgid ""
+"A detection network does not emit boxes. It emits one or more tensors whose "
+"layout depends on the architecture the model was trained against -- a 2-D "
+"tensor of candidate predictions for a YOLO-family detector, a pair of "
+"``(boxes, scores)`` tensors for a MediaPipe detector, a flat list of "
+"keypoint coordinates for a pose network. The application cannot read any of "
+"these directly; what it wants -- a list of boxes, a list of keypoints, a "
+"per-class breakdown -- has to be *decoded* out of the raw tensor."
+msgstr ""
+"검출 신경망은 상자를 출력하지 않습니다. 모델이 학습된 아키텍처에 따라 레이아웃이 달라지는 하나 이상의 텐서를 출력합니다. YOLO 계열"
+" 검출기의 경우 후보 예측의 2차원 텐서, MediaPipe 검출기의 경우 ``(boxes, scores)`` 텐서 쌍, 포즈 신경망의 "
+"경우 키포인트 좌표의 평면 리스트 등입니다. 애플리케이션은 이들 중 어느 것도 직접 읽을 수 없습니다. 애플리케이션이 원하는 것, 즉 "
+"상자의 리스트, 키포인트의 리스트, 클래스별 분류는 원시 텐서로부터 *디코딩*\\ 되어야 합니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:13
+msgid ""
+"That decoder is a *post-processor*. The :mod:`ml.postprocessing` module "
+"groups them by source ecosystem."
+msgstr "그 디코더가 *후처리기*\\ 입니다. :mod:`ml.postprocessing` 모듈은 이들을 출처 생태계별로 묶습니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:17
+msgid "Darknet"
+msgstr "Darknet"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:19
+msgid ""
+":mod:`ml.postprocessing.darknet` decodes models from the original YOLO era. "
+"YOLO v2 introduced the *grid* and *anchor* ideas most later detectors "
+"inherited in some form, so the v2 layout is the cleanest starting point."
+msgstr ""
+":mod:`ml.postprocessing.darknet`\\ 은 초기 YOLO 시대의 모델을 디코딩합니다. YOLO v2는 이후 "
+"대부분의 검출기가 어떤 형태로든 물려받은 *그리드*\\ 와 *앵커* 개념을 도입했으므로, v2 레이아웃이 가장 깔끔한 출발점입니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:24
+msgid ""
+"YOLO v2 starts by dividing the input image into a coarse grid -- a 13-by-13 "
+"layout for the canonical 416-pixel input, smaller for smaller models -- and "
+"trains the network so each grid cell is responsible for detecting any object"
+" whose centre falls inside it. The spatial layout of the output tensor "
+"mirrors the layout of the input: one position in the output per cell in the "
+"image."
+msgstr ""
+"YOLO v2는 입력 이미지를 거친 그리드로 나누는 것으로 시작합니다. 표준 416픽셀 입력의 경우 13x13 레이아웃이며 더 작은 "
+"모델의 경우 더 작아집니다. 그리고 각 그리드 셀이 중심이 그 안에 들어오는 모든 객체의 검출을 담당하도록 신경망을 학습시킵니다. 출력 "
+"텐서의 공간 레이아웃은 입력의 레이아웃을 반영합니다. 이미지의 셀마다 출력에 하나의 위치가 대응됩니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:31
+msgid ""
+"At each grid cell, the network does not predict a box out of thin air. It "
+"picks from several pre-chosen reference shapes called *anchors* -- fixed "
+"``(width, height)`` pairs derived offline by clustering the box sizes in the"
+" training set so they cover the typical objects the model is expected to "
+"see. The network's job at each cell is to predict, for each anchor, a small "
+"offset to the box centre within the cell, a scale on the anchor's width and "
+"height, an *objectness* score (the likelihood that anything is there), and a"
+" per-class probability vector. A 13-by-13 grid with the default 5 anchors "
+"and 20 classes therefore emits ``13 * 13 * 5 * (4 + 1 + 20) = 21,125`` "
+"numbers per inference."
+msgstr ""
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:43
+msgid ""
+":class:`~ml.postprocessing.darknet.YoloV2` decodes that layout: it walks the"
+" cells, applies each anchor's offsets and scales to recover absolute box "
+"coordinates, combines objectness with class probability for a per-class "
+"score, thresholds, and pushes the survivors to NMS. The class takes an "
+"``anchors=`` constructor argument when the model was trained against a "
+"custom anchor table and falls back to a built-in default otherwise. Variants"
+" tuned for specific class sets ship in the same submodule."
+msgstr ""
+":class:`~ml.postprocessing.darknet.YoloV2`\\ 는 그 레이아웃을 디코딩합니다. 셀들을 순회하며 각 "
+"앵커의 오프셋과 스케일을 적용하여 절대 상자 좌표를 복원하고, 객체성과 클래스 확률을 결합하여 클래스별 점수를 만들고, 임계값을 적용한 "
+"다음, 살아남은 것들을 NMS로 보냅니다. 이 클래스는 모델이 사용자 정의 앵커 테이블로 학습된 경우 ``anchors=`` 생성자 "
+"인자를 받으며, 그렇지 않으면 내장된 기본값을 사용합니다. 특정 클래스 집합에 맞게 조정된 변형들도 같은 하위 모듈에 포함되어 있습니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:53
+msgid "Ultralytics"
+msgstr "Ultralytics"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:55
+msgid ""
+":mod:`ml.postprocessing.ultralytics` decodes the newer YOLO generations. "
+":class:`~ml.postprocessing.ultralytics.YoloV8` reads a column-major output "
+"where each column is one anchor prediction holding box coordinates and a "
+"per-class score vector -- the objectness channel earlier YOLO outputs "
+"carried has been dropped in v8, and the class scores stand alone. The "
+":doc:`YOLOv8 walkthrough <yolov8-walkthrough>` steps through the decode "
+"tensor-by-tensor. Older Ultralytics-era versions ship in the same submodule "
+"for models trained against their layouts."
+msgstr ""
+":mod:`ml.postprocessing.ultralytics`\\ 는 더 최신의 YOLO 세대를 디코딩합니다. "
+":class:`~ml.postprocessing.ultralytics.YoloV8`\\ 은 열 우선(column-major) 출력을 "
+"읽으며, 각 열은 상자 좌표와 클래스별 점수 벡터를 담은 하나의 앵커 예측입니다. 이전 YOLO 출력이 담고 있던 객체성 채널은 v8에서"
+" 제거되었고, 클래스 점수가 단독으로 존재합니다. :doc:`YOLOv8 둘러보기 <yolov8-walkthrough>`\\ 는 디코드를"
+" 텐서 단위로 살펴봅니다. 더 오래된 Ultralytics 시대의 버전들도 해당 레이아웃으로 학습된 모델을 위해 같은 하위 모듈에 "
+"포함되어 있습니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:66
+msgid "MediaPipe"
+msgstr "MediaPipe"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:68
+msgid ""
+":mod:`ml.postprocessing.mediapipe` decodes Google's lightweight on-device "
+"family. :class:`~ml.postprocessing.mediapipe.BlazeFace` is the face detector"
+" covered in :doc:`hello-blazeface <../foundations/hello-blazeface>`: a fast "
+"anchor-based detector that emits boxes and six landmark coordinates per "
+"face, returned as ``(box, score, keypoints)`` tuples with the landmarks "
+"attached to each box rather than as a separate output list. Hand-detection, "
+"landmark, and pose models from the same family ship alongside it and follow "
+"the same attached-keypoint return shape."
+msgstr ""
+":mod:`ml.postprocessing.mediapipe`\\ 는 Google의 경량 온디바이스 계열을 디코딩합니다. "
+":class:`~ml.postprocessing.mediapipe.BlazeFace`\\ 는 :doc:`hello-blazeface "
+"<../foundations/hello-blazeface>`\\ 에서 다룬 얼굴 검출기입니다. 이는 얼굴마다 상자와 여섯 개의 랜드마크 "
+"좌표를 출력하는 빠른 앵커 기반 검출기로, 랜드마크가 별도의 출력 리스트가 아니라 각 상자에 부착된 ``(box, score, "
+"keypoints)`` 튜플로 반환됩니다. 같은 계열의 손 검출, 랜드마크, 포즈 모델도 함께 포함되어 있으며 동일한 부착형 키포인트 "
+"반환 형태를 따릅니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:79
+msgid "Picking one"
+msgstr "하나를 선택하기"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:81
+msgid ""
+"The right post-processor is determined by the architecture the model was "
+"trained against, not by what the application wants. A YOLOv8 ``.tflite`` "
+"only decodes correctly through "
+":class:`~ml.postprocessing.ultralytics.YoloV8`; a BlazeFace ``.tflite`` only"
+" through :class:`~ml.postprocessing.mediapipe.BlazeFace`. Picking the post-"
+"processor is part of picking the model. When a model's architecture is not "
+"represented by a shipped post-processor, :doc:`writing your own <writing-"
+"your-own>` is straightforward."
+msgstr ""
+"올바른 후처리기는 애플리케이션이 원하는 것이 아니라 모델이 학습된 아키텍처에 의해 결정됩니다. YOLOv8 ``.tflite``\\ 는 "
+":class:`~ml.postprocessing.ultralytics.YoloV8`\\ 을 통해서만 올바르게 디코딩되고, "
+"BlazeFace ``.tflite``\\ 는 :class:`~ml.postprocessing.mediapipe.BlazeFace`\\ "
+"를 통해서만 디코딩됩니다. 후처리기를 선택하는 것은 모델을 선택하는 일의 일부입니다. 모델의 아키텍처가 기본 제공 후처리기로 표현되지 "
+"않는 경우, :doc:`직접 작성하기 <writing-your-own>`\\ 는 어렵지 않습니다."
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:91
+msgid ""
+"Classification networks are the exception. Their single output tensor is "
+"already what the application wants -- a list of per-class scores -- and no "
+"post-processor is needed. Loading the model without ``postprocess=`` and "
+"reading the predict result as a flat ndarray is the right path, as "
+":doc:`tensor I/O <../pipeline/tensor-io>` covered."
+msgstr ""
+"분류 신경망은 예외입니다. 단일 출력 텐서가 이미 애플리케이션이 원하는 것, 즉 클래스별 점수의 리스트이므로 후처리기가 필요하지 "
+"않습니다. ``postprocess=`` 없이 모델을 로드하고 예측 결과를 평면 ndarray로 읽는 것이 올바른 방법이며, 이는 "
+":doc:`텐서 I/O <../pipeline/tensor-io>`\\ 에서 다루었습니다."

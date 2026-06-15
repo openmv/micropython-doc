@@ -1,0 +1,998 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.image.rst:2
+msgid ":mod:`image` --- machine vision"
+msgstr ":mod:`image` --- 머신 비전"
+
+#: ../../library/omv.image.rst:7
+msgid ""
+"The :mod:`image` module is the heart of the OpenMV machine-vision stack. It "
+"exposes the :class:`Image` class -- the in-memory pixel buffer that every "
+"drawing, filtering, transformation and feature- extraction routine operates "
+"on -- together with the supporting result objects returned by those routines"
+" (:class:`Blob <blob>`, :class:`Line <line>`, :class:`Circle <circle>`, "
+":class:`Rect <rect>`, :class:`QRCode <qrcode>`, :class:`AprilTag "
+"<apriltag>`, :class:`DataMatrix <datamatrix>`, :class:`BarCode <barcode>`, "
+"...) and the helper classes used to configure them (:class:`Threshold "
+"<threshold>`, :class:`Histogram <histogram>`, :class:`Statistics "
+"<statistics>`, :class:`HaarCascade <Cascade>`, :class:`Similarity "
+"<similarity>`, :class:`Percentile <percentile>`, :class:`Displacement "
+"<displacement>`, :class:`ImageIO`)."
+msgstr ""
+":mod:`image` 모듈은 OpenMV 머신 비전 스택의 핵심입니다. 모든 그리기, 필터링, 변환 및 특징 추출 루틴이 동작하는 "
+"대상인 메모리 내 픽셀 버퍼인 :class:`Image` 클래스와 함께, 해당 루틴들이 반환하는 결과 객체들(:class:`Blob "
+"<blob>`, :class:`Line <line>`, :class:`Circle <circle>`, :class:`Rect "
+"<rect>`, :class:`QRCode <qrcode>`, :class:`AprilTag <apriltag>`, "
+":class:`DataMatrix <datamatrix>`, :class:`BarCode <barcode>`, ...) 그리고 이들을 "
+"구성하는 데 사용되는 헬퍼 클래스들(:class:`Threshold <threshold>`, :class:`Histogram "
+"<histogram>`, :class:`Statistics <statistics>`, :class:`HaarCascade "
+"<Cascade>`, :class:`Similarity <similarity>`, :class:`Percentile "
+"<percentile>`, :class:`Displacement <displacement>`, :class:`ImageIO`)을 "
+"노출합니다."
+
+#: ../../library/omv.image.rst:22
+msgid "Acquiring an Image"
+msgstr "이미지 획득"
+
+#: ../../library/omv.image.rst:24
+msgid "There are four ways to get an :class:`Image` into RAM:"
+msgstr ":class:`Image` 를 RAM으로 가져오는 방법은 네 가지가 있습니다:"
+
+#: ../../library/omv.image.rst:26
+msgid ""
+"**Live capture from the camera sensor.** Call :meth:`csi.CSI.snapshot` to "
+"capture the next frame straight into the frame buffer; the returned "
+":class:`Image` references that buffer."
+msgstr ""
+"**카메라 센서에서 실시간 캡처.** :meth:`csi.CSI.snapshot` 을 호출하여 다음 프레임을 프레임 버퍼로 직접 "
+"캡처합니다; 반환된 :class:`Image` 는 해당 버퍼를 참조합니다."
+
+#: ../../library/omv.image.rst:30
+msgid ""
+"**From a file.** Pass a path to the :class:`Image` constructor "
+"(``image.Image(\"/sd/photo.jpg\")``); supported on-disk formats are BMP, "
+"PPM/PGM, JPEG, PNG and the OpenMV :class:`ImageIO` recording format."
+msgstr ""
+"**파일에서.** :class:`Image` 생성자에 경로를 전달합니다(``image.Image(\"/sd/photo.jpg\")``);"
+" 디스크에서 지원되는 형식은 BMP, PPM/PGM, JPEG, PNG 및 OpenMV :class:`ImageIO` 녹화 형식입니다."
+
+#: ../../library/omv.image.rst:34
+msgid ""
+"**From an ndarray.** Pass a float32 ``(h, w)`` or ``(h, w, 3)`` ``ndarray`` "
+"to the :class:`Image` constructor. The pixels are scaled from ``0.0 -- "
+"255.0`` into a GRAYSCALE or RGB565 image respectively. Use this to bring "
+"tensor output from :mod:`ml` (or any :mod:`ulab` pipeline) back into a "
+"drawable image."
+msgstr ""
+"**ndarray에서.** float32 ``(h, w)`` 또는 ``(h, w, 3)`` ``ndarray`` 를 "
+":class:`Image` 생성자에 전달합니다. 픽셀은 ``0.0 -- 255.0`` 범위에서 각각 GRAYSCALE 또는 RGB565 "
+"이미지로 스케일링됩니다. :mod:`ml` (또는 모든 :mod:`ulab` 파이프라인)의 텐서 출력을 다시 그릴 수 있는 이미지로 "
+"가져올 때 이를 사용하세요."
+
+#: ../../library/omv.image.rst:39
+msgid ""
+"**Empty buffer.** Construct an :class:`Image` with a given size and pixel "
+"format (``image.Image(320, 240, image.RGB565)``) to draw into from scratch, "
+"or to use as a scratch surface for image arithmetic."
+msgstr ""
+"**빈 버퍼.** 주어진 크기와 픽셀 형식으로 :class:`Image` 를 생성하여(``image.Image(320, 240, "
+"image.RGB565)``) 처음부터 그려 넣거나, 이미지 산술 연산을 위한 스크래치 표면으로 사용합니다."
+
+#: ../../library/omv.image.rst:45 ../../library/omv.image.rst:325
+msgid "Pixel formats"
+msgstr "픽셀 형식"
+
+#: ../../library/omv.image.rst:47
+msgid ""
+"Every :class:`Image` has one of the following pixel formats; the choice "
+"trades off memory, processing cost and what algorithms can run on it. Use "
+":data:`BINARY`, :data:`GRAYSCALE`, :data:`RGB565`, :data:`BAYER`, "
+":data:`YUV422`, :data:`JPEG` or :data:`PNG` as the ``pixformat`` argument "
+"when constructing an image or configuring the camera sensor:"
+msgstr ""
+"모든 :class:`Image` 는 다음 픽셀 형식 중 하나를 가집니다; 이 선택은 메모리, 처리 비용 및 실행 가능한 알고리즘 간의 "
+"절충을 결정합니다. 이미지를 생성하거나 카메라 센서를 구성할 때 ``pixformat`` 인수로 :data:`BINARY`, "
+":data:`GRAYSCALE`, :data:`RGB565`, :data:`BAYER`, :data:`YUV422`, "
+":data:`JPEG` 또는 :data:`PNG` 를 사용하세요:"
+
+#: ../../library/omv.image.rst:54
+msgid ""
+"**BINARY (1 bpp)** -- one bit per pixel. The smallest format; used "
+"internally by thresholding and morphology routines but rarely captured "
+"directly from the sensor."
+msgstr ""
+"**BINARY (1 bpp)** -- 픽셀당 1비트. 가장 작은 형식; 임계값 처리 및 모폴로지 루틴에서 내부적으로 사용되지만 센서에서"
+" 직접 캡처되는 경우는 드뭅니다."
+
+#: ../../library/omv.image.rst:57
+msgid ""
+"**GRAYSCALE (8 bpp)** -- one byte per pixel (the Y channel of YUV422). "
+"Fastest format for most computer-vision algorithms (AprilTag, edge "
+"detection, optical flow)."
+msgstr ""
+"**GRAYSCALE (8 bpp)** -- 픽셀당 1바이트(YUV422의 Y 채널). 대부분의 컴퓨터 비전 알고리즘(AprilTag, "
+"에지 검출, 옵티컬 플로우)에 가장 빠른 형식입니다."
+
+#: ../../library/omv.image.rst:60
+msgid ""
+"**RGB565 (16 bpp)** -- two bytes per pixel, 5-bit red / 6-bit green / 5-bit "
+"blue. The default colour format."
+msgstr ""
+"**RGB565 (16 bpp)** -- 픽셀당 2바이트, 5비트 빨강 / 6비트 초록 / 5비트 파랑. 기본 색상 형식입니다."
+
+#: ../../library/omv.image.rst:62
+msgid ""
+"**BAYER (8 bpp)** -- raw Bayer-pattern colour data straight off the sensor. "
+"Useful for custom de-mosaicing or for storing more pixels in less memory "
+"before debayering on demand."
+msgstr ""
+"**BAYER (8 bpp)** -- 센서에서 바로 나온 원시 Bayer 패턴 색상 데이터. 사용자 정의 디모자이크 처리나, 필요 시 "
+"디베이어 처리하기 전에 더 적은 메모리에 더 많은 픽셀을 저장하는 데 유용합니다."
+
+#: ../../library/omv.image.rst:65
+msgid ""
+"**YUV422 (16 bpp)** -- 4:2:2 chroma-subsampled colour, two bytes per pixel. "
+"Useful when you want chroma-specific algorithms without paying the full RGB "
+"cost."
+msgstr ""
+"**YUV422 (16 bpp)** -- 4:2:2 크로마 서브샘플링 색상, 픽셀당 2바이트. 전체 RGB 비용을 들이지 않고 크로마 "
+"기반 알고리즘을 사용하려는 경우 유용합니다."
+
+#: ../../library/omv.image.rst:68
+msgid ""
+"**JPEG / PNG** -- compressed buffers. Best for storage and network "
+"transmission. Pixel-level operations require :meth:`Image.to_grayscale` or "
+":meth:`Image.to_rgb565` first."
+msgstr ""
+"**JPEG / PNG** -- 압축된 버퍼. 저장 및 네트워크 전송에 가장 적합합니다. 픽셀 단위 연산을 하려면 먼저 "
+":meth:`Image.to_grayscale` 또는 :meth:`Image.to_rgb565` 가 필요합니다."
+
+#: ../../library/omv.image.rst:73
+msgid "Working with results"
+msgstr "결과 다루기"
+
+#: ../../library/omv.image.rst:75
+msgid ""
+"The detection / feature-extraction methods on :class:`Image` return objects "
+"you can iterate over and combine -- a :meth:`Image.find_blobs` call returns "
+"a list of :class:`Blob <blob>`, a :meth:`Image.find_apriltags` call returns "
+"a list of :class:`AprilTag <apriltag>`, etc. Each result class exposes the "
+"geometric properties of the detection (centroid, bounding box, area, code "
+"value, etc.) so you can act on them directly or pass them back into drawing "
+"methods (:meth:`Image.draw_rectangle`, :meth:`Image.draw_string`, ...)."
+msgstr ""
+":class:`Image` 의 검출 / 특징 추출 메서드는 반복하고 조합할 수 있는 객체를 반환합니다 -- "
+":meth:`Image.find_blobs` 호출은 :class:`Blob <blob>` 의 리스트를 반환하고, "
+":meth:`Image.find_apriltags` 호출은 :class:`AprilTag <apriltag>` 의 리스트를 반환하는 "
+"식입니다. 각 결과 클래스는 검출의 기하학적 속성(중심점, 경계 상자, 면적, 코드 값 등)을 노출하므로, 이를 직접 활용하거나 그리기 "
+"메서드(:meth:`Image.draw_rectangle`, :meth:`Image.draw_string`, ...)에 다시 전달할 수 "
+"있습니다."
+
+#: ../../library/omv.image.rst:86
+msgid "Color-space helpers"
+msgstr "색 공간 헬퍼"
+
+#: ../../library/omv.image.rst:88
+msgid ""
+"The module also exposes small pure functions for converting individual pixel"
+" values between the binary / grayscale / RGB / LAB / YUV colour spaces. "
+"These are useful when you need to convert threshold values or palette "
+"entries in Python before passing them into image operations -- for full-"
+"image conversion use the :class:`Image` ``to_*`` methods, which are much "
+"faster than calling these helpers in a loop."
+msgstr ""
+"이 모듈은 또한 binary / grayscale / RGB / LAB / YUV 색 공간 사이에서 개별 픽셀 값을 변환하는 작은 순수 "
+"함수들을 노출합니다. 이는 이미지 연산에 전달하기 전에 Python에서 임계값이나 팔레트 항목을 변환해야 할 때 유용합니다 -- 전체 "
+"이미지 변환에는 :class:`Image` 의 ``to_*`` 메서드를 사용하세요. 이는 이 헬퍼들을 루프에서 호출하는 것보다 훨씬 "
+"빠릅니다."
+
+#: ../../library/omv.image.rst:97
+msgid "Classes"
+msgstr "클래스"
+
+#: ../../library/omv.image.rst:122
+msgid "Functions"
+msgstr "함수"
+
+#: ../../library/omv.image.rst:125
+msgid "Color-space conversion helpers"
+msgstr "색 공간 변환 헬퍼"
+
+#: ../../library/omv.image.rst:127
+msgid ""
+"Each of the ``X_to_Y`` functions below performs a single pixel-value "
+"conversion. They all take/return values in the canonical OpenMV ranges:"
+msgstr "아래의 각 ``X_to_Y`` 함수는 단일 픽셀 값 변환을 수행합니다. 모두 표준 OpenMV 범위의 값을 받고 반환합니다:"
+
+#: ../../library/omv.image.rst:130
+msgid "binary -- ``int`` 0 -- 1."
+msgstr "binary -- ``int`` 0 -- 1."
+
+#: ../../library/omv.image.rst:131
+msgid "grayscale -- ``int`` 0 -- 255."
+msgstr "grayscale -- ``int`` 0 -- 255."
+
+#: ../../library/omv.image.rst:132
+msgid "RGB -- ``(r, g, b)`` tuple of 8-bit integers (each 0 -- 255)."
+msgstr "RGB -- 8비트 정수의 ``(r, g, b)`` 튜플(각각 0 -- 255)."
+
+#: ../../library/omv.image.rst:133
+msgid ""
+"LAB -- ``(l, a, b)`` tuple with ``L`` in 0 -- 100 and ``A``/``B`` in -128 --"
+" 127."
+msgstr ""
+"LAB -- ``L`` 은 0 -- 100, ``A``/``B`` 는 -128 -- 127 범위인 ``(l, a, b)`` 튜플."
+
+#: ../../library/omv.image.rst:135
+msgid ""
+"YUV -- ``(y, u, v)`` tuple with ``Y`` in 0 -- 255 and ``U``/``V`` in -128 --"
+" 127."
+msgstr ""
+"YUV -- ``Y`` 는 0 -- 255, ``U``/``V`` 는 -128 -- 127 범위인 ``(y, u, v)`` 튜플."
+
+#: ../../library/omv.image.rst:138
+msgid ""
+"For full-image conversion use the :class:`Image` ``to_*`` methods, which are"
+" much faster than calling these helpers in a loop."
+msgstr ""
+"전체 이미지 변환에는 :class:`Image` 의 ``to_*`` 메서드를 사용하세요. 이는 이 헬퍼들을 루프에서 호출하는 것보다 훨씬"
+" 빠릅니다."
+
+#: ../../library/omv.image.rst:143
+msgid "Convert a binary value to a grayscale value."
+msgstr "binary 값을 grayscale 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:147
+msgid "Convert a binary value to an RGB tuple."
+msgstr "binary 값을 RGB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:151
+msgid "Convert a binary value to a LAB tuple."
+msgstr "binary 값을 LAB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:155
+msgid "Convert a binary value to a YUV tuple."
+msgstr "binary 값을 YUV 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:159
+msgid "Convert a grayscale value to a binary value."
+msgstr "grayscale 값을 binary 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:163
+msgid "Convert a grayscale value to an RGB tuple."
+msgstr "grayscale 값을 RGB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:167
+msgid "Convert a grayscale value to a LAB tuple."
+msgstr "grayscale 값을 LAB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:171
+msgid "Convert a grayscale value to a YUV tuple."
+msgstr "grayscale 값을 YUV 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:175
+msgid "Convert an RGB tuple to a binary value."
+msgstr "RGB 튜플을 binary 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:179
+msgid "Convert an RGB tuple to a grayscale value."
+msgstr "RGB 튜플을 grayscale 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:183
+msgid "Convert an RGB tuple to a LAB tuple."
+msgstr "RGB 튜플을 LAB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:187
+msgid "Convert an RGB tuple to a YUV tuple."
+msgstr "RGB 튜플을 YUV 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:191
+msgid "Convert a LAB tuple to a binary value."
+msgstr "LAB 튜플을 binary 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:195
+msgid "Convert a LAB tuple to a grayscale value."
+msgstr "LAB 튜플을 grayscale 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:199
+msgid "Convert a LAB tuple to an RGB tuple."
+msgstr "LAB 튜플을 RGB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:203
+msgid "Convert a LAB tuple to a YUV tuple."
+msgstr "LAB 튜플을 YUV 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:207
+msgid "Convert a YUV tuple to a binary value."
+msgstr "YUV 튜플을 binary 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:211
+msgid "Convert a YUV tuple to a grayscale value."
+msgstr "YUV 튜플을 grayscale 값으로 변환합니다."
+
+#: ../../library/omv.image.rst:215
+msgid "Convert a YUV tuple to an RGB tuple."
+msgstr "YUV 튜플을 RGB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:219
+msgid "Convert a YUV tuple to a LAB tuple."
+msgstr "YUV 튜플을 LAB 튜플로 변환합니다."
+
+#: ../../library/omv.image.rst:222
+msgid "Feature descriptors"
+msgstr "특징 디스크립터"
+
+#: ../../library/omv.image.rst:226
+msgid ""
+"Load a Haar Cascade and return a :class:`Cascade <Cascade>` handle for use "
+"with `Image.find_features()`."
+msgstr ""
+"Haar Cascade를 로드하고 `Image.find_features()` 와 함께 사용할 :class:`Cascade "
+"<Cascade>` 핸들을 반환합니다."
+
+#: ../../library/omv.image.rst:229
+msgid "``path`` may be either:"
+msgstr "``path`` 는 다음 중 하나일 수 있습니다:"
+
+#: ../../library/omv.image.rst:231
+msgid ""
+"the literal string ``\"frontalface\"`` or ``\"eye\"`` to load one of the two"
+" cascades baked into firmware ROM, or"
+msgstr ""
+"펌웨어 ROM에 내장된 두 개의 캐스케이드 중 하나를 로드하기 위한 리터럴 문자열 ``\"frontalface\"`` 또는 "
+"``\"eye\"``, 또는"
+
+#: ../../library/omv.image.rst:233
+msgid ""
+"a filesystem path to a custom ``.cascade`` binary file produced by the "
+"OpenMV cascade-converter tools."
+msgstr "OpenMV 캐스케이드 변환 도구로 생성된 사용자 정의 ``.cascade`` 바이너리 파일에 대한 파일 시스템 경로."
+
+#: ../../library/omv.image.rst:236
+msgid ""
+"``stages`` selects how many cascade stages to evaluate at detection time. "
+"``-1`` uses every stage stored in the file. Reducing this value speeds up "
+"detection at the cost of more false positives."
+msgstr ""
+"``stages`` 는 검출 시 평가할 캐스케이드 단계의 수를 선택합니다. ``-1`` 은 파일에 저장된 모든 단계를 사용합니다. 이 "
+"값을 줄이면 더 많은 오탐을 대가로 검출 속도가 빨라집니다."
+
+#: ../../library/omv.image.rst:242
+msgid ""
+"Load a descriptor from the file at ``path`` and return it. The file's "
+"internal type tag selects which descriptor class is reconstructed:"
+msgstr ""
+"``path`` 의 파일에서 디스크립터를 로드하여 반환합니다. 파일의 내부 타입 태그가 어떤 디스크립터 클래스를 재구성할지 선택합니다:"
+
+#: ../../library/omv.image.rst:245
+msgid ""
+"ORB keypoint descriptor -- saved by `Image.find_keypoints()` followed by "
+"`image.save_descriptor()`."
+msgstr ""
+"ORB 키포인트 디스크립터 -- `Image.find_keypoints()` 에 이어 `image.save_descriptor()` 로 "
+"저장됨."
+
+#: ../../library/omv.image.rst:247
+msgid ""
+"LBP descriptor -- saved by `Image.find_lbp()` followed by "
+"`image.save_descriptor()`."
+msgstr "LBP 디스크립터 -- `Image.find_lbp()` 에 이어 `image.save_descriptor()` 로 저장됨."
+
+#: ../../library/omv.image.rst:252
+msgid ""
+"Serialise ``descriptor`` (an ORB keypoint or LBP descriptor) to the file at "
+"``path`` in the OpenMV descriptor file format. The same file can later be "
+"reloaded via `image.load_descriptor()`."
+msgstr ""
+"``descriptor`` (ORB 키포인트 또는 LBP 디스크립터)를 OpenMV 디스크립터 파일 형식으로 ``path`` 의 파일에 "
+"직렬화합니다. 동일한 파일은 나중에 `image.load_descriptor()` 를 통해 다시 로드할 수 있습니다."
+
+#: ../../library/omv.image.rst:258
+msgid "Match two descriptors of the same type."
+msgstr "동일한 타입의 두 디스크립터를 매칭합니다."
+
+#: ../../library/omv.image.rst:260
+msgid ""
+"For two LBP descriptors -- returns an integer Hamming distance between them "
+"(lower is a closer match)."
+msgstr "두 LBP 디스크립터의 경우 -- 둘 사이의 정수 Hamming 거리를 반환합니다(값이 낮을수록 더 가까운 매칭)."
+
+#: ../../library/omv.image.rst:262
+msgid ""
+"For two ORB keypoint descriptors -- returns a :class:`kptmatch <kptmatch>` "
+"describing the matched-keypoint cluster, or ``None`` if no match passes "
+"``threshold``."
+msgstr ""
+"두 ORB 키포인트 디스크립터의 경우 -- 매칭된 키포인트 클러스터를 설명하는 :class:`kptmatch <kptmatch>` 를 "
+"반환하거나, ``threshold`` 를 통과하는 매칭이 없으면 ``None`` 을 반환합니다."
+
+#: ../../library/omv.image.rst:266
+msgid ""
+"``threshold`` (0 -- 100) sets how strict ORB matching is when accepting a "
+"keypoint pair. Lower values tighten matching by rejecting weak nearest-"
+"neighbour matches."
+msgstr ""
+"``threshold`` (0 -- 100)는 키포인트 쌍을 받아들일 때 ORB 매칭이 얼마나 엄격할지를 설정합니다. 값이 낮을수록 약한"
+" 최근접 이웃 매칭을 거부하여 매칭을 더 엄격하게 만듭니다."
+
+#: ../../library/omv.image.rst:270
+msgid ""
+"``filter_outliers`` enables RANSAC-style outlier rejection across the set of"
+" matched keypoints. Use it when you expect a single rigid transform between "
+"the two views; disable it when the matched keypoints span multiple objects."
+msgstr ""
+"``filter_outliers`` 는 매칭된 키포인트 집합 전반에 걸쳐 RANSAC 방식의 이상치 제거를 활성화합니다. 두 시점 사이에"
+" 단일 강체 변환이 예상될 때 사용하세요; 매칭된 키포인트가 여러 객체에 걸쳐 있을 때는 비활성화하세요."
+
+#: ../../library/omv.image.rst:276
+msgid "Blob geometry helpers"
+msgstr "블롭 기하 헬퍼"
+
+#: ../../library/omv.image.rst:278
+msgid ""
+"These helpers take a :class:`Blob <blob>` (as returned by "
+"`Image.find_blobs()`) and compute additional geometric properties on demand."
+" They live at module scope -- not on :class:`Blob <blob>` -- so the basic "
+"``find_blobs()`` path doesn't pay for them unless you ask."
+msgstr ""
+"이 헬퍼들은 (`Image.find_blobs()` 가 반환하는) :class:`Blob <blob>` 을 받아 추가적인 기하학적 속성을"
+" 필요 시 계산합니다. 이들은 :class:`Blob <blob>` 이 아니라 모듈 범위에 존재하므로, 기본 "
+"``find_blobs()`` 경로는 요청하지 않는 한 이에 대한 비용을 치르지 않습니다."
+
+#: ../../library/omv.image.rst:285
+msgid ""
+"Return the solidity (``blob.pixels / convex_hull_area``) of ``blob``. Float,"
+" 0 -- 1; 1.0 means the blob fully fills its convex hull."
+msgstr ""
+"``blob`` 의 견고도(``blob.pixels / convex_hull_area``)를 반환합니다. 0 -- 1 범위의 부동소수점;"
+" 1.0은 블롭이 볼록 껍질을 완전히 채움을 의미합니다."
+
+#: ../../library/omv.image.rst:290
+msgid ""
+"Return the convexity (``convex_hull_perimeter / blob.perimeter``) of "
+"``blob``. Float, 0 -- 1; 1.0 is a perfectly convex blob."
+msgstr ""
+"``blob`` 의 볼록도(``convex_hull_perimeter / blob.perimeter``)를 반환합니다. 0 -- 1 "
+"범위의 부동소수점; 1.0은 완벽하게 볼록한 블롭입니다."
+
+#: ../../library/omv.image.rst:295
+msgid ""
+"Return a :class:`Line <line>` along the major axis of ``blob`` (the longer "
+"of the two principal axes of the minimum-area rotated rectangle)."
+msgstr ""
+"``blob`` 의 장축(최소 면적 회전 직사각형의 두 주축 중 더 긴 것)을 따르는 :class:`Line <line>` 을 "
+"반환합니다."
+
+#: ../../library/omv.image.rst:301
+msgid ""
+"Return a :class:`Line <line>` along the minor axis of ``blob`` (the shorter "
+"of the two principal axes of the minimum-area rotated rectangle)."
+msgstr ""
+"``blob`` 의 단축(최소 면적 회전 직사각형의 두 주축 중 더 짧은 것)을 따르는 :class:`Line <line>` 을 "
+"반환합니다."
+
+#: ../../library/omv.image.rst:307
+msgid "Return a :class:`Circle <circle>` that encloses ``blob``."
+msgstr "``blob`` 을 둘러싸는 :class:`Circle <circle>` 을 반환합니다."
+
+#: ../../library/omv.image.rst:311
+msgid ""
+"Return a 5-tuple ``(cx, cy, a, b, rotation)`` describing the ellipse "
+"inscribed in the minimum-area rotated rectangle around ``blob``:"
+msgstr ""
+"``blob`` 주위의 최소 면적 회전 직사각형에 내접하는 타원을 설명하는 5-튜플 ``(cx, cy, a, b, rotation)`` "
+"을 반환합니다:"
+
+#: ../../library/omv.image.rst:314
+msgid "``cx`` / ``cy`` -- ellipse centre in pixels (integer)."
+msgstr "``cx`` / ``cy`` -- 픽셀 단위 타원 중심(정수)."
+
+#: ../../library/omv.image.rst:315
+msgid "``a`` / ``b`` -- semi-axis lengths in pixels (integer)."
+msgstr "``a`` / ``b`` -- 픽셀 단위 반축 길이(정수)."
+
+#: ../../library/omv.image.rst:316
+msgid "``rotation`` -- ellipse rotation **in degrees** (integer)."
+msgstr ""
+
+#: ../../library/omv.image.rst:318
+msgid ""
+"This is a plain tuple, not an attrtuple, so the fields are accessible only "
+"by index."
+msgstr "이것은 attrtuple이 아닌 일반 튜플이므로 필드는 인덱스로만 접근할 수 있습니다."
+
+#: ../../library/omv.image.rst:322
+msgid "Constants"
+msgstr "상수"
+
+#: ../../library/omv.image.rst:327
+msgid ""
+"Pass any of the following as the ``pixformat`` argument to the "
+":class:`Image` constructor or to :meth:`csi.CSI.pixformat`."
+msgstr ""
+"다음 중 아무거나 :class:`Image` 생성자나 :meth:`csi.CSI.pixformat` 에 ``pixformat`` 인수로 "
+"전달하세요."
+
+#: ../../library/omv.image.rst:333
+msgid ""
+"1-bit-per-pixel bitmap. Smallest format -- used internally by thresholding "
+"and morphology, rarely captured directly from a sensor."
+msgstr ""
+"픽셀당 1비트 비트맵. 가장 작은 형식 -- 임계값 처리 및 모폴로지에서 내부적으로 사용되며 센서에서 직접 캡처되는 경우는 드뭅니다."
+
+#: ../../library/omv.image.rst:339
+msgid ""
+"8-bit-per-pixel grayscale (one byte per pixel). The fastest format for most "
+"computer-vision algorithms (AprilTag, edge detection, optical flow)."
+msgstr ""
+"픽셀당 8비트 grayscale(픽셀당 1바이트). 대부분의 컴퓨터 비전 알고리즘(AprilTag, 에지 검출, 옵티컬 플로우)에 가장 "
+"빠른 형식입니다."
+
+#: ../../library/omv.image.rst:346
+msgid ""
+"16-bit-per-pixel colour packed as 5 bits red / 6 bits green / 5 bits blue. "
+"The default colour format."
+msgstr "5비트 빨강 / 6비트 초록 / 5비트 파랑으로 패킹된 픽셀당 16비트 색상. 기본 색상 형식입니다."
+
+#: ../../library/omv.image.rst:352
+msgid ""
+"8-bit-per-pixel raw Bayer data straight off the sensor. Most image "
+"processing methods are not available on Bayer images; use this when you want"
+" to debayer on demand or store more pixels in less memory."
+msgstr ""
+"센서에서 바로 나온 픽셀당 8비트 원시 Bayer 데이터. 대부분의 이미지 처리 메서드는 Bayer 이미지에서 사용할 수 없습니다; 필요"
+" 시 디베이어 처리하거나 더 적은 메모리에 더 많은 픽셀을 저장하려는 경우 이를 사용하세요."
+
+#: ../../library/omv.image.rst:359
+msgid ""
+"4:2:2 chroma-subsampled colour, two bytes per pixel, packed as ``Y1, U, Y2, "
+"V`` per pixel pair. Only some image processing methods work directly on "
+"YUV422."
+msgstr ""
+"4:2:2 크로마 서브샘플링 색상, 픽셀당 2바이트, 픽셀 쌍당 ``Y1, U, Y2, V`` 로 패킹됨. 일부 이미지 처리 메서드만 "
+"YUV422에서 직접 동작합니다."
+
+#: ../../library/omv.image.rst:366
+msgid ""
+"Compressed JPEG buffer. Pixel-level operations require "
+":meth:`Image.to_grayscale` or :meth:`Image.to_rgb565` first."
+msgstr ""
+"압축된 JPEG 버퍼. 픽셀 단위 연산을 하려면 먼저 :meth:`Image.to_grayscale` 또는 "
+":meth:`Image.to_rgb565` 가 필요합니다."
+
+#: ../../library/omv.image.rst:372
+msgid ""
+"Compressed PNG buffer. Pixel-level operations require "
+":meth:`Image.to_grayscale` or :meth:`Image.to_rgb565` first."
+msgstr ""
+"압축된 PNG 버퍼. 픽셀 단위 연산을 하려면 먼저 :meth:`Image.to_grayscale` 또는 "
+":meth:`Image.to_rgb565` 가 필요합니다."
+
+#: ../../library/omv.image.rst:376
+msgid "Colour palettes"
+msgstr "색상 팔레트"
+
+#: ../../library/omv.image.rst:378
+msgid ""
+"Pass any of the following to :meth:`Image.to_rainbow`, "
+":meth:`Image.to_ironbow`, :meth:`Image.draw_image` (``color_palette=``) or "
+"to :meth:`csi.CSI.color_palette` to colorize a grayscale image."
+msgstr ""
+"grayscale 이미지에 색을 입히려면 다음 중 아무거나 :meth:`Image.to_rainbow`, "
+":meth:`Image.to_ironbow`, :meth:`Image.draw_image` (``color_palette=``) 또는 "
+":meth:`csi.CSI.color_palette` 에 전달하세요."
+
+#: ../../library/omv.image.rst:385
+msgid ""
+"Smooth rainbow colour wheel. The default OpenMV palette for thermal imagery."
+msgstr "부드러운 무지개 색상환. 열화상 이미지를 위한 기본 OpenMV 팔레트입니다."
+
+#: ../../library/omv.image.rst:391
+msgid ""
+"Non-linear \"ironbow\" palette that mimics the look of the FLIR Lepton "
+"thermal viewfinder."
+msgstr "FLIR Lepton 열화상 뷰파인더의 모양을 모방하는 비선형 \"ironbow\" 팔레트."
+
+#: ../../library/omv.image.rst:397
+msgid ""
+"Depth-image palette. Only available on builds with depth-sensor support (the"
+" ToF pipeline -- e.g. OpenMV Cam AE3 or any cam with a ToF Pmod attached)."
+msgstr ""
+"깊이 이미지 팔레트. 깊이 센서 지원(ToF 파이프라인 -- 예: OpenMV Cam AE3 또는 ToF Pmod가 부착된 모든 "
+"카메라)이 있는 빌드에서만 사용할 수 있습니다."
+
+#: ../../library/omv.image.rst:404
+msgid ""
+"Palette for visualising GENX320 event-camera frames on a dark background. "
+"Pass to `csi.CSI.color_palette` to have the GENX320 driver emit colorized "
+"RGB565 frames in histogram mode, or to :meth:`Image.draw_image` "
+"``color_palette=`` when colorising a grayscale event image."
+msgstr ""
+"어두운 배경에서 GENX320 이벤트 카메라 프레임을 시각화하기 위한 팔레트. GENX320 드라이버가 히스토그램 모드에서 색상화된 "
+"RGB565 프레임을 출력하도록 하려면 `csi.CSI.color_palette` 에 전달하거나, grayscale 이벤트 이미지를 "
+"색상화할 때 :meth:`Image.draw_image` 의 ``color_palette=`` 에 전달하세요."
+
+#: ../../library/omv.image.rst:410
+msgid ""
+"Only available on builds with GENX320 support (OpenMV Cam AE3 and the "
+"GENX320 Pmod)."
+msgstr "GENX320 지원(OpenMV Cam AE3 및 GENX320 Pmod)이 있는 빌드에서만 사용할 수 있습니다."
+
+#: ../../library/omv.image.rst:416
+msgid ""
+"Palette for visualising GENX320 event-camera frames on a light background. "
+"Same dispatch and availability as :data:`PALETTE_EVT_DARK`."
+msgstr ""
+"밝은 배경에서 GENX320 이벤트 카메라 프레임을 시각화하기 위한 팔레트. :data:`PALETTE_EVT_DARK` 와 동일한 "
+"디스패치 및 가용성을 가집니다."
+
+#: ../../library/omv.image.rst:421
+msgid "Scaling modes"
+msgstr "스케일링 모드"
+
+#: ../../library/omv.image.rst:423
+msgid ""
+"Pass any of the following as the ``hint`` argument to "
+":meth:`Image.draw_image`, :meth:`Image.scale`, or similar scaling methods."
+msgstr ""
+"다음 중 아무거나 :meth:`Image.draw_image`, :meth:`Image.scale` 또는 유사한 스케일링 메서드에 "
+"``hint`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:430
+msgid ""
+"Area-averaging scaler. Used when downscaling; Nearest-Neighbor is used for "
+"upscaling."
+msgstr "영역 평균 스케일러. 축소 시 사용됩니다; 확대에는 Nearest-Neighbor가 사용됩니다."
+
+#: ../../library/omv.image.rst:436
+msgid "Bilinear scaler. Subsamples when downscaling."
+msgstr "이중 선형(Bilinear) 스케일러. 축소 시 서브샘플링합니다."
+
+#: ../../library/omv.image.rst:441
+msgid ""
+"Bicubic scaler. Higher quality than :data:`BILINEAR` but slower. Subsamples "
+"when downscaling."
+msgstr "이중 삼차(Bicubic) 스케일러. :data:`BILINEAR` 보다 품질이 높지만 느립니다. 축소 시 서브샘플링합니다."
+
+#: ../../library/omv.image.rst:445
+msgid "Drawing / draw_image hints"
+msgstr "그리기 / draw_image 힌트"
+
+#: ../../library/omv.image.rst:447
+msgid ""
+"Bit-OR any of these together and pass as the ``hint`` argument of "
+":meth:`Image.draw_image`."
+msgstr "다음 중 아무거나 비트 OR로 결합하여 :meth:`Image.draw_image` 의 ``hint`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:453
+msgid "Vertically flip the source while drawing."
+msgstr "그리는 동안 소스를 수직으로 뒤집습니다."
+
+#: ../../library/omv.image.rst:458
+msgid "Horizontally mirror the source while drawing."
+msgstr "그리는 동안 소스를 수평으로 미러링합니다."
+
+#: ../../library/omv.image.rst:463
+msgid "Transpose (swap x/y) the source while drawing."
+msgstr "그리는 동안 소스를 전치합니다(x/y 교환)."
+
+#: ../../library/omv.image.rst:468
+msgid ""
+"Centre the source on the destination. Any explicit x/y offsets then become "
+"offsets from the centre instead of from the top-left."
+msgstr "소스를 대상에 중앙 정렬합니다. 그러면 명시적인 x/y 오프셋은 좌상단이 아니라 중심으로부터의 오프셋이 됩니다."
+
+#: ../../library/omv.image.rst:474
+msgid ""
+"When extracting an RGB channel via :meth:`Image.draw_image`, extract the "
+"channel **before** scaling. Without this hint, the channel is extracted "
+"after scaling."
+msgstr ""
+":meth:`Image.draw_image` 를 통해 RGB 채널을 추출할 때, 스케일링 **전에** 채널을 추출합니다. 이 힌트가 "
+"없으면 스케일링 후에 채널이 추출됩니다."
+
+#: ../../library/omv.image.rst:481
+msgid ""
+"When applying a colour palette via :meth:`Image.draw_image`, apply the "
+"palette **before** scaling. Without this hint, the palette is applied after "
+"scaling."
+msgstr ""
+":meth:`Image.draw_image` 를 통해 색상 팔레트를 적용할 때, 스케일링 **전에** 팔레트를 적용합니다. 이 힌트가 "
+"없으면 스케일링 후에 팔레트가 적용됩니다."
+
+#: ../../library/omv.image.rst:488
+msgid ""
+"Scale the source to fit inside the destination while maintaining aspect "
+"ratio (letterboxes when ratios differ)."
+msgstr "종횡비를 유지하면서 소스를 대상 안에 맞도록 스케일링합니다(비율이 다르면 레터박스 처리)."
+
+#: ../../library/omv.image.rst:494
+msgid ""
+"Scale the source to fill the destination while maintaining aspect ratio "
+"(crops when ratios differ)."
+msgstr "종횡비를 유지하면서 소스를 대상에 채우도록 스케일링합니다(비율이 다르면 잘라냄)."
+
+#: ../../library/omv.image.rst:500
+msgid "Scale the source to fill the destination, ignoring aspect ratio."
+msgstr "종횡비를 무시하고 소스를 대상에 채우도록 스케일링합니다."
+
+#: ../../library/omv.image.rst:505
+msgid ""
+"Tell the alpha-blending path that the destination is known-black so it can "
+"skip the read-back of the destination pixel. Speeds up alpha effects on "
+"freshly-cleared buffers."
+msgstr ""
+"알파 블렌딩 경로에 대상이 검은색임이 확인되었음을 알려 대상 픽셀의 읽기 회수를 건너뛸 수 있게 합니다. 막 지워진 버퍼에서 알파 효과의"
+" 속도를 높입니다."
+
+#: ../../library/omv.image.rst:512
+msgid "Shortcut for ``VFLIP | TRANSPOSE`` (rotate 90 degrees clockwise)."
+msgstr "``VFLIP | TRANSPOSE`` 의 단축(시계 방향 90도 회전)."
+
+#: ../../library/omv.image.rst:517
+msgid "Shortcut for ``HMIRROR | VFLIP`` (rotate 180 degrees)."
+msgstr "``HMIRROR | VFLIP`` 의 단축(180도 회전)."
+
+#: ../../library/omv.image.rst:522
+msgid "Shortcut for ``HMIRROR | TRANSPOSE`` (rotate 270 degrees clockwise)."
+msgstr "``HMIRROR | TRANSPOSE`` 의 단축(시계 방향 270도 회전)."
+
+#: ../../library/omv.image.rst:525
+msgid "JPEG subsampling"
+msgstr "JPEG 서브샘플링"
+
+#: ../../library/omv.image.rst:527
+msgid ""
+"Pass any of the following as the ``subsampling`` argument to "
+":meth:`Image.to_jpeg`, :meth:`Image.compress`, or :meth:`Image.save` when "
+"writing a JPEG."
+msgstr ""
+"JPEG를 쓸 때 다음 중 아무거나 :meth:`Image.to_jpeg`, :meth:`Image.compress` 또는 "
+":meth:`Image.save` 에 ``subsampling`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:534
+msgid ""
+"Pick chroma subsampling automatically based on the JPEG quality setting."
+msgstr "JPEG 품질 설정에 따라 크로마 서브샘플링을 자동으로 선택합니다."
+
+#: ../../library/omv.image.rst:540
+msgid "Force 4:4:4 chroma subsampling (no chroma compression)."
+msgstr "4:4:4 크로마 서브샘플링을 강제합니다(크로마 압축 없음)."
+
+#: ../../library/omv.image.rst:545
+msgid ""
+"Force 4:2:2 chroma subsampling. Recommended when streaming MJPEG to third-"
+"party video players that misbehave with 4:2:0."
+msgstr ""
+"4:2:2 크로마 서브샘플링을 강제합니다. 4:2:0에서 오작동하는 타사 비디오 플레이어로 MJPEG를 스트리밍할 때 권장됩니다."
+
+#: ../../library/omv.image.rst:551
+msgid "Force 4:2:0 chroma subsampling."
+msgstr "4:2:0 크로마 서브샘플링을 강제합니다."
+
+#: ../../library/omv.image.rst:554
+msgid "Template matching"
+msgstr "템플릿 매칭"
+
+#: ../../library/omv.image.rst:556
+msgid ""
+"Pass either of the following as the ``search`` argument to "
+":meth:`Image.find_template`."
+msgstr "다음 중 하나를 :meth:`Image.find_template` 에 ``search`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:562
+msgid ""
+"Exhaustive search -- evaluates every position in the ROI. Slowest but "
+"guaranteed to find the best match."
+msgstr "전수 검색 -- ROI의 모든 위치를 평가합니다. 가장 느리지만 최적의 매칭을 찾는 것이 보장됩니다."
+
+#: ../../library/omv.image.rst:568
+msgid ""
+"Diamond search -- coarse-to-fine search that is much faster than "
+":data:`SEARCH_EX` but may miss the global optimum on highly self-similar "
+"templates."
+msgstr ""
+"다이아몬드 검색 -- :data:`SEARCH_EX` 보다 훨씬 빠른 거친-에서-세밀한 검색이지만, 자기 유사성이 높은 템플릿에서는 전역"
+" 최적값을 놓칠 수 있습니다."
+
+#: ../../library/omv.image.rst:573
+msgid "Edge detection"
+msgstr "에지 검출"
+
+#: ../../library/omv.image.rst:575
+msgid ""
+"Pass either of the following as the ``algorithm`` argument to "
+":meth:`Image.find_edges`."
+msgstr "다음 중 하나를 :meth:`Image.find_edges` 에 ``algorithm`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:581
+msgid ""
+"Canny edge detector -- gradient magnitude + non-max suppression + "
+"hysteresis. Higher quality, slower."
+msgstr "Canny 에지 검출기 -- 그래디언트 크기 + 비최대 억제 + 히스테리시스. 품질이 더 높지만 느립니다."
+
+#: ../../library/omv.image.rst:587
+msgid ""
+"Thresholded high-pass-filter edge detector. Faster but produces thicker, "
+"noisier edges than :data:`EDGE_CANNY`."
+msgstr ""
+"임계값 처리된 고역 통과 필터 에지 검출기. 더 빠르지만 :data:`EDGE_CANNY` 보다 더 두껍고 노이즈가 많은 에지를 "
+"생성합니다."
+
+#: ../../library/omv.image.rst:591
+msgid "ORB corner detectors"
+msgstr "ORB 코너 검출기"
+
+#: ../../library/omv.image.rst:593
+msgid ""
+"Pass either of the following as the ``corner_detector`` argument to "
+":meth:`Image.find_keypoints`."
+msgstr ""
+"다음 중 하나를 :meth:`Image.find_keypoints` 에 ``corner_detector`` 인수로 전달하세요."
+
+#: ../../library/omv.image.rst:599
+msgid ""
+"FAST corner detector. Faster than :data:`CORNER_AGAST` but less accurate."
+msgstr "FAST 코너 검출기. :data:`CORNER_AGAST` 보다 빠르지만 정확도가 낮습니다."
+
+#: ../../library/omv.image.rst:605
+msgid ""
+"AGAST corner detector. Slower than :data:`CORNER_FAST` but produces more "
+"stable keypoints."
+msgstr "AGAST 코너 검출기. :data:`CORNER_FAST` 보다 느리지만 더 안정적인 키포인트를 생성합니다."
+
+#: ../../library/omv.image.rst:609
+msgid "AprilTag families"
+msgstr "AprilTag 패밀리"
+
+#: ../../library/omv.image.rst:611
+msgid ""
+"Bit-OR any combination of the following and pass as the ``families`` "
+"argument to :meth:`Image.find_apriltags`. Each family is gated by its own "
+"build option in firmware; unsupported families are absent at runtime rather "
+"than always-zero."
+msgstr ""
+"다음의 조합을 비트 OR로 결합하여 :meth:`Image.find_apriltags` 에 ``families`` 인수로 전달하세요. 각"
+" 패밀리는 펌웨어에서 자체 빌드 옵션으로 제어됩니다; 지원되지 않는 패밀리는 항상-0이 아니라 런타임에 부재합니다."
+
+#: ../../library/omv.image.rst:619
+msgid "AprilTag ``16h5`` family (30 unique IDs, 0-bit error correction)."
+msgstr "AprilTag ``16h5`` 패밀리(고유 ID 30개, 0비트 오류 정정)."
+
+#: ../../library/omv.image.rst:624
+msgid ""
+"AprilTag ``25h9`` family (35 unique IDs, up to 3-bit error correction)."
+msgstr "AprilTag ``25h9`` 패밀리(고유 ID 35개, 최대 3비트 오류 정정)."
+
+#: ../../library/omv.image.rst:630
+msgid ""
+"AprilTag ``36h10`` family (2320 unique IDs, up to 3-bit error correction)."
+msgstr "AprilTag ``36h10`` 패밀리(고유 ID 2320개, 최대 3비트 오류 정정)."
+
+#: ../../library/omv.image.rst:636
+msgid ""
+"AprilTag ``36h11`` family (587 unique IDs, up to 4-bit error correction). "
+"The most common family."
+msgstr "AprilTag ``36h11`` 패밀리(고유 ID 587개, 최대 4비트 오류 정정). 가장 일반적인 패밀리입니다."
+
+#: ../../library/omv.image.rst:642
+msgid "AprilTag ``Circle21h7`` family."
+msgstr "AprilTag ``Circle21h7`` 패밀리."
+
+#: ../../library/omv.image.rst:647
+msgid "AprilTag ``Circle49h12`` family."
+msgstr "AprilTag ``Circle49h12`` 패밀리."
+
+#: ../../library/omv.image.rst:652
+msgid "AprilTag ``Custom48h12`` family."
+msgstr "AprilTag ``Custom48h12`` 패밀리."
+
+#: ../../library/omv.image.rst:657
+msgid "AprilTag ``Standard41h12`` family."
+msgstr "AprilTag ``Standard41h12`` 패밀리."
+
+#: ../../library/omv.image.rst:662
+msgid "AprilTag ``Standard52h13`` family."
+msgstr "AprilTag ``Standard52h13`` 패밀리."
+
+#: ../../library/omv.image.rst:665
+msgid "Barcode symbologies"
+msgstr "바코드 심볼로지"
+
+#: ../../library/omv.image.rst:667
+msgid ""
+"The values reported in :attr:`BarCode.type <barcode.type>` for entries "
+"returned by :meth:`Image.find_barcodes`."
+msgstr ""
+":meth:`Image.find_barcodes` 가 반환하는 항목에 대해 :attr:`BarCode.type "
+"<barcode.type>` 에 보고되는 값입니다."
+
+#: ../../library/omv.image.rst:673
+msgid "EAN-2 supplemental barcode."
+msgstr "EAN-2 보조 바코드."
+
+#: ../../library/omv.image.rst:678
+msgid "EAN-5 supplemental barcode."
+msgstr "EAN-5 보조 바코드."
+
+#: ../../library/omv.image.rst:683
+msgid "EAN-8 barcode."
+msgstr "EAN-8 바코드."
+
+#: ../../library/omv.image.rst:688
+msgid "UPC-E barcode."
+msgstr "UPC-E 바코드."
+
+#: ../../library/omv.image.rst:693
+msgid "ISBN-10 barcode."
+msgstr "ISBN-10 바코드."
+
+#: ../../library/omv.image.rst:698
+msgid "UPC-A barcode."
+msgstr "UPC-A 바코드."
+
+#: ../../library/omv.image.rst:703
+msgid "EAN-13 barcode."
+msgstr "EAN-13 바코드."
+
+#: ../../library/omv.image.rst:708
+msgid "ISBN-13 barcode."
+msgstr "ISBN-13 바코드."
+
+#: ../../library/omv.image.rst:713
+msgid "Interleaved 2-of-5 barcode."
+msgstr "Interleaved 2-of-5 바코드."
+
+#: ../../library/omv.image.rst:718
+msgid "GS1 DataBar barcode."
+msgstr "GS1 DataBar 바코드."
+
+#: ../../library/omv.image.rst:723
+msgid "GS1 DataBar Expanded barcode."
+msgstr "GS1 DataBar Expanded 바코드."
+
+#: ../../library/omv.image.rst:728
+msgid "Codabar barcode."
+msgstr "Codabar 바코드."
+
+#: ../../library/omv.image.rst:733
+msgid "Code 39 barcode."
+msgstr "Code 39 바코드."
+
+#: ../../library/omv.image.rst:738
+msgid ""
+"PDF417 2D stacked barcode. The constant exists for completeness, but the "
+"barcode decoder does not currently implement PDF417 -- "
+"`Image.find_barcodes()` will not return detections of this type."
+msgstr ""
+"PDF417 2D 적층형 바코드. 이 상수는 완전성을 위해 존재하지만, 바코드 디코더는 현재 PDF417을 구현하지 않습니다 -- "
+"`Image.find_barcodes()` 는 이 타입의 검출을 반환하지 않습니다."
+
+#: ../../library/omv.image.rst:745
+msgid "Code 93 barcode."
+msgstr "Code 93 바코드."
+
+#: ../../library/omv.image.rst:750
+msgid "Code 128 barcode."
+msgstr "Code 128 바코드."

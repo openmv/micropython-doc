@@ -1,0 +1,297 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:2
+msgid "Regions and masks"
+msgstr "영역과 마스크"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:4
+msgid ""
+"Every operation in the image module touches every pixel of its source image "
+"by default. That is the simplest behaviour to describe, and the right one "
+"when the algorithm's job genuinely spans the whole frame -- a uniform colour"
+" correction, a global histogram, an encoding pass for transmission. But most"
+" algorithms in practice want to look at less than that. A blob tracker "
+"watching a coloured marker cares about the part of the scene the marker can "
+"appear in, not the wall behind it. A morphological cleanup pass is only safe"
+" over the pixels that an earlier stage marked as candidates. A face detector"
+" might only run inside the bounding box a coarser detector already narrowed "
+"down. The image module supports that work through two mechanisms that scope "
+"an operation to a subset of pixels: rectangular *regions of interest*, and "
+"binary *masks*. They compose freely, and almost every method that touches "
+"pixels accepts one or the other -- or both -- as a keyword argument."
+msgstr ""
+"image 모듈의 모든 연산은 기본적으로 원본 이미지의 모든 픽셀을 처리합니다. 이는 설명하기 가장 단순한 동작이며, 알고리즘의 작업이 "
+"실제로 프레임 전체에 걸쳐 있을 때 -- 균일한 색상 보정, 전역 히스토그램, 전송을 위한 인코딩 패스 등 -- 올바른 선택입니다. "
+"하지만 실제로는 대부분의 알고리즘이 그보다 적은 영역만 보기를 원합니다. 색이 있는 마커를 추적하는 블롭 추적기는 마커가 나타날 수 있는"
+" 장면의 일부에만 관심이 있을 뿐, 그 뒤의 벽에는 관심이 없습니다. 형태학적 정리 패스는 이전 단계에서 후보로 표시한 픽셀에 대해서만 "
+"안전합니다. 얼굴 검출기는 더 거친 검출기가 이미 좁혀 놓은 경계 상자 안에서만 실행될 수도 있습니다. image 모듈은 연산을 픽셀의 "
+"일부로 한정하는 두 가지 메커니즘을 통해 이러한 작업을 지원합니다. 직사각형 *관심 영역(ROI)*\\ 과 이진 *마스크*\\ 입니다. "
+"이 둘은 자유롭게 조합되며, 픽셀을 다루는 거의 모든 메서드가 둘 중 하나 -- 또는 둘 다 -- 를 키워드 인자로 받습니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:26
+msgid "Regions of interest"
+msgstr "관심 영역(ROI)"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:28
+msgid ""
+"A region of interest is a rectangle of pixels named by the ``(x, y, w, h)`` "
+"four-tuple introduced on the coordinates page. About thirty methods on the "
+"surface accept an ``roi`` keyword argument; when present, the operation runs"
+" only on the pixels inside that rectangle and leaves the rest of the image "
+"untouched. When ``roi`` is :data:`None` or omitted, the operation runs over "
+"the whole image -- the same as if ``roi=(0, 0, width, height)`` had been "
+"passed."
+msgstr ""
+"관심 영역(ROI)은 좌표 페이지에서 소개한 ``(x, y, w, h)`` 4-튜플로 지정되는 픽셀의 직사각형입니다. 인터페이스의 약 "
+"서른 개 메서드가 ``roi`` 키워드 인자를 받습니다. 이 인자가 있으면 연산은 해당 직사각형 안의 픽셀에 대해서만 실행되고 이미지의 "
+"나머지 부분은 그대로 둡니다. ``roi``\\ 가 :data:`None`\\ 이거나 생략되면 연산은 이미지 전체에 대해 실행됩니다 --"
+" 이는 ``roi=(0, 0, width, height)``\\ 를 전달한 것과 동일합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:39
+msgid ""
+"In code the keyword sits alongside whatever other arguments the operation "
+"takes:"
+msgstr "코드에서 이 키워드는 연산이 받는 다른 인자들과 나란히 위치합니다:"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:47
+msgid ""
+"The first thing ROIs buy is *false-positive control*. A colour tracker that "
+"only looks at the table will never trigger on the shirt walking past it; an "
+"edge detector that only runs inside the defined work area will never report "
+"the edges of the camera mount itself. Cutting the search area down to the "
+"part of the scene the algorithm actually cares about is the cheapest "
+"improvement a pipeline can make to its own reliability."
+msgstr ""
+"ROI가 가져다주는 첫 번째 이점은 *오탐 제어*\\ 입니다. 테이블만 보는 색상 추적기는 그 옆을 지나가는 셔츠에 반응하지 않으며, "
+"정의된 작업 영역 안에서만 실행되는 에지 검출기는 카메라 마운트 자체의 에지를 절대 보고하지 않습니다. 알고리즘이 실제로 관심을 두는 "
+"장면의 일부로 검색 영역을 줄이는 것은 파이프라인이 스스로의 신뢰성을 높이기 위해 할 수 있는 가장 저렴한 개선입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:57
+msgid ""
+"The second thing they buy is the *coarse-to-fine pipeline*. Detection result"
+" objects -- a ``blob``, a ``rect``, an ``apriltag``, and so on -- expose "
+"their bounding boxes as the same ``(x, y, w, h)`` four-tuple that ``roi`` "
+"accepts. So a coarse first stage can return a bounding box, the box drops "
+"directly into the next stage's ``roi``, and the second stage runs over the "
+"narrower area. Each progressive narrowing both speeds the next stage up and "
+"makes its results more reliable, because the search space has already been "
+"filtered."
+msgstr ""
+"두 번째 이점은 *거친 단계에서 정밀한 단계로 이어지는 파이프라인*\\ 입니다. 검출 결과 객체 -- ``blob``, ``rect``,"
+" ``apriltag`` 등 -- 는 자신의 경계 상자를 ``roi``\\ 가 받는 것과 동일한 ``(x, y, w, h)`` 4-튜플로"
+" 노출합니다. 따라서 거친 첫 단계가 경계 상자를 반환하면, 그 상자가 곧바로 다음 단계의 ``roi``\\ 로 들어가고, 두 번째 "
+"단계는 더 좁은 영역에 대해 실행됩니다. 검색 공간이 이미 필터링되어 있기 때문에, 이렇게 점진적으로 좁혀 나가는 각 단계는 다음 단계의"
+" 속도를 높이는 동시에 결과를 더 신뢰할 수 있게 만듭니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:70
+msgid "Binary masks"
+msgstr "이진 마스크"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:72
+msgid ""
+"A rectangle is the right form when the area of interest is axis-aligned. "
+"When it is not -- a curved region, a non-convex one, the pixels that some "
+"earlier stage classified as \"matches\" -- the operation has to be told to "
+"scope itself to an arbitrary pattern of pixels instead. The mechanism for "
+"that is a binary mask: a separate :class:`Image`, the same dimensions as the"
+" source, used as a per-pixel on / off switch. A non-zero pixel in the mask "
+"says \"include the matching source pixel\"; a zero pixel says \"leave the "
+"source pixel alone.\""
+msgstr ""
+"관심 영역이 축에 정렬되어 있을 때는 직사각형이 올바른 형태입니다. 그렇지 않을 때 -- 곡선 영역, 볼록하지 않은 영역, 어떤 이전 "
+"단계가 \"일치\"로 분류한 픽셀 -- 에는 연산을 임의의 픽셀 패턴으로 한정하도록 지시해야 합니다. 그 메커니즘이 바로 이진 "
+"마스크입니다. 원본과 동일한 크기의 별도 :class:`Image`\\ 로, 픽셀 단위 켜기/끄기 스위치로 사용됩니다. 마스크에서 0이 "
+"아닌 픽셀은 \"대응하는 원본 픽셀을 포함하라\"는 의미이고, 0인 픽셀은 \"원본 픽셀을 그대로 두라\"는 의미입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:85
+msgid ""
+"A mask is usually a :data:`~image.BINARY` image -- the one-bit-per-pixel "
+"format that exists for exactly this purpose -- but any single-channel image "
+"will work, because the consumer treats any non-zero value as on."
+msgstr ""
+"마스크는 보통 :data:`~image.BINARY` 이미지 -- 바로 이 목적을 위해 존재하는 픽셀당 1비트 형식 -- 이지만, "
+"소비자가 0이 아닌 모든 값을 켜짐으로 취급하기 때문에 단일 채널 이미지라면 무엇이든 동작합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:91
+msgid ""
+"Filtering, thresholding, and arithmetic methods accept a ``mask`` keyword "
+"argument. The form is the same on each: a separately allocated binary image,"
+" the same dimensions as the source, passed through."
+msgstr ""
+"필터링, 임계값 처리, 산술 메서드는 ``mask`` 키워드 인자를 받습니다. 형태는 모두 동일합니다. 원본과 같은 크기로 별도로 할당된"
+" 이진 이미지를 전달하는 것입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:97
+msgid ""
+"ROIs and masks *compose*. Pass both, and the operation runs only on pixels "
+"that are inside the ROI **and** on in the mask. The two mechanisms give "
+"application code independent levers -- one for the rectangular area of "
+"interest, one for the arbitrary pattern within it -- without making either "
+"form inherit constraints from the other."
+msgstr ""
+"ROI와 마스크는 *조합*\\ 됩니다. 둘 다 전달하면 연산은 ROI 안에 **있으면서** 마스크에서 켜져 있는 픽셀에 대해서만 "
+"실행됩니다. 두 메커니즘은 애플리케이션 코드에 독립적인 레버를 제공합니다 -- 하나는 직사각형 관심 영역용, 다른 하나는 그 안의 임의 "
+"패턴용 -- 어느 한 형태가 다른 형태로부터 제약을 물려받지 않게 하면서 말입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:105
+msgid ""
+"A small grid representing an image. A\n"
+"dashed rectangle drawn across the\n"
+"upper-middle portion of the grid labels\n"
+"the ROI: only pixels inside this\n"
+"rectangle are considered. Inside the ROI,\n"
+"a roughly circular set of filled cells\n"
+"labels the mask: only those filled cells\n"
+"are actually modified. The remaining\n"
+"cells are shaded lightly to indicate they\n"
+"are untouched."
+msgstr ""
+"이미지를 나타내는 작은 격자. 격자의\n"
+"위쪽 가운데 부분에 그려진 점선\n"
+"직사각형이 ROI를 표시합니다. 이\n"
+"직사각형 안의 픽셀만 고려됩니다. ROI\n"
+"안에서 대략 원형으로 채워진 셀들의\n"
+"집합이 마스크를 표시합니다. 채워진\n"
+"이 셀들만 실제로 수정됩니다. 나머지\n"
+"셀들은 변경되지 않았음을 나타내기 위해\n"
+"옅게 음영 처리되어 있습니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:117
+msgid ""
+"An ROI confines an operation to an axis-aligned rectangle. A mask further "
+"narrows it to an arbitrary pattern of pixels. The two compose: only pixels "
+"inside the ROI **and** on in the mask are modified."
+msgstr ""
+"ROI는 연산을 축에 정렬된 직사각형으로 한정합니다. 마스크는 이를 임의의 픽셀 패턴으로 더 좁힙니다. 둘은 조합됩니다. ROI 안에 "
+"**있으면서** 마스크에서 켜져 있는 픽셀만 수정됩니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:124
+msgid "Building masks"
+msgstr "마스크 만들기"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:126
+msgid ""
+"Three :class:`Image` methods build common mask geometries in place by "
+"zeroing the pixels *outside* the chosen region:"
+msgstr ""
+"세 가지 :class:`Image` 메서드는 선택한 영역 *바깥*\\ 의 픽셀을 0으로 만들어 일반적인 마스크 형태를 제자리에서 "
+"생성합니다:"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:130
+msgid ":meth:`~image.Image.mask_rectangle` keeps a rectangle."
+msgstr ":meth:`~image.Image.mask_rectangle`\\ 은 직사각형을 유지합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:132
+msgid ":meth:`~image.Image.mask_circle` keeps a circle."
+msgstr ":meth:`~image.Image.mask_circle`\\ 은 원을 유지합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:133
+msgid ":meth:`~image.Image.mask_ellipse` keeps an ellipse."
+msgstr ":meth:`~image.Image.mask_ellipse`\\ 는 타원을 유지합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:136
+msgid ""
+"Each takes ``(x, y, w, h)`` (for the rectangle and the ellipse) or ``(x, y, "
+"radius)`` (for the circle). Calling any of them without arguments centres "
+"the geometry and sizes it to fill the image, which is the form an "
+"application reaches for when the goal is a simple full-image oval or circle "
+"that hides nothing but the corners."
+msgstr ""
+"각 메서드는 ``(x, y, w, h)`` (직사각형과 타원의 경우) 또는 ``(x, y, radius)`` (원의 경우)를 받습니다. "
+"인자 없이 호출하면 도형을 가운데에 배치하고 이미지를 채우도록 크기를 조정하는데, 이는 모서리만 가리고 그 외에는 아무것도 가리지 않는 "
+"단순한 전체 이미지 타원이나 원을 원할 때 애플리케이션이 찾는 형태입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:150
+msgid ""
+"The interesting masks rarely come from the ``mask_*`` methods alone. They "
+"come from earlier stages of the pipeline: a thresholding pass produces a "
+"binary image whose non-zero pixels mark the matches, exactly the right form "
+"to feed into the next stage's ``mask=`` argument. A morphological cleanup "
+"pass refines that mask without changing its form. Anything that ends up as a"
+" single-channel image is itself a valid mask."
+msgstr ""
+"흥미로운 마스크는 ``mask_*`` 메서드만으로 만들어지는 경우는 드뭅니다. 그것들은 파이프라인의 이전 단계에서 나옵니다. 임계값 처리"
+" 패스는 0이 아닌 픽셀이 일치를 표시하는 이진 이미지를 생성하는데, 이는 다음 단계의 ``mask=`` 인자에 넣기에 정확히 알맞은 "
+"형태입니다. 형태학적 정리 패스는 그 형태를 바꾸지 않으면서 마스크를 다듬습니다. 결국 단일 채널 이미지가 되는 것이라면 무엇이든 그 "
+"자체로 유효한 마스크입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:161
+msgid "How operations modify the image"
+msgstr "연산이 이미지를 수정하는 방식"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:163
+msgid ""
+"A pattern visible in every code snippet on the last few pages -- the "
+"operation returning the same ``img`` for chaining -- is worth pulling out "
+"explicitly so it does not have to be re-stated each time a new method is "
+"introduced. Three families of methods appear on the :class:`Image` surface, "
+"each treating the source image differently:"
+msgstr ""
+"지난 몇 페이지의 모든 코드 조각에서 보이는 패턴 -- 연쇄 호출을 위해 같은 ``img``\\ 를 반환하는 연산 -- 은 새 메서드가 "
+"소개될 때마다 다시 설명할 필요가 없도록 명시적으로 짚어 둘 가치가 있습니다. :class:`Image` 인터페이스에는 세 부류의 "
+"메서드가 등장하며, 각각 원본 이미지를 다르게 취급합니다:"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:172
+msgid ""
+"**Operating methods** modify the source's pixels in place and return the "
+"same image for chaining. The drawing, arithmetic, threshold, and filter "
+"families all behave this way. ``img.gaussian(1)`` blurs ``img`` and returns "
+"the same ``img``; reassigning -- ``img = img.gaussian(1)`` -- is harmless "
+"but unnecessary."
+msgstr ""
+"**연산 메서드**\\ 는 원본의 픽셀을 제자리에서 수정하고 연쇄 호출을 위해 같은 이미지를 반환합니다. 그리기, 산술, 임계값, 필터 "
+"부류가 모두 이렇게 동작합니다. ``img.gaussian(1)``\\ 은 ``img``\\ 를 흐리게 하고 같은 ``img``\\ 를 "
+"반환합니다. 재할당 -- ``img = img.gaussian(1)`` -- 은 무해하지만 불필요합니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:179
+msgid ""
+"**Conversion methods** operate in place by default the same way operating "
+"methods do, but they accept ``copy=True`` and ``copy_to_fb=True`` to "
+"allocate a separate result image when the source needs to be preserved. The "
+"format conversions and the geometric copies are the main members of this "
+"family."
+msgstr ""
+"**변환 메서드**\\ 는 기본적으로 연산 메서드와 같은 방식으로 제자리에서 동작하지만, 원본을 보존해야 할 때 별도의 결과 이미지를 "
+"할당하기 위해 ``copy=True``\\ 와 ``copy_to_fb=True``\\ 를 받습니다. 형식 변환과 기하학적 복사가 이 "
+"부류의 주요 구성원입니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:186
+msgid ""
+"**Inspection methods** read the pixels and return a *result object* -- a "
+"list of detected features, a histogram, a set of statistics -- without "
+"modifying the source image at all."
+msgstr ""
+"**검사 메서드**\\ 는 픽셀을 읽고 *결과 객체* -- 검출된 특징의 리스트, 히스토그램, 통계 집합 -- 를 반환하며, 원본 "
+"이미지는 전혀 수정하지 않습니다."
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:191
+msgid ""
+"That trichotomy is consistent across the whole surface. Knowing which family"
+" a method belongs to tells the application what to expect from a call: "
+"whether the source's pixels will survive intact, whether a separate result "
+"image will be allocated, and whether the return value is the source itself "
+"or something else."
+msgstr ""
+"이 세 가지 분류는 전체 인터페이스에 걸쳐 일관됩니다. 어떤 메서드가 어느 부류에 속하는지 알면 애플리케이션은 호출에서 무엇을 기대할지 "
+"알 수 있습니다. 원본의 픽셀이 온전히 유지될지, 별도의 결과 이미지가 할당될지, 반환값이 원본 자체인지 아니면 다른 것인지 말입니다."

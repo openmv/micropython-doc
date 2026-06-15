@@ -1,0 +1,172 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:2
+msgid "Auth for programmatic clients"
+msgstr "프로그래밍 방식 클라이언트를 위한 인증"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:4
+msgid ""
+"Bearer tokens are how phones, companion microcontrollers, and cloud workers "
+"authenticate to a server -- the client puts a token in the ``Authorization``"
+" header on every request and the server checks it. The companion phone app "
+"POSTs an \"ack\" when the owner taps \"seen\" on a motion notification; "
+"those requests need a token."
+msgstr ""
+"베어러 토큰은 휴대폰, 동반 마이크로컨트롤러, 클라우드 워커가 서버에 인증하는 방식입니다. 클라이언트는 모든 요청의 "
+"``Authorization`` 헤더에 토큰을 넣고 서버는 이를 확인합니다. 동반 휴대폰 앱은 소유자가 동작 알림에서 \"확인함\"을 "
+"탭하면 \"ack\"를 POST하는데, 그런 요청에는 토큰이 필요합니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:11
+msgid "The signing secret"
+msgstr "서명 비밀키"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:13
+msgid ""
+"The secret is the cam's private key for signing and verifying tokens. "
+"Generate 32 random bytes from the hardware RNG on the cam's first boot, "
+"persist them to the filesystem, and reuse the same bytes on every subsequent"
+" boot:"
+msgstr ""
+"비밀키는 토큰에 서명하고 검증하기 위한 카메라의 개인 키입니다. 카메라의 첫 부팅 시 하드웨어 RNG에서 32개의 랜덤 바이트를 생성해 "
+"파일 시스템에 영구 저장하고, 이후의 모든 부팅에서 같은 바이트를 재사용하십시오:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:31
+msgid ""
+":func:`os.urandom` is the cryptographically suitable random source on each "
+"cam port -- on most ports it reads the chip's hardware random-number "
+"generator directly. The file lives in the cam's working directory "
+"(``/sdcard`` if an SD card is mounted, ``/flash`` otherwise) and never "
+"leaves the cam. Deleting ``secret.bin`` and rebooting rotates the secret and"
+" invalidates every token issued under the old one."
+msgstr ""
+":func:`os.urandom` 은 각 카메라 포트에서 암호학적으로 적합한 랜덤 소스입니다. 대부분의 포트에서는 칩의 하드웨어 난수 "
+"생성기를 직접 읽습니다. 이 파일은 카메라의 작업 디렉터리(SD 카드가 마운트되어 있으면 ``/sdcard``, 그렇지 않으면 "
+"``/flash``)에 위치하며 절대 카메라를 떠나지 않습니다. ``secret.bin`` 을 삭제하고 재부팅하면 비밀키가 교체되고, "
+"기존 비밀키로 발급된 모든 토큰이 무효화됩니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:41
+msgid ""
+":func:`machine.unique_id` is *not* a substitute. On some cam ports it is "
+"also used to derive the network MAC address, which means its value travels "
+"with every packet the cam sends -- not the property a signing secret needs."
+msgstr ""
+":func:`machine.unique_id` 는 대체재가 *아닙니다*. 일부 카메라 포트에서는 이것이 네트워크 MAC 주소를 유도하는 "
+"데에도 사용되며, 이는 그 값이 카메라가 보내는 모든 패킷과 함께 이동한다는 뜻입니다 -- 서명 비밀키에 필요한 속성이 아닙니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:47
+msgid "Issuing tokens"
+msgstr "토큰 발급"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:49
+msgid ""
+"The phone needs a way to *get* a token in the first place. A short-lived "
+"*JSON Web Token* (JWT) -- a base64-encoded JSON payload with a signature "
+"appended -- is enough for a first pass: the owner trades a password for a "
+"token, then uses the token until it expires:"
+msgstr ""
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:71
+#, python-brace-format
+msgid ""
+"The phone POSTs ``{user, pass}`` once, stores the returned token in local "
+"storage, and includes it as ``Authorization: Bearer <token>`` on every "
+"subsequent request."
+msgstr ""
+"휴대폰은 ``{user, pass}`` 를 한 번 POST하고, 반환된 토큰을 로컬 저장소에 보관하며, 이후의 모든 요청에 "
+"``Authorization: Bearer <token>`` 으로 포함시킵니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:75
+msgid ""
+"The ``exp`` claim is a Unix timestamp. The verifier on the next section "
+"relies on this claim to reject expired tokens automatically -- which means "
+"the cam's wall clock has to be set, because otherwise every token will look "
+"either far in the future or already expired. See "
+":doc:`/openmvcam/tutorial/networking/names/ntp` for the NTP-sync recipe."
+msgstr ""
+"``exp`` 클레임은 Unix 타임스탬프입니다. 다음 섹션의 검증기는 만료된 토큰을 자동으로 거부하기 위해 이 클레임에 의존합니다 --"
+" 즉 카메라의 벽시계가 설정되어 있어야 하는데, 그렇지 않으면 모든 토큰이 먼 미래에 있거나 이미 만료된 것처럼 보이기 때문입니다. "
+"NTP 동기화 방법은 :doc:`/openmvcam/tutorial/networking/names/ntp` 를 참조하십시오."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:83
+msgid "Verifying tokens with TokenAuth"
+msgstr "TokenAuth로 토큰 검증하기"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:85
+msgid ""
+":class:`microdot.auth.TokenAuth` is the decorator factory for routes that "
+"require an ``Authorization: Bearer <token>`` header. The verifier callback "
+"receives the token string and returns whatever identity object should be "
+"attached to the request -- or :data:`None` to reject:"
+msgstr ""
+":class:`microdot.auth.TokenAuth` 는 ``Authorization: Bearer <token>`` 헤더를 "
+"요구하는 라우트를 위한 데코레이터 팩토리입니다. 검증기 콜백은 토큰 문자열을 받아 요청에 첨부될 신원 객체를 반환하거나, 거부하려면 "
+":data:`None` 을 반환합니다:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:113
+msgid ""
+":func:`jwt.decode` raises :exc:`jwt.exceptions.PyJWTError` (or a subclass) "
+"when the signature is wrong, the token is malformed, or the ``exp`` claim "
+"has passed. The verifier swallows all of those and returns :data:`None`, so "
+"microdot responds 401 without the handler seeing anything."
+msgstr ""
+":func:`jwt.decode` 는 서명이 잘못되었거나, 토큰의 형식이 올바르지 않거나, ``exp`` 클레임이 지났을 때 "
+":exc:`jwt.exceptions.PyJWTError` (또는 그 하위 클래스)를 발생시킵니다. 검증기는 이들을 모두 삼키고 "
+":data:`None` 을 반환하므로, 핸들러가 아무것도 보지 못한 채 microdot가 401로 응답합니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:119
+msgid ""
+"When the verifier returns a non-:data:`None` value, microdot stores it on "
+":attr:`request.g.current_user` so the handler can read it -- in this case "
+"it's the JWT ``sub`` (subject) claim."
+msgstr ""
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:124
+msgid "BasicAuth for closed networks"
+msgstr "폐쇄망을 위한 BasicAuth"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:126
+msgid ""
+"For an admin endpoint that's only ever hit from a trusted network, "
+":class:`microdot.auth.BasicAuth` is simpler -- the browser pops a native "
+"username/password dialog and sends them in the ``Authorization: Basic ...`` "
+"header on every request:"
+msgstr ""
+"신뢰된 네트워크에서만 접근되는 관리자 엔드포인트의 경우, :class:`microdot.auth.BasicAuth` 가 더 간단합니다 "
+"-- 브라우저가 네이티브 사용자 이름/비밀번호 대화상자를 띄우고 모든 요청의 ``Authorization: Basic ...`` 헤더에 "
+"이를 보냅니다:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:148
+msgid ""
+"The credentials travel in the clear unless the connection is HTTPS, so this "
+"approach only makes sense on a trusted network or with HTTPS in place."
+msgstr ""
+"연결이 HTTPS가 아니면 자격 증명이 평문으로 이동하므로, 이 접근 방식은 신뢰된 네트워크에서나 HTTPS가 갖춰진 경우에만 의미가 "
+"있습니다."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:152
+msgid ""
+"``/api/ack`` and ``/api/login`` now understand tokens; ``/admin`` requires "
+"Basic auth."
+msgstr ""
+"이제 ``/api/ack`` 와 ``/api/login`` 은 토큰을 이해합니다. ``/admin`` 은 Basic 인증을 요구합니다."

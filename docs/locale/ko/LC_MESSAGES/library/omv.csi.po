@@ -1,0 +1,1845 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.csi.rst:4
+msgid ":mod:`csi` --- camera sensors"
+msgstr ":mod:`csi` --- 카메라 센서"
+
+#: ../../library/omv.csi.rst:9
+msgid ""
+"The :mod:`csi` module is the modern, object-oriented interface to the camera"
+" sensor(s) on an OpenMV Cam. Each physical sensor is represented by a "
+":class:`CSI` instance, so the multispectral imager boards that pair a colour"
+" sensor with a thermal or event sensor can drive each one independently by "
+"passing a different ``cid`` to the constructor. Single-sensor cams just "
+"instantiate one :class:`CSI`."
+msgstr ""
+":mod:`csi` 모듈은 OpenMV Cam의 카메라 센서를 다루는 최신 객체 지향 인터페이스입니다. 각 물리적 센서는 "
+":class:`CSI` 인스턴스로 표현되므로, 컬러 센서와 열화상 또는 이벤트 센서를 함께 탑재한 멀티스펙트럼 이미저 보드는 생성자에 "
+"서로 다른 ``cid`` 를 전달하여 각각을 독립적으로 구동할 수 있습니다. 단일 센서 캠은 :class:`CSI` 하나만 인스턴스화하면"
+" 됩니다."
+
+#: ../../library/omv.csi.rst:16
+msgid ""
+"A :class:`CSI` object owns the full sensor configuration -- pixel format, "
+"framesize / window, exposure / gain / white-balance, hardware mirror and "
+"flip, colour-bar test pattern, frame-rate clock, ROI for auto-exposure, and "
+"chip-specific :meth:`ioctl <CSI.ioctl>` commands. Frames are captured with "
+":meth:`CSI.snapshot`, which returns an :class:`image.Image` backed by the "
+"frame buffer."
+msgstr ""
+":class:`CSI` 객체는 전체 센서 구성을 소유합니다 -- 픽셀 형식, 프레임 크기 / 윈도우, 노출 / 게인 / 화이트 밸런스, "
+"하드웨어 미러 및 플립, 컬러 바 테스트 패턴, 프레임 레이트 클럭, 자동 노출용 ROI, 그리고 칩별 :meth:`ioctl "
+"<CSI.ioctl>` 명령. 프레임은 :meth:`CSI.snapshot` 으로 캡처되며, 이는 프레임 버퍼를 기반으로 하는 "
+":class:`image.Image` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:23
+msgid ""
+"This module supersedes the legacy :mod:`sensor` module (which exposed the "
+"same functionality as module-level functions tied to a single hidden "
+"sensor). New code should use :class:`CSI`."
+msgstr ""
+"이 모듈은 레거시 :mod:`sensor` 모듈(단일 숨겨진 센서에 연결된 동일한 기능을 모듈 수준 함수로 노출하던 모듈)을 대체합니다."
+" 새 코드는 :class:`CSI` 를 사용해야 합니다."
+
+#: ../../library/omv.csi.rst:27
+msgid "Example usage::"
+msgstr "사용 예시::"
+
+#: ../../library/omv.csi.rst:43
+msgid "Asyncio usage"
+msgstr "Asyncio 사용법"
+
+#: ../../library/omv.csi.rst:45
+msgid ""
+"The blocking :meth:`CSI.snapshot` loop above does not cooperate with the "
+":mod:`asyncio` event loop -- while ``snapshot`` is waiting on the next "
+"frame, every other coroutine in the program is frozen. To let a capture loop"
+" coexist with other concurrent work (a UART client, a button watcher, a "
+"network task) wrap :class:`CSI` in a small adapter that turns ``snapshot`` "
+"into an :keyword:`await`-friendly coroutine by polling "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` and yielding to the event "
+"loop between checks::"
+msgstr ""
+"위의 블로킹 :meth:`CSI.snapshot` 루프는 :mod:`asyncio` 이벤트 루프와 협력하지 않습니다 -- "
+"``snapshot`` 이 다음 프레임을 기다리는 동안 프로그램의 다른 모든 코루틴이 멈춥니다. 캡처 루프가 다른 동시 작업(UART "
+"클라이언트, 버튼 감시기, 네트워크 작업)과 공존하도록 하려면 :class:`CSI` 를 작은 어댑터로 감싸서, "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` 를 폴링하고 검사 사이에 이벤트 루프에 양보함으로써"
+" ``snapshot`` 을 :keyword:`await` 친화적인 코루틴으로 바꾸십시오::"
+
+#: ../../library/omv.csi.rst:72
+msgid ""
+"``__getattr__`` forwards every other attribute (``reset``, ``pixformat``, "
+"``framesize``, the sensor knobs) to the underlying :class:`CSI` so the "
+"wrapper is a drop-in replacement. The first non-blocking call also starts "
+"the camera's DMA capture if it was not already running, so no extra "
+"bootstrap is needed."
+msgstr ""
+"``__getattr__`` 는 다른 모든 속성(``reset``, ``pixformat``, ``framesize``, 센서 조정 "
+"항목들)을 기반 :class:`CSI` 로 전달하므로 래퍼는 그대로 대체할 수 있습니다. 첫 번째 논블로킹 호출은 카메라의 DMA 캡처가"
+" 아직 실행되고 있지 않으면 이를 시작하므로 추가적인 부트스트랩이 필요하지 않습니다."
+
+#: ../../library/omv.csi.rst:78
+msgid ""
+"A capture loop then fits into a larger asyncio program as just another "
+"coroutine::"
+msgstr "그러면 캡처 루프는 또 하나의 코루틴으로서 더 큰 asyncio 프로그램에 들어맞습니다::"
+
+#: ../../library/omv.csi.rst:97
+msgid ""
+"The :meth:`framebuffers <CSI.framebuffers>` setting still matters in this "
+"shape -- single-buffer mode makes ``snapshot(blocking=False)`` return "
+":data:`None` until the next frame is captured, while double or triple "
+"buffering smooths that over so the wrapper usually finds a buffered frame "
+"waiting on the first poll. See the *AsyncCSI* capstone on the asyncio "
+"tutorial for the full walkthrough."
+msgstr ""
+":meth:`framebuffers <CSI.framebuffers>` 설정은 이 형태에서도 여전히 중요합니다 -- 단일 버퍼 모드는 "
+"다음 프레임이 캡처될 때까지 ``snapshot(blocking=False)`` 가 :data:`None` 을 반환하게 하는 반면, 더블"
+" 또는 트리플 버퍼링은 이를 부드럽게 처리하여 래퍼가 보통 첫 폴링에서 대기 중인 버퍼링된 프레임을 발견하도록 합니다. 전체 설명은 "
+"asyncio 튜토리얼의 *AsyncCSI* 캡스톤을 참조하십시오."
+
+#: ../../library/omv.csi.rst:106
+msgid "class CSI -- Camera Sensor Interface"
+msgstr "class CSI -- 카메라 센서 인터페이스"
+
+#: ../../library/omv.csi.rst:108
+msgid "The `CSI` class is used to control a camera sensor."
+msgstr "`CSI` 클래스는 카메라 센서를 제어하는 데 사용됩니다."
+
+#: ../../library/omv.csi.rst:112
+msgid ""
+"Create an object to talk with a camera sensor. On boards with multiple "
+"sensors, the particular CSI object may be selected by passing a ``cid`` like"
+" `csi.LEPTON` to select a FLIR Lepton sensor module. If ``cid`` is -1 the "
+"primary sensor is selected (typically a color camera module on multi-sensor "
+"boards)."
+msgstr ""
+"카메라 센서와 통신할 객체를 생성합니다. 센서가 여러 개인 보드에서는 `csi.LEPTON` 과 같은 ``cid`` 를 전달하여 FLIR"
+" Lepton 센서 모듈을 선택하는 식으로 특정 CSI 객체를 선택할 수 있습니다. ``cid`` 가 -1이면 기본 센서가 "
+"선택됩니다(멀티 센서 보드에서는 일반적으로 컬러 카메라 모듈)."
+
+#: ../../library/omv.csi.rst:117
+msgid ""
+"If ``delays`` is ``False`` then all settling time delays in the csi driver "
+"are disabled. By default the sensor driver delays after reset / mode change "
+"to prevent corrupt frames being returned by `CSI.snapshot`. Disabling delays"
+" lets you batch updates and apply a single delay at the end before calling "
+"`CSI.snapshot`."
+msgstr ""
+"``delays`` 가 ``False`` 이면 csi 드라이버의 모든 안정화 시간 지연이 비활성화됩니다. 기본적으로 센서 드라이버는 "
+"`CSI.snapshot` 이 손상된 프레임을 반환하는 것을 막기 위해 리셋 / 모드 변경 후에 지연을 둡니다. 지연을 비활성화하면 "
+"업데이트를 일괄 처리하고 `CSI.snapshot` 을 호출하기 전에 마지막에 한 번만 지연을 적용할 수 있습니다."
+
+#: ../../library/omv.csi.rst:122
+msgid ""
+"If ``fflush`` is ``False`` then automatic framebuffer flushing mentioned in "
+"`CSI.framebuffers` is disabled. This removes any time limit on frames in the"
+" frame buffer fifo."
+msgstr ""
+"``fflush`` 가 ``False`` 이면 `CSI.framebuffers` 에서 언급된 자동 프레임버퍼 플러시가 비활성화됩니다. "
+"이는 프레임 버퍼 fifo에 있는 프레임에 대한 시간 제한을 모두 제거합니다."
+
+#: ../../library/omv.csi.rst:125
+msgid ""
+"``stream`` selects whether this CSI is the stream source sent to the IDE. If"
+" ``None`` (default) the CSI becomes the stream source only if it is the "
+"primary (non-auxiliary) sensor. Pass ``True`` to force this CSI to be the "
+"stream source, or any false value to leave the existing stream source "
+"unchanged."
+msgstr ""
+"``stream`` 은 이 CSI가 IDE로 전송되는 스트림 소스인지 여부를 선택합니다. ``None``(기본값)이면 CSI가 "
+"기본(보조가 아닌) 센서인 경우에만 스트림 소스가 됩니다. ``True`` 를 전달하면 이 CSI를 강제로 스트림 소스로 만들고, 거짓 "
+"값을 전달하면 기존 스트림 소스를 변경하지 않고 유지합니다."
+
+#: ../../library/omv.csi.rst:131
+msgid "Methods"
+msgstr "메서드"
+
+#: ../../library/omv.csi.rst:135
+msgid ""
+"Initializes the camera sensor. Performs a hardware reset by toggling the "
+"RESET signal GPIO to the camera module if ``hard`` is ``True``. ``hard`` "
+"should be set to false when resetting auxiliary camera sensors that share "
+"the same RESET signal GPIO as the primary module."
+msgstr ""
+"카메라 센서를 초기화합니다. ``hard`` 가 ``True`` 이면 카메라 모듈로 가는 RESET 신호 GPIO를 토글하여 하드웨어 "
+"리셋을 수행합니다. 기본 모듈과 동일한 RESET 신호 GPIO를 공유하는 보조 카메라 센서를 리셋할 때는 ``hard`` 를 "
+"false로 설정해야 합니다."
+
+#: ../../library/omv.csi.rst:141
+msgid ""
+"Puts the camera into a lower power mode than sleep (but the camera must be "
+"reset on being woken up)."
+msgstr "카메라를 슬립보다 낮은 전력 모드로 전환합니다(단, 깨어날 때 카메라를 리셋해야 합니다)."
+
+#: ../../library/omv.csi.rst:146
+msgid ""
+"Puts the camera to sleep if ``enable`` is True. Otherwise, wakes it back up."
+msgstr "``enable`` 이 True이면 카메라를 슬립 상태로 전환합니다. 그렇지 않으면 다시 깨웁니다."
+
+#: ../../library/omv.csi.rst:150
+msgid ""
+"Copies the current frame buffer contents to the IDE preview. Call this after"
+" the last `CSI.snapshot` if the script terminates so the IDE shows the last "
+"frame."
+msgstr ""
+"현재 프레임 버퍼 내용을 IDE 미리보기로 복사합니다. 스크립트가 종료될 때 IDE가 마지막 프레임을 표시하도록 마지막 "
+"`CSI.snapshot` 이후에 이를 호출하십시오."
+
+#: ../../library/omv.csi.rst:155
+msgid "Takes a picture using the camera and returns an `image.Image` object."
+msgstr "카메라를 사용하여 사진을 찍고 `image.Image` 객체를 반환합니다."
+
+#: ../../library/omv.csi.rst:157
+msgid ""
+"If ``time`` and/or ``frames`` is passed snapshot will block for that many "
+"``time`` milliseconds and/or ``frames`` captured from the camera. Both "
+"arguments may be used at the same time. After ``time`` and/or ``frames`` has"
+" passed snapshot will return ``None``."
+msgstr ""
+"``time`` 및/또는 ``frames`` 가 전달되면 snapshot은 그만큼의 ``time`` 밀리초 동안 및/또는 카메라에서 "
+"캡처된 ``frames`` 만큼 블로킹됩니다. 두 인수를 동시에 사용할 수 있습니다. ``time`` 및/또는 ``frames`` 가 "
+"경과한 후 snapshot은 ``None`` 을 반환합니다."
+
+#: ../../library/omv.csi.rst:161
+msgid ""
+"``blocking`` may be ``False`` to enable non-blocking behavior which will "
+"cause snapshot to return ``None`` when the next image from the camera is not"
+" ready versus waiting."
+msgstr ""
+"``blocking`` 을 ``False`` 로 설정하면 논블로킹 동작이 활성화되어, 카메라에서 다음 이미지가 준비되지 않았을 때 "
+"기다리는 대신 snapshot이 ``None`` 을 반환합니다."
+
+#: ../../library/omv.csi.rst:164
+msgid ""
+"``image`` may be another `image.Image` object to update with the new image "
+"captured from the camera instead of returning a new `image.Image` object. "
+"The previous image contents are overwritten via a deep copy."
+msgstr ""
+"``image`` 는 새로운 `image.Image` 객체를 반환하는 대신 카메라에서 캡처한 새 이미지로 업데이트할 또 다른 "
+"`image.Image` 객체일 수 있습니다. 이전 이미지 내용은 깊은 복사를 통해 덮어쓰여집니다."
+
+#: ../../library/omv.csi.rst:168
+msgid ""
+"If `CSI.auto_rotation` is enabled this method will return an already-rotated"
+" `image.Image`."
+msgstr "`CSI.auto_rotation` 이 활성화되어 있으면 이 메서드는 이미 회전된 `image.Image` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:172
+msgid "Returns the sensor resolution width."
+msgstr "센서 해상도 너비를 반환합니다."
+
+#: ../../library/omv.csi.rst:176
+msgid "Returns the sensor resolution height."
+msgstr "센서 해상도 높이를 반환합니다."
+
+#: ../../library/omv.csi.rst:180
+msgid ""
+"Returns the camera module chip ID. Compare against any of `csi.OV2640`, "
+"`csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, `csi.OV9650`, "
+"`csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, `csi.MT9M114`, "
+"`csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, `csi.HM0360`, "
+"`csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, `csi.PAG7936`, "
+"`csi.PAJ6100`, `csi.FROGEYE2020`, or `csi.SOFTCSI`."
+msgstr ""
+"카메라 모듈 칩 ID를 반환합니다. `csi.OV2640`, `csi.OV5640`, `csi.OV7670`, `csi.OV7690`, "
+"`csi.OV7725`, `csi.OV9650`, `csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, "
+"`csi.MT9V034`, `csi.MT9M114`, `csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, "
+"`csi.HM01B0`, `csi.HM0360`, `csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, "
+"`csi.PAG7920`, `csi.PAG7936`, `csi.PAJ6100`, `csi.FROGEYE2020`, "
+"`csi.SOFTCSI` 중 하나와 비교하십시오."
+
+#: ../../library/omv.csi.rst:188
+msgid ""
+"Returns ``True`` if there is an image ready to be returned by `CSI.snapshot`"
+" so a call to snapshot will not block."
+msgstr ""
+"`CSI.snapshot` 으로 반환할 준비가 된 이미지가 있어서 snapshot 호출이 블로킹되지 않으면 ``True`` 를 "
+"반환합니다."
+
+#: ../../library/omv.csi.rst:193
+msgid ""
+"Sets the pixel format for the camera module to one of `csi.GRAYSCALE`, "
+"`csi.RGB565`, `csi.BAYER`, `csi.YUV422`, or `csi.JPEG` (only on the "
+"OV2640/OV5640)."
+msgstr ""
+
+#: ../../library/omv.csi.rst:196
+msgid "Returns the current pixformat if called with no arguments."
+msgstr "인수 없이 호출하면 현재 pixformat을 반환합니다."
+
+#: ../../library/omv.csi.rst:200
+msgid ""
+"Sets the frame size for the camera module to one of the size constants (e.g."
+" `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- see the constants section)."
+msgstr ""
+"카메라 모듈의 프레임 크기를 크기 상수(예: `csi.QVGA`, `csi.VGA`, `csi.HD` 등 --- 상수 섹션 참조) 중 "
+"하나로 설정합니다."
+
+#: ../../library/omv.csi.rst:203
+msgid ""
+"Alternatively, you may pass a custom framesize as a ``(w, h)`` tuple. When "
+"`CSI.snapshot` is called the custom framesize will be evaluated against DMA "
+"rules. Generally framesizes need to be a multiple of 8 pixels and/or 16 "
+"bytes."
+msgstr ""
+"또는 ``(w, h)`` 튜플로 사용자 지정 프레임 크기를 전달할 수 있습니다. `CSI.snapshot` 이 호출되면 사용자 지정 "
+"프레임 크기가 DMA 규칙에 따라 평가됩니다. 일반적으로 프레임 크기는 8픽셀의 배수 및/또는 16바이트의 배수여야 합니다."
+
+#: ../../library/omv.csi.rst:207
+msgid "Returns the current framesize if called with no arguments."
+msgstr "인수 없이 호출하면 현재 프레임 크기를 반환합니다."
+
+#: ../../library/omv.csi.rst:211
+msgid "Sets the frame rate in Hz for the camera module."
+msgstr "카메라 모듈의 프레임 레이트를 Hz 단위로 설정합니다."
+
+#: ../../library/omv.csi.rst:213
+msgid "Returns the current framerate if called with no arguments."
+msgstr "인수 없이 호출하면 현재 프레임 레이트를 반환합니다."
+
+#: ../../library/omv.csi.rst:217
+msgid ""
+"`CSI.framerate` works by dropping frames received by the camera module to "
+"keep the frame rate at or below the rate specified. By default the camera "
+"will run at the maximum frame rate. If implemented for the particular camera"
+" sensor `CSI.framerate` will also reduce the camera sensor frame rate "
+"internally to save power and improve image quality by increasing the sensor "
+"exposure. `CSI.framerate` may conflict with `CSI.auto_exposure` on some "
+"cameras."
+msgstr ""
+"`CSI.framerate` 는 카메라 모듈이 수신한 프레임을 드롭하여 프레임 레이트를 지정된 비율 이하로 유지하는 방식으로 작동합니다."
+" 기본적으로 카메라는 최대 프레임 레이트로 실행됩니다. 특정 카메라 센서에 대해 구현된 경우 `CSI.framerate` 는 센서 노출을"
+" 늘려 전력을 절약하고 이미지 품질을 향상시키기 위해 카메라 센서 프레임 레이트를 내부적으로도 줄입니다. 일부 카메라에서는 "
+"`CSI.framerate` 가 `CSI.auto_exposure` 와 충돌할 수 있습니다."
+
+#: ../../library/omv.csi.rst:226
+msgid ""
+"Sets the resolution of the camera to a sub-region of the current resolution."
+" ``roi`` is a ``(x, y, w, h)`` tuple. You may also pass ``(w, h)`` and the "
+"window will be centered."
+msgstr ""
+"카메라의 해상도를 현재 해상도의 하위 영역으로 설정합니다. ``roi`` 는 ``(x, y, w, h)`` 튜플입니다. ``(w, "
+"h)`` 를 전달할 수도 있으며 이 경우 윈도우가 중앙에 배치됩니다."
+
+#: ../../library/omv.csi.rst:229
+msgid ""
+"Returns the current ``(x, y, w, h)`` tuple if called with no arguments."
+msgstr "인수 없이 호출하면 현재 ``(x, y, w, h)`` 튜플을 반환합니다."
+
+#: ../../library/omv.csi.rst:233
+msgid ""
+"Set the camera image gainceiling to one of 2, 4, 8, 16, 32, 64, or 128."
+msgstr "카메라 이미지 게인 천장값을 2, 4, 8, 16, 32, 64, 128 중 하나로 설정합니다."
+
+#: ../../library/omv.csi.rst:235 ../../library/omv.csi.rst:241
+#: ../../library/omv.csi.rst:247 ../../library/omv.csi.rst:253
+#: ../../library/omv.csi.rst:259 ../../library/omv.csi.rst:269
+#: ../../library/omv.csi.rst:390 ../../library/omv.csi.rst:398
+msgid "Returns ``True`` on success and ``False`` on failure."
+msgstr "성공 시 ``True`` 를, 실패 시 ``False`` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:239
+msgid "Set the camera image brightness."
+msgstr "카메라 이미지 밝기를 설정합니다."
+
+#: ../../library/omv.csi.rst:245
+msgid "Set the camera image contrast."
+msgstr "카메라 이미지 대비를 설정합니다."
+
+#: ../../library/omv.csi.rst:251
+msgid "Set the camera image saturation."
+msgstr "카메라 이미지 채도를 설정합니다."
+
+#: ../../library/omv.csi.rst:257
+msgid "Set the camera image JPEG compression quality. 0 - 100."
+msgstr "카메라 이미지 JPEG 압축 품질을 설정합니다. 0 - 100."
+
+#: ../../library/omv.csi.rst:263
+msgid "Only for the OV2640/OV5640 cameras."
+msgstr "OV2640/OV5640 카메라에서만 사용됩니다."
+
+#: ../../library/omv.csi.rst:267
+msgid ""
+"Turns color bar mode on (``True``) or off (``False``). Defaults to off."
+msgstr "컬러 바 모드를 켜거나(``True``) 끕니다(``False``). 기본값은 꺼짐입니다."
+
+#: ../../library/omv.csi.rst:273
+msgid ""
+"``enable`` turns auto gain control on (``True``) or off (``False``). The "
+"camera starts up with auto gain control on."
+msgstr ""
+"``enable`` 은 자동 게인 제어를 켜거나(``True``) 끕니다(``False``). 카메라는 자동 게인 제어가 켜진 상태로 "
+"시작합니다."
+
+#: ../../library/omv.csi.rst:276
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels with "
+"``gain_db``."
+msgstr "``enable`` 이 ``False`` 이면 ``gain_db`` 로 고정 게인을 데시벨 단위로 설정할 수 있습니다."
+
+#: ../../library/omv.csi.rst:278
+msgid ""
+"If ``enable`` is ``True`` you may set the maximum gain ceiling in decibels "
+"with ``gain_db_ceiling`` for the automatic gain control algorithm."
+msgstr ""
+"``enable`` 이 ``True`` 이면 자동 게인 제어 알고리즘을 위해 ``gain_db_ceiling`` 으로 최대 게인 천장값을"
+" 데시벨 단위로 설정할 수 있습니다."
+
+#: ../../library/omv.csi.rst:283
+msgid "You need to turn off white balance too if you want to track colors."
+msgstr "색상을 추적하려면 화이트 밸런스도 꺼야 합니다."
+
+#: ../../library/omv.csi.rst:287
+msgid "Returns the current camera gain value in decibels."
+msgstr "현재 카메라 게인 값을 데시벨 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:291
+msgid ""
+"``enable`` turns auto exposure control on (``True``) or off (``False``). The"
+" camera starts up with auto exposure control on."
+msgstr ""
+"``enable`` 은 자동 노출 제어를 켜거나(``True``) 끕니다(``False``). 카메라는 자동 노출 제어가 켜진 상태로 "
+"시작합니다."
+
+#: ../../library/omv.csi.rst:294
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed exposure time in microseconds"
+" with ``exposure_us``."
+msgstr ""
+"``enable`` 이 ``False`` 이면 ``exposure_us`` 로 고정 노출 시간을 마이크로초 단위로 설정할 수 있습니다."
+
+#: ../../library/omv.csi.rst:299
+msgid ""
+"Camera auto exposure algorithms are pretty conservative about how much they "
+"adjust the exposure value by and will generally avoid changing the exposure "
+"value by much. Instead, they change the gain value a lot to deal with "
+"changing lighting."
+msgstr ""
+"카메라 자동 노출 알고리즘은 노출 값을 얼마나 조정할지에 대해 상당히 보수적이며 일반적으로 노출 값을 크게 변경하는 것을 피합니다. 대신"
+" 변화하는 조명에 대처하기 위해 게인 값을 많이 변경합니다."
+
+#: ../../library/omv.csi.rst:305
+msgid "Returns the current camera exposure value in microseconds."
+msgstr "현재 카메라 노출 값을 마이크로초 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:309
+msgid ""
+"``enable`` turns auto white balance on (``True``) or off (``False``). The "
+"camera starts up with auto white balance on."
+msgstr ""
+"``enable`` 은 자동 화이트 밸런스를 켜거나(``True``) 끕니다(``False``). 카메라는 자동 화이트 밸런스가 켜진 "
+"상태로 시작합니다."
+
+#: ../../library/omv.csi.rst:312
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels for the red,"
+" green, and blue channels respectively with ``rgb_gain_db``."
+msgstr ""
+"``enable`` 이 ``False`` 이면 ``rgb_gain_db`` 로 빨강, 초록, 파랑 채널에 대한 고정 게인을 각각 데시벨 "
+"단위로 설정할 수 있습니다."
+
+#: ../../library/omv.csi.rst:317
+msgid "You need to turn off gain control too if you want to track colors."
+msgstr "색상을 추적하려면 게인 제어도 꺼야 합니다."
+
+#: ../../library/omv.csi.rst:321
+msgid ""
+"Returns a tuple ``(r, g, b)`` of the current camera red, green, and blue "
+"gain values in decibels."
+msgstr "현재 카메라의 빨강, 초록, 파랑 게인 값을 데시벨 단위로 담은 튜플 ``(r, g, b)`` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:326
+msgid "Sets the auto black-level calibration (BLC) on the camera."
+msgstr "카메라의 자동 블랙 레벨 보정(BLC)을 설정합니다."
+
+#: ../../library/omv.csi.rst:328
+msgid ""
+"``enable`` pass ``True`` or ``False`` to turn BLC on or off. You typically "
+"always want this on."
+msgstr ""
+"``enable`` 은 BLC를 켜거나 끄도록 ``True`` 또는 ``False`` 를 전달합니다. 일반적으로 항상 켜 두는 것이 "
+"좋습니다."
+
+#: ../../library/omv.csi.rst:331
+msgid ""
+"``regs`` if disabled then you can manually set the BLC register values from "
+"a previous call to `CSI.blc_regs`."
+msgstr ""
+"``regs`` 는 비활성화된 경우 이전 `CSI.blc_regs` 호출에서 얻은 BLC 레지스터 값을 수동으로 설정할 수 있습니다."
+
+#: ../../library/omv.csi.rst:336
+msgid ""
+"Returns the sensor BLC registers as a list of integers. For use with "
+"`CSI.auto_blc`."
+msgstr "센서 BLC 레지스터를 정수 리스트로 반환합니다. `CSI.auto_blc` 와 함께 사용합니다."
+
+#: ../../library/omv.csi.rst:340
+msgid ""
+"Turns horizontal mirror mode on (``True``) or off (``False``). Defaults to "
+"off."
+msgstr "수평 미러 모드를 켜거나(``True``) 끕니다(``False``). 기본값은 꺼짐입니다."
+
+#: ../../library/omv.csi.rst:342 ../../library/omv.csi.rst:348
+#: ../../library/omv.csi.rst:359 ../../library/omv.csi.rst:365
+#: ../../library/omv.csi.rst:628
+msgid "Returns the current setting if called with no arguments."
+msgstr "인수 없이 호출하면 현재 설정을 반환합니다."
+
+#: ../../library/omv.csi.rst:346
+msgid ""
+"Turns vertical flip mode on (``True``) or off (``False``). Defaults to off."
+msgstr "수직 플립 모드를 켜거나(``True``) 끕니다(``False``). 기본값은 꺼짐입니다."
+
+#: ../../library/omv.csi.rst:352
+msgid ""
+"Turns transpose mode on (``True``) or off (``False``). Defaults to off."
+msgstr "전치 모드를 켜거나(``True``) 끕니다(``False``). 기본값은 꺼짐입니다."
+
+#: ../../library/omv.csi.rst:354
+msgid "vflip=False, hmirror=False, transpose=False -> 0 degree rotation"
+msgstr "vflip=False, hmirror=False, transpose=False -> 0도 회전"
+
+#: ../../library/omv.csi.rst:355
+msgid "vflip=True,  hmirror=False, transpose=True  -> 90 degree rotation"
+msgstr "vflip=True,  hmirror=False, transpose=True  -> 90도 회전"
+
+#: ../../library/omv.csi.rst:356
+msgid "vflip=True,  hmirror=True,  transpose=False -> 180 degree rotation"
+msgstr "vflip=True,  hmirror=True,  transpose=False -> 180도 회전"
+
+#: ../../library/omv.csi.rst:357
+msgid "vflip=False, hmirror=True,  transpose=True  -> 270 degree rotation"
+msgstr "vflip=False, hmirror=True,  transpose=True  -> 270도 회전"
+
+#: ../../library/omv.csi.rst:363
+msgid ""
+"Turns auto rotation mode on (``True``) or off (``False``). Defaults to off."
+msgstr "자동 회전 모드를 켜거나(``True``) 끕니다(``False``). 기본값은 꺼짐입니다."
+
+#: ../../library/omv.csi.rst:369
+msgid ""
+"This method only works when the OpenMV Cam has an :py:mod:`imu` installed "
+"and is enabled automatically."
+msgstr "이 메서드는 OpenMV Cam에 :py:mod:`imu` 가 설치되어 있을 때만 작동하며 자동으로 활성화됩니다."
+
+#: ../../library/omv.csi.rst:374
+msgid ""
+"Sets the number of frame buffers used to receive image data. By default the "
+"OpenMV Cam will try to allocate the maximum number of frame buffers it can. "
+"Reallocation occurs whenever `CSI.pixformat`, `CSI.framesize`, or "
+"`CSI.window` are called."
+msgstr ""
+"이미지 데이터를 수신하는 데 사용되는 프레임 버퍼의 수를 설정합니다. 기본적으로 OpenMV Cam은 할당할 수 있는 최대 수의 프레임 "
+"버퍼를 할당하려고 시도합니다. `CSI.pixformat`, `CSI.framesize`, `CSI.window` 가 호출될 때마다 "
+"재할당이 발생합니다."
+
+#: ../../library/omv.csi.rst:378
+msgid ""
+"``count`` of 1 (single buffer), 2 (double buffer), or 3 (triple buffer) "
+"selects the corresponding capture mode. Pass 4 or greater to put the driver "
+"into video FIFO mode where ``count`` buffers are queued --- useful for video"
+" recording to an SD card. On frame drop, all frame buffers except the active"
+" one are cleared so `CSI.snapshot` always returns a recent frame."
+msgstr ""
+"``count`` 가 1(단일 버퍼), 2(더블 버퍼), 3(트리플 버퍼)이면 해당 캡처 모드를 선택합니다. 4 이상을 전달하면 "
+"드라이버를 비디오 FIFO 모드로 전환하여 ``count`` 개의 버퍼가 큐에 들어갑니다 --- SD 카드로의 비디오 녹화에 유용합니다."
+" 프레임 드롭 시 활성 버퍼를 제외한 모든 프레임 버퍼가 비워지므로 `CSI.snapshot` 은 항상 최근 프레임을 반환합니다."
+
+#: ../../library/omv.csi.rst:384
+msgid "Returns the current count if called with no arguments."
+msgstr "인수 없이 호출하면 현재 카운트를 반환합니다."
+
+#: ../../library/omv.csi.rst:388
+msgid ""
+"Sets the special digital effect (one of `csi.NORMAL` or `csi.NEGATIVE`)."
+msgstr "특수 디지털 효과(`csi.NORMAL` 또는 `csi.NEGATIVE` 중 하나)를 설정합니다."
+
+#: ../../library/omv.csi.rst:394
+msgid ""
+"``enable`` ``True`` to enable, ``False`` to disable. ``radi`` integer radius"
+" of pixels to correct. ``coef`` power of correction."
+msgstr ""
+"``enable`` 은 활성화하려면 ``True``, 비활성화하려면 ``False``. ``radi`` 는 보정할 픽셀의 정수 반경. "
+"``coef`` 는 보정의 강도."
+
+#: ../../library/omv.csi.rst:402
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame (but before the frame is received)."
+msgstr ""
+"카메라 모듈이 새 프레임을 생성할 때마다(단, 프레임이 수신되기 전에) 실행될 콜백 ``cb`` 를 (인터럽트 컨텍스트에서) 등록합니다."
+
+#: ../../library/omv.csi.rst:405
+msgid ""
+"``cb`` takes one argument and is passed the current state of the vsync pin "
+"after changing."
+msgstr "``cb`` 는 하나의 인수를 받으며 변경 후 vsync 핀의 현재 상태가 전달됩니다."
+
+#: ../../library/omv.csi.rst:407 ../../library/omv.csi.rst:418
+msgid ""
+"Returns the registered callback if called with no arguments. Pass any non-"
+"callable to clear the callback."
+msgstr "인수 없이 호출하면 등록된 콜백을 반환합니다. 콜백을 지우려면 호출 불가능한 값을 전달하십시오."
+
+#: ../../library/omv.csi.rst:412
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame and the frame is ready to be read via "
+"`CSI.snapshot`."
+msgstr ""
+"카메라 모듈이 새 프레임을 생성하고 그 프레임을 `CSI.snapshot` 으로 읽을 준비가 될 때마다 실행될 콜백 ``cb`` 를 "
+"(인터럽트 컨텍스트에서) 등록합니다."
+
+#: ../../library/omv.csi.rst:415
+msgid ""
+"``cb`` takes no arguments. Use this to schedule reading a frame later with "
+"``micropython.schedule()``."
+msgstr ""
+"``cb`` 는 인수를 받지 않습니다. 이를 사용하여 ``micropython.schedule()`` 로 나중에 프레임을 읽도록 "
+"예약하십시오."
+
+#: ../../library/omv.csi.rst:423
+msgid ""
+"Execute a sensor-specific request. ``request`` is one of the :data:`IOCTL_*`"
+" constants; the remaining positional arguments and the return value depend "
+"on the request. The supported requests are grouped by sensor family below."
+msgstr ""
+"센서별 요청을 실행합니다. ``request`` 는 :data:`IOCTL_*` 상수 중 하나이며, 나머지 위치 인수와 반환 값은 요청에"
+" 따라 다릅니다. 지원되는 요청은 아래에서 센서 계열별로 묶여 있습니다."
+
+#: ../../library/omv.csi.rst:428
+msgid "**Generic (any sensor):**"
+msgstr "**일반(모든 센서):**"
+
+#: ../../library/omv.csi.rst:430
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:431
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:433
+msgid ""
+"Set the sensor readout window. A smaller window raises the frame rate at the"
+" cost of field-of-view."
+msgstr "센서 판독 윈도우를 설정합니다. 윈도우가 작을수록 시야각을 희생하는 대신 프레임 레이트가 높아집니다."
+
+#: ../../library/omv.csi.rst:436
+msgid "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+msgstr "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+
+#: ../../library/omv.csi.rst:437
+msgid "Returns the current readout window as an ``(x, y, w, h)`` tuple."
+msgstr "현재 판독 윈도우를 ``(x, y, w, h)`` 튜플로 반환합니다."
+
+#: ../../library/omv.csi.rst:440
+msgid "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:441
+msgid ""
+"Enable (``True``) or disable (``False``) triggered mode on the MT9V034."
+msgstr "MT9V034에서 트리거 모드를 활성화(``True``)하거나 비활성화(``False``)합니다."
+
+#: ../../library/omv.csi.rst:444
+msgid "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+msgstr "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+
+#: ../../library/omv.csi.rst:445
+msgid "Returns the current triggered-mode state as a ``bool``."
+msgstr "현재 트리거 모드 상태를 ``bool`` 로 반환합니다."
+
+#: ../../library/omv.csi.rst:447
+msgid "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+msgstr "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+
+#: ../../library/omv.csi.rst:448
+msgid ""
+"When ``True``, instruct :meth:`framesize` to optimize for field-of-view "
+"rather than frame rate."
+msgstr "``True`` 이면 :meth:`framesize` 가 프레임 레이트보다 시야각을 최적화하도록 지시합니다."
+
+#: ../../library/omv.csi.rst:451
+msgid "``ioctl(IOCTL_GET_FOV_WIDE)``"
+msgstr "``ioctl(IOCTL_GET_FOV_WIDE)``"
+
+#: ../../library/omv.csi.rst:452
+msgid "Returns the current FOV-wide state as a ``bool``."
+msgstr "현재 FOV-wide 상태를 ``bool`` 로 반환합니다."
+
+#: ../../library/omv.csi.rst:454
+msgid "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:455
+msgid ""
+"Enable (``True``) or disable (``False``) the sensor's low-light \"night "
+"mode\". OV7725 and OV5640 only."
+msgstr ""
+"센서의 저조도 \"야간 모드\"를 활성화(``True``)하거나 비활성화(``False``)합니다. OV7725와 OV5640에서만 "
+"지원됩니다."
+
+#: ../../library/omv.csi.rst:458
+msgid "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+msgstr "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+
+#: ../../library/omv.csi.rst:459
+msgid "Returns the current night-mode state as a ``bool``."
+msgstr "현재 야간 모드 상태를 ``bool`` 로 반환합니다."
+
+#: ../../library/omv.csi.rst:461
+msgid "``ioctl(IOCTL_GET_RGB_STATS)``"
+msgstr "``ioctl(IOCTL_GET_RGB_STATS)``"
+
+#: ../../library/omv.csi.rst:462
+msgid ""
+"Returns a 4-tuple of raw RGB-channel statistics ``(r, gb, gr, b)`` read from"
+" the sensor (typically used for white-balance tuning)."
+msgstr ""
+"센서에서 읽은 원시 RGB 채널 통계 ``(r, gb, gr, b)`` 의 4-튜플을 반환합니다(일반적으로 화이트 밸런스 튜닝에 "
+"사용됨)."
+
+#: ../../library/omv.csi.rst:466
+msgid "**OV5640 FPC -- auto-focus:**"
+msgstr "**OV5640 FPC -- 자동 초점:**"
+
+#: ../../library/omv.csi.rst:468
+msgid "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:469
+msgid "Start an auto-focus sweep on the OV5640 FPC module."
+msgstr "OV5640 FPC 모듈에서 자동 초점 스윕을 시작합니다."
+
+#: ../../library/omv.csi.rst:471
+msgid "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:472
+msgid "Pause an in-progress auto-focus sweep."
+msgstr "진행 중인 자동 초점 스윕을 일시 중지합니다."
+
+#: ../../library/omv.csi.rst:474
+msgid "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:475
+msgid "Reset the auto-focus position to the default."
+msgstr "자동 초점 위치를 기본값으로 리셋합니다."
+
+#: ../../library/omv.csi.rst:477
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:478
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+
+#: ../../library/omv.csi.rst:480
+msgid ""
+"Block until the current auto-focus sweep finishes. ``timeout_ms`` defaults "
+"to 5000 if omitted."
+msgstr "현재 자동 초점 스윕이 끝날 때까지 블로킹합니다. ``timeout_ms`` 는 생략 시 기본값 5000입니다."
+
+#: ../../library/omv.csi.rst:483
+msgid "**FLIR Lepton:**"
+msgstr "**FLIR Lepton:**"
+
+#: ../../library/omv.csi.rst:485
+msgid "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+
+#: ../../library/omv.csi.rst:486
+msgid "Returns the Lepton image width in pixels."
+msgstr "Lepton 이미지 너비를 픽셀 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:488
+msgid "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+
+#: ../../library/omv.csi.rst:489
+msgid "Returns the Lepton image height in pixels."
+msgstr "Lepton 이미지 높이를 픽셀 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:491
+msgid "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+
+#: ../../library/omv.csi.rst:492
+msgid "Returns the Lepton's type (radiometric or not) as an int."
+msgstr "Lepton의 유형(방사 측정 여부)을 int로 반환합니다."
+
+#: ../../library/omv.csi.rst:494
+msgid "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+
+#: ../../library/omv.csi.rst:495
+msgid "Returns the Lepton's refresh rate in Hz."
+msgstr "Lepton의 리프레시 레이트를 Hz 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:497
+msgid "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+
+#: ../../library/omv.csi.rst:498
+msgid "Returns the Lepton's ADC resolution in bits."
+msgstr "Lepton의 ADC 해상도를 비트 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:500
+msgid "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+msgstr "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+
+#: ../../library/omv.csi.rst:501
+msgid ""
+"Run a FLIR Lepton SDK command. ``cmd`` is the 16-bit command id defined by "
+"the SDK."
+msgstr "FLIR Lepton SDK 명령을 실행합니다. ``cmd`` 는 SDK에서 정의한 16비트 명령 id입니다."
+
+#: ../../library/omv.csi.rst:504
+msgid "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+
+#: ../../library/omv.csi.rst:505
+msgid ""
+"Write a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``payload`` is a ``bytes``/``bytearray`` whose length must be a multiple of "
+"16 bits."
+msgstr ""
+"Lepton SDK 속성을 씁니다. ``attr_id`` 는 16비트 속성 id이며, ``payload`` 는 길이가 16비트의 배수여야"
+" 하는 ``bytes``/``bytearray`` 입니다."
+
+#: ../../library/omv.csi.rst:509
+msgid "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+
+#: ../../library/omv.csi.rst:510
+msgid ""
+"Read a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``words`` is the number of 16-bit words to read. Returns a ``bytearray``."
+msgstr ""
+"Lepton SDK 속성을 읽습니다. ``attr_id`` 는 16비트 속성 id이며, ``words`` 는 읽을 16비트 워드의 "
+"수입니다. ``bytearray`` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:514
+msgid "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+
+#: ../../library/omv.csi.rst:515
+msgid "Returns the Lepton focal-plane-array temperature in degrees Celsius."
+msgstr "Lepton 초점면 어레이 온도를 섭씨 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:518
+msgid "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+
+#: ../../library/omv.csi.rst:519
+msgid "Returns the Lepton auxiliary temperature in degrees Celsius."
+msgstr "Lepton 보조 온도를 섭씨 단위로 반환합니다."
+
+#: ../../library/omv.csi.rst:522
+msgid "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+
+#: ../../library/omv.csi.rst:523
+msgid ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+msgstr ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+
+#: ../../library/omv.csi.rst:525
+msgid ""
+"Switch the Lepton between AGC and direct-temperature output. "
+"``measurement_enabled=True`` enables direct temperature output. The optional"
+" ``high_temp_enabled`` flag selects the high-temperature range."
+msgstr ""
+"Lepton을 AGC와 직접 온도 출력 사이에서 전환합니다. ``measurement_enabled=True`` 는 직접 온도 출력을 "
+"활성화합니다. 선택적 ``high_temp_enabled`` 플래그는 고온 범위를 선택합니다."
+
+#: ../../library/omv.csi.rst:530
+msgid "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+
+#: ../../library/omv.csi.rst:531
+msgid "Returns a 2-tuple ``(measurement_enabled, high_temp_enabled)``."
+msgstr "2-튜플 ``(measurement_enabled, high_temp_enabled)`` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:534
+msgid "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+
+#: ../../library/omv.csi.rst:535
+msgid ""
+"Set the temperature range mapped to ``0..255`` when measurement mode is "
+"enabled."
+msgstr "측정 모드가 활성화되었을 때 ``0..255`` 에 매핑되는 온도 범위를 설정합니다."
+
+#: ../../library/omv.csi.rst:538
+msgid "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+
+#: ../../library/omv.csi.rst:539
+msgid "Returns the current ``(min_celsius, max_celsius)`` range."
+msgstr "현재 ``(min_celsius, max_celsius)`` 범위를 반환합니다."
+
+#: ../../library/omv.csi.rst:541
+msgid "**Himax HM01B0 -- motion detection:**"
+msgstr "**Himax HM01B0 -- 모션 검출:**"
+
+#: ../../library/omv.csi.rst:543
+msgid "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:544
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's on-sensor motion-"
+"detection block."
+msgstr "HM01B0의 온센서 모션 검출 블록을 활성화(``True``)하거나 비활성화(``False``)합니다."
+
+#: ../../library/omv.csi.rst:547
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:548
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:550
+msgid "Set the motion-detection window on the HM01B0."
+msgstr "HM01B0의 모션 검출 윈도우를 설정합니다."
+
+#: ../../library/omv.csi.rst:552
+msgid "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+
+#: ../../library/omv.csi.rst:553
+msgid "Set the motion-detection threshold (``0`` -- ``255``)."
+msgstr "모션 검출 임계값(``0`` -- ``255``)을 설정합니다."
+
+#: ../../library/omv.csi.rst:555
+msgid "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+
+#: ../../library/omv.csi.rst:556
+msgid "Clear the motion-detection interrupt latch."
+msgstr "모션 검출 인터럽트 래치를 지웁니다."
+
+#: ../../library/omv.csi.rst:558
+msgid "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:559
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's internal oscillator."
+msgstr "HM01B0의 내부 오실레이터를 활성화(``True``)하거나 비활성화(``False``)합니다."
+
+#: ../../library/omv.csi.rst:562
+msgid "**Prophesee GENX320 -- event sensor:**"
+msgstr "**Prophesee GENX320 -- 이벤트 센서:**"
+
+#: ../../library/omv.csi.rst:564
+msgid "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+
+#: ../../library/omv.csi.rst:565
+msgid ""
+"Apply a bias preset. ``preset`` is one of the :data:`GENX320_BIASES_*` "
+"constants."
+msgstr "바이어스 프리셋을 적용합니다. ``preset`` 은 :data:`GENX320_BIASES_*` 상수 중 하나입니다."
+
+#: ../../library/omv.csi.rst:568
+msgid "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+
+#: ../../library/omv.csi.rst:569
+msgid ""
+"Set a single bias. ``bias`` is one of the :data:`GENX320_BIAS_*` constants; "
+"``value`` is the integer setting."
+msgstr ""
+"단일 바이어스를 설정합니다. ``bias`` 는 :data:`GENX320_BIAS_*` 상수 중 하나이며, ``value`` 는 정수 "
+"설정값입니다."
+
+#: ../../library/omv.csi.rst:573
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+
+#: ../../library/omv.csi.rst:574
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+
+#: ../../library/omv.csi.rst:576
+msgid ""
+"Configure the anti-flicker filter. ``enable`` is a bool; the optional "
+"frequency arguments set the filter passband."
+msgstr "안티 플리커 필터를 구성합니다. ``enable`` 은 bool이며, 선택적 주파수 인수는 필터 통과 대역을 설정합니다."
+
+#: ../../library/omv.csi.rst:580
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+
+#: ../../library/omv.csi.rst:581
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+
+#: ../../library/omv.csi.rst:583
+msgid ""
+"Configure the spatio-temporal contrast filter. ``mode`` is one of the "
+":data:`GENX320_STC_*` constants; up to two further arguments are mode-"
+"specific."
+msgstr ""
+"시공간 대비 필터를 구성합니다. ``mode`` 는 :data:`GENX320_STC_*` 상수 중 하나이며, 최대 두 개의 추가 인수는"
+" 모드에 따라 다릅니다."
+
+#: ../../library/omv.csi.rst:587
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+
+#: ../../library/omv.csi.rst:588
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+
+#: ../../library/omv.csi.rst:590
+msgid ""
+"Switch the sensor between frame and event modes. ``mode`` is one of the "
+":data:`GENX320_MODE_*` constants. For event mode, ``evt_res`` is the row-"
+"axis length of the event buffer passed to :data:`IOCTL_GENX320_READ_EVENTS`."
+msgstr ""
+"센서를 프레임 모드와 이벤트 모드 사이에서 전환합니다. ``mode`` 는 :data:`GENX320_MODE_*` 상수 중 하나입니다."
+" 이벤트 모드의 경우 ``evt_res`` 는 :data:`IOCTL_GENX320_READ_EVENTS` 에 전달되는 이벤트 버퍼의 행"
+" 축 길이입니다."
+
+#: ../../library/omv.csi.rst:595
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+
+#: ../../library/omv.csi.rst:596
+msgid ""
+"Read events into ``buf``, a ``uint16`` ``ndarray`` of shape ``(EVT_res, 6)``"
+" where ``EVT_res`` is a power of two between 1024 and 65536. The columns "
+"are:"
+msgstr ""
+"이벤트를 ``buf`` 로 읽어들입니다. 이는 형태가 ``(EVT_res, 6)`` 인 ``uint16`` ``ndarray`` 이며 "
+"여기서 ``EVT_res`` 는 1024와 65536 사이의 2의 거듭제곱입니다. 열은 다음과 같습니다:"
+
+#: ../../library/omv.csi.rst:600
+msgid ""
+"``[0]`` -- event type (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+msgstr ""
+"``[0]`` -- 이벤트 유형(:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / 트리거)."
+
+#: ../../library/omv.csi.rst:603
+msgid "``[1]`` -- seconds."
+msgstr "``[1]`` -- 초."
+
+#: ../../library/omv.csi.rst:604
+msgid "``[2]`` -- milliseconds."
+msgstr "``[2]`` -- 밀리초."
+
+#: ../../library/omv.csi.rst:605
+msgid "``[3]`` -- microseconds."
+msgstr "``[3]`` -- 마이크로초."
+
+#: ../../library/omv.csi.rst:606
+msgid "``[4]`` -- ``x`` coordinate."
+msgstr "``[4]`` -- ``x`` 좌표."
+
+#: ../../library/omv.csi.rst:607
+msgid "``[5]`` -- ``y`` coordinate."
+msgstr "``[5]`` -- ``y`` 좌표."
+
+#: ../../library/omv.csi.rst:609
+msgid "Returns the number of events written."
+msgstr "기록된 이벤트의 수를 반환합니다."
+
+#: ../../library/omv.csi.rst:611
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+
+#: ../../library/omv.csi.rst:612
+msgid ""
+"Returns an :class:`image.Image` containing the raw event frame from the "
+"GENX320."
+msgstr "GENX320의 원시 이벤트 프레임을 담은 :class:`image.Image` 를 반환합니다."
+
+#: ../../library/omv.csi.rst:615
+msgid "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+msgstr "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+
+#: ../../library/omv.csi.rst:616
+msgid ""
+"Turn off pixels whose noise is more than ``sigma`` standard deviations from "
+"the normal distribution. ``iterations`` is the integer number of calibration"
+" passes. Returns the number of pixels disabled."
+msgstr ""
+"노이즈가 정규 분포에서 ``sigma`` 표준 편차를 초과하는 픽셀을 끕니다. ``iterations`` 는 보정 패스의 정수 "
+"횟수입니다. 비활성화된 픽셀의 수를 반환합니다."
+
+#: ../../library/omv.csi.rst:623
+msgid ""
+"Sets the color palette to use for things like FLIR Lepton grayscale to "
+"RGB565 conversion or GENX320 event visualization. One of "
+"`image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, and (when supported) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, or "
+"`image.PALETTE_EVT_LIGHT`."
+msgstr ""
+"FLIR Lepton 그레이스케일에서 RGB565로의 변환이나 GENX320 이벤트 시각화 같은 작업에 사용할 색상 팔레트를 설정합니다."
+" `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, 그리고 (지원되는 경우) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, `image.PALETTE_EVT_LIGHT` 중"
+" 하나입니다."
+
+#: ../../library/omv.csi.rst:632
+msgid "Write ``value`` to the camera register at ``address``."
+msgstr "``value`` 를 ``address`` 의 카메라 레지스터에 씁니다."
+
+#: ../../library/omv.csi.rst:634 ../../library/omv.csi.rst:640
+msgid "See the camera data sheet for register info."
+msgstr "레지스터 정보는 카메라 데이터시트를 참조하십시오."
+
+#: ../../library/omv.csi.rst:638
+msgid "Read the camera register at ``address``."
+msgstr "``address`` 의 카메라 레지스터를 읽습니다."
+
+#: ../../library/omv.csi.rst:643
+msgid "Functions"
+msgstr "함수"
+
+#: ../../library/omv.csi.rst:647
+msgid "Returns a list of the detected sensor chip IDs."
+msgstr "검출된 센서 칩 ID의 리스트를 반환합니다."
+
+#: ../../library/omv.csi.rst:650
+msgid "Constants"
+msgstr "상수"
+
+#: ../../library/omv.csi.rst:655
+msgid ""
+"BINARY (bitmap) pixel format. Each pixel is 1-bit. Useful for mask storage; "
+"can be used with `image.Image()`."
+msgstr ""
+"BINARY(비트맵) 픽셀 형식. 각 픽셀은 1비트입니다. 마스크 저장에 유용하며, `image.Image()` 와 함께 사용할 수 "
+"있습니다."
+
+#: ../../library/omv.csi.rst:661
+msgid "GRAYSCALE pixel format (Y from YUV422). Each pixel is 8-bits."
+msgstr "GRAYSCALE 픽셀 형식(YUV422의 Y). 각 픽셀은 8비트입니다."
+
+#: ../../library/omv.csi.rst:666
+msgid ""
+"RGB565 pixel format. Each pixel is 16-bits (5-bits red, 6-bits green, 5-bits"
+" blue)."
+msgstr "RGB565 픽셀 형식. 각 픽셀은 16비트입니다(빨강 5비트, 초록 6비트, 파랑 5비트)."
+
+#: ../../library/omv.csi.rst:671
+msgid "RAW BAYER image pixel format."
+msgstr "RAW BAYER 이미지 픽셀 형식."
+
+#: ../../library/omv.csi.rst:676
+msgid ""
+"YUV422 pixel format. Each pixel is stored as a grayscale 8-bit Y value "
+"followed by alternating 8-bit U/V color values shared between two Y values "
+"(Y1, U, Y2, V, ...). Only some image processing methods work with YUV422."
+msgstr ""
+"YUV422 픽셀 형식. 각 픽셀은 그레이스케일 8비트 Y 값과 두 Y 값 사이에 공유되는 교대하는 8비트 U/V 색상 값(Y1, U, "
+"Y2, V, ...)으로 저장됩니다. 일부 이미지 처리 메서드만 YUV422와 함께 작동합니다."
+
+#: ../../library/omv.csi.rst:683
+msgid ""
+"JPEG mode. The camera module outputs compressed JPEG images. Use "
+"`CSI.quality` to control the JPEG quality. Only works for the OV2640/OV5640 "
+"cameras."
+msgstr ""
+"JPEG 모드. 카메라 모듈이 압축된 JPEG 이미지를 출력합니다. JPEG 품질을 제어하려면 `CSI.quality` 를 사용하십시오."
+" OV2640/OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:689
+msgid "`CSI.cid` returns this for the OV2640 camera."
+msgstr "`CSI.cid` 는 OV2640 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:694
+msgid "`CSI.cid` returns this for the OV5640 camera."
+msgstr "`CSI.cid` 는 OV5640 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:699
+msgid "`CSI.cid` returns this for the OV7670 camera."
+msgstr "`CSI.cid` 는 OV7670 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:704
+msgid "`CSI.cid` returns this for the OV7690 camera."
+msgstr "`CSI.cid` 는 OV7690 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:709
+msgid "`CSI.cid` returns this for the OV7725 camera."
+msgstr "`CSI.cid` 는 OV7725 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:714
+msgid "`CSI.cid` returns this for the OV9650 camera."
+msgstr "`CSI.cid` 는 OV9650 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:719
+msgid "`CSI.cid` returns this for the MT9V022 camera."
+msgstr "`CSI.cid` 는 MT9V022 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:724
+msgid "`CSI.cid` returns this for the MT9V024 camera."
+msgstr "`CSI.cid` 는 MT9V024 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:729
+msgid "`CSI.cid` returns this for the MT9V032 camera."
+msgstr "`CSI.cid` 는 MT9V032 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:734
+msgid "`CSI.cid` returns this for the MT9V034 camera."
+msgstr "`CSI.cid` 는 MT9V034 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:739
+msgid "`CSI.cid` returns this for the MT9M114 camera."
+msgstr "`CSI.cid` 는 MT9M114 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:744
+msgid "`CSI.cid` returns this for the BOSON 320x256 camera."
+msgstr "`CSI.cid` 는 BOSON 320x256 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:749
+msgid "`CSI.cid` returns this for the BOSON 640x512 camera."
+msgstr "`CSI.cid` 는 BOSON 640x512 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:754
+msgid "`CSI.cid` returns this for the LEPTON1/2/3 cameras."
+msgstr "`CSI.cid` 는 LEPTON1/2/3 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:759
+msgid "`CSI.cid` returns this for the HM01B0 camera."
+msgstr "`CSI.cid` 는 HM01B0 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:764
+msgid "`CSI.cid` returns this for the HM0360 camera."
+msgstr "`CSI.cid` 는 HM0360 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:769
+msgid "`CSI.cid` returns this for the GC2145 camera."
+msgstr "`CSI.cid` 는 GC2145 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:774
+msgid "`CSI.cid` returns this for the GENX320 (engineering sample) camera."
+msgstr "`CSI.cid` 는 GENX320(엔지니어링 샘플) 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:779
+msgid "`CSI.cid` returns this for the GENX320 camera."
+msgstr "`CSI.cid` 는 GENX320 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:784
+msgid "`CSI.cid` returns this for the PAG7920 camera."
+msgstr "`CSI.cid` 는 PAG7920 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:789
+msgid "`CSI.cid` returns this for the PAG7936 camera."
+msgstr "`CSI.cid` 는 PAG7936 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:794
+msgid "`CSI.cid` returns this for the PAJ6100 camera."
+msgstr "`CSI.cid` 는 PAJ6100 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:799
+msgid "`CSI.cid` returns this for the FROGEYE2020 camera."
+msgstr "`CSI.cid` 는 FROGEYE2020 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:804
+msgid "`CSI.cid` returns this for the software CSI camera."
+msgstr "`CSI.cid` 는 소프트웨어 CSI 카메라에 대해 이 값을 반환합니다."
+
+#: ../../library/omv.csi.rst:809
+msgid "Normal mode for `CSI.special_effect`."
+msgstr "`CSI.special_effect` 의 일반 모드."
+
+#: ../../library/omv.csi.rst:814
+msgid "Negative mode for `CSI.special_effect`."
+msgstr "`CSI.special_effect` 의 네거티브 모드."
+
+#: ../../library/omv.csi.rst:819
+msgid "176x144 resolution for the camera sensor."
+msgstr "카메라 센서의 176x144 해상도."
+
+#: ../../library/omv.csi.rst:824
+msgid "352x288 resolution for the camera sensor."
+msgstr "카메라 센서의 352x288 해상도."
+
+#: ../../library/omv.csi.rst:829
+msgid "176x120 resolution for the camera sensor."
+msgstr "카메라 센서의 176x120 해상도."
+
+#: ../../library/omv.csi.rst:834
+msgid "352x240 resolution for the camera sensor."
+msgstr "카메라 센서의 352x240 해상도."
+
+#: ../../library/omv.csi.rst:839
+msgid "80x60 resolution for the camera sensor."
+msgstr "카메라 센서의 80x60 해상도."
+
+#: ../../library/omv.csi.rst:844
+msgid "160x120 resolution for the camera sensor."
+msgstr "카메라 센서의 160x120 해상도."
+
+#: ../../library/omv.csi.rst:849
+msgid "320x240 resolution for the camera sensor."
+msgstr "카메라 센서의 320x240 해상도."
+
+#: ../../library/omv.csi.rst:854
+msgid "640x480 resolution for the camera sensor."
+msgstr "카메라 센서의 640x480 해상도."
+
+#: ../../library/omv.csi.rst:859
+msgid "240x160 resolution for the camera sensor."
+msgstr "카메라 센서의 240x160 해상도."
+
+#: ../../library/omv.csi.rst:864
+msgid "480x320 resolution for the camera sensor."
+msgstr "카메라 센서의 480x320 해상도."
+
+#: ../../library/omv.csi.rst:869
+msgid "720x480 resolution for the MT9V034 camera sensor."
+msgstr "MT9V034 카메라 센서의 720x480 해상도."
+
+#: ../../library/omv.csi.rst:874
+msgid "752x480 resolution for the MT9V034 camera sensor."
+msgstr "MT9V034 카메라 센서의 752x480 해상도."
+
+#: ../../library/omv.csi.rst:879
+msgid "800x600 resolution for the camera sensor."
+msgstr "카메라 센서의 800x600 해상도."
+
+#: ../../library/omv.csi.rst:884
+msgid "1024x768 resolution for the camera sensor."
+msgstr "카메라 센서의 1024x768 해상도."
+
+#: ../../library/omv.csi.rst:889
+msgid "1280x768 resolution for the MT9M114 camera sensor."
+msgstr "MT9M114 카메라 센서의 1280x768 해상도."
+
+#: ../../library/omv.csi.rst:894
+msgid ""
+"1280x1024 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "카메라 센서의 1280x1024 해상도. OV2640/OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:899
+msgid "1280x960 resolution for the MT9M114 camera sensor."
+msgstr "MT9M114 카메라 센서의 1280x960 해상도."
+
+#: ../../library/omv.csi.rst:904
+msgid ""
+"1600x1200 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "카메라 센서의 1600x1200 해상도. OV2640/OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:909
+msgid "1280x720 resolution for the camera sensor."
+msgstr "카메라 센서의 1280x720 해상도."
+
+#: ../../library/omv.csi.rst:914
+msgid ""
+"1920x1080 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "카메라 센서의 1920x1080 해상도. OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:919
+msgid ""
+"2560x1440 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "카메라 센서의 2560x1440 해상도. OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:924
+msgid ""
+"2048x1536 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "카메라 센서의 2048x1536 해상도. OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:929
+msgid ""
+"2560x1600 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "카메라 센서의 2560x1600 해상도. OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:934
+msgid ""
+"2592x1944 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "카메라 센서의 2592x1944 해상도. OV5640 카메라에서만 작동합니다."
+
+#: ../../library/omv.csi.rst:939
+msgid "Sets the readout window. See `CSI.ioctl`."
+msgstr "판독 윈도우를 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:944
+msgid "Gets the readout window. See `CSI.ioctl`."
+msgstr "판독 윈도우를 가져옵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:949
+msgid "Sets triggered mode for the MT9V034. See `CSI.ioctl`."
+msgstr "MT9V034의 트리거 모드를 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:954
+msgid "Gets the triggered mode state for the MT9V034. See `CSI.ioctl`."
+msgstr "MT9V034의 트리거 모드 상태를 가져옵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:959
+msgid ""
+"Enable `CSI.framesize` to optimize for field-of-view over FPS. See "
+"`CSI.ioctl`."
+msgstr "`CSI.framesize` 가 FPS보다 시야각을 최적화하도록 활성화합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:964
+msgid ""
+"Returns whether `CSI.framesize` is optimizing for field-of-view over FPS. "
+"See `CSI.ioctl`."
+msgstr ""
+"`CSI.framesize` 가 FPS보다 시야각을 최적화하고 있는지 여부를 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:969
+msgid "Trigger auto focus on the OV5640 FPC camera module. See `CSI.ioctl`."
+msgstr "OV5640 FPC 카메라 모듈에서 자동 초점을 트리거합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:974
+msgid ""
+"Pause auto focus (while running) for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "OV5640 FPC 카메라 모듈의 (실행 중인) 자동 초점을 일시 중지합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:979
+msgid ""
+"Reset auto focus to default for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "OV5640 FPC 카메라 모듈의 자동 초점을 기본값으로 리셋합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:984
+msgid ""
+"Wait for auto focus to finish on the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "OV5640 FPC 카메라 모듈에서 자동 초점이 끝나기를 기다립니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:989
+msgid ""
+"Turn night mode on or off. Reduces frame rate to increase exposure "
+"dynamically. See `CSI.ioctl`."
+msgstr "야간 모드를 켜거나 끕니다. 프레임 레이트를 줄여 노출을 동적으로 증가시킵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:994
+msgid "Returns whether night mode is enabled. See `CSI.ioctl`."
+msgstr "야간 모드가 활성화되어 있는지 여부를 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:999
+msgid ""
+"Returns the FLIR Lepton image resolution width in pixels. See `CSI.ioctl`."
+msgstr "FLIR Lepton 이미지 해상도 너비를 픽셀 단위로 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1004
+msgid ""
+"Returns the FLIR Lepton image resolution height in pixels. See `CSI.ioctl`."
+msgstr "FLIR Lepton 이미지 해상도 높이를 픽셀 단위로 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1009
+msgid "Returns the FLIR Lepton type (radiometric or not). See `CSI.ioctl`."
+msgstr "FLIR Lepton 유형(방사 측정 여부)을 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1014
+msgid "Returns the FLIR Lepton refresh rate in Hz. See `CSI.ioctl`."
+msgstr "FLIR Lepton 리프레시 레이트를 Hz 단위로 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1019
+msgid "Returns the FLIR Lepton ADC resolution in bits. See `CSI.ioctl`."
+msgstr "FLIR Lepton ADC 해상도를 비트 단위로 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1024
+msgid "Executes a 16-bit command from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "FLIR Lepton SDK의 16비트 명령을 실행합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1029
+msgid ""
+"Sets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "FLIR Lepton SDK의 FLIR Lepton 속성을 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1034
+msgid ""
+"Gets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "FLIR Lepton SDK의 FLIR Lepton 속성을 가져옵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1039
+msgid "Gets the FLIR Lepton FPA temp in Celsius. See `CSI.ioctl`."
+msgstr "FLIR Lepton FPA 온도를 섭씨 단위로 가져옵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1044
+msgid "Gets the FLIR Lepton AUX temp in Celsius. See `CSI.ioctl`."
+msgstr "FLIR Lepton AUX 온도를 섭씨 단위로 가져옵니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1049
+msgid ""
+"Sets the FLIR Lepton driver into a mode where each pixel is a temperature "
+"value. See `CSI.ioctl`."
+msgstr "FLIR Lepton 드라이버를 각 픽셀이 온도 값인 모드로 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1055
+msgid ""
+"Returns whether measurement mode is enabled for the FLIR Lepton sensor. See "
+"`CSI.ioctl`."
+msgstr "FLIR Lepton 센서에서 측정 모드가 활성화되어 있는지 여부를 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1060
+msgid ""
+"Sets the temperature range mapped to pixel values in measurement mode. See "
+"`CSI.ioctl`."
+msgstr "측정 모드에서 픽셀 값에 매핑되는 온도 범위를 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1065
+msgid ""
+"Returns the temperature range used for measurement mode. See `CSI.ioctl`."
+msgstr "측정 모드에 사용되는 온도 범위를 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1070
+msgid ""
+"Controls the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "HM01B0의 모션 검출 인터럽트를 제어합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1075
+msgid "Sets the motion detection window on the HM01B0. See `CSI.ioctl`."
+msgstr "HM01B0의 모션 검출 윈도우를 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1080
+msgid "Sets the motion detection threshold on the HM01B0. See `CSI.ioctl`."
+msgstr "HM01B0의 모션 검출 임계값을 설정합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1085
+msgid "Clears the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "HM01B0의 모션 검출 인터럽트를 지웁니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1090
+msgid "Controls the internal oscillator on the HM01B0. See `CSI.ioctl`."
+msgstr "HM01B0의 내부 오실레이터를 제어합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1095
+msgid "Returns the RGB statistics from the camera sensor. See `CSI.ioctl`."
+msgstr "카메라 센서에서 RGB 통계를 반환합니다. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1100
+msgid ""
+"Sets the GENX320 sensor biases to one of the ``GENX320_BIASES_*`` presets. "
+"See `CSI.ioctl`. After `CSI.reset` the driver applies "
+"`csi.GENX320_BIASES_LOW_NOISE`, not `csi.GENX320_BIASES_DEFAULT` --- use "
+"this ioctl to switch to a different preset when the application needs more "
+"sensitivity or bandwidth."
+msgstr ""
+"GENX320 센서 바이어스를 ``GENX320_BIASES_*`` 프리셋 중 하나로 설정합니다. `CSI.ioctl` 을 참조하십시오."
+" `CSI.reset` 이후 드라이버는 `csi.GENX320_BIASES_DEFAULT` 가 아닌 "
+"`csi.GENX320_BIASES_LOW_NOISE` 를 적용합니다 --- 애플리케이션에 더 높은 감도나 대역폭이 필요할 때 이 "
+"ioctl을 사용하여 다른 프리셋으로 전환하십시오."
+
+#: ../../library/omv.csi.rst:1110
+msgid ""
+"GenX320 datasheet defaults --- balanced sensitivity, noise, and bandwidth "
+"for general scenes."
+msgstr "GenX320 데이터시트 기본값 --- 일반적인 장면에 대해 감도, 노이즈, 대역폭이 균형 잡혀 있습니다."
+
+#: ../../library/omv.csi.rst:1116
+msgid ""
+"Tuned for low-light conditions --- both contrast thresholds loosened for "
+"higher sensitivity, FO lowered, HPF disabled so slow brightness changes "
+"still register."
+msgstr ""
+"저조도 조건에 맞게 튜닝됨 --- 더 높은 감도를 위해 두 대비 임계값이 모두 완화되고, FO가 낮아지며, 느린 밝기 변화도 여전히 "
+"감지되도록 HPF가 비활성화됩니다."
+
+#: ../../library/omv.csi.rst:1123
+msgid ""
+"Tuned for tracking high-contrast blinking LEDs (active markers) --- contrast"
+" thresholds raised so only sharp transitions trigger, FO and HPF cranked "
+"high to maximize bandwidth and reject slow ambient drift, REFR=0 so every "
+"blink edge is captured."
+msgstr ""
+"고대비로 깜박이는 LED(능동 마커)를 추적하도록 튜닝됨 --- 급격한 전환만 트리거하도록 대비 임계값이 높아지고, 대역폭을 최대화하고 "
+"느린 주변광 드리프트를 거부하도록 FO와 HPF가 높게 설정되며, 모든 깜박임 에지가 캡처되도록 REFR=0입니다."
+
+#: ../../library/omv.csi.rst:1131
+msgid ""
+"Driver default --- lower sensitivity than ``DEFAULT`` (raised contrast "
+"thresholds) and a lower FO for less background-noise activity. Best for "
+"static or slow scenes where false events would dominate."
+msgstr ""
+"드라이버 기본값 --- ``DEFAULT`` 보다 낮은 감도(높아진 대비 임계값)와 배경 노이즈 활동을 줄이기 위한 낮은 FO. 거짓 "
+"이벤트가 지배할 정적이거나 느린 장면에 가장 적합합니다."
+
+#: ../../library/omv.csi.rst:1139
+msgid ""
+"Tuned for fast-motion scenes --- higher FO for wider pixel bandwidth, higher"
+" HPF to reject slow changes, higher REFR for a longer dead time after each "
+"event so the readout doesn't saturate."
+msgstr ""
+"빠른 움직임 장면에 맞게 튜닝됨 --- 더 넓은 픽셀 대역폭을 위한 높은 FO, 느린 변화를 거부하기 위한 높은 HPF, 그리고 판독이 "
+"포화되지 않도록 각 이벤트 후 더 긴 데드 타임을 위한 높은 REFR."
+
+#: ../../library/omv.csi.rst:1147
+msgid ""
+"Sets a single GENX320 sensor bias to a DAC value. Pass a ``GENX320_BIAS_*`` "
+"constant (`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, or `csi.GENX320_BIAS_REFR`) "
+"and an integer DAC value. Each bias is independent --- call this ioctl "
+"repeatedly to tweak only the biases you need after applying a preset. See "
+"`CSI.ioctl`."
+msgstr ""
+"단일 GENX320 센서 바이어스를 DAC 값으로 설정합니다. ``GENX320_BIAS_*`` "
+"상수(`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, `csi.GENX320_BIAS_REFR`)와 정수 "
+"DAC 값을 전달하십시오. 각 바이어스는 독립적입니다 --- 프리셋을 적용한 후 필요한 바이어스만 조정하도록 이 ioctl을 반복적으로 "
+"호출하십시오. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1158
+msgid ""
+"Negative comparator contrast threshold --- controls how much a pixel has to "
+"darken before a `csi.PIX_OFF_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"네거티브 비교기 대비 임계값 --- `csi.PIX_OFF_EVENT` 가 발생하기 전에 픽셀이 얼마나 어두워져야 하는지를 제어합니다. "
+"값이 낮을수록 = 더 민감(이벤트가 더 많음)."
+
+#: ../../library/omv.csi.rst:1165
+msgid ""
+"Positive comparator contrast threshold --- controls how much a pixel has to "
+"brighten before a `csi.PIX_ON_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"포지티브 비교기 대비 임계값 --- `csi.PIX_ON_EVENT` 가 발생하기 전에 픽셀이 얼마나 밝아져야 하는지를 제어합니다. 값이"
+" 낮을수록 = 더 민감(이벤트가 더 많음)."
+
+#: ../../library/omv.csi.rst:1172
+msgid ""
+"Pixel low-pass cut-off frequency --- trades pixel bandwidth (speed/latency) "
+"against background-noise activity. Higher value = faster pixel response, "
+"more noise."
+msgstr ""
+"픽셀 저역 통과 차단 주파수 --- 픽셀 대역폭(속도/지연 시간)을 배경 노이즈 활동과 절충합니다. 값이 높을수록 = 더 빠른 픽셀 "
+"응답, 더 많은 노이즈."
+
+#: ../../library/omv.csi.rst:1179
+msgid ""
+"Pixel high-pass cut-off frequency --- rejects slow brightness changes. "
+"Higher value = slower changes filtered out (only fast transitions register)."
+msgstr ""
+"픽셀 고역 통과 차단 주파수 --- 느린 밝기 변화를 거부합니다. 값이 높을수록 = 더 느린 변화가 필터링됨(빠른 전환만 감지됨)."
+
+#: ../../library/omv.csi.rst:1186
+msgid ""
+"Pixel refractory period --- dead time after a pixel emits an event during "
+"which it cannot fire again. Higher value = longer dead time, fewer events "
+"from a busy pixel."
+msgstr ""
+"픽셀 불응 기간 --- 픽셀이 이벤트를 방출한 후 다시 발생할 수 없는 데드 타임. 값이 높을수록 = 더 긴 데드 타임, 바쁜 픽셀에서 "
+"더 적은 이벤트."
+
+#: ../../library/omv.csi.rst:1193
+msgid ""
+"Sets the GENX320 anti-flicker (AFK) filter, which rejects events from pixels"
+" toggling at a periodic frequency band (fluorescent lighting, LED-driven "
+"displays, etc.). Pass ``enable`` (1 to enable, 0 to disable) and, when "
+"enabling, the band edges in hertz: ``(enable, freq_low_hz, freq_high_hz)``. "
+"See `CSI.ioctl`."
+msgstr ""
+"GENX320 안티 플리커(AFK) 필터를 설정합니다. 이 필터는 주기적인 주파수 대역(형광등, LED 구동 디스플레이 등)에서 토글하는"
+" 픽셀의 이벤트를 거부합니다. ``enable``(활성화는 1, 비활성화는 0)을 전달하고, 활성화 시 대역 경계를 헤르츠 단위로 "
+"전달하십시오: ``(enable, freq_low_hz, freq_high_hz)``. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1203
+msgid ""
+"Sets the GENX320 spatio-temporal contrast (STC) filter mode. Pass a "
+"``GENX320_STC_*`` constant (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) followed by the threshold(s) the mode requires (in "
+"milliseconds). See `CSI.ioctl`."
+msgstr ""
+"GENX320 시공간 대비(STC) 필터 모드를 설정합니다. ``GENX320_STC_*`` "
+"상수(`csi.GENX320_STC_DISABLE`, `csi.GENX320_STC_ONLY`, "
+"`csi.GENX320_STC_TRAIL_ONLY`, `csi.GENX320_STC_TRAIL`)와 그 모드가 요구하는 임계값(밀리초 "
+"단위)을 전달하십시오. `CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1213
+msgid "Disable the GENX320 STC/trail filter --- every event passes through."
+msgstr "GENX320 STC/트레일 필터를 비활성화합니다 --- 모든 이벤트가 통과합니다."
+
+#: ../../library/omv.csi.rst:1219
+msgid ""
+"*Keeps the second event of a burst*; drops the first event and any later "
+"events. Takes one parameter, ``stc_threshold`` in milliseconds --- events "
+"within that window of a prior event on the same pixel are considered part of"
+" the same burst."
+msgstr ""
+"*버스트의 두 번째 이벤트를 유지*\\ 하고, 첫 번째 이벤트와 이후의 모든 이벤트를 드롭합니다. 하나의 매개변수 "
+"``stc_threshold`` 를 밀리초 단위로 받습니다 --- 동일한 픽셀에서 이전 이벤트로부터 해당 윈도우 내에 있는 이벤트는 "
+"동일한 버스트의 일부로 간주됩니다."
+
+#: ../../library/omv.csi.rst:1227
+msgid ""
+"*Keeps the first event of a burst*; drops subsequent events on the same "
+"pixel until ``trail_threshold`` has elapsed. Takes one parameter, "
+"``trail_threshold`` in milliseconds."
+msgstr ""
+"*버스트의 첫 번째 이벤트를 유지*\\ 하고, ``trail_threshold`` 가 경과할 때까지 동일한 픽셀에서 후속 이벤트를 "
+"드롭합니다. 하나의 매개변수 ``trail_threshold`` 를 밀리초 단위로 받습니다."
+
+#: ../../library/omv.csi.rst:1234
+msgid ""
+"*Keeps the first event of a burst plus subsequent edges* --- combines "
+"`csi.GENX320_STC_ONLY` and `csi.GENX320_STC_TRAIL_ONLY`. Takes two "
+"parameters, ``stc_threshold`` and ``trail_threshold`` (both ms); the sensor "
+"requires the two to stay within roughly a 13:1 ratio."
+msgstr ""
+
+#: ../../library/omv.csi.rst:1243
+msgid ""
+"Sets the GENX320 operating mode. Pass `csi.GENX320_MODE_HISTO` for the on-"
+"chip event histogram (the cam behaves like a regular grayscale camera at the"
+" configured framerate) or `csi.GENX320_MODE_EVENT` followed by the row-axis "
+"length of the event ``ndarray`` (a power of two between 1024 and 65536) for "
+"raw event streaming. See `CSI.ioctl`."
+msgstr ""
+
+#: ../../library/omv.csi.rst:1253
+msgid ""
+"Histogram mode --- events are accumulated on-chip into per-pixel bins and "
+"reported as a 320x320 grayscale frame at the configured rate (~20-350 FPS). "
+"The cam looks like a regular camera, so all the standard image-processing "
+"routines work directly."
+msgstr ""
+"히스토그램 모드 --- 이벤트가 픽셀별 빈으로 온칩에서 누적되어 구성된 레이트(~20-350 FPS)에서 320x320 그레이스케일 "
+"프레임으로 보고됩니다. 캠이 일반 카메라처럼 보이므로 모든 표준 이미지 처리 루틴이 직접 작동합니다."
+
+#: ../../library/omv.csi.rst:1262
+msgid ""
+"Event mode --- bypasses the on-chip histogram and streams raw events into a "
+"numpy ``ndarray`` with microsecond timestamps, for applications that need "
+"full temporal detail rather than a pre-binned frame."
+msgstr ""
+"이벤트 모드 --- 온칩 히스토그램을 우회하고 원시 이벤트를 마이크로초 타임스탬프와 함께 numpy ``ndarray`` 로 "
+"스트리밍합니다. 미리 비닝된 프레임이 아닌 전체 시간 세부 정보가 필요한 애플리케이션을 위한 것입니다."
+
+#: ../../library/omv.csi.rst:1270
+msgid ""
+"Reads raw events into a uint16 ``ndarray`` of shape ``(EVT_res, 6)`` (with "
+"``EVT_res`` matching the buffer size passed to "
+"`csi.IOCTL_GENX320_SET_MODE`). The columns are ``[0]`` event type "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` seconds timestamp, ``[2]`` milliseconds, ``[3]`` microseconds, "
+"``[4]`` X coord (0-319), ``[5]`` Y coord (0-319). Returns the number of "
+"events written into the buffer, leaving older rows beyond that count "
+"untouched. See `CSI.ioctl`."
+msgstr ""
+"원시 이벤트를 형태가 ``(EVT_res, 6)`` 인 uint16 ``ndarray`` 로 읽어들입니다(여기서 ``EVT_res`` 는"
+" `csi.IOCTL_GENX320_SET_MODE` 에 전달된 버퍼 크기와 일치합니다). 열은 ``[0]`` 이벤트 "
+"유형(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` 초 타임스탬프, ``[2]`` 밀리초, ``[3]`` 마이크로초, ``[4]`` X 좌표(0-319), ``[5]`` Y"
+" 좌표(0-319)입니다. 버퍼에 기록된 이벤트의 수를 반환하며, 그 수를 넘는 이전 행은 그대로 둡니다. `CSI.ioctl` 을 "
+"참조하십시오."
+
+#: ../../library/omv.csi.rst:1284
+msgid ""
+"Automatically disables hot pixels --- pixels that fire spuriously even on a "
+"static scene. The driver builds a 320x320 per-pixel hit count, computes the "
+"mean and standard deviation, and disables any pixel whose count exceeds "
+"``mean + sigma * stddev``. Pass an event-count budget (events to tally "
+"before computing statistics --- higher = more reliable estimate, slower; "
+"~10000 is a good default) and a sigma float (lower = more aggressive, ~0.5 "
+"default). Returns the number of pixels disabled. Aim the cam at a static "
+"scene first so motion-driven events don't get counted against pixels that "
+"are actually fine. See `CSI.ioctl`."
+msgstr ""
+"핫 픽셀 --- 정적 장면에서도 잘못 발생하는 픽셀 --- 을 자동으로 비활성화합니다. 드라이버는 320x320 픽셀별 적중 횟수를 "
+"작성하고, 평균과 표준 편차를 계산한 다음, 횟수가 ``mean + sigma * stddev`` 를 초과하는 모든 픽셀을 "
+"비활성화합니다. 이벤트 횟수 예산(통계를 계산하기 전에 집계할 이벤트 수 --- 높을수록 = 더 신뢰할 수 있는 추정, 더 느림; "
+"~10000이 좋은 기본값)과 시그마 부동소수점(낮을수록 = 더 공격적, ~0.5 기본값)을 전달하십시오. 비활성화된 픽셀의 수를 "
+"반환합니다. 움직임으로 인한 이벤트가 실제로는 정상인 픽셀에 불리하게 집계되지 않도록 먼저 정적 장면을 향해 캠을 조준하십시오. "
+"`CSI.ioctl` 을 참조하십시오."
+
+#: ../../library/omv.csi.rst:1299
+msgid ""
+"Returns a raw event-frame `image.Image` from the GENX320, with the events "
+"still in the chip's native packed encoding --- useful if you want to forward"
+" the raw stream to a PC for off-line decoding rather than process it on the "
+"cam. See `CSI.ioctl`."
+msgstr ""
+"GENX320에서 원시 이벤트 프레임 `image.Image` 를 반환하며, 이벤트는 여전히 칩의 네이티브 패킹된 인코딩 상태입니다 "
+"--- 캠에서 처리하는 대신 PC로 원시 스트림을 전달하여 오프라인 디코딩하려는 경우에 유용합니다. `CSI.ioctl` 을 "
+"참조하십시오."
+
+#: ../../library/omv.csi.rst:1308
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"decrease (the negative-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 픽셀이 밝기 감소를 감지함(네거티브 대비 임계값이 교차됨). 열 "
+"``[4]/[5]`` 는 픽셀의 X/Y를 담습니다."
+
+#: ../../library/omv.csi.rst:1315
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"increase (the positive-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 픽셀이 밝기 증가를 감지함(포지티브 대비 임계값이 교차됨). 열 "
+"``[4]/[5]`` 는 픽셀의 X/Y를 담습니다."
+
+#: ../../library/omv.csi.rst:1322
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, rising edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 픽셀 리셋 트리거, 상승 에지. X/Y는 사용되지 않습니다. 현재 펌웨어에서 "
+"생성되지 않습니다."
+
+#: ../../library/omv.csi.rst:1329
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, falling edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 픽셀 리셋 트리거, 하강 에지. X/Y는 사용되지 않습니다. 현재 펌웨어에서 "
+"생성되지 않습니다."
+
+#: ../../library/omv.csi.rst:1336
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a rising edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 센서의 외부 트리거 핀이 상승 에지를 감지함. GENX320의 외부 트리거 입력은 "
+"카메라의 프레임 동기 라인에 연결되어 있으며, 이는 프로세서의 **P10** 과 핀 헤더로도 라우팅됩니다. X/Y는 사용되지 않습니다."
+
+#: ../../library/omv.csi.rst:1345
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a falling edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320 이벤트 유형(열 ``[0]``) --- 센서의 외부 트리거 핀이 하강 에지를 감지함. GENX320의 외부 트리거 입력은 "
+"카메라의 프레임 동기 라인에 연결되어 있으며, 이는 프로세서의 **P10** 과 핀 헤더로도 라우팅됩니다. X/Y는 사용되지 않습니다."

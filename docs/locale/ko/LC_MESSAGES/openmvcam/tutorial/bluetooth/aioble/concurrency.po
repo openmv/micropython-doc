@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:2
+msgid "Concurrent roles and multiple connections"
+msgstr "동시 역할과 다중 연결"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:4
+msgid ""
+"The peripheral and central pages each show a single role serving a single "
+"connection at a time. Real applications are rarely that simple. A camera may"
+" publish a sensor service to a phone *while also* reading values from a "
+"heart-rate strap, or accept connections from two simultaneously paired "
+"phones. The :mod:`aioble` API supports both patterns because the radio "
+"multiplexes underneath and every operation is already a coroutine -- run "
+"more coroutines, and the work happens in parallel on one event loop."
+msgstr ""
+"peripheral 및 central 페이지에서는 각각 한 번에 단일 연결을 처리하는 단일 역할을 보여줍니다. 실제 애플리케이션은 그렇게"
+" 단순한 경우가 드뭅니다. 카메라는 심박 측정 스트랩에서 값을 읽으면서 *동시에* 휴대폰에 센서 서비스를 게시할 수도 있고, 동시에 "
+"페어링된 두 대의 휴대폰으로부터 연결을 수락할 수도 있습니다. :mod:`aioble` API는 이 두 가지 패턴을 모두 지원하는데, "
+"라디오가 내부적으로 멀티플렉싱하고 모든 작업이 이미 코루틴이기 때문입니다. 코루틴을 더 실행하면 하나의 이벤트 루프에서 작업이 병렬로 "
+"처리됩니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:15
+msgid "This page collects the patterns that come up."
+msgstr "이 페이지에서는 자주 등장하는 패턴들을 모았습니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:18
+msgid "Multiple clients connecting to one peripheral"
+msgstr "여러 클라이언트가 하나의 peripheral에 연결하기"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:20
+msgid ""
+"The simple peripheral loop on "
+":doc:`/openmvcam/tutorial/bluetooth/aioble/peripheral` serves one connected "
+"central at a time:"
+msgstr ""
+":doc:`/openmvcam/tutorial/bluetooth/aioble/peripheral` 의 단순한 peripheral 루프는 "
+"한 번에 연결된 하나의 central만 처리합니다:"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:32
+msgid ""
+"The pattern that lets it accept *more than one* client is to fire off a per-"
+"connection task and immediately loop back to :func:`aioble.advertise` so the"
+" next client can connect too::"
+msgstr ""
+"*둘 이상의* 클라이언트를 수락하도록 하는 패턴은, 연결별 작업을 시작하고 즉시 :func:`aioble.advertise` 로 다시 "
+"루프를 돌아 다음 클라이언트도 연결할 수 있게 하는 것입니다::"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:52
+msgid ""
+"Each connection runs in its own task. The GATT database is shared -- all "
+"clients see the same services and characteristics -- but per-connection "
+"state lives inside the task. Notifications go to *every* subscribed client "
+"when :meth:`~aioble.Characteristic.write` is called with "
+"``send_update=True``; directed pushes that should only reach one client use "
+":meth:`~aioble.Characteristic.notify` / "
+":meth:`~aioble.Characteristic.indicate` with the specific "
+":class:`~aioble.DeviceConnection` argument."
+msgstr ""
+"각 연결은 자체 작업에서 실행됩니다. GATT 데이터베이스는 공유되어 모든 클라이언트가 동일한 서비스와 특성을 보지만, 연결별 상태는 "
+"작업 내부에 존재합니다. :meth:`~aioble.Characteristic.write` 를 ``send_update=True`` 로 "
+"호출하면 알림이 구독한 *모든* 클라이언트로 전송됩니다. 한 클라이언트에게만 도달해야 하는 지정된 푸시는 특정 "
+":class:`~aioble.DeviceConnection` 인자와 함께 "
+":meth:`~aioble.Characteristic.notify` / "
+":meth:`~aioble.Characteristic.indicate` 를 사용합니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:64
+msgid ""
+"Keep the fan-out small. Each held connection costs radio time, RAM, and a "
+"slot in the controller's connection table, and the camera is not designed to"
+" be a hub for dozens of clients. Two or three centrals (a phone, a tablet, a"
+" companion microcontroller) are well within reach; designs that need more "
+"belong on a proper BLE gateway rather than on the cam."
+msgstr ""
+"팬아웃은 작게 유지하세요. 유지되는 각 연결은 라디오 시간, RAM, 그리고 컨트롤러 연결 테이블의 슬롯을 소비하며, 카메라는 수십 개 "
+"클라이언트를 위한 허브로 설계되지 않았습니다. central 두세 개(휴대폰, 태블릿, 동반 마이크로컨트롤러)는 충분히 가능한 범위이며,"
+" 그 이상이 필요한 설계는 카메라가 아니라 제대로 된 BLE 게이트웨이에 적합합니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:73
+msgid "Peripheral and central at the same time"
+msgstr "동시에 peripheral과 central 역할 수행하기"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:75
+msgid ""
+"A camera can advertise its own service to a phone while *also* acting as a "
+"central to a wearable. :mod:`aioble` does not have a \"mode\" switch -- the "
+"advertise loop and the scan-and-connect loop are just independent "
+"coroutines::"
+msgstr ""
+"카메라는 휴대폰에 자체 서비스를 광고하면서 *동시에* 웨어러블에 대한 central 역할을 할 수 있습니다. :mod:`aioble` "
+"에는 \"모드\" 전환이 없습니다. 광고 루프와 스캔-연결 루프는 그저 독립적인 코루틴일 뿐입니다::"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:107
+msgid ""
+"The radio time-shares between the two roles -- a scan window here, an "
+"advertising burst there, a connection event when one of either side's "
+"connections is live. Throughput on each role drops when both are active "
+"because the radio cannot literally do two things at once, but for the low-"
+"bandwidth conversations BLE was designed for, the cost is usually invisible."
+msgstr ""
+"라디오는 두 역할 사이에서 시간을 분할합니다. 여기서는 스캔 윈도우, 저기서는 광고 버스트, 양쪽 연결 중 하나가 활성화되면 연결 "
+"이벤트가 발생합니다. 라디오가 말 그대로 두 가지를 동시에 할 수는 없기 때문에 둘 다 활성화되면 각 역할의 처리량이 떨어지지만, "
+"BLE가 설계된 저대역폭 통신에서는 보통 그 비용이 눈에 띄지 않습니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:116
+msgid "Two practical things to keep in mind:"
+msgstr "염두에 두어야 할 두 가지 실질적인 사항:"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:118
+msgid ""
+"**Both roles need to be in their own coroutine.** Calling "
+":func:`aioble.scan` from inside the per-client task that handles a connected"
+" central works, but blocks that client's notifications until the scan "
+"finishes -- run scanning on its own task instead."
+msgstr ""
+"**두 역할 모두 자체 코루틴에 있어야 합니다.** 연결된 central을 처리하는 클라이언트별 작업 내부에서 "
+":func:`aioble.scan` 을 호출하는 것은 동작하지만, 스캔이 끝날 때까지 해당 클라이언트의 알림을 차단합니다. 대신 스캔은 "
+"자체 작업에서 실행하세요."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:124
+msgid ""
+"**Only one scan runs at a time.** If you need to scan from two different "
+"places, share the scan iterator or coordinate access; do not enter two "
+":func:`aioble.scan` context managers in parallel."
+msgstr ""
+"**스캔은 한 번에 하나만 실행됩니다.** 두 곳에서 스캔해야 한다면 스캔 이터레이터를 공유하거나 접근을 조율하세요. 두 개의 "
+":func:`aioble.scan` 컨텍스트 매니저를 병렬로 진입하지 마세요."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:130
+msgid "Coordinating multiple connections from one task"
+msgstr "하나의 작업에서 여러 연결 조율하기"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:132
+msgid ""
+"When several connections need to be combined into one logical operation -- "
+"for example, the camera talks to two sensors at once and only reports the "
+"result after both have answered -- the standard :mod:`asyncio` primitives "
+"apply directly. :func:`asyncio.gather` runs the per-connection coroutines "
+"concurrently and returns when all have finished; :func:`asyncio.wait_for` "
+"adds a deadline."
+msgstr ""
+"여러 연결을 하나의 논리적 작업으로 결합해야 할 때(예: 카메라가 두 센서와 동시에 통신하고 둘 다 응답한 후에만 결과를 보고하는 "
+"경우), 표준 :mod:`asyncio` 기본 요소가 그대로 적용됩니다. :func:`asyncio.gather` 는 연결별 코루틴을 "
+"동시에 실행하고 모두 완료되면 반환합니다. :func:`asyncio.wait_for` 는 마감 시한을 추가합니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:152
+msgid ""
+"Same pattern that the asyncio chapter "
+"(:doc:`/openmvcam/tutorial/asyncio/index`) uses for networking -- BLE "
+"coroutines plug into ``gather`` / ``wait_for`` / ``Event`` / ``Lock`` the "
+"same way TCP ones do."
+msgstr ""
+"asyncio 장(:doc:`/openmvcam/tutorial/asyncio/index`)이 네트워킹에 사용하는 것과 동일한 "
+"패턴입니다. BLE 코루틴은 TCP 코루틴과 동일한 방식으로 ``gather`` / ``wait_for`` / ``Event`` / "
+"``Lock`` 에 연결됩니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:159
+msgid "When one role finishes per-cycle and the other does not"
+msgstr "한 역할은 주기마다 끝나고 다른 역할은 그렇지 않을 때"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:161
+msgid "A cycle in a battery-powered cam might look like:"
+msgstr "배터리 구동 카메라의 한 주기는 다음과 같이 보일 수 있습니다:"
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:163
+msgid "Wake."
+msgstr "깨어납니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:164
+msgid "As a central, read fresh values from a paired sensor strap."
+msgstr "central로서 페어링된 센서 스트랩에서 새로운 값을 읽습니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:166
+msgid ""
+"As a peripheral, advertise for a phone to download the day's measurements."
+msgstr "peripheral로서 휴대폰이 그날의 측정값을 다운로드하도록 광고합니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:168
+msgid "When both are idle, call :func:`aioble.stop` and sleep."
+msgstr "둘 다 유휴 상태일 때 :func:`aioble.stop` 을 호출하고 절전 모드로 들어갑니다."
+
+#: ../../openmvcam/tutorial/bluetooth/aioble/concurrency.rst:171
+msgid ""
+"The sequencing is straightforward with two tasks and an "
+":class:`asyncio.Event`::"
+msgstr "두 개의 작업과 :class:`asyncio.Event` 를 사용하면 이 순서 제어가 간단합니다::"
