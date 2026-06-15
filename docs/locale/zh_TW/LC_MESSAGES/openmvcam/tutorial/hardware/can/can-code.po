@@ -1,0 +1,281 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:2
+msgid "CAN bus in code"
+msgstr "程式碼中的 CAN 匯流排"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:4
+msgid ""
+":class:`machine.CAN` wraps a hardware CAN controller. Bring it up with the "
+"bus id and a bit rate:"
+msgstr ":class:`machine.CAN` 包裝了一個硬體 CAN 控制器。以匯流排 id 與位元速率將它啟動："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:14
+msgid ""
+"The bit rate must match every other node on the bus exactly -- ``125_000``, "
+"``250_000``, ``500_000`` and ``1_000_000`` are the common values. "
+":meth:`~machine.CAN.set_filters` configures which IDs the controller will "
+"pass through; ``None`` means accept everything (useful while bringing up a "
+"link, less useful once the bus is busy)."
+msgstr ""
+"位元速率必須與匯流排上每一個其他節點完全相符——\\ ``125_000``\\ 、\\ ``250_000``\\ 、\\ ``500_000`` 與"
+" ``1_000_000`` 是常見的數值。\\ :meth:`~machine.CAN.set_filters` 用來設定控制器會放行哪些 ID；\\"
+" ``None`` 表示接受所有訊息（在建立連結時很有用，一旦匯流排繁忙就比較沒用了）。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:22
+msgid "Inside the controller"
+msgstr "控制器內部"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:24
+msgid ""
+"Three pieces of hardware sit between the camera's Python code and the bus --"
+" the *TX mailboxes*, an *acceptance filter*, and the *RX FIFO*. Each one "
+"maps to a piece of the :class:`~machine.CAN` API used below."
+msgstr ""
+"在相機的 Python 程式碼與匯流排之間，有三個硬體部件——\\ *TX 信箱*\\ （TX mailboxes）、一個\\ *接受過濾器*\\ "
+"（acceptance filter）以及 *RX FIFO*\\ 。其中每一個都對應到下面所使用的 :class:`~machine.CAN` API"
+" 的一部分。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:29
+msgid ""
+"Block diagram of the CAN controller. On the TX side\n"
+"(top), can.send() drops frames into one of three TX\n"
+"mailboxes, and an arbitrate block picks which mailbox\n"
+"goes to the bus next. On the RX side (bottom),\n"
+"incoming frames pass through an acceptance filter;\n"
+"accepted frames land in the RX FIFO and can.recv()\n"
+"reads the FIFO from its oldest end."
+msgstr ""
+"CAN 控制器的方塊圖。在 TX 端\n"
+"（上方），can.send() 會把訊框放入三個 TX\n"
+"信箱之一，而一個仲裁方塊會挑選哪個信箱\n"
+"接下來送上匯流排。在 RX 端（下方），\n"
+"進入的訊框會通過接受過濾器；\n"
+"被接受的訊框會落入 RX FIFO，而 can.recv()\n"
+"會從 FIFO 最舊的一端讀取。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:38
+msgid ""
+"The controller's TX mailboxes, acceptance filter, and RX FIFO between the "
+"software and the bus."
+msgstr "控制器位於軟體與匯流排之間的 TX 信箱、接受過濾器與 RX FIFO。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:41
+msgid ""
+"**TX mailboxes.** A small set of hardware slots (typically three) that hold "
+"outgoing frames the camera has handed off via :meth:`~machine.CAN.send` but "
+"that have not yet reached the bus. When the bus is idle, the controller "
+"picks the mailbox with the lowest-numbered ID (highest priority) and "
+"arbitrates for the bus on its behalf. The camera does not pick the mailbox; "
+"the controller assigns one and returns its index from "
+":meth:`~machine.CAN.send`."
+msgstr ""
+"**TX 信箱。** 一小組硬體插槽（通常為三個），用來存放相機已透過 :meth:`~machine.CAN.send` "
+"交付、但尚未送上匯流排的外送訊框。當匯流排閒置時，控制器會挑選 ID "
+"數值最低（優先權最高）的信箱，並代其在匯流排上進行仲裁。相機並不挑選信箱；控制器會指派一個，並從 :meth:`~machine.CAN.send` "
+"回傳其索引。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:50
+msgid ""
+"**Acceptance filter.** Configurable hardware that compares each incoming "
+"frame's ID against a list of patterns and discards anything that does not "
+"match. Frames that pass continue into the RX FIFO; rejected frames are "
+"thrown away by the controller without ever reaching Python. "
+":meth:`~machine.CAN.set_filters` configures these patterns."
+msgstr ""
+"**接受過濾器。** 可設定的硬體，會把每個進入訊框的 ID 與一份樣式清單比對，並捨棄任何不相符者。通過的訊框會繼續進入 RX "
+"FIFO；被拒絕的訊框則由控制器丟棄，永遠不會到達 Python。\\ :meth:`~machine.CAN.set_filters` "
+"用來設定這些樣式。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:57
+msgid ""
+"**RX FIFO.** A *first-in, first-out* queue -- the first frame in is also the"
+" first frame out, like a line at a ticket counter. The controller appends "
+"received frames to the back of the queue as they arrive, and "
+":meth:`~machine.CAN.recv` pulls them off the front in the same order. The "
+"queue matters because the bus catches frames in the background while Python "
+"is busy elsewhere; the camera then drains them one at a time without losing "
+"any, as long as the FIFO has not overflowed."
+msgstr ""
+"**RX FIFO。** 一個\\ *先進先出*\\ （first-in, first-"
+"out）的佇列——最先進入的訊框也是最先出去的，就像售票櫃檯前排隊一樣。控制器會在收到訊框時把它們附加到佇列的尾端，而 "
+":meth:`~machine.CAN.recv` 會以相同的順序從前端把它們取出。這個佇列之所以重要，是因為當 Python "
+"正忙於其他事情時，匯流排會在背景中接住訊框；相機隨後再一次一個地把它們抽出而不會遺失任何一個，只要 FIFO 尚未溢位即可。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:68
+msgid "Sending a frame"
+msgstr "送出一個訊框"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:70
+msgid ":meth:`~machine.CAN.send` queues a frame for transmission:"
+msgstr ":meth:`~machine.CAN.send` 會把一個訊框排入佇列以待傳輸："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:76
+msgid ""
+"The first argument is the ID (an 11-bit integer for a standard frame); the "
+"second is the payload (0 to 8 bytes for CAN Classic). The call returns a "
+"small integer index identifying the hardware mailbox the frame went into. "
+"The controller arbitrates with any other transmitters on the bus and re-"
+"transmits as needed without further help from software."
+msgstr ""
+"第一個引數是 ID（標準訊框為一個 11 位元整數）；第二個是酬載（CAN Classic 為 0 至 8 "
+"位元組）。此呼叫會回傳一個小整數索引，標識該訊框所進入的硬體信箱。控制器會與匯流排上任何其他傳輸端進行仲裁，並視需要自動重新傳輸，無需軟體進一步協助。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:83
+msgid ""
+"For extended (29-bit) IDs, OR the :data:`CAN.FLAG_EXT_ID` flag into the "
+"third argument:"
+msgstr "對於擴充（29 位元）ID，請把 :data:`CAN.FLAG_EXT_ID` 旗標以 OR 併入第三個引數："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:91
+msgid "Receiving frames"
+msgstr "接收訊框"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:93
+msgid ""
+"The controller starts up with no filter installed and drops every incoming "
+"frame. Before :meth:`~machine.CAN.recv` will return anything, call "
+":meth:`~machine.CAN.set_filters` once -- the simplest form is ``None``, "
+"which accepts every ID:"
+msgstr ""
+"控制器啟動時並未安裝任何過濾器，並會丟棄每一個進入的訊框。在 :meth:`~machine.CAN.recv` 能回傳任何東西之前，請先呼叫一次 "
+":meth:`~machine.CAN.set_filters`\\ ——最簡單的形式是 ``None``\\ ，它會接受每一個 ID："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:102
+msgid ""
+":meth:`~machine.CAN.recv` then returns the next frame in the receive FIFO, "
+"or ``None`` if nothing is waiting:"
+msgstr ""
+":meth:`~machine.CAN.recv` 接著會回傳接收 FIFO 中的下一個訊框，若沒有任何訊框在等待則回傳 ``None``\\ ："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:112
+msgid ""
+"The bus fills the RX FIFO in the background, so the main loop just drains it"
+" as fast as it iterates. As long as the FIFO is deeper than the longest gap "
+"between drains, no frames are lost."
+msgstr ""
+"匯流排會在背景中填滿 RX FIFO，因此主迴圈只要以其迭代的速度把它抽空即可。只要 FIFO 比抽取之間最長的間隔還深，就不會遺失任何訊框。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:118
+msgid "Filters"
+msgstr "過濾器"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:120
+msgid ""
+"A real bus is usually busy with frames the camera does not care about. "
+"Hardware filters let the controller drop unwanted IDs before they reach the "
+"FIFO. :meth:`~machine.CAN.set_filters` takes a list of ``(id, mask, flags)``"
+" tuples; a frame passes the filter if its ID, masked by ``mask``, matches "
+"the configured ``id``:"
+msgstr ""
+"真正的匯流排通常充斥著相機並不關心的訊框。硬體過濾器讓控制器能在不想要的 ID 到達 FIFO 之前就把它們丟棄。\\ "
+":meth:`~machine.CAN.set_filters` 接受一份 ``(id, mask, flags)`` 元組的清單；若某個訊框的 ID "
+"在以 ``mask`` 遮罩後與設定的 ``id`` 相符，該訊框就會通過過濾器："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:136
+msgid ""
+"Unmatched frames are discarded by the controller and never appear at "
+":meth:`~machine.CAN.recv`, which saves both buffer space and CPU time."
+msgstr "不相符的訊框會由控制器捨棄，永遠不會出現在 :meth:`~machine.CAN.recv`\\ ，這同時節省了緩衝區空間與 CPU 時間。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:141
+msgid "Error states and recovery"
+msgstr "錯誤狀態與復原"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:143
+msgid ""
+"A real CAN bus picks up transmission errors -- shorts to ground, missing "
+"nodes, electrical noise corrupting bits. The controller keeps two counters "
+"that track this behaviour: a Transmit Error Counter (TEC) and a Receive "
+"Error Counter (REC), each incremented when the controller detects an error "
+"and decremented after a successful transfer. The counter values put the "
+"controller into one of four states:"
+msgstr ""
+"真正的 CAN 匯流排會遭遇傳輸錯誤——對地短路、節點遺失、電氣雜訊損毀位元。控制器會維護兩個追蹤此行為的計數器：傳送錯誤計數器（Transmit "
+"Error Counter，TEC）與接收錯誤計數器（Receive Error "
+"Counter，REC），各自在控制器偵測到錯誤時遞增，並在成功傳輸後遞減。這些計數器的值會讓控制器進入以下四種狀態之一："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:151
+msgid ""
+"**Error Active** (TEC and REC both below 96). Normal operation. When the "
+"node detects a bus error it transmits a dominant *active error frame*, which"
+" forces every other node to discard the in-progress frame so the sender can "
+"retry."
+msgstr ""
+"**Error Active**\\ （TEC 與 REC 皆低於 96）。正常運作。當節點偵測到匯流排錯誤時，它會傳送一個顯性的\\ "
+"*主動錯誤訊框*\\ （active error frame），迫使每個其他節點捨棄進行中的訊框，好讓傳送端能重試。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:157
+msgid ""
+"**Error Warning** (either counter reaches 96). Still fully active on the bus"
+" -- the warning state is a software signal that errors are accumulating, not"
+" a behaviour change."
+msgstr ""
+"**Error Warning**\\ （任一計數器達到 96）。在匯流排上仍完全主動——警告狀態是一個軟體訊號，表示錯誤正在累積，並非行為上的改變。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:162
+msgid ""
+"**Error Passive** (either counter reaches 128). The node is still on the bus"
+" but stops sending dominant error frames; errors are now signalled with "
+"*passive* (recessive) error frames so a faulty node cannot keep tearing up "
+"the bus for everyone else."
+msgstr ""
+"**Error Passive**\\ （任一計數器達到 128）。節點仍在匯流排上，但停止送出顯性錯誤訊框；錯誤現在改以\\ *被動*\\ "
+"（隱性）錯誤訊框來告知，如此一來有故障的節點便無法持續為其他所有人擾亂匯流排。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:168
+msgid ""
+"**Bus Off** (TEC reaches 256). The controller has decided this node is too "
+"unreliable to participate. It disconnects from the bus, stops transmitting "
+"and acknowledging, and stays out until software explicitly restarts it."
+msgstr ""
+"**Bus Off**\\ （TEC 達到 "
+"256）。控制器已判定此節點太不可靠而不宜參與。它會自匯流排斷開、停止傳輸與確認，並保持脫離，直到軟體明確地重新啟動它為止。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:173
+msgid ""
+"The first three transitions are entirely automatic -- as the counters "
+"decrement after successful frames, the controller moves itself back toward "
+"Error Active without intervention."
+msgstr "前三個轉換完全是自動的——當計數器在成功的訊框之後遞減時，控制器會在無需介入的情況下自行往 Error Active 移回。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:177
+msgid ""
+"Bus Off is the one state that requires software action. "
+":meth:`~machine.CAN.restart` resets the controller and returns it to Error "
+"Active. A typical pattern is to check the state from the main loop and "
+"restart after a short delay to give the bus time to settle:"
+msgstr ""
+"Bus Off 是唯一需要軟體動作的狀態。\\ :meth:`~machine.CAN.restart` 會重置控制器，並把它回復到 Error "
+"Active。一種典型的做法是從主迴圈檢查狀態，並在短暫延遲後重新啟動，以給匯流排時間穩定下來："
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:197
+msgid ""
+"The current counter values are available from "
+":meth:`~machine.CAN.get_counters` for diagnostics -- a TEC that climbs "
+"steadily on an otherwise-quiet bus usually points at wiring, termination, or"
+" a misconfigured bit rate."
+msgstr ""
+"目前的計數器值可從 :meth:`~machine.CAN.get_counters` 取得以供診斷——在一條原本安靜的匯流排上，TEC "
+"若持續穩定攀升，通常指向布線、終端電阻或設定錯誤的位元速率。"

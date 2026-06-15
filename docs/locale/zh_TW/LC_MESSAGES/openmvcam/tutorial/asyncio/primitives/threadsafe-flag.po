@@ -1,0 +1,144 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:2
+msgid "ThreadSafeFlag"
+msgstr "ThreadSafeFlag"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:4
+msgid ""
+":class:`asyncio.ThreadSafeFlag` is the signalling primitive asyncio provides"
+" for the case :class:`~asyncio.Event` does *not* support: *an interrupt "
+"handler needs to wake an asyncio task up*. The interrupt fires outside the "
+"event loop's normal scheduling, so the bookkeeping :meth:`asyncio.Event.set`"
+" does cannot be done safely from inside it."
+msgstr ""
+":class:`asyncio.ThreadSafeFlag` 是 asyncio 為 :class:`~asyncio.Event` *不* "
+"支援的情況所提供的訊號傳遞原語：\\ *中斷處理常式需要喚醒某個 asyncio 任務*\\ 。中斷會在事件迴圈正常排程之外觸發，因此 "
+":meth:`asyncio.Event.set` 所做的記帳工作無法從中斷內部安全地完成。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:13
+msgid "Why a separate primitive"
+msgstr "為何需要獨立的原語"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:15
+msgid ""
+":meth:`asyncio.Event.set` runs the bookkeeping that wakes waiting coroutines"
+" under the assumption that *it is being called from inside a task the loop "
+"is currently running*. An interrupt handler does not satisfy that assumption"
+" -- it can fire between any two instructions and corrupt whatever the loop "
+"was halfway through doing."
+msgstr ""
+":meth:`asyncio.Event.set` 執行喚醒等待協程的記帳工作時，是假設 *它是從事件迴圈當前正在執行的某個任務內部被呼叫的*\\ "
+"。中斷處理常式並不滿足這個假設——它可能在任意兩條指令之間觸發，並破壞事件迴圈正進行到一半的任何工作。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:22
+msgid ""
+":meth:`asyncio.ThreadSafeFlag.set` is written to be safe in those contexts. "
+"The trade-off for that safety is a smaller feature set than "
+":class:`~asyncio.Event`: a :class:`~asyncio.ThreadSafeFlag` can only be "
+"waited on by *one* task at a time, and the flag auto-resets when the waiting"
+" task wakes up."
+msgstr ""
+":meth:`asyncio.ThreadSafeFlag.set` 的撰寫方式可在那些情境下安全使用。為換取這份安全性，其功能集比 "
+":class:`~asyncio.Event` 更精簡：一個 :class:`~asyncio.ThreadSafeFlag` 同一時間只能由 *一個*"
+" 任務等待，且當等待中的任務被喚醒時旗標會自動重設。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:30
+msgid "The basic shape"
+msgstr "基本形式"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:32
+msgid ""
+"A typical use is a GPIO interrupt handing off a button-press event to an "
+"asyncio task::"
+msgstr "典型用途是由 GPIO 中斷將按鈕按下事件交付給某個 asyncio 任務：："
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:52
+msgid ""
+"``on_press`` runs in interrupt context whenever the GPIO fires; all it does "
+"is call ``flag.set()``. The asyncio task ``watcher`` ``await``\\ s "
+"``flag.wait()`` in a loop; each time the flag is set, the task resumes, runs"
+" whatever work the button press requires, then loops back to wait again."
+msgstr ""
+"每當 GPIO 觸發時，\\ ``on_press`` 會在中斷情境下執行；它所做的只是呼叫 ``flag.set()``\\ 。asyncio 任務 "
+"``watcher`` 在迴圈中 ``await`` ``flag.wait()``\\ "
+"；每當旗標被設定，該任務便恢復執行，處理按鈕按下所需的任何工作，然後再回到迴圈頂端繼續等待。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:59
+msgid "The three methods"
+msgstr "三個方法"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:61
+msgid ""
+":meth:`~asyncio.ThreadSafeFlag.set` -- mark the flag as set. If a task is "
+"currently waiting in :meth:`~asyncio.ThreadSafeFlag.wait`, schedule it to "
+"resume. Safe to call from an interrupt handler."
+msgstr ""
+":meth:`~asyncio.ThreadSafeFlag.set` ——將旗標標記為已設定。如果有任務正在 "
+":meth:`~asyncio.ThreadSafeFlag.wait` 中等待，便排程它恢復執行。可安全地從中斷處理常式呼叫。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:65
+msgid ""
+":meth:`~asyncio.ThreadSafeFlag.wait` -- a coroutine. Block until the flag is"
+" set, then return. The flag is *automatically cleared* on return -- the next"
+" call to ``wait`` will block again until the next "
+":meth:`~asyncio.ThreadSafeFlag.set`."
+msgstr ""
+":meth:`~asyncio.ThreadSafeFlag.wait` ——一個協程。會阻塞直到旗標被設定，然後返回。旗標在返回時會 *自動清除* "
+"——下一次呼叫 ``wait`` 將再次阻塞，直到下一次 :meth:`~asyncio.ThreadSafeFlag.set`\\ 。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:70
+msgid ""
+":meth:`~asyncio.ThreadSafeFlag.clear` -- explicitly clear the flag without "
+"waiting on it. Useful before a first ``wait`` to discard any spurious early "
+":meth:`~asyncio.ThreadSafeFlag.set` that fired before the task was ready."
+msgstr ""
+":meth:`~asyncio.ThreadSafeFlag.clear` ——在不等待旗標的情況下明確清除它。在第一次 ``wait`` "
+"之前很有用，可丟棄任何在任務就緒之前觸發的虛假早期 :meth:`~asyncio.ThreadSafeFlag.set`\\ 。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:77
+msgid "One waiter only"
+msgstr "僅限單一等待者"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:79
+msgid ""
+"Only one task may be in :meth:`~asyncio.ThreadSafeFlag.wait` at a time. The "
+"shape an application wants is a single *owner* task for the flag -- usually "
+"the same task that installed the interrupt handler -- with other tasks "
+"communicating with it through :class:`~asyncio.Event`, "
+":class:`~asyncio.Lock`, or shared data structures protected by those "
+"primitives."
+msgstr ""
+"同一時間只能有一個任務處於 :meth:`~asyncio.ThreadSafeFlag.wait` 中。應用程式想要的形式是為該旗標設置一個單一的 "
+"*擁有者* 任務——通常就是安裝中斷處理常式的那個任務——其他任務則透過 :class:`~asyncio.Event`\\ 、\\ "
+":class:`~asyncio.Lock` 或由這些原語保護的共享資料結構與它溝通。"
+
+#: ../../openmvcam/tutorial/asyncio/primitives/threadsafe-flag.rst:87
+msgid ""
+"When a button has to wake several tasks, the owner task is the place to fan "
+"out: the watcher above could call ``some_event.set()`` after each press, and"
+" all the tasks waiting on ``some_event`` would resume."
+msgstr ""
+"當一個按鈕必須喚醒多個任務時，擁有者任務就是進行扇出的地方：上面的 watcher 可以在每次按下後呼叫 ``some_event.set()``\\ "
+"，而所有等待 ``some_event`` 的任務便會恢復執行。"

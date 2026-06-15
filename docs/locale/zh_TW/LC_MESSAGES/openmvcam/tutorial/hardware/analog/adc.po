@@ -1,0 +1,296 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:2
+msgid "Reading analog with the ADC"
+msgstr "使用 ADC 讀取類比訊號"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:4
+msgid ""
+"So far the camera has been reading digital signals -- a pin is either ``0`` "
+"or ``1``, a switch is open or closed. Most signals that come off real-world "
+"sensors are analog: a continuous voltage that varies smoothly over some "
+"range. A photoresistor sweeps through every voltage between the rails as "
+"ambient brightness changes. A temperature sensor's output drifts a few "
+"millivolts as a room heats up. A microphone's output rises and falls with "
+"the sound around it."
+msgstr ""
+"到目前為止，相機讀取的都是數位訊號——接腳不是 ``0`` 就是 ``1``\\ "
+"，開關不是斷開就是閉合。但實際感測器輸出的大多數訊號都是類比的：一種在某個範圍內平滑變化的連續電壓。當環境亮度改變時，光敏電阻會掃過電源軌之間的每一個電壓值。當房間升溫時，溫度感測器的輸出會漂移數毫伏特。麥克風的輸出則會隨著周圍的聲音上下起伏。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:13
+msgid ""
+"An *analog-to-digital converter* (ADC) is the bridge. It samples the voltage"
+" on a pin and returns an integer that Python can read like any other value."
+msgstr ""
+"*類比數位轉換器*\\ （analog-to-digital converter，ADC）就是兩者之間的橋樑。它會對接腳上的電壓取樣，並回傳一個整數，讓"
+" Python 能像讀取其他數值一樣讀取它。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:18
+msgid "Quantization"
+msgstr "量化"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:20
+msgid ""
+"A digital value cannot represent a continuous voltage exactly. The ADC's job"
+" is to *quantize* -- snap each sample to the nearest of a fixed set of "
+"levels. An ``N``-bit ADC has ``2^N`` levels; a 12-bit converter has 4096 of "
+"them spread across its input range."
+msgstr ""
+"數位值無法精確表示連續電壓。ADC 的工作就是\\ *量化*\\ ——把每個取樣值貼齊到一組固定電平中最接近的那一個。\\ ``N`` 位元的 ADC "
+"有 ``2^N`` 個電平；12 位元的轉換器在其輸入範圍內分布著 4096 個電平。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:26
+msgid ""
+"A smooth analog curve plotted against time, overlaid\n"
+"with a stepped digital approximation. Dashed\n"
+"horizontal lines mark the quantization levels; the\n"
+"stepped curve snaps to whichever level is nearest the\n"
+"analog signal at each sample point."
+msgstr ""
+"一條隨時間變化的平滑類比曲線，上面疊加著一條階梯狀的數位近似曲線。虛線水平線標示出量化電平；階梯曲線在每個取樣點都貼齊到最接近類比訊號的電平。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:33
+msgid ""
+"Quantization: each sample of the analog signal (solid) is rounded to one of "
+"a finite set of digital levels (stepped dashed line)."
+msgstr "量化：類比訊號（實線）的每個取樣值都被捨入到有限的一組數位電平之一（階梯狀虛線）。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:37
+msgid ""
+"The voltage between two adjacent levels is the *step size* of the ADC; "
+"anything smaller than that vanishes into rounding. A 12-bit ADC over a 3.3 V"
+" range has a step size of about ``3.3 / 4096 ≈ 0.8 mV`` -- fine enough that "
+"most signals look effectively continuous in software."
+msgstr ""
+"兩個相鄰電平之間的電壓就是 ADC 的\\ *步階大小*\\ ；任何比它更小的變化都會在捨入中消失。在 3.3 V 範圍上的 12 位元 "
+"ADC，其步階大小約為 ``3.3 / 4096 ≈ 0.8 mV``\\ ——精細到足以讓大多數訊號在軟體中看起來實際上是連續的。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:44
+msgid "The machine.ADC class"
+msgstr "machine.ADC 類別"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:46
+msgid ""
+":class:`machine.ADC` wraps one analog input channel. Construct it with the "
+"pin you want to read, then call :meth:`~machine.ADC.read_u16`:"
+msgstr ""
+":class:`machine.ADC` 封裝了一個類比輸入通道。用你想讀取的接腳來建構它，然後呼叫 "
+":meth:`~machine.ADC.read_u16`\\ ："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:58
+msgid ""
+":meth:`~machine.ADC.read_u16` always returns an unsigned 16-bit integer "
+"between ``0`` and ``65535``. The native ADC resolution varies by board "
+"(12-bit on STM32, port-specific elsewhere); the result is left-aligned into "
+"16 bits so the hardware detail does not leak into Python -- a value of "
+"``65535`` is full-scale regardless of the chip."
+msgstr ""
+":meth:`~machine.ADC.read_u16` 永遠回傳一個介於 ``0`` 與 ``65535`` 之間的無號 16 位元整數。原生的 "
+"ADC 解析度會因開發板而異（STM32 上為 12 位元，其他平台則視埠而定）；結果會被左對齊到 16 位元，因此硬體細節不會洩漏到 Python "
+"中——不論是哪顆晶片，\\ ``65535`` 都代表滿刻度。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:65
+msgid ""
+"The reference voltage -- the input that corresponds to full-scale -- depends"
+" on the board. Check the :doc:`/openmvcam/quickref` for the value on your "
+"cam. Anything above the reference reads as full-scale (and may damage the "
+"pin if it exceeds the absolute-maximum input voltage)."
+msgstr ""
+"參考電壓——也就是對應到滿刻度的輸入——取決於開發板。請查閱 :doc:`/openmvcam/quickref` "
+"以取得你的相機上的數值。任何高於參考電壓的輸入都會被讀成滿刻度（若超過絕對最大輸入電壓，還可能損壞接腳）。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:73
+msgid "Converting counts to voltage"
+msgstr "將計數值轉換為電壓"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:75
+msgid ""
+"The mapping from counts to voltage is linear, with full-scale counts mapping"
+" exactly to ``Vref``:"
+msgstr "從計數值到電壓的對應是線性的，滿刻度計數值正好對應到 ``Vref``\\ ："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:82
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:195
+msgid "In code:"
+msgstr "在程式碼中："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:92
+msgid "Voltage dividers"
+msgstr "分壓器"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:94
+msgid ""
+"Two resistors in series between a voltage rail and ground form a *voltage "
+"divider*. The node between them sits at a voltage set by the ratio of the "
+"two resistors:"
+msgstr "在一條電壓軌與接地之間串聯兩個電阻，就形成了一個\\ *分壓器*\\ 。它們之間的節點所處的電壓由兩個電阻的比值決定："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:98
+msgid ""
+"A voltage divider. Vin at the top connects through\n"
+"R1 to a node tapped off as V_out, which then connects\n"
+"through R2 to ground."
+msgstr "一個分壓器。頂端的 Vin 經過 R1 連接到一個節點，該節點被引出作為 V_out，接著再經過 R2 連接到接地。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:103
+msgid ""
+"A voltage divider: ``R1`` and ``R2`` in series scale ``Vin`` down to "
+"``V_out``."
+msgstr "分壓器：串聯的 ``R1`` 與 ``R2`` 將 ``Vin`` 按比例降至 ``V_out``\\ 。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:110
+msgid ""
+"Equal resistors give half the rail voltage; ``R2`` much smaller than ``R1`` "
+"puts the tap close to ground; ``R2`` much larger puts it close to the rail."
+msgstr "相等的電阻會得到電源軌電壓的一半；\\ ``R2`` 遠小於 ``R1`` 會讓引出點接近接地；\\ ``R2`` 遠大於則會讓它接近電源軌。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:114
+msgid ""
+"The formula assumes nothing else draws appreciable current from ``V_out``. "
+"An ADC pin is high-impedance (megohms, nanoamps) and easily satisfies that, "
+"so a divider feeding an ADC behaves as the formula predicts."
+msgstr ""
+"這個公式假設沒有其他元件從 ``V_out`` 抽取明顯的電流。ADC 接腳是高阻抗的（百萬歐姆等級、奈安培等級的電流），輕易就能滿足這項條件，因此饋入"
+" ADC 的分壓器其行為會與公式所預測的一致。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:120
+msgid "Potentiometers"
+msgstr "電位器"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:122
+msgid ""
+"A *potentiometer* is a single physical component that is exactly a voltage "
+"divider, with a sliding wiper that moves the tap between the two ends. "
+"Turning the knob changes ``R1`` and ``R2`` together while keeping their sum "
+"(the total resistance of the pot) constant."
+msgstr ""
+"*電位器*\\ 是一個單一的實體元件，本身就是一個分壓器，它有一個滑動的滑臂，可在兩端之間移動引出點。轉動旋鈕會同時改變 ``R1`` 與 "
+"``R2``\\ ，同時保持它們的總和（電位器的總電阻）不變。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:128
+msgid ""
+"A potentiometer wired between 3.3 V and ground. The\n"
+"wiper is tapped off to an ADC pin."
+msgstr "一個接在 3.3 V 與接地之間的電位器。滑臂被引出至一支 ADC 接腳。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:132
+msgid ""
+"A potentiometer wired as a manual voltage source for the ADC: 3.3 V on one "
+"end, ground on the other, wiper to the pin."
+msgstr "電位器作為 ADC 的手動電壓源接線：一端接 3.3 V，另一端接地，滑臂接到接腳。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:136
+msgid ""
+"A pot is the canonical input device for trying out the ADC. Wire one end to "
+"``3.3 V``, the other to ground, and the wiper to an ADC-capable pin; turning"
+" the knob sweeps the wiper through every voltage between the rails."
+msgstr ""
+"電位器是試用 ADC 的標準輸入裝置。將一端接到 ``3.3 V``\\ ，另一端接地，滑臂接到一支支援 ADC "
+"的接腳；轉動旋鈕就會讓滑臂掃過電源軌之間的每一個電壓值。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:156
+msgid "Reading higher voltages with a divider"
+msgstr "用分壓器讀取較高的電壓"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:158
+msgid ""
+"A voltage above ``Vref`` will pin the ADC at full-scale and may damage the "
+"input if it exceeds the absolute-maximum rating. To read a higher source -- "
+"a battery, a sensor output that ranges beyond ``Vref`` -- scale it down with"
+" a fixed voltage divider before it reaches the pin:"
+msgstr ""
+"高於 ``Vref`` 的電壓會把 ADC 釘在滿刻度，若超過絕對最大額定值還可能損壞輸入。若要讀取較高的訊號源——例如電池，或範圍超出 "
+"``Vref`` 的感測器輸出——請在它抵達接腳之前，用一個固定分壓器將它按比例降低："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:164
+msgid ""
+"A voltage divider scaling a high V_in down to an ADC\n"
+"pin. R1 runs from V_in down to a junction, which is\n"
+"tapped off horizontally to the ADC pin; R2 continues\n"
+"from the junction down to ground."
+msgstr ""
+"一個將高 V_in 按比例降至 ADC 接腳的分壓器。R1 從 V_in 往下接到一個接點，該接點水平引出至 ADC 接腳；R2 "
+"則從該接點繼續往下接到接地。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:170
+msgid ""
+"Scaling a high-voltage source to fit the ADC: ``R1`` and ``R2`` form a fixed"
+" voltage divider whose tap feeds the ADC pin."
+msgstr "將高電壓源縮放至符合 ADC 範圍：\\ ``R1`` 與 ``R2`` 組成一個固定分壓器，其引出點饋入 ADC 接腳。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:174
+msgid ""
+"Pick ``R1`` and ``R2`` so the divided voltage stays inside the ADC's range "
+"at the highest input voltage you expect:"
+msgstr "選擇 ``R1`` 與 ``R2``\\ ，使得在你預期的最高輸入電壓下，分壓後的電壓仍保持在 ADC 的範圍之內："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:181
+msgid ""
+"For a maximum ``V_in = 12 V`` and a 3.3 V reference, the ratio ``R2 / (R1 + "
+"R2)`` must be at most ``3.3 / 12 ≈ 0.275``. A common pick with a little "
+"headroom is ``R1 = 33 kΩ``, ``R2 = 10 kΩ``. The ratio is ``10 / 43 ≈ "
+"0.233``, so ``V_adc`` tops out at about ``12 × 0.233 ≈ 2.79 V`` -- safely "
+"below ``Vref``."
+msgstr ""
+"對於最大 ``V_in = 12 V`` 與 3.3 V 的參考電壓，比值 ``R2 / (R1 + R2)`` 必須至多為 ``3.3 / 12 ≈ "
+"0.275``\\ 。一個帶有少許餘裕的常見選擇是 ``R1 = 33 kΩ``\\ 、\\ ``R2 = 10 kΩ``\\ 。比值為 ``10 / "
+"43 ≈ 0.233``\\ ，因此 ``V_adc`` 最高約為 ``12 × 0.233 ≈ 2.79 V``\\ ——安全地低於 "
+"``Vref``\\ 。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:188
+msgid ""
+"To recover the original ``V_in`` from an ADC reading, invert the divider "
+"formula:"
+msgstr "若要從 ADC 讀值還原出原始的 ``V_in``\\ ，將分壓公式反推即可："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:212
+msgid "A few practical notes:"
+msgstr "幾點實務注意事項："
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:214
+msgid ""
+"The divider draws ``V_in / (R1 + R2)`` continuously. With ``R1 + R2 = 43 "
+"kΩ`` and ``V_in = 12 V``, that is about 280 µA -- usually negligible, but if"
+" the source is battery-powered consider larger resistors (100 kΩ to 1 MΩ) to"
+" cut idle drain."
+msgstr ""
+"分壓器會持續抽取 ``V_in / (R1 + R2)`` 的電流。當 ``R1 + R2 = 43 kΩ`` 且 ``V_in = 12 V`` "
+"時，約為 280 µA——通常可忽略不計，但如果訊號源是電池供電，可考慮使用較大的電阻（100 kΩ 至 1 MΩ）以降低待機耗電。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:219
+#, python-format
+msgid ""
+"Resistor tolerance (typically ±1 % or ±5 %) feeds directly into measurement "
+"accuracy. Two ±5 % resistors can give the recovered ``V_in`` a worst-case "
+"error of roughly ±10 %."
+msgstr ""
+"電阻的容差（通常為 ±1 % 或 ±5 %）會直接影響量測精度。兩個 ±5 % 的電阻在最壞情況下可能使還原出的 ``V_in`` 產生約 ±10 % "
+"的誤差。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:222
+msgid ""
+"The divider's source impedance combines with any stray capacitance to low-"
+"pass-filter the input. For fast-changing signals that matters; for a "
+"battery-voltage check it does not."
+msgstr "分壓器的源阻抗會與任何雜散電容結合，對輸入進行低通濾波。對於快速變化的訊號這很重要；但對於電池電壓的檢查則無關緊要。"

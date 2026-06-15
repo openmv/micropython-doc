@@ -1,0 +1,265 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:2
+msgid "Finding lines and segments"
+msgstr "尋找直線與線段"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:4
+msgid ""
+"Some scene features are not connected regions of colour but oriented "
+"straight edges: a painted line on the floor, the seam between two surfaces, "
+"the side of a printed rectangle, the edge of a doorway. Asking the blob "
+"detector to find them is the wrong question -- the edge is one pixel wide, "
+"the blob algorithm wants area-with-colour, and the answer comes back empty "
+"or noisy."
+msgstr ""
+"有些場景特徵並非相連的色彩區域，而是有方向性的直線邊緣：地板上的一條彩繪線、兩個表面之間的接縫、印刷矩形的一邊、門口的邊緣。要求色塊偵測器去尋找它們是問錯了問題——邊緣只有一個像素寬，色塊演算法想要的是帶有色彩的面積，因此得到的答案會是空的或充滿雜訊。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:14
+msgid ""
+"The right detector for oriented edges is the *Hough line transform*. The "
+"image module exposes it in two flavours: :meth:`~image.Image.find_lines` "
+"returns *infinite* lines (every line extends across the full image); "
+":meth:`~image.Image.find_line_segments` returns *finite* segments (each line"
+" has endpoints inside the frame). Which one the application needs depends on"
+" whether the edges of interest are continuous across the whole frame or only"
+" span part of it."
+msgstr ""
+"適用於有方向性邊緣的偵測器是 *Hough 直線變換*\\ 。image 模組以兩種形式提供它：\\ "
+":meth:`~image.Image.find_lines` 傳回\\ *無限*\\ 直線（每條線都延伸貫穿整張影像）；\\ "
+":meth:`~image.Image.find_line_segments` 傳回\\ *有限*\\ "
+"線段（每條線的端點都在影格之內）。應用程式需要哪一種，取決於感興趣的邊緣是貫穿整個影格延續，還是只跨越其中一部分。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:28
+msgid "How the Hough transform works"
+msgstr "Hough 變換的運作方式"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:30
+msgid ""
+"Both detectors share the same core idea, so it pays to understand it once. "
+"The image module first runs a Sobel-style edge filter on the input to score "
+"every pixel by how likely it is to lie on an oriented edge. Each such edge "
+"pixel then *votes* for all the lines it might lie on. The lines that collect"
+" the most votes win."
+msgstr ""
+"兩種偵測器共享相同的核心概念，因此值得一次徹底理解它。image 模組首先在輸入上執行 Sobel "
+"式邊緣濾波器，為每個像素評分，衡量它落在有方向性邊緣上的可能性有多高。接著每個這樣的邊緣像素會\\ *投票*\\ "
+"給它可能落在其上的所有直線。累積到最多票數的直線勝出。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:39
+msgid ""
+"A line is parameterised in *Hough space* by two numbers: ``theta``, the "
+"angle of the line (0 -- 179 degrees), and ``rho``, the perpendicular "
+"distance from the image origin to the line (signed, in pixels). Every line "
+"the image contains is one point in (``theta``, ``rho``) space. Each edge "
+"pixel in the input contributes one vote to every ``(theta, rho)`` "
+"combination consistent with its position -- conceptually, a curve through "
+"Hough space. Where many such curves cross, many edge pixels agree on the "
+"same line, and that crossing is a detection."
+msgstr ""
+"在 *Hough 空間*\\ 中，一條直線由兩個數值參數化：\\ ``theta``\\ ，即直線的角度（0 到 179 度），以及 ``rho``\\"
+" ，即從影像原點到直線的垂直距離（帶正負號，以像素為單位）。影像所含的每一條直線在 (``theta``, ``rho``) "
+"空間中都是一個點。輸入中的每個邊緣像素，會為與其位置相符的每一個 ``(theta, rho)`` 組合貢獻一票——在概念上，就是一條穿過 Hough "
+"空間的曲線。許多這樣的曲線交會之處，代表許多邊緣像素對同一條直線達成共識，而該交會點便是一次偵測。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:53
+msgid ""
+"The detector returns the local maxima in Hough space whose vote totals "
+"exceed a threshold. Each returned :class:`Line <image.line>` carries both "
+"representations: ``x1, y1, x2, y2`` for the endpoint form (clipped to the "
+"image bounds for the infinite case), ``theta, rho`` for the Hough form, and "
+"``length`` and ``magnitude`` for size and vote-count respectively."
+msgstr ""
+"偵測器會傳回 Hough 空間中票數總和超過閾值的局部極大值。每個傳回的 :class:`Line <image.line>` "
+"都帶有兩種表示法：端點形式的 ``x1, y1, x2, y2``\\ （對無限直線的情形會裁切至影像邊界內）、Hough 形式的 ``theta, "
+"rho``\\ ，以及分別表示尺寸與票數的 ``length`` 和 ``magnitude``\\ 。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:65
+msgid "Infinite lines"
+msgstr "無限直線"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:67
+msgid ""
+":meth:`~image.Image.find_lines` runs the Hough transform and returns the "
+"strongest lines, each extended across the full image:"
+msgstr ":meth:`~image.Image.find_lines` 執行 Hough 變換並傳回最強的直線，每一條都延伸貫穿整張影像："
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:78
+msgid ""
+"The ``threshold`` is the minimum vote total for a line to be accepted. The "
+"vote total adds up the Sobel edge magnitudes of every contributing pixel, so"
+" larger ``threshold`` values demand longer or stronger edges to pass -- "
+"which makes the right value depend on the image resolution (a longer line at"
+" a higher resolution accumulates more votes) as well as the scene, so it has"
+" to be tuned for the particular application. As rough starting points to "
+"tune from: ``1000`` for a modest line in a clear image, ``500`` or below for"
+" weak contrast or short lines, ``2000`` or more for busy scenes where false-"
+"positive lines form through clusters of edge noise."
+msgstr ""
+"``threshold`` 是一條直線要被接受所需的最小票數總和。票數總和會把每個貢獻像素的 Sobel 邊緣量值加總起來，因此較大的 "
+"``threshold`` "
+"值要求更長或更強的邊緣才能通過——這使得適當的數值取決於影像解析度（在較高解析度下較長的直線會累積較多票數）以及場景本身，因此必須針對特定應用進行調校。作為調校用的粗略起始點：清晰影像中一條普通直線可用"
+" ``1000``\\ ，對比微弱或短小的直線用 ``500`` 或更低，而邊緣雜訊叢集會形成誤判直線的繁雜場景則用 ``2000`` 或更高。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:94
+msgid ""
+"``theta_margin`` and ``rho_margin`` control *merging* of nearby maxima. A "
+"single physical edge produces a small cluster of high-vote bins around its "
+"true (``theta``, ``rho``), and the detector collapses each cluster to its "
+"peak before returning. ``theta_margin=25`` (degrees) merges any peaks within"
+" 25 degrees of orientation; ``rho_margin=25`` (pixels) merges peaks within "
+"25 pixels of distance. The defaults are reasonable; raising them returns "
+"*fewer*, more-distinct lines and lowering them returns *more*, sometimes "
+"duplicated lines."
+msgstr ""
+"``theta_margin`` 與 ``rho_margin`` 控制鄰近極大值的\\ *合併*\\ 。單一實體邊緣會在其真實的 "
+"(``theta``, ``rho``) 周圍產生一小群高票數的格子，偵測器在傳回前會將每個叢集收斂至其峰值。\\ "
+"``theta_margin=25``\\ （度）會合併方向相差 25 度以內的任何峰值；\\ ``rho_margin=25``\\ "
+"（像素）會合併距離相差 25 像素以內的峰值。預設值是合理的；調高它們會傳回\\ *較少*\\ 、更明確的直線，而調低它們則傳回\\ *較多*\\ "
+"、有時重複的直線。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:109
+msgid ""
+"``x_stride`` and ``y_stride`` step through edge pixels during voting, the "
+"same way they step through pixels in :meth:`~image.Image.find_blobs`. The "
+"defaults of ``2`` and ``1`` work for the common case; raising them speeds up"
+" the search at the cost of resolution. ``roi`` restricts the search to a "
+"region of the frame, which both narrows the lines returned and reduces work."
+msgstr ""
+"``x_stride`` 與 ``y_stride`` 在投票期間逐步掃過邊緣像素，方式與它們在 "
+":meth:`~image.Image.find_blobs` 中逐步掃過像素的方式相同。預設值 ``2`` 與 ``1`` "
+"適用於常見情形；調高它們會加快搜尋速度，但代價是解析度降低。\\ ``roi`` 將搜尋限制在影格的某個區域，這既縮減了傳回的直線數量，也減少了運算量。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:120
+msgid ""
+"Each returned line is drawable directly: the :class:`Line <image.line>` "
+"object passes straight into :meth:`~image.Image.draw_line`, which reads the "
+"``(x1, y1, x2, y2)`` endpoint fields off the front of it. :attr:`l.theta "
+"<image.line.theta>` is the angle in degrees, which classifies the line as "
+"horizontal, vertical, or diagonal in one comparison. :attr:`l.magnitude "
+"<image.line.magnitude>` is the vote total, which sorts the returned lines "
+"from strongest to weakest."
+msgstr ""
+"每條傳回的直線都可直接繪製：\\ :class:`Line <image.line>` 物件可直接傳入 "
+":meth:`~image.Image.draw_line`\\ ，它會從物件前段讀取 ``(x1, y1, x2, y2)`` 端點欄位。\\ "
+":attr:`l.theta <image.line.theta>` 是以度為單位的角度，只需一次比較即可將直線分類為水平、垂直或對角線。\\ "
+":attr:`l.magnitude <image.line.magnitude>` 是票數總和，可將傳回的直線由強至弱排序。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:135
+msgid "Line segments"
+msgstr "線段"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:137
+msgid ""
+":meth:`~image.Image.find_lines` is the right detector for edges that span "
+"the whole frame, but many real edges -- the left side of a printed barcode, "
+"the top edge of a label, the visible side of a ruler -- only run across part"
+" of the image. :meth:`~image.Image.find_line_segments` returns *finite* "
+"segments whose endpoints are inside the frame:"
+msgstr ""
+"對於貫穿整個影格的邊緣，\\ :meth:`~image.Image.find_lines` "
+"是適當的偵測器，但許多真實的邊緣——印刷條碼的左側、標籤的上緣、尺的可見側邊——只跨越影像的一部分。\\ "
+":meth:`~image.Image.find_line_segments` 傳回端點位於影格之內的\\ *有限*\\ 線段："
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:154
+msgid ""
+"The segment detector traces along oriented edge pixels directly, rather than"
+" voting in Hough space, and the result is a collection of short straight "
+"runs. ``merge_distance`` sets the maximum pixel gap that two collinear short"
+" runs can span and still merge into one returned segment; "
+"``max_theta_difference`` sets how many degrees of orientation the merger "
+"tolerates between adjacent runs. A generous merge (``merge_distance=10, "
+"max_theta_difference=15``) returns a small number of long segments at the "
+"cost of sometimes bridging genuinely separate edges; a strict merge "
+"(``merge_distance=0, max_theta_difference=5``) returns many short segments "
+"and lets the application sort them out in Python."
+msgstr ""
+"線段偵測器是直接沿著有方向性的邊緣像素進行追蹤，而非在 Hough 空間中投票，其結果是一組短小的直線段。\\ ``merge_distance`` "
+"設定兩段共線的短直線段之間最大可跨越且仍能合併為一條傳回線段的像素間隙；\\ ``max_theta_difference`` "
+"設定合併器在相鄰直線段之間所容忍的方向角度差有多少度。寬鬆的合併（\\ ``merge_distance=10, "
+"max_theta_difference=15``\\ ）會傳回少量的長線段，代價是有時會橋接起確實分開的邊緣；嚴格的合併（\\ "
+"``merge_distance=0, max_theta_difference=5``\\ ）則傳回許多短線段，讓應用程式在 Python "
+"中自行整理它們。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:173
+msgid ""
+"The result objects are the same :class:`Line <image.line>` type as "
+":meth:`~image.Image.find_lines` returns, with the same properties, so a "
+"pipeline can process either kind of detection through the same downstream "
+"code path. The only practical difference is that the segments' endpoints are"
+" the actual ends of the line in the image, whereas the infinite lines' "
+"endpoints are wherever the line crosses the image border."
+msgstr ""
+"結果物件與 :meth:`~image.Image.find_lines` 所傳回的是相同的 :class:`Line <image.line>` "
+"型別，具有相同的屬性，因此流程可以透過相同的下游程式碼路徑處理任一種偵測結果。唯一實際的差異在於：線段的端點是直線在影像中的實際末端，而無限直線的端點則是直線穿越影像邊界之處。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:186
+msgid "When to use each"
+msgstr "何時使用哪一種"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:188
+msgid ""
+"The choice between the two methods comes down to a single question: *does "
+"the application care where the line stops?*"
+msgstr "在這兩種方法之間的抉擇歸結為一個問題：\\ *應用程式是否在意直線在何處終止？*"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:192
+msgid ""
+":meth:`~image.Image.find_lines` is the right tool when the answer is no. A "
+"line-following robot needs to know *which way the line is going* and *where "
+"it crosses the bottom of the frame*; the line itself runs to the horizon and"
+" beyond. A horizon detector wants the strongest oriented edge in the image; "
+"it does not need to know where the horizon ends."
+msgstr ""
+"當答案為否時，\\ :meth:`~image.Image.find_lines` 是適當的工具。一個循線機器人需要知道\\ *線的走向*\\ 以及\\"
+" *它在何處穿越影格底部*\\ ；線本身則延伸到地平線以外。地平線偵測器想要的是影像中最強的有方向性邊緣；它不需要知道地平線在何處結束。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:202
+msgid ""
+":meth:`~image.Image.find_line_segments` is the right tool when the answer is"
+" yes. Identifying the four sides of a printed rectangle needs four segments "
+"with known endpoints. Tracking a finger pointing at a display means "
+"following a short segment whose endpoints are the finger's tip and base. "
+"Measuring the length of a visible scratch needs the segment's actual extent "
+"in pixels."
+msgstr ""
+"當答案為是時，\\ :meth:`~image.Image.find_line_segments` "
+"是適當的工具。辨識印刷矩形的四個邊需要四條已知端點的線段。追蹤指向顯示器的手指意味著要追隨一條端點為手指尖端與根部的短線段。測量一道可見刮痕的長度則需要該線段在影像中的實際範圍（以像素計）。"
+
+#: ../../openmvcam/tutorial/image/finding/lines-and-segments.rst:213
+msgid ""
+"Both detectors share a common limitation: they need *contrast*. The Sobel "
+"edge filter they build on responds to brightness gradients; a coloured edge "
+"against an equally bright background (a red line on a green wall of the same"
+" luminance) produces no gradient and no detection. When that case shows up "
+"in practice, the fix is to extract a single LAB channel as a grayscale image"
+" with the right contrast before searching -- "
+":meth:`~image.Image.to_grayscale` with the ``b`` channel selected isolates "
+"red against green where the luminance channel alone is flat -- and hand that"
+" channel image to the line detector."
+msgstr ""
+"兩種偵測器都有一個共同的限制：它們需要\\ *對比*\\ 。它們所依據的 Sobel "
+"邊緣濾波器會對亮度梯度起反應；面對亮度相當的背景的彩色邊緣（亮度相同的綠牆上的一條紅線）不會產生梯度，也就沒有偵測結果。當這種情形在實務中出現時，解法是在搜尋前先擷取單一"
+" LAB 通道作為具有適當對比的灰階影像——使用 :meth:`~image.Image.to_grayscale` 並選取 ``b`` "
+"通道，可在亮度通道本身平坦之處把紅色與綠色區隔開來——然後把該通道影像交給直線偵測器。"

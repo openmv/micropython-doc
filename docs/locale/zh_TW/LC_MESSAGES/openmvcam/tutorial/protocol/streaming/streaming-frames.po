@@ -1,0 +1,266 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:2
+msgid "Streaming frames"
+msgstr "串流影格"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:4
+msgid ""
+"The most common real use of a custom channel is streaming image frames from "
+"the cam to a host program at the cam's frame rate. The mechanics are subtler"
+" than they look: a JPEG can run to 25 KB or more, so the host reads it as "
+"several fragments, and the cam's capture loop must be prevented from "
+"overwriting the buffer mid-read. The right pattern -- shown here and used by"
+" the tools in ``openmv-projects/tools/`` -- *latches* the buffer until the "
+"host finishes pulling the last byte."
+msgstr ""
+"自訂通道最常見的實際用途，就是以相機的影格率將影像影格從相機串流到主機程式。其運作機制比表面上看起來更微妙：一張 JPEG 可能達到 25 KB "
+"甚至更大，因此主機會分成數個片段讀取它，而相機的擷取迴圈必須避免在讀取過程中覆寫緩衝區。正確的做法（此處所示，也是 ``openmv-"
+"projects/tools/`` 中工具所採用的）會將緩衝區「鎖存（latch）」住，直到主機取走最後一個位元組為止。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:14
+msgid "The cam side"
+msgstr "相機端"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:16
+msgid ""
+"A frame channel that captures into a single framebuffer, latches it on the "
+"host's first read, and only takes the next snapshot once the host has "
+"consumed the full image::"
+msgstr "一個影格通道，擷取到單一影格緩衝區，在主機首次讀取時將其鎖存，並且只有在主機消化完整張影像後才擷取下一張快照::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:65
+msgid "Four pieces are doing real work here:"
+msgstr "這裡有四個部分在發揮真正的作用："
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:67
+msgid ""
+"``frame_available`` is the *latch*. The capture loop only takes a new "
+"snapshot when it is :data:`False` -- meaning the host has pulled the last "
+"byte of the previous frame. The host's read sets it back to :data:`False` "
+"from inside ``readp`` once the final offset has been served. Without this "
+"guard, the next ``csi0.snapshot()`` would overwrite the buffer mid-read and "
+"the host would receive a frame stitched together from two captures."
+msgstr ""
+"``frame_available`` 就是「鎖存（latch）」。擷取迴圈只在它為 :data:`False` "
+"時才擷取新快照，也就是主機已取走上一張影格的最後一個位元組。主機的讀取在 ``readp`` 內部、於最後一個偏移量被送出後，將它重新設回 "
+":data:`False`\\ 。若沒有這個防護機制，下一次 ``csi0.snapshot()`` "
+"會在讀取過程中覆寫緩衝區，主機便會收到由兩次擷取拼湊而成的影格。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:74
+msgid ""
+"``readp`` rather than ``read`` is what the backend implements. The protocol "
+"library treats the returned buffer as authoritative and reads its bytes "
+"directly into the outgoing packet -- no copy. For frame-sized payloads "
+"``readp`` is noticeably faster than ``read``, which forces an intermediate "
+"copy."
+msgstr ""
+"後端實作的是 ``readp`` 而非 ``read``\\ "
+"。協定函式庫將回傳的緩衝區視為權威來源，直接把它的位元組讀入外送封包中——無需複製。對於影格大小的酬載而言，\\ ``readp`` 明顯比 "
+"``read`` 快，因為後者會強制進行一次中介複製。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:79
+msgid ""
+"``size`` returns the cached JPEG length without recomputing anything; the "
+"capture loop maintains it whenever it refreshes the buffer. The host calls "
+"``size`` between ``poll`` and ``readp`` to know how many bytes to pull."
+msgstr ""
+"``size`` 回傳快取的 JPEG 長度，不會重新計算任何東西；擷取迴圈在每次重新整理緩衝區時都會維護它。主機在 ``poll`` 與 "
+"``readp`` 之間呼叫 ``size``\\ ，以得知要取多少位元組。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:83
+msgid ""
+":meth:`~protocol.ProtocolChannel.send_event` notifies the host the instant a"
+" new frame lands so it can begin pulling without polling. The event ID "
+"``0x01`` is application-defined (\"frame ready\" in this case); use a "
+"different small integer for each kind of notification."
+msgstr ""
+":meth:`~protocol.ProtocolChannel.send_event` 會在新影格抵達的瞬間通知主機，使其無需輪詢即可開始取資料。事件"
+" ID ``0x01`` 是由應用程式自行定義的（在此例中代表「影格就緒」）；請為每一種通知使用不同的小整數。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:90
+msgid "Fragmentation"
+msgstr "分片"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:92
+msgid ""
+"QVGA RGB565 at JPEG quality 85 compresses to roughly 10-25 KB, depending on "
+"the scene -- much bigger than the negotiated max payload on any cam (see the"
+" per-board table in :func:`protocol.init`). One JPEG read won't fit in one "
+"packet, and that's fine, because the protocol library fragments it "
+"transparently."
+msgstr ""
+"QVGA RGB565 在 JPEG 品質 85 時會壓縮到大約 10-25 KB，視場景而定——遠大於任何相機所協商出的最大酬載（請參閱 "
+":func:`protocol.init` 中的各板對照表）。一次 JPEG 讀取無法塞進單一封包，但這沒有關係，因為協定函式庫會透明地將其分片。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:99
+msgid "When the host asks for ``channel_read('frame', 12000)``:"
+msgstr "當主機要求 ``channel_read('frame', 12000)`` 時："
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:101
+msgid ""
+"The cam's ``readp`` is called *once* with ``offset=0`` and the full "
+"12000-byte request. It returns one memoryview covering the whole range."
+msgstr ""
+"相機的 ``readp`` 會被「呼叫一次」，帶有 ``offset=0`` 以及完整的 12000 位元組請求。它回傳一個涵蓋整個範圍的 "
+"memoryview。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:104
+msgid ""
+"The protocol library breaks that memoryview into max-payload- sized "
+"fragments on the wire, one ``CHANNEL_READ`` reply packet per fragment, each "
+"with its own header and CRC. The bytes are streamed out of the backend's "
+"buffer directly -- no copy."
+msgstr ""
+"協定函式庫在傳輸時將該 memoryview 切分成最大酬載大小的片段，每個片段對應一個 ``CHANNEL_READ`` "
+"回覆封包，各自附有自己的標頭與 CRC。這些位元組直接從後端的緩衝區串流出去——無需複製。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:108
+msgid ""
+"The host receives the fragments in order, the reliability layer retransmits "
+"any one chunk that fails its CRC, and the host SDK glues the chunks into the"
+" 12000-byte result returned to the caller."
+msgstr ""
+"主機依序接收這些片段，可靠性層會重傳任何一個 CRC 驗證失敗的區塊，而主機 SDK 會將這些區塊黏合成回傳給呼叫者的 12000 位元組結果。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:115
+msgid ""
+"This is the key practical difference between ``readp`` and ``read``. "
+"``readp`` is called *once per host request*; the protocol layer fragments "
+"and transmits out of the single returned buffer. ``read`` is called *once "
+"per fragment*, and the library copies each returned chunk into its own "
+"packet buffer. For frame-sized payloads ``readp`` saves both the per-"
+"fragment Python-level call overhead and the copy."
+msgstr ""
+"這就是 ``readp`` 與 ``read`` 之間關鍵的實務差異。\\ ``readp`` "
+"是「每個主機請求呼叫一次」；協定層會從這個唯一回傳的緩衝區進行分片與傳輸。\\ ``read`` "
+"則是「每個片段呼叫一次」，函式庫會將每個回傳的區塊複製到它自己的封包緩衝區中。對於影格大小的酬載，\\ ``readp`` 同時省去了每片段的 "
+"Python 層呼叫開銷與複製成本。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:125
+msgid ""
+"Want to see the gap for yourself? Rename the backend's ``readp`` method to "
+"``read`` -- nothing else changes; the library will pick up the ``read`` "
+"capability instead -- and compare the host's frame-rate counter before and "
+"after. The slower number is the per-fragment copy and Python-call cost you "
+"avoid by using ``readp``."
+msgstr ""
+"想親眼看看這個差距嗎？把後端的 ``readp`` 方法改名為 ``read``\\ ——其他什麼都不要改；函式庫會改用 ``read`` "
+"能力——然後比較主機在更改前後的影格率計數器。較慢的那個數字，就是你藉由使用 ``readp`` 所避開的每片段複製與 Python 呼叫成本。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:132
+msgid ""
+"The latch in ``FrameChannel.readp`` releases the buffer when ``offset + size"
+" == img_size`` -- the moment the host has pulled the last byte. Until then, "
+"the buffer must stay valid, which is why the capture loop only takes the "
+"next snapshot once ``frame_available`` flips back to :data:`False`."
+msgstr ""
+"``FrameChannel.readp`` 中的鎖存會在 ``offset + size == img_size`` "
+"時釋放緩衝區——也就是主機取走最後一個位元組的那一刻。在那之前，緩衝區必須保持有效，這正是為什麼擷取迴圈只有在 ``frame_available`` "
+"翻回 :data:`False` 後才擷取下一張快照。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:139
+msgid "The host side"
+msgstr "主機端"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:141
+msgid "The host pulls frames in a tight loop::"
+msgstr "主機在一個緊湊的迴圈中取得影格::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:158
+msgid ""
+"The :meth:`~openmv.camera.Camera.channel_size` call doubles as a \"is "
+"anything ready\" check -- zero means the cam hasn't captured yet -- so the "
+"loop skips read attempts on an empty buffer. For GUI applications that "
+"already poll on a timer, this is the natural pattern."
+msgstr ""
+":meth:`~openmv.camera.Camera.channel_size` "
+"呼叫同時兼作「是否有東西就緒」的檢查——回傳零表示相機尚未擷取——因此迴圈會跳過對空緩衝區的讀取嘗試。對於本來就以計時器輪詢的 GUI "
+"應用程式來說，這是很自然的做法。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:164
+msgid ""
+"Pillow's ``Image.open`` decodes the JPEG; the cam already JPEG-compressed it"
+" so the host doesn't have to redo expensive bit-packing on RGB565. The host "
+"script could just as easily save the bytes to disk, hand them to OpenCV, or "
+"push them through a web view."
+msgstr ""
+"Pillow 的 ``Image.open`` 會解碼 JPEG；相機已經把它 JPEG 壓縮過了，所以主機不必對 RGB565 "
+"重新進行昂貴的位元打包。主機指令碼也可以同樣輕鬆地把這些位元組存到磁碟、交給 OpenCV，或推送到網頁檢視中。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:171
+msgid "Throughput thinking"
+msgstr "吞吐量思考"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:173
+msgid "Three things bound the achievable frame rate:"
+msgstr "有三件事限制了可達成的影格率："
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:175
+msgid ""
+"The cam's capture rate. The protocol can't deliver frames faster than the "
+"sensor produces them; whatever cap the chosen pixel format and frame size "
+"impose on capture is the ceiling."
+msgstr "相機的擷取率。協定無法以比感測器產生影格更快的速度傳遞影格；無論所選的像素格式與影格大小對擷取施加什麼上限，那就是天花板。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:178
+msgid ""
+"The negotiated max payload. Bigger payloads mean fewer fragments per frame "
+"and less framing overhead, so cams with larger protocol buffers move bytes "
+"faster than smaller ones."
+msgstr "協商出的最大酬載。較大的酬載意味著每張影格的片段較少、框架開銷較低，因此具備較大協定緩衝區的相機比較小的相機移動位元組更快。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:181
+msgid ""
+"CRC and ACK overhead. Each packet costs 14 bytes of framing plus one ACK "
+"round-trip. For long fragments the per-payload overhead is small; for tiny "
+"payloads it dominates."
+msgstr ""
+"CRC 與 ACK 開銷。每個封包要花 14 位元組的框架加上一次 ACK 往返。對於較長的片段，每酬載的開銷很小；對於極小的酬載，它則佔主導地位。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:185
+msgid ""
+"For most cam-to-laptop GUI work the limiting factor is the cam's capture and"
+" JPEG compression time, not the protocol stack. Where the protocol does "
+"become the bottleneck -- streaming uncompressed raw frames at high frame "
+"rates, for example -- the levers are turning off ACKs "
+"(``protocol.init(ack=False)``), increasing the protocol buffer if the cam "
+"supports it, or capturing in GRAYSCALE so each compressed JPEG carries one "
+"channel instead of three and the encoded frame ends up noticeably smaller on"
+" the wire."
+msgstr ""
+"對於大多數相機對筆電的 GUI 工作而言，限制因素是相機的擷取與 JPEG "
+"壓縮時間，而非協定堆疊。在協定確實成為瓶頸之處——例如以高影格率串流未壓縮的原始影格——可運用的手段包括：關閉 ACK（\\ "
+"``protocol.init(ack=False)``\\ ）、在相機支援的情況下增加協定緩衝區，或以 GRAYSCALE 擷取，使每張壓縮的 "
+"JPEG 只攜帶一個通道而非三個，編碼後的影格在傳輸線上會明顯變小。"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:194
+msgid ""
+"The frame channel is the canonical cam-to-host data flow. The same backend "
+"interface, with a ``write`` method added, lets the host push data the other "
+"way too -- which is what an interactive cam tool needs as soon as the "
+"operator wants to *change* something rather than just watch."
+msgstr ""
+"影格通道是相機對主機資料流的典範。同樣的後端介面，再加上一個 ``write`` "
+"方法，就能讓主機反向推送資料——這正是互動式相機工具一旦操作者想要「改變」某些東西、而不只是觀看時所需要的。"

@@ -1,0 +1,243 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:2
+msgid "Framebuffers"
+msgstr "影格緩衝區"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:4
+msgid ""
+"Once the camera sensor is initialised it emits frames continuously at its "
+"frame rate -- one new frame every frame period whether or not the "
+"application is ready for it. Each frame needs somewhere in RAM to land or it"
+" is lost. The framebuffer pool is where those frames live between leaving "
+"the DMA and being processed by user code, and how many framebuffers the "
+"camera keeps in that pool controls how the DMA and the application share "
+"them. The choice is exposed through :meth:`~csi.CSI.framebuffers`, and four "
+"modes are available, selected by the buffer count."
+msgstr ""
+"感測器初始化之後，會以其影格率持續送出影格——每個影格週期就會產生一個新影格，無論應用程式是否已準備好接收。每個影格都需要在 RAM "
+"中有個落腳處，否則就會遺失。影格緩衝區池就是這些影格離開 DMA 之後、在被使用者程式碼處理之前所棲身的地方，而相機在該池中保留多少個影格緩衝區，決定了"
+" DMA 與應用程式如何共享它們。這項選擇透過 :meth:`~csi.CSI.framebuffers` 公開，共有四種模式可用，依緩衝區數量選定。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:17
+msgid "Single buffer (count = 1)"
+msgstr "單緩衝區（count = 1）"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:19
+msgid ""
+"One framebuffer in RAM. The DMA fills it; the application reads from it; the"
+" next call to :meth:`~csi.CSI.snapshot` cannot start until the application "
+"has released the buffer, because the same buffer is needed for both."
+msgstr ""
+"RAM 中只有一個影格緩衝區。DMA 填入它，應用程式從中讀取；下一次呼叫 :meth:`~csi.CSI.snapshot` "
+"必須等到應用程式釋放該緩衝區之後才能開始，因為兩者需要的是同一個緩衝區。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:24
+msgid ""
+"The camera and the application run in lock-step. The DMA has to wait for the"
+" application to finish, and the application has to wait for the DMA to "
+"finish, which means the achievable frame rate is *half* the sensor's frame "
+"rate at best -- every other frame the sensor emits arrives while the buffer "
+"is busy and is lost."
+msgstr ""
+"相機與應用程式以鎖步方式運作。DMA 必須等待應用程式完成，應用程式也必須等待 DMA 完成，這代表可達到的影格率最多只有感測器影格率的\\ "
+"*一半*\\ ——感測器每隔一個影格送出的影格，都會在緩衝區忙碌時抵達而遭到遺失。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:31
+msgid ""
+"This mode is the smallest in RAM and the slowest in throughput. Use it only "
+"when RAM is too tight to allocate a second buffer."
+msgstr "此模式在 RAM 上占用最少，但吞吐量最慢。只有在 RAM 過於吃緊、無法配置第二個緩衝區時才使用它。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:36
+msgid "Double buffer (count = 2)"
+msgstr "雙緩衝區（count = 2）"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:38
+msgid ""
+"Two framebuffers in RAM: one *back* buffer that the DMA fills, and one "
+"*front* buffer that the application reads from. When the application "
+"finishes the front buffer the two roles swap, and the DMA starts filling the"
+" freshly released buffer while the application reads from the just-filled "
+"one."
+msgstr ""
+"RAM 中有兩個影格緩衝區：一個由 DMA 填入的\\ *後置*\\ （back）緩衝區，以及一個供應用程式讀取的\\ *前置*\\ "
+"（front）緩衝區。當應用程式處理完前置緩衝區後，兩者角色互換，DMA 開始填入剛釋放的緩衝區，而應用程式則讀取剛填好的那一個。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:45
+msgid ""
+"As long as the application processes each frame in less than one camera "
+"frame period, the application sees the sensor's full frame rate -- the DMA's"
+" next frame is already waiting in the back buffer when the application calls"
+" :meth:`~csi.CSI.snapshot` again. The moment the processing time exceeds one"
+" frame period, however, the rate halves: the camera will produce two frames "
+"in the time the application takes to process one, and only the second of "
+"those two will be delivered."
+msgstr ""
+"只要應用程式處理每個影格所花的時間少於一個相機影格週期，應用程式就能看到感測器的完整影格率——當應用程式再次呼叫 "
+":meth:`~csi.CSI.snapshot` 時，DMA "
+"的下一個影格已在後置緩衝區中等待。然而一旦處理時間超過一個影格週期，影格率就會減半：在應用程式處理一個影格的時間裡，相機會產生兩個影格，而這兩者中只有第二個會被遞交。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:55
+msgid ""
+"Past that point the rate degrades smoothly with the processing time. Every "
+"time the DMA finishes a new back-buffer frame while the application is still"
+" working on the front buffer, the new frame overwrites the previous capture "
+"in place rather than being discarded. The application always gets the most "
+"recent frame the camera produced on its next :meth:`~csi.CSI.snapshot`, and "
+"the achievable application rate becomes the inverse of its processing time."
+msgstr ""
+"超過該臨界點後，影格率會隨處理時間平滑下降。每當 DMA "
+"在應用程式仍在處理前置緩衝區時完成一個新的後置緩衝區影格，新影格就會就地覆寫前一次的擷取結果，而非遭到捨棄。應用程式在下一次 "
+":meth:`~csi.CSI.snapshot` 時，永遠會取得相機產生的最新影格，而可達到的應用程式影格率即為其處理時間的倒數。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:66
+msgid "Triple buffer (count = 3)"
+msgstr "三緩衝區（count = 3）"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:68
+msgid ""
+"Three framebuffers in RAM: two *back* buffers that the DMA cycles through "
+"and one *front* buffer the application is currently working on. This is the "
+"default mode the OpenMV Cam picks when there is enough RAM to spare, with "
+"automatic fall-back to double or single buffer when there is not."
+msgstr ""
+"RAM 中有三個影格緩衝區：兩個由 DMA 輪替使用的\\ *後置*\\ （back）緩衝區，以及一個應用程式正在處理的\\ *前置*\\ "
+"（front）緩衝區。當 RAM 有餘裕時，這是 OpenMV Cam 所選用的預設模式，並在 RAM 不足時自動退回雙緩衝區或單緩衝區。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:75
+msgid ""
+"The third buffer fully decouples the camera frame rate from the application "
+"frame rate. The DMA always has a buffer to write into; the application "
+"always has a buffer to read from; on each :meth:`~csi.CSI.snapshot` the most"
+" recent ready back buffer becomes the new front buffer and the previous "
+"front buffer is freed for the DMA. The application's frame rate matches the "
+"time it actually takes to process each frame -- without the 1/2-step that "
+"double buffer falls into when the processing time slips just past one frame "
+"period."
+msgstr ""
+"第三個緩衝區讓相機影格率與應用程式影格率完全解耦。DMA 永遠有緩衝區可寫入；應用程式永遠有緩衝區可讀取；在每次 "
+":meth:`~csi.CSI.snapshot` 時，最新就緒的後置緩衝區成為新的前置緩衝區，而先前的前置緩衝區則釋放給 "
+"DMA。應用程式的影格率與其實際處理每個影格所需的時間相符——不會出現雙緩衝區在處理時間稍微超過一個影格週期時所落入的 1/2 級跳變。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:87
+msgid "Video FIFO (count = 4 or more)"
+msgstr "影片 FIFO（count = 4 或更多）"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:89
+msgid ""
+"Four or more framebuffers in RAM, arranged as a ring of frames captured "
+"back-to-back. Every frame the camera delivers is queued into the FIFO, and "
+":meth:`~csi.CSI.snapshot` returns the *oldest* queued frame rather than the "
+"most recent one. The application walks through the captured frames in "
+"capture order, in the time it actually has to spend on each."
+msgstr ""
+"RAM 中有四個或更多影格緩衝區，排列成一圈接連擷取的影格環。相機遞交的每個影格都會排入 FIFO 佇列，而 "
+":meth:`~csi.CSI.snapshot` 回傳的是佇列中\\ *最舊*\\ "
+"的影格，而非最新的那一個。應用程式依擷取順序逐一處理擷取到的影格，並擁有實際可花在每個影格上的時間。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:97
+msgid ""
+"This mode is the right choice when every frame matters and brief processing "
+"stalls are expected: writing video to an SD card whose storage stack can "
+"block for tens of milliseconds during an erase, streaming over USB to a host"
+" that briefly stops reading, or buffering a short burst of a fast event for "
+"inspection in code."
+msgstr ""
+"當每個影格都很重要，且預期會出現短暫的處理停頓時，此模式是正確的選擇：將影片寫入 SD 卡（其儲存堆疊在抹除期間可能阻塞數十毫秒）、透過 USB "
+"串流至會短暫停止讀取的主機，或緩衝一段快速事件的短暫爆發以便在程式碼中檢視。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:104
+msgid ""
+"Two policies handle the case where the FIFO fills before the application has"
+" drained it."
+msgstr "有兩種策略可處理 FIFO 在應用程式排空之前就被填滿的情況。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:107
+msgid ""
+"**Drop old frames (default).** When the FIFO fills, all queued frames except"
+" the active one are discarded so the next :meth:`~csi.CSI.snapshot` returns "
+"a recent frame rather than a stale one. The DMA keeps capturing throughout, "
+"so the application always sees fresh data after a stall. This is the right "
+"policy when the goal is keeping the captured stream current -- video "
+"recording, live streaming."
+msgstr ""
+"**捨棄舊影格（預設）。** 當 FIFO 填滿時，除了使用中的影格外，所有排入佇列的影格都會被捨棄，使得下一次 "
+":meth:`~csi.CSI.snapshot` 回傳的是較新的影格而非過時的影格。DMA "
+"全程持續擷取，因此應用程式在停頓後永遠看到新鮮的資料。當目標是讓擷取的串流保持即時時——影片錄製、即時串流——這是正確的策略。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:115
+msgid ""
+"**Stop capturing on overflow.** Pass ``fflush=False`` to the "
+":class:`~csi.CSI` constructor and the DMA stops filling the FIFO when it is "
+"full, leaving the queued frames intact. :meth:`~csi.CSI.snapshot` continues "
+"to return frames in capture order until the application has drained them, "
+"after which the DMA resumes. This is the right policy when the goal is "
+"preserving every frame of a short burst -- capturing fast motion to inspect "
+"frame by frame in code afterwards."
+msgstr ""
+"**溢位時停止擷取。** 將 ``fflush=False`` 傳給 :class:`~csi.CSI` 建構函式，DMA 便會在 FIFO "
+"滿時停止填入，使排入佇列的影格保持完整。\\ :meth:`~csi.CSI.snapshot` 會持續依擷取順序回傳影格，直到應用程式將它們排空，之後"
+" DMA 才會恢復。當目標是保留短暫爆發中的每一個影格時——擷取快速動作以便事後在程式碼中逐格檢視——這是正確的策略。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:125
+msgid "See :meth:`csi.CSI.framebuffers` for the full API."
+msgstr "完整 API 請參閱 :meth:`csi.CSI.framebuffers`\\ 。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:128
+msgid "Triggered mode"
+msgstr "觸發模式"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:130
+msgid ""
+"An alternative to the always-running modes above is *triggered* capture, "
+"where the sensor emits a frame only when :meth:`~csi.CSI.snapshot` asks for "
+"one. The camera sits idle between snapshots and starts a fresh exposure each"
+" time the application calls in."
+msgstr ""
+"上述始終運行模式之外的另一種選擇是\\ *觸發式*\\ 擷取，亦即感測器只在 :meth:`~csi.CSI.snapshot` "
+"提出要求時才送出一個影格。相機在兩次快照之間處於閒置狀態，並在應用程式每次呼叫時開始一段全新的曝光。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:136
+msgid ""
+"The cost is throughput: a triggered capture cannot overlap with the previous"
+" one, so the maximum achievable frame rate is half the sensor's normal rate."
+" The benefit is exposure timing. Snapshot controls exactly when the exposure"
+" begins, which is what an application wants when the exposure has to line up"
+" with an external event -- a strobe flash, a conveyor-position sensor, a "
+"pulse on a GPIO line -- rather than landing wherever the free-running "
+"sensor's rolling frame happens to be when the application is ready to read "
+"it."
+msgstr ""
+"代價是吞吐量：觸發式擷取無法與前一次重疊，因此可達到的最大影格率為感測器正常影格率的一半。好處則是曝光時機。快照精確控制曝光開始的時刻，這正是當曝光必須與外部事件對齊時應用程式所需要的——例如閃光燈、輸送帶位置感測器、GPIO"
+" 線上的脈衝——而非落在應用程式準備讀取時自由運行感測器的滾動影格恰好所在的位置。"
+
+#: ../../openmvcam/tutorial/vision/csi/framebuffers.rst:147
+msgid ""
+"Triggered mode is sensor-specific. On supported sensors it is enabled by "
+"calling ``csi0.ioctl(csi.IOCTL_SET_TRIGGERED_MODE, True)`` and disabled by "
+"passing ``False``."
+msgstr ""
+"觸發模式因感測器而異。在支援的感測器上，透過呼叫 ``csi0.ioctl(csi.IOCTL_SET_TRIGGERED_MODE, True)`` "
+"啟用，並透過傳入 ``False`` 停用。"

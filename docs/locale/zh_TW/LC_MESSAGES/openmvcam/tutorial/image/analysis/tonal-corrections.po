@@ -1,0 +1,294 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:2
+msgid "Tonal corrections"
+msgstr "色調校正"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:4
+msgid ""
+"Tonal corrections change how brightness and colour are distributed in a "
+"captured image -- the fixes an application applies when a frame is too dark,"
+" too bright, too flat, or skewed toward the wrong colour."
+msgstr "色調校正會改變所擷取影像中亮度與色彩的分佈方式 -- 也就是當一張影格太暗、太亮、太平淡，或偏向錯誤色彩時，應用程式所套用的修正。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:10
+msgid ""
+"The corrections belong to two families: brightness-and-contrast adjustments "
+"that redistribute brightness, and colour adjustments that change which "
+"colour each pixel reads as. Both have analogues in the sensor's :doc:`ISP "
+"</openmvcam/tutorial/vision/color/isp-pipeline>`, which corrects each frame "
+"on its way in; the methods here apply to an already-captured :class:`Image`,"
+" after the fact, for the cases where the frame needs more correction than "
+"the ISP provided."
+msgstr ""
+"這些校正分為兩大類：重新分配亮度的亮度與對比調整，以及改變每個像素所呈現色彩的色彩調整。兩者在感測器的 :doc:`ISP "
+"</openmvcam/tutorial/vision/color/isp-pipeline>` "
+"中都有對應功能，會在影格進入時即時加以校正；而這裡介紹的方法則是事後套用在已擷取的 :class:`Image` 上，適用於影格需要比 ISP "
+"所提供更多校正的情況。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:24
+msgid "Histogram equalisation"
+msgstr "直方圖均衡化"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:26
+msgid ""
+"The simplest contrast-stretching operation is *histogram equalisation*. The "
+"idea is to remap pixel values so the histogram of the output is as flat as "
+"possible -- every value appears roughly equally often. The visual effect is "
+"that a low-contrast image (one whose histogram is concentrated in a narrow "
+"band) becomes a high-contrast one whose pixels cover the full ``0`` -- "
+"``255`` range."
+msgstr ""
+"最簡單的對比拉伸運算是 *直方圖均衡化（histogram equalisation）*\\ 。其概念是重新映射像素值，使輸出的直方圖盡可能平坦 -- "
+"每個值出現的頻率大致相同。視覺上的效果是：低對比影像（其直方圖集中於狹窄區間）會變成高對比影像，像素涵蓋完整的 ``0`` -- ``255`` 範圍。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:36
+msgid ":meth:`~image.Image.histeq` runs the equalisation:"
+msgstr ":meth:`~image.Image.histeq` 會執行均衡化："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:43
+msgid ""
+"The mechanic is direct. The cumulative distribution function (CDF) of the "
+"source's histogram is computed; each input pixel value is mapped to its "
+"position in the CDF, scaled to the output range. Where pixels were already "
+"evenly spread, the mapping is close to the identity; where pixels were piled"
+" up at one brightness, the mapping spreads them out by stretching that "
+"brightness across a wider range of output values."
+msgstr ""
+"其運作方式很直接。先計算來源直方圖的累積分佈函數（CDF）；每個輸入像素值會被映射到它在 CDF "
+"中的位置，並縮放到輸出範圍。原本就分佈均勻的像素，其映射接近恆等變換；原本堆積在某個亮度的像素，則透過將該亮度拉伸到更廣的輸出值範圍而被分散開來。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:54
+msgid ""
+"The result is dramatic on low-contrast scenes -- the difference between a "
+"dim indoor photograph and the same photograph after histeq is often the "
+"difference between \"unreadable\" and \"perfectly legible.\" The trade-off "
+"is that the operation amplifies *everything*, including sensor noise. On a "
+"scene with real low-contrast detail to recover, histeq is the right answer; "
+"on a clean, well-exposed scene that simply does not need it, histeq "
+"introduces visible noise."
+msgstr ""
+"在低對比場景上效果極為顯著 -- 一張昏暗的室內照片與經過 histeq "
+"處理後的同一張照片之間的差異，往往就是「無法辨識」與「清晰可讀」之間的差別。其代價是該運算會放大 *所有東西*\\ "
+"，包括感測器雜訊。對於確實有低對比細節需要還原的場景，histeq 是正確的選擇；但對於曝光良好、本就不需要它的乾淨場景，histeq "
+"會引入可見的雜訊。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:68
+msgid "CLAHE: adaptive equalisation"
+msgstr "CLAHE：自適應均衡化"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:70
+msgid ""
+"Histogram equalisation is global: it uses one CDF computed from the whole "
+"image and applies it everywhere. That works on images whose brightness range"
+" is roughly uniform, but fails on scenes with localised dark and bright "
+"regions -- the CDF gets pulled toward the side that has more pixels, and the"
+" opposite side gets overcorrected."
+msgstr ""
+"直方圖均衡化是全域性的：它使用一個從整張影像計算出的 CDF，並套用到所有地方。這對亮度範圍大致均勻的影像有效，但在具有局部暗區與亮區的場景上會失效 "
+"-- CDF 會被像素較多的一側拉偏，而另一側則會被過度校正。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:79
+msgid ""
+"The adaptive variant is *Contrast Limited Adaptive Histogram Equalisation*, "
+"commonly referred to as CLAHE. Instead of one *global* CDF, CLAHE computes a"
+" separate CDF for every small tile of the image, equalises each tile against"
+" its own CDF, and blends the tile boundaries together. The result is that "
+"brightness adjustments happen *locally* -- the shadowed corner gets its own "
+"equalisation without the bright corner pulling it the wrong way."
+msgstr ""
+"其自適應變體是 *對比受限自適應直方圖均衡化（Contrast Limited Adaptive Histogram Equalisation）*\\ "
+"，通常稱為 CLAHE。CLAHE 不使用單一的 *全域* CDF，而是為影像的每個小區塊計算各自的 CDF，針對各區塊以其自身的 CDF "
+"進行均衡化，再將區塊邊界融合在一起。結果是亮度調整以 *局部* 方式進行 -- 陰影中的角落會得到屬於自己的均衡化，而不會被明亮的角落往錯誤方向拉動。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:91
+msgid ""
+"The ``adaptive=True`` flag switches :meth:`~image.Image.histeq` into CLAHE "
+"mode:"
+msgstr "``adaptive=True`` 旗標會將 :meth:`~image.Image.histeq` 切換為 CLAHE 模式："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:98
+msgid ""
+"The ``clip_limit`` parameter is the part of CLAHE that the \"contrast "
+"limited\" in the name refers to. Local equalisation can over-amplify noise "
+"in flat regions where the CDF has very few distinct values; the clip limit "
+"caps how aggressively any single bin can be redistributed, which prevents "
+"the noise amplification while still allowing the contrast stretching where "
+"it matters. A value around ``10`` is a reasonable starting point; larger "
+"values let CLAHE work harder at the cost of more visible noise, smaller "
+"values make it gentler."
+msgstr ""
+"``clip_limit`` 參數正是 CLAHE 名稱中「對比受限」所指的部分。局部均衡化在 CDF "
+"只有極少不同數值的平坦區域中可能會過度放大雜訊；裁切限制會限定任一單一區間可被重新分配的強度上限，從而避免雜訊放大，同時仍允許在需要之處進行對比拉伸。\\"
+" ``10`` 左右的值是合理的起點；較大的值會讓 CLAHE 運作得更積極，但代價是更明顯的雜訊，較小的值則使其更溫和。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:112
+msgid ""
+"CLAHE is more expensive than the *global* histeq, but produces cleaner "
+"results on scenes where the brightness is unevenly distributed -- which is "
+"most real-world scenes."
+msgstr "CLAHE 比 *全域* histeq 更耗費資源，但在亮度分佈不均的場景上會產生更乾淨的結果 -- 而這正是大多數真實世界場景的情況。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:119
+msgid "Gamma, contrast, and brightness"
+msgstr "Gamma、對比與亮度"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:121
+msgid ""
+"Histogram equalisation is the data-driven way to remap brightness. The "
+"*data-independent* way is to apply a chosen curve, parameterised by a few "
+"easy-to-tune knobs. :meth:`~image.Image.gamma` provides three:"
+msgstr ""
+"直方圖均衡化是依資料驅動的方式來重新映射亮度。\\ *不依賴資料* 的方式則是套用一條選定的曲線，並以幾個易於調整的旋鈕加以參數化。\\ "
+":meth:`~image.Image.gamma` 提供三個："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:132
+msgid "Each parameter applies one specific transformation to every pixel:"
+msgstr "每個參數都會對每個像素套用一種特定的轉換："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:135
+msgid ""
+"``gamma`` runs each pixel's value through the power function ``output = "
+"input ** (1 / gamma)``. The standard meaning: values larger than ``1.0`` "
+"*brighten* the image and lift midtones (the classical \"monitor gamma\" "
+"correction); values smaller than ``1.0`` *darken* it. The parameter is non-"
+"linear -- it preserves the black and white points and only reshapes the "
+"distribution in between, which is the right behaviour when the goal is to "
+"recover detail in shadow or highlight regions without crushing the existing "
+"extremes."
+msgstr ""
+"``gamma`` 會將每個像素值代入冪函數 ``output = input ** (1 / gamma)``\\ 。其標準意義為：大於 "
+"``1.0`` 的值會 *提亮* 影像並抬升中間色調（即經典的「螢幕 gamma」校正）；小於 ``1.0`` 的值則會使其 *變暗*\\ "
+"。此參數是非線性的 -- 它會保留黑點與白點，僅重塑兩者之間的分佈，這在目標是還原陰影或高光區域中的細節而不壓垮既有極值時，正是正確的行為。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:148
+msgid ""
+"``contrast`` runs each pixel through a straight multiplication around the "
+"mid-grey point. Values larger than ``1.0`` increase contrast (dark gets "
+"darker, bright gets brighter, mid-grey stays the same); values smaller than "
+"``1.0`` reduce contrast."
+msgstr ""
+"``contrast`` 會將每個像素圍繞中灰點進行直接的乘法運算。大於 ``1.0`` 的值會增加對比（暗的更暗、亮的更亮、中灰維持不變）；小於 "
+"``1.0`` 的值則會降低對比。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:155
+msgid ""
+"``brightness`` adds a constant to every pixel value. Positive values "
+"brighten, negative values darken. The shift is *uniform* -- nothing is "
+"preserved -- which is rarely what an application wants by itself, but pairs "
+"well with a contrast pass to recentre the result."
+msgstr ""
+"``brightness`` 會為每個像素值加上一個常數。正值會提亮，負值會變暗。此偏移是 *均勻* 的 -- 不保留任何東西 -- "
+"這本身很少是應用程式所想要的，但與對比處理搭配使用時，能很好地重新置中結果。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:163
+msgid ""
+"The three parameters compose: a single :meth:`~image.Image.gamma` call can "
+"apply a gamma curve, then a contrast multiplication, then a brightness "
+"shift, all in one pass. The order is gamma first, then contrast, then "
+"brightness, which matches the order that gives the most intuitive results "
+"when all three are non-default."
+msgstr ""
+"這三個參數可以組合運用：一次 :meth:`~image.Image.gamma` 呼叫即可在單一處理流程中先套用 gamma "
+"曲線、再進行對比乘法、最後做亮度偏移。其順序為 gamma 優先，接著是對比，最後是亮度，這個順序在三者都採用非預設值時能給出最直觀的結果。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:173
+msgid "Auto white balance"
+msgstr "自動白平衡"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:175
+msgid ""
+"The colour family of tonal corrections starts with *auto white balance*. The"
+" same mechanism the sensor's ISP runs as part of the imaging pipeline -- "
+"adjusting the relative gains on the red, green, and blue channels so that an"
+" average grey-coloured patch reads as actual grey -- is also available as a "
+"post-capture operation on a finished :class:`Image`:"
+msgstr ""
+"色調校正中的色彩類別始於 *自動白平衡*\\ 。感測器的 ISP 在成像流程中所執行的相同機制 -- "
+"調整紅、綠、藍通道的相對增益，使一塊平均為灰色的色塊呈現為實際的灰色 -- 也可作為事後處理運算套用在已完成的 :class:`Image` 上："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:188
+msgid ""
+"The default uses the *gray-world* algorithm: the average colour of the whole"
+" image is assumed to be neutral grey, and the per-channel gains are adjusted"
+" to make it so. The alternative ``max=True`` form uses the *white-patch* "
+"algorithm: the brightest pixels are assumed to be neutral white, and the "
+"gains are adjusted to make them so. Both work on RGB565 and on raw Bayer; "
+"neither works on grayscale (where there is no colour to balance) or YUV "
+"(where the colour representation is not what these algorithms operate on)."
+msgstr ""
+"預設使用 *灰世界（gray-world）* 演算法：假設整張影像的平均色彩為中性灰，並調整各通道增益使其成立。另一種 ``max=True`` "
+"形式則使用 *白塊（white-patch）* 演算法：假設最亮的像素為中性白，並調整增益使其成立。兩者都適用於 RGB565 與原始 Bayer "
+"格式；皆不適用於灰階（其中沒有色彩可供平衡）或 YUV（其色彩表示法並非這些演算法所運作的對象）。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:202
+msgid ""
+"When to reach for the post-capture form rather than the ISP's auto white "
+"balance: when the ISP's choice was a poor match for the particular scene, "
+"when the application is loading reference frames from disk that were "
+"captured under different conditions, or when the colour judgement matters "
+"enough that the application wants to re-run it with its own choice of "
+"algorithm."
+msgstr ""
+"何時應採用事後處理形式而非 ISP 的自動白平衡：當 ISP "
+"的選擇不適合特定場景時、當應用程式從磁碟載入在不同條件下擷取的參考影格時，或當色彩判斷的重要性高到足以讓應用程式想以自己選定的演算法重新執行時。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:213
+msgid "The colour correction matrix"
+msgstr "色彩校正矩陣"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:215
+msgid ""
+"When the colour correction the image needs is not the per-channel scaling "
+"that white balance gives, but a more general *channel-mixing*, the operation"
+" to reach for is the *colour correction matrix*. The "
+":meth:`~image.Image.ccm` method applies a 3-by-3 (or 3-by-4 with offset) "
+"matrix that multiplies every pixel's ``(r, g, b)`` vector to produce a new "
+"``(r, g, b)`` vector:"
+msgstr ""
+"當影像所需的色彩校正不是白平衡所提供的逐通道縮放，而是更一般化的 *通道混合* 時，應採用的運算是 *色彩校正矩陣*\\ 。\\ "
+":meth:`~image.Image.ccm` 方法會套用一個 3×3（或含偏移的 3×4）矩陣，將每個像素的 ``(r, g, b)`` "
+"向量相乘以產生新的 ``(r, g, b)`` 向量："
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:231
+msgid ""
+"The matrix lets the application correct crosstalk between the colour "
+"channels -- where the red sensor's response includes some green light, for "
+"example, the matrix can subtract a fraction of the green channel from the "
+"red output to compensate. Combined with a per-channel offset, the 3-by-4 "
+"form lets the application also re-zero each channel."
+msgstr ""
+"此矩陣讓應用程式能校正色彩通道之間的串擾 -- "
+"例如，當紅色感測器的響應包含了部分綠光時，矩陣可從紅色輸出中減去綠色通道的一部分以加以補償。結合逐通道偏移後，3×4 "
+"形式還能讓應用程式重新將每個通道歸零。"
+
+#: ../../openmvcam/tutorial/image/analysis/tonal-corrections.rst:241
+msgid ""
+"The :doc:`ISP pipeline </openmvcam/tutorial/vision/color/isp-pipeline>` "
+"material covers the *why* of colour correction matrices. The post-capture "
+"form on the :class:`Image` is just the same operation, applied after the "
+"fact."
+msgstr ""
+":doc:`ISP 流程 </openmvcam/tutorial/vision/color/isp-pipeline>` 的內容涵蓋了色彩校正矩陣的 "
+"*原理*\\ 。\\ :class:`Image` 上的事後處理形式只是相同的運算，於事後套用而已。"

@@ -1,0 +1,261 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:2
+msgid "Performance"
+msgstr "效能"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:4
+msgid ""
+"The same design decisions that make :mod:`numpy` fast on the camera -- "
+"whole-array library calls, packed typed buffers, views that share data with "
+"their source -- also expose a set of habits that are worth knowing about. "
+"The :doc:`shape/shape-and-strides` page already covered the last-axis layout"
+" rule; this page catalogues the allocation and dtype habits that matter most"
+" in a streaming loop."
+msgstr ""
+"讓 :mod:`numpy` "
+"在相機上跑得快的那些設計決策——整個陣列的函式庫呼叫、緊湊的型別化緩衝區、與來源共享資料的視圖——同時也帶出一組值得了解的習慣。\\ "
+":doc:`shape/shape-and-strides` 頁面已經介紹過最後軸的記憶體配置規則；本頁則整理在串流迴圈中最重要的配置與 dtype "
+"習慣。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:14
+msgid "Pick a reasonable dtype"
+msgstr "選擇合理的 dtype"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:16
+msgid ""
+"The default dtype of every constructor is ``float``. For data that is "
+"naturally 8-bit or 16-bit -- ADC samples, image pixels, sensor readings -- "
+"pass ``dtype=`` explicitly to one of the integer types::"
+msgstr ""
+"每個建構函式的預設 dtype 都是 ``float``\\ 。對於本質上是 8 位元或 16 位元的資料——ADC "
+"取樣、影像像素、感測器讀數——請明確傳入 ``dtype=`` 指定為其中一種整數型別::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:23
+msgid ""
+"The RAM saving is 2x for ``uint16`` and 4x for ``uint8`` against the 4-byte "
+"``float`` default. The math also runs faster because the integer code paths "
+"inside :mod:`numpy` are tighter than the generic float ones. The integer "
+"overflow rule covered on :doc:`basics/dtypes` applies -- cast to a wider "
+"type before arithmetic that might overflow."
+msgstr ""
+"相較於 4 位元組的 ``float`` 預設值，\\ ``uint16`` 可節省 2 倍 RAM，\\ ``uint8`` 可節省 4 "
+"倍。數學運算也跑得更快，因為 :mod:`numpy` 內部的整數程式碼路徑比通用的浮點路徑更精簡。\\ :doc:`basics/dtypes` "
+"所介紹的整數溢位規則同樣適用——在可能溢位的算術運算之前，先轉換成更寬的型別。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:32
+msgid "Prefer an ndarray to an iterable"
+msgstr "優先使用 ndarray 而非可迭代物件"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:34
+msgid ""
+"Most reductions and universal functions accept either an iterable or an "
+":class:`~numpy.ndarray`::"
+msgstr "大多數的縮減運算與通用函式可以接受可迭代物件或 :class:`~numpy.ndarray`::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:40
+msgid ""
+"The iterable form forces :mod:`numpy` to step through the input one Python "
+"object at a time, converting each to a number before it can use it. Against "
+"an :class:`~numpy.ndarray` the conversion is already done and the call runs "
+"straight through the packed buffer."
+msgstr ""
+"可迭代物件的形式會迫使 :mod:`numpy` 一次走訪一個 Python 物件，並在使用之前先把每個轉換成數字。對於 "
+":class:`~numpy.ndarray`\\ ，這個轉換已經完成，呼叫可直接貫穿緊湊的緩衝區。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:47
+msgid ""
+"When the same data is used more than once, build the :class:`~numpy.ndarray`"
+" once and pass it around. When the data exists only as a Python list and is "
+"consumed once, the conversion cost can outweigh the speedup -- the "
+":func:`~numpy.array` constructor itself has to walk the list and allocate."
+msgstr ""
+"當同一份資料會被使用多次時，請建立一次 :class:`~numpy.ndarray` 並四處傳遞。當資料僅以 Python "
+"串列形式存在且只使用一次時，轉換成本可能超過所得到的加速——\\ :func:`~numpy.array` 建構函式本身就必須走訪整個串列並配置記憶體。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:55
+msgid "Prefer views to copies"
+msgstr "優先使用視圖而非複本"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:57
+msgid ""
+"Slicing, single-axis indexing of a higher-rank array, "
+":meth:`~numpy.ndarray.reshape`, :meth:`~numpy.ndarray.transpose`, and "
+":func:`~numpy.frombuffer` all return *views* that share data with the "
+"source. They are essentially free."
+msgstr ""
+"切片、對較高階陣列的單軸索引、\\ :meth:`~numpy.ndarray.reshape`\\ 、\\ "
+":meth:`~numpy.ndarray.transpose` 以及 :func:`~numpy.frombuffer` 全都會傳回與來源共享資料的 "
+"*視圖*\\ 。它們的成本基本上是零。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:63
+msgid ""
+":meth:`~numpy.ndarray.copy`, :meth:`~numpy.ndarray.flatten`, boolean "
+"indexing (``a[mask]``), and any arithmetic expression allocate a *copy*. "
+"Reach for them only when an independent buffer is genuinely needed."
+msgstr ""
+":meth:`~numpy.ndarray.copy`\\ 、\\ :meth:`~numpy.ndarray.flatten`\\ 、布林索引（\\ "
+"``a[mask]``\\ ）以及任何算術運算式都會配置一份 *複本*\\ 。只有在真正需要一個獨立緩衝區時才使用它們。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:69
+msgid ""
+"When in doubt, :func:`~numpy.ndinfo` prints the location of the underlying "
+"buffer; two arrays that report the same address share their data. The "
+"complete view-vs-copy table is on :doc:`shape/views-and-copies`."
+msgstr ""
+"若有疑慮，\\ :func:`~numpy.ndinfo` 會印出底層緩衝區的位置；兩個回報相同位址的陣列即共享資料。完整的視圖與複本對照表請見 "
+":doc:`shape/views-and-copies`\\ 。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:76
+msgid "Allocate once, then write"
+msgstr "先配置一次，再寫入"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:78
+msgid ""
+"The single biggest performance pitfall on the camera is allocating fresh "
+"arrays inside a loop that runs many times a second. Each new "
+":class:`~numpy.ndarray` asks the cam for RAM, and frequent fresh allocations"
+" waste it."
+msgstr ""
+"相機上最大的效能陷阱，就是在每秒執行許多次的迴圈內配置全新的陣列。每個新的 :class:`~numpy.ndarray` 都會向相機要求 "
+"RAM，頻繁的全新配置則會浪費它。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:84
+msgid ""
+"Most universal functions accept ``out=`` so the result can be written into "
+"an array that already exists::"
+msgstr "大多數通用函式都接受 ``out=``\\ ，讓結果可以寫入一個已經存在的陣列中::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:94
+msgid ""
+":meth:`image.Image.to_ndarray` accepts ``buffer=`` for the same reason; "
+":func:`~ulab.utils.spectrogram` and the "
+":func:`~ulab.utils.from_int32_buffer`-style converters accept both ``out=`` "
+"and ``scratchpad=``. Allocate everything once and reuse it."
+msgstr ""
+":meth:`image.Image.to_ndarray` 基於相同理由接受 ``buffer=``\\ ；\\ "
+":func:`~ulab.utils.spectrogram` 以及 :func:`~ulab.utils.from_int32_buffer` "
+"之類的轉換器同時接受 ``out=`` 和 ``scratchpad=``\\ 。請一次配置好所有東西並重複使用。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:101
+msgid "Use in-place operators"
+msgstr "使用就地運算子"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:103
+msgid ""
+"``b = b + 1`` allocates a temporary the size of ``b``, copies, and re-"
+"assigns. ``b += 1`` modifies ``b`` directly::"
+msgstr ""
+"``b = b + 1`` 會配置一個與 ``b`` 同大小的暫存物件、進行複製、再重新指派。\\ ``b += 1`` 則直接修改 ``b``::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:113
+msgid ""
+"The same idea applies to compound expressions. ``a + b * c`` allocates a "
+"temporary for ``b * c``. Splitting the expression into simple sub-"
+"assignments writing into a pre-allocated buffer eliminates the temporaries::"
+msgstr ""
+"同樣的概念也適用於複合運算式。\\ ``a + b * c`` 會為 ``b * c`` "
+"配置一個暫存物件。把運算式拆分成寫入預先配置緩衝區的簡單子指派，即可消除這些暫存物件::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:128
+msgid "Build the result, do not append to it"
+msgstr "建構結果，而非附加到結果上"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:130
+msgid ""
+":class:`~numpy.ndarray` has no ``append`` -- on purpose. Growing an array "
+"would mean allocating a fresh, larger buffer and copying the old contents "
+"into it. On a microcontroller, pre-allocate the final size and *fill* it::"
+msgstr ""
+":class:`~numpy.ndarray` 沒有 ``append``\\ "
+"——這是刻意的。擴增陣列意味著要配置一個全新、更大的緩衝區，並把舊內容複製進去。在微控制器上，請預先配置最終大小並 *填入* 內容::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:140
+msgid ""
+"When ``N`` genuinely is not known in advance, write to a Python "
+":class:`list` and convert once at the end with :func:`~numpy.array`."
+msgstr ""
+"當 ``N`` 真的事先無法得知時，請寫入 Python :class:`list`\\ ，最後再以 :func:`~numpy.array` "
+"一次轉換。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:145
+msgid "Slice assignment instead of new arrays"
+msgstr "用切片指派取代新建陣列"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:147
+msgid ""
+"Many \"build a new array from pieces of others\" patterns can be expressed "
+"as slice assignments into a pre-allocated buffer instead of a fresh "
+"allocation each call."
+msgstr "許多「從其他陣列的片段建構新陣列」的模式，都可以表達成對預先配置緩衝區的切片指派，而非每次呼叫都進行全新配置。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:152
+msgid ""
+"A rolling window over a stream of samples -- the foundation of a moving-"
+"average filter -- is the canonical case. The buffer holds the last ``N`` "
+"samples; every iteration drops the oldest and appends the newest. The "
+"obvious form rebuilds the buffer each iteration::"
+msgstr ""
+"在取樣串流上滑動的視窗——移動平均濾波器的基礎——是典型的例子。緩衝區保存最近的 ``N`` "
+"個取樣；每次迭代捨棄最舊的並附加最新的。最直觀的形式會在每次迭代時重建緩衝區::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:165
+msgid ""
+"That is a fresh allocation -- and a copy of ``N - 1`` elements -- per "
+"sample. The slice-assignment form shifts in place::"
+msgstr "那是每個取樣都進行一次全新配置——並複製 ``N - 1`` 個元素。切片指派的形式則就地移位::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:178
+msgid ""
+"``buf[:-1] = buf[1:]`` is the interesting line: two overlapping views into "
+"the same buffer, the right-hand slice read from one end and written to the "
+"other. :mod:`numpy` walks the underlying memory in the order that makes the "
+"in-place shift safe. No new array is ever allocated inside the loop."
+msgstr ""
+"``buf[:-1] = buf[1:]`` 是值得關注的一行：對同一個緩衝區的兩個重疊視圖，右側切片從一端讀取並寫入另一端。\\ "
+":mod:`numpy` 會以使就地移位安全的順序走訪底層記憶體。迴圈內絕不會配置新的陣列。"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:186
+msgid "Watch out for boolean masks in streaming loops"
+msgstr "留意串流迴圈中的布林遮罩"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:188
+msgid ""
+"Boolean indexing and :func:`~numpy.where` produce a new array on each call "
+"-- the size of the result depends on the data, so no pre-allocated buffer "
+"can absorb the allocation. Repeated mask building in a streaming loop fills "
+"RAM with throwaway arrays. A periodic ``gc.collect()`` reclaims the space::"
+msgstr ""
+"布林索引與 :func:`~numpy.where` "
+"在每次呼叫時都會產生一個新陣列——結果的大小取決於資料，因此沒有任何預先配置的緩衝區能吸收這個配置。在串流迴圈中反覆建立遮罩會以即丟陣列填滿 "
+"RAM。定期呼叫 ``gc.collect()`` 可回收這些空間::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:203
+msgid ""
+"The same caveat applies to compound boolean expressions like ``(a > lo) & (a"
+" < hi)`` -- each operator allocates a new bool array. When a mask is reused,"
+" build it once and keep it::"
+msgstr ""
+"同樣的警告也適用於複合布林運算式，例如 ``(a > lo) & (a < hi)``\\ ——每個運算子都會配置一個新的 bool "
+"陣列。當遮罩會被重複使用時，請建立一次並保留它::"

@@ -1,0 +1,665 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/speed_python.rst:4
+msgid "Maximising MicroPython speed"
+msgstr "將 MicroPython 速度最大化"
+
+#: ../../reference/speed_python.rst:10
+msgid ""
+"This tutorial describes ways of improving the performance of MicroPython "
+"code. Optimisations involving other languages are covered elsewhere, namely "
+"the use of modules written in C and the MicroPython inline assembler."
+msgstr ""
+"本教學說明如何改善 MicroPython 程式碼的效能。涉及其他語言的最佳化方式則在他處說明，亦即使用以 C 撰寫的模組以及 MicroPython "
+"內嵌組合語言。"
+
+#: ../../reference/speed_python.rst:14
+msgid ""
+"The process of developing high performance code comprises the following "
+"stages which should be performed in the order listed."
+msgstr "開發高效能程式碼的流程包含下列幾個階段，應依列出的順序執行。"
+
+#: ../../reference/speed_python.rst:17
+msgid "Design for speed."
+msgstr "為速度而設計。"
+
+#: ../../reference/speed_python.rst:18
+msgid "Code and debug."
+msgstr "撰寫程式碼並偵錯。"
+
+#: ../../reference/speed_python.rst:20
+msgid "Optimisation steps:"
+msgstr "最佳化步驟："
+
+#: ../../reference/speed_python.rst:22
+msgid "Identify the slowest section of code."
+msgstr "找出最慢的程式碼區段。"
+
+#: ../../reference/speed_python.rst:23
+msgid "Improve the efficiency of the Python code."
+msgstr "改善 Python 程式碼的效率。"
+
+#: ../../reference/speed_python.rst:24
+msgid "Use the native code emitter."
+msgstr "使用原生程式碼產生器（native code emitter）。"
+
+#: ../../reference/speed_python.rst:25
+msgid "Use the viper code emitter."
+msgstr "使用 Viper 程式碼產生器（viper code emitter）。"
+
+#: ../../reference/speed_python.rst:26
+msgid "Use hardware-specific optimisations."
+msgstr "使用特定硬體的最佳化方式。"
+
+#: ../../reference/speed_python.rst:29
+msgid "Designing for speed"
+msgstr "為速度而設計"
+
+#: ../../reference/speed_python.rst:31
+msgid ""
+"Performance issues should be considered at the outset. This involves taking "
+"a view on the sections of code which are most performance critical and "
+"devoting particular attention to their design. The process of optimisation "
+"begins when the code has been tested: if the design is correct at the outset"
+" optimisation will be straightforward and may actually be unnecessary."
+msgstr ""
+"效能議題應在一開始就納入考量。這牽涉到先釐清哪些程式碼區段對效能最為關鍵，並特別著重於它們的設計。最佳化的流程在程式碼經過測試之後才開始：如果一開始的設計就正確，最佳化將會相當直接，甚至可能根本不需要。"
+
+#: ../../reference/speed_python.rst:38
+msgid "Algorithms"
+msgstr "演算法"
+
+#: ../../reference/speed_python.rst:40
+msgid ""
+"The most important aspect of designing any routine for performance is "
+"ensuring that the best algorithm is employed. This is a topic for textbooks "
+"rather than for a MicroPython guide but spectacular performance gains can "
+"sometimes be achieved by adopting algorithms known for their efficiency."
+msgstr ""
+"為效能設計任何常式時，最重要的一點就是確保採用了最佳的演算法。這是教科書的主題，而非 MicroPython "
+"指南所能涵蓋，但採用以高效率著稱的演算法有時可帶來極為驚人的效能提升。"
+
+#: ../../reference/speed_python.rst:46
+msgid "RAM allocation"
+msgstr "RAM 配置"
+
+#: ../../reference/speed_python.rst:48
+msgid ""
+"To design efficient MicroPython code it is necessary to have an "
+"understanding of the way the interpreter allocates RAM. When an object is "
+"created or grows in size (for example where an item is appended to a list) "
+"the necessary RAM is allocated from a block known as the heap. This takes a "
+"significant amount of time; further it will on occasion trigger a process "
+"known as garbage collection which can take several milliseconds."
+msgstr ""
+"若要設計高效率的 MicroPython 程式碼，就必須了解直譯器配置 RAM "
+"的方式。當建立物件或物件大小增長時（例如將某項目附加到串列中），便會從一塊稱為堆積（heap）的記憶體配置所需的 "
+"RAM。這會耗費可觀的時間；此外，它偶爾還會觸發一種稱為垃圾回收（garbage collection）的程序，而該程序可能需時數毫秒。"
+
+#: ../../reference/speed_python.rst:55
+msgid ""
+"Consequently the performance of a function or method can be improved if an "
+"object is created once only and not permitted to grow in size. This implies "
+"that the object persists for the duration of its use: typically it will be "
+"instantiated in a class constructor and used in various methods."
+msgstr ""
+"因此，如果某個物件只建立一次且不允許其大小增長，函式或方法的效能便可獲得改善。這意味著該物件在其使用期間會持續存在：通常它會在類別的建構函式中具現化，並在各個方法中使用。"
+
+#: ../../reference/speed_python.rst:60
+msgid ""
+"This is covered in further detail :ref:`Controlling garbage collection "
+"<controlling_gc>` below."
+msgstr "下方的 :ref:`控制垃圾回收 <controlling_gc>` 中有更詳細的說明。"
+
+#: ../../reference/speed_python.rst:65
+msgid "Buffers"
+msgstr "緩衝區"
+
+#: ../../reference/speed_python.rst:67
+msgid ""
+"An example of the above is the common case where a buffer is required, such "
+"as one used for communication with a device. A typical driver will create "
+"the buffer in the constructor and use it in its I/O methods which will be "
+"called repeatedly."
+msgstr ""
+"上述情況的一個例子，是常見的需要緩衝區（buffer）的情境，例如用於與裝置通訊的緩衝區。典型的驅動程式會在建構函式中建立緩衝區，並在其會被反覆呼叫的 "
+"I/O 方法中使用它。"
+
+#: ../../reference/speed_python.rst:71
+msgid ""
+"The MicroPython libraries typically provide support for pre-allocated "
+"buffers. For example, objects which support stream interface (e.g., file or "
+"UART) provide ``read()`` method which allocates new buffer for read data, "
+"but also a ``readinto()`` method to read data into an existing buffer."
+msgstr ""
+"MicroPython 函式庫通常提供對預先配置緩衝區的支援。例如，支援串流介面的物件（如檔案或 UART）會提供 ``read()`` "
+"方法，該方法會為讀取的資料配置新的緩衝區，但同時也提供 ``readinto()`` 方法，可將資料讀入既有的緩衝區。"
+
+#: ../../reference/speed_python.rst:76
+msgid "Some useful classes for creating reusable buffer objects:"
+msgstr "一些用於建立可重複使用緩衝區物件的實用類別："
+
+#: ../../reference/speed_python.rst:78
+msgid ":class:`bytearray`"
+msgstr ":class:`bytearray`"
+
+#: ../../reference/speed_python.rst:79
+msgid ":mod:`array` (:ref:`discussed below<speed_arrays>`)"
+msgstr ":mod:`array`\\ （\\ :ref:`於下方討論<speed_arrays>`\\ ）"
+
+#: ../../reference/speed_python.rst:80
+msgid ":class:`io.StringIO` and :class:`io.BytesIO`"
+msgstr ":class:`io.StringIO` 與 :class:`io.BytesIO`"
+
+#: ../../reference/speed_python.rst:81
+msgid ":class:`micropython.RingIO`"
+msgstr ":class:`micropython.RingIO`"
+
+#: ../../reference/speed_python.rst:84
+msgid "Floating point"
+msgstr "浮點數"
+
+#: ../../reference/speed_python.rst:86
+msgid ""
+"Some MicroPython ports allocate floating point numbers on heap. Some other "
+"ports may lack dedicated floating-point coprocessor, and perform arithmetic "
+"operations on them in \"software\" at considerably lower speed than on "
+"integers. Where performance is important, use integer operations and "
+"restrict the use of floating point to sections of the code where performance"
+" is not paramount. For example, capture ADC readings as integer values to an"
+" array in one quick go, and only then convert them to floating-point numbers"
+" for signal processing."
+msgstr ""
+"某些 MicroPython "
+"移植版本會在堆積上配置浮點數。其他某些移植版本可能缺少專用的浮點協同處理器，而是以「軟體」方式對浮點數執行算術運算，其速度遠低於對整數的運算。在效能很重要的場合，請使用整數運算，並將浮點數的使用限制在效能不那麼關鍵的程式碼區段。例如，先一次快速地將"
+" ADC 讀數以整數值擷取到陣列中，之後才將它們轉換為浮點數以進行訊號處理。"
+
+#: ../../reference/speed_python.rst:97
+msgid "Arrays"
+msgstr "陣列"
+
+#: ../../reference/speed_python.rst:99
+msgid ""
+"Consider the use of the various types of array classes as an alternative to "
+"lists. The :mod:`array` module supports various element types with 8-bit "
+"elements supported by Python's built in `bytes` and `bytearray` classes. "
+"These data structures all store elements in contiguous memory locations. "
+"Once again to avoid memory allocation in critical code these should be pre-"
+"allocated and passed as arguments or as bound objects."
+msgstr ""
+"請考慮使用各種陣列類別作為串列的替代方案。\\ :mod:`array` 模組支援多種元素型別，其中 8 位元元素由 Python 內建的 "
+"`bytes` 與 `bytearray` "
+"類別支援。這些資料結構全都將元素儲存在連續的記憶體位置中。同樣地，為了避免在關鍵程式碼中發生記憶體配置，這些都應預先配置，並以引數或繫結物件的形式傳入。"
+
+#: ../../reference/speed_python.rst:106
+msgid "Memoryviews"
+msgstr "Memoryview"
+
+#: ../../reference/speed_python.rst:108
+msgid ""
+"When passing slices of objects such as `bytearray` instances, Python creates"
+" a copy which involves allocation of the size proportional to the size of "
+"slice. This can be alleviated using a `memoryview` object. The `memoryview` "
+"itself is allocated on the heap, but is a small, fixed-size object, "
+"regardless of the size of slice it points to. Slicing a `memoryview` creates"
+" a new `memoryview`, so this cannot be done in an interrupt service routine."
+" Further, the slice syntax ``a:b`` causes further allocation by "
+"instantiating a ``slice(a, b)`` object."
+msgstr ""
+"在傳遞 `bytearray` 實例等物件的切片時，Python 會建立一份副本，這牽涉到與切片大小成正比的記憶體配置。這可以使用 "
+"`memoryview` 物件來緩解。\\ `memoryview` 本身雖配置在堆積上，但它是一個小型、固定大小的物件，與其所指向的切片大小無關。對 "
+"`memoryview` 進行切片會建立一個新的 `memoryview`\\ ，因此這無法在中斷服務常式中進行。此外，切片語法 ``a:b`` "
+"會因具現化一個 ``slice(a, b)`` 物件而造成額外的配置。"
+
+#: ../../reference/speed_python.rst:123
+msgid ""
+"A `memoryview` can only be applied to objects supporting the buffer protocol"
+" - this includes arrays but not lists. Small caveat is that while memoryview"
+" object is live, it also keeps alive the original buffer object. So, a "
+"memoryview isn't a universal panacea. For instance, in the example above, if"
+" you are done with 10K buffer and just need those bytes 30:2000 from it, it "
+"may be better to make a slice, and let the 10K buffer go (be ready for "
+"garbage collection), instead of making a long-living memoryview and keeping "
+"10K blocked for GC."
+msgstr ""
+"`memoryview` 只能套用於支援緩衝協定的物件——這包含陣列，但不包含串列。一個小小的注意事項是，當 memoryview "
+"物件存活時，它也會讓原本的緩衝物件保持存活。因此，memoryview 並非萬靈丹。舉例來說，在上面的例子中，如果你已用完 10K "
+"的緩衝區，而只需要其中第 30 到 2000 個位元組，那麼建立一個切片並讓那塊 10K 緩衝區釋放（準備被垃圾回收）可能會更好，而非建立一個長期存活的"
+" memoryview 並讓那 10K 一直無法被 GC 回收。"
+
+#: ../../reference/speed_python.rst:131
+msgid ""
+"Nonetheless, `memoryview` is indispensable for advanced preallocated buffer "
+"management. ``readinto()`` method discussed above puts data at the beginning"
+" of buffer and fills in entire buffer. What if you need to put data in the "
+"middle of existing buffer? Just create a memoryview into the needed section "
+"of buffer and pass it to ``readinto()``."
+msgstr ""
+"儘管如此，\\ `memoryview` 對於進階的預先配置緩衝區管理而言不可或缺。上面討論過的 ``readinto()`` "
+"方法會將資料放在緩衝區的開頭，並填滿整個緩衝區。那如果你需要把資料放到既有緩衝區的中間呢？只要對緩衝區中所需的區段建立一個 "
+"memoryview，並將它傳給 ``readinto()`` 即可。"
+
+#: ../../reference/speed_python.rst:138
+msgid "Strings vs Bytes"
+msgstr "Strings 與 Bytes"
+
+#: ../../reference/speed_python.rst:140
+msgid ""
+"MicroPython uses :ref:`string interning <qstr>` to save space when there are"
+" multiple identical strings. Each time a new string is allocated at runtime "
+"(for example, when two other strings are concatenated), MicroPython checks "
+"whether the new string can be interned to save RAM."
+msgstr ""
+"MicroPython 使用 :ref:`字串駐留（string interning）<qstr>` "
+"來在出現多個相同字串時節省空間。每當在執行期配置一個新字串時（例如將另外兩個字串串接起來時），MicroPython "
+"都會檢查該新字串是否可以被駐留以節省 RAM。"
+
+#: ../../reference/speed_python.rst:145
+msgid ""
+"If you have code which performs performance-critical string operations then "
+"consider using :class:`bytes` objects and literals (i.e. ``b\"abc\"``). This"
+" skips the interning check, and can be several times faster than performing "
+"the same operations with string objects."
+msgstr ""
+"如果你的程式碼執行對效能要求很高的字串運算，那麼請考慮使用 :class:`bytes` 物件與字面值（即 ``b\"abc\"``\\ "
+"）。這會略過駐留檢查，可能比對字串物件執行相同運算快上數倍。"
+
+#: ../../reference/speed_python.rst:150
+msgid ""
+"The fastest performance will always be achieved by avoiding new object "
+"creation entirely, for example with a reusable :ref:`buffer as described "
+"above<speed_buffers>`."
+msgstr "完全避免建立新物件永遠能達到最快的效能，例如使用上述的可重複使用 :ref:`緩衝區<speed_buffers>`\\ 。"
+
+#: ../../reference/speed_python.rst:155
+msgid "Identifying the slowest section of code"
+msgstr "找出最慢的程式碼區段"
+
+#: ../../reference/speed_python.rst:157
+msgid ""
+"This is a process known as profiling and is covered in textbooks and (for "
+"standard Python) supported by various software tools. For the type of "
+"smaller embedded application likely to be running on MicroPython platforms "
+"the slowest function or method can usually be established by judicious use "
+"of the timing ``ticks`` group of functions documented in `time`. Code "
+"execution time can be measured in ms, us, or CPU cycles."
+msgstr ""
+"這是一個稱為效能剖析（profiling）的程序，教科書中有所涵蓋，而且（對標準 Python 而言）有各種軟體工具支援。對於可能在 "
+"MicroPython 平台上執行的這類較小型嵌入式應用而言，通常只要明智地運用 `time` 中所記載的計時 ``ticks`` "
+"系列函式，就能找出最慢的函式或方法。程式碼的執行時間可以用 ms、us 或 CPU 週期來量測。"
+
+#: ../../reference/speed_python.rst:164
+msgid ""
+"The following enables any function or method to be timed by adding an "
+"``@timed_function`` decorator:"
+msgstr "下列做法可透過加上 ``@timed_function`` 裝飾器，來為任何函式或方法計時："
+
+#: ../../reference/speed_python.rst:180
+msgid "MicroPython code improvements"
+msgstr "MicroPython 程式碼改善"
+
+#: ../../reference/speed_python.rst:183
+msgid "The const() declaration"
+msgstr "const() 宣告"
+
+#: ../../reference/speed_python.rst:185
+msgid ""
+"MicroPython provides a ``const()`` declaration. This works in a similar way "
+"to ``#define`` in C in that when the code is compiled to bytecode the "
+"compiler substitutes the numeric value for the identifier. This avoids a "
+"dictionary lookup at runtime. The argument to ``const()`` may be anything "
+"which, at compile time, evaluates to an integer e.g. ``0x100`` or ``1 << "
+"8``."
+msgstr ""
+"MicroPython 提供 ``const()`` 宣告。它的運作方式類似於 C 中的 ``#define``\\ "
+"，也就是當程式碼編譯為位元組碼時，編譯器會以該數值取代識別字。這避免了在執行期進行字典查詢。\\ ``const()`` "
+"的引數可以是任何在編譯期會求值為整數的東西，例如 ``0x100`` 或 ``1 << 8``\\ 。"
+
+#: ../../reference/speed_python.rst:194
+msgid "Caching object references"
+msgstr "快取物件參考"
+
+#: ../../reference/speed_python.rst:196
+msgid ""
+"Where a function or method repeatedly accesses objects performance is "
+"improved by caching the object in a local variable:"
+msgstr "當函式或方法反覆存取物件時，將該物件快取到一個區域變數中可改善效能："
+
+#: ../../reference/speed_python.rst:209
+msgid ""
+"This avoids the need repeatedly to look up ``self.ba`` and "
+"``obj_display.framebuffer`` in the body of the method ``bar()``."
+msgstr "這避免了在方法 ``bar()`` 主體中反覆查詢 ``self.ba`` 與 ``obj_display.framebuffer``\\ 。"
+
+#: ../../reference/speed_python.rst:215
+msgid "Controlling garbage collection"
+msgstr "控制垃圾回收"
+
+#: ../../reference/speed_python.rst:217
+msgid ""
+"When memory allocation is required, MicroPython attempts to locate an "
+"adequately sized block on the heap. This may fail, usually because the heap "
+"is cluttered with objects which are no longer referenced by code. If a "
+"failure occurs, the process known as garbage collection reclaims the memory "
+"used by these redundant objects and the allocation is then tried again - a "
+"process which can take several milliseconds."
+msgstr ""
+"當需要配置記憶體時，MicroPython "
+"會嘗試在堆積上找到一塊大小足夠的區塊。這可能會失敗，通常是因為堆積中堆滿了不再被程式碼參考的物件。一旦發生失敗，便會由稱為垃圾回收的程序回收這些多餘物件所占用的記憶體，接著再次嘗試配置——這個程序可能需時數毫秒。"
+
+#: ../../reference/speed_python.rst:224
+msgid ""
+"There may be benefits in pre-empting this by periodically issuing "
+"``gc.collect()``. Firstly doing a collection before it is actually required "
+"is quicker - typically on the order of 1ms if done frequently. Secondly you "
+"can determine the point in code where this time is used rather than have a "
+"longer delay occur at random points, possibly in a speed critical section. "
+"Finally performing collections regularly can reduce fragmentation in the "
+"heap. Severe fragmentation can lead to non-recoverable allocation failures."
+msgstr ""
+"藉由定期發出 ``gc.collect()`` 來搶先處理這件事可能會有好處。首先，在真正需要之前就先進行回收會比較快——如果經常進行，通常約在 1ms"
+" "
+"的數量級。其次，你可以決定在程式碼中的哪個點耗用這段時間，而非讓較長的延遲在隨機的時點發生，有可能正好落在速度關鍵的區段。最後，定期進行回收可以減少堆積中的碎裂化。嚴重的碎裂化可能導致無法復原的配置失敗。"
+
+#: ../../reference/speed_python.rst:233
+msgid "The Native code emitter"
+msgstr "原生程式碼產生器"
+
+#: ../../reference/speed_python.rst:235
+msgid ""
+"This causes the MicroPython compiler to emit native CPU opcodes rather than "
+"bytecode. It covers the bulk of the MicroPython functionality, so most "
+"functions will require no adaptation (but see below). It is invoked by means"
+" of a function decorator:"
+msgstr ""
+"這會使 MicroPython 編譯器產生原生的 CPU 運算碼，而非位元組碼。它涵蓋了 MicroPython "
+"的大部分功能，因此大多數函式都不需要調整（但請見下文）。它透過函式裝飾器來啟用："
+
+#: ../../reference/speed_python.rst:246
+msgid ""
+"There are certain limitations in the current implementation of the native "
+"code emitter."
+msgstr "在原生程式碼產生器目前的實作中存在某些限制。"
+
+#: ../../reference/speed_python.rst:248
+msgid "If ``raise`` is used an argument must be supplied."
+msgstr "如果使用了 ``raise``\\ ，則必須提供一個引數。"
+
+#: ../../reference/speed_python.rst:249
+msgid ""
+"The background scheduler (see `micropython.schedule`) is not run during "
+"execution of native code."
+msgstr "在執行原生程式碼期間，背景排程器（請見 `micropython.schedule`\\ ）不會執行。"
+
+#: ../../reference/speed_python.rst:251
+msgid ""
+"On targets with threading and the GIL, the GIL is not released during "
+"execution of native code."
+msgstr "在具有執行緒與 GIL 的目標上，執行原生程式碼期間不會釋放 GIL。"
+
+#: ../../reference/speed_python.rst:254
+msgid ""
+"To mitigate the last two points, long running native functions should call "
+"``time.sleep(0)`` periodically, which will run the scheduler and bounce the "
+"GIL."
+msgstr "為了減輕後兩點的影響，長時間執行的原生函式應定期呼叫 ``time.sleep(0)``\\ ，這會執行排程器並讓出 GIL。"
+
+#: ../../reference/speed_python.rst:257
+msgid ""
+"The trade-off for the improved performance (roughly twice as fast as "
+"bytecode) is an increase in compiled code size."
+msgstr "效能提升（大約是位元組碼的兩倍快）所付出的代價是已編譯程式碼大小的增加。"
+
+#: ../../reference/speed_python.rst:261
+msgid "The Viper code emitter"
+msgstr "Viper 程式碼產生器"
+
+#: ../../reference/speed_python.rst:263
+msgid ""
+"The optimisations discussed above involve standards-compliant Python code. "
+"The Viper code emitter is not fully compliant. It supports special Viper "
+"native data types in pursuit of performance. Integer processing is non-"
+"compliant because it uses machine words: arithmetic on 32 bit hardware is "
+"performed modulo 2**32."
+msgstr ""
+"上述討論的最佳化都涉及符合標準的 Python 程式碼。Viper 程式碼產生器則並不完全符合標準。它為了追求效能而支援特殊的 Viper "
+"原生資料型別。整數處理並不符合標準，因為它使用機器字組（machine word）：在 32 位元硬體上的算術運算是以 2**32 取模執行的。"
+
+#: ../../reference/speed_python.rst:268
+msgid ""
+"Like the Native emitter Viper produces machine instructions but further "
+"optimisations are performed, substantially increasing performance especially"
+" for integer arithmetic and bit manipulations. It is invoked using a "
+"decorator:"
+msgstr ""
+"與原生產生器一樣，Viper 也會產生機器指令，但還會進行進一步的最佳化，大幅提升效能，尤其是對整數算術與位元操作而言。它透過一個裝飾器來啟用："
+
+#: ../../reference/speed_python.rst:278
+msgid ""
+"As the above fragment illustrates it is beneficial to use Python type hints "
+"to assist the Viper optimiser. Type hints provide information on the data "
+"types of arguments and of the return value; these are a standard Python "
+"language feature formally defined here `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_. Viper supports its own set of"
+" types namely ``int``, ``uint`` (unsigned integer), ``ptr``, ``ptr8``, "
+"``ptr16`` and ``ptr32``. The ``ptrX`` types are discussed below. Currently "
+"the ``uint`` type serves a single purpose: as a type hint for a function "
+"return value. If such a function returns ``0xffffffff`` Python will "
+"interpret the result as 2**32 -1 rather than as -1."
+msgstr ""
+"如上面的程式片段所示，使用 Python 型別提示（type hints）來協助 Viper "
+"最佳化器是有益的。型別提示提供關於引數與回傳值資料型別的資訊；這是一項標準的 Python 語言特性，正式定義於此 `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_\\ 。Viper 支援它自己的一組型別，亦即 "
+"``int``\\ 、\\ ``uint``\\ （無號整數）、\\ ``ptr``\\ 、\\ ``ptr8``\\ 、\\ ``ptr16`` 與 "
+"``ptr32``\\ 。\\ ``ptrX`` 型別於下文討論。目前 ``uint`` 型別只有單一用途：作為函式回傳值的型別提示。如果這樣的函式回傳"
+" ``0xffffffff``\\ ，Python 會將結果解讀為 2**32 -1，而非 -1。"
+
+#: ../../reference/speed_python.rst:286
+msgid ""
+"In addition to the restrictions imposed by the native emitter the following "
+"constraints apply:"
+msgstr "除了原生產生器所施加的限制之外，還適用下列約束："
+
+#: ../../reference/speed_python.rst:288
+msgid "Default argument values are not permitted."
+msgstr "不允許使用預設引數值。"
+
+#: ../../reference/speed_python.rst:289
+msgid "Floating point may be used but is not optimised."
+msgstr "可以使用浮點數，但不會被最佳化。"
+
+#: ../../reference/speed_python.rst:291
+msgid "Viper provides pointer types to assist the optimiser. These comprise"
+msgstr "Viper 提供指標型別以協助最佳化器。這些包括"
+
+#: ../../reference/speed_python.rst:293
+msgid "``ptr`` Pointer to an object."
+msgstr "``ptr`` 指向一個物件。"
+
+#: ../../reference/speed_python.rst:294
+msgid "``ptr8`` Points to a byte."
+msgstr "``ptr8`` 指向一個位元組。"
+
+#: ../../reference/speed_python.rst:295
+msgid "``ptr16`` Points to a 16 bit half-word."
+msgstr "``ptr16`` 指向一個 16 位元半字組（half-word）。"
+
+#: ../../reference/speed_python.rst:296
+msgid "``ptr32`` Points to a 32 bit machine word."
+msgstr "``ptr32`` 指向一個 32 位元機器字組。"
+
+#: ../../reference/speed_python.rst:298
+msgid ""
+"The concept of a pointer may be unfamiliar to Python programmers. It has "
+"similarities to a Python `memoryview` object in that it provides direct "
+"access to data stored in memory. Items are accessed using subscript "
+"notation, but slices are not supported: a pointer can return a single item "
+"only. Its purpose is to provide fast random access to data stored in "
+"contiguous memory locations - such as data stored in objects which support "
+"the buffer protocol, and memory-mapped peripheral registers in a "
+"microcontroller. It should be noted that programming using pointers is "
+"hazardous: bounds checking is not performed and the compiler does nothing to"
+" prevent buffer overrun errors."
+msgstr ""
+"指標的概念對 Python 程式設計師而言可能很陌生。它與 Python 的 `memoryview` "
+"物件有相似之處，因為它提供對儲存在記憶體中資料的直接存取。項目使用下標表示法存取，但不支援切片：指標只能回傳單一項目。它的用途是提供對儲存在連續記憶體位置中資料的快速隨機存取——例如儲存在支援緩衝協定的物件中的資料，以及微控制器中記憶體映射的周邊裝置暫存器。應當留意的是，使用指標來編寫程式是危險的：不會執行邊界檢查，編譯器也不會採取任何措施來防止緩衝區溢位錯誤。"
+
+#: ../../reference/speed_python.rst:307
+msgid "Typical usage is to cache variables:"
+msgstr "典型的用法是用來快取變數："
+
+#: ../../reference/speed_python.rst:318
+msgid ""
+"In this instance the compiler \"knows\" that ``buf`` is the address of an "
+"array of bytes; it can emit code to rapidly compute the address of "
+"``buf[x]`` at runtime. Where casts are used to convert objects to Viper "
+"native types these should be performed at the start of the function rather "
+"than in critical timing loops as the cast operation can take several "
+"microseconds. The rules for casting are as follows:"
+msgstr ""
+"在這個例子中，編譯器「知道」\\ ``buf`` 是一個位元組陣列的位址；它可以產生程式碼，在執行期快速計算出 ``buf[x]`` "
+"的位址。當使用轉型（cast）將物件轉換為 Viper "
+"原生型別時，這些轉型應在函式開頭進行，而非在時序關鍵的迴圈中進行，因為轉型操作可能需時數微秒。轉型的規則如下："
+
+#: ../../reference/speed_python.rst:324
+msgid ""
+"Casting operators are currently: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` and ``ptr32``."
+msgstr ""
+"目前的轉型運算子為：\\ ``int``\\ 、\\ ``bool``\\ 、\\ ``uint``\\ 、\\ ``ptr``\\ 、\\ "
+"``ptr8``\\ 、\\ ``ptr16`` 與 ``ptr32``\\ 。"
+
+#: ../../reference/speed_python.rst:325
+msgid "The result of a cast will be a native Viper variable."
+msgstr "轉型的結果會是一個原生的 Viper 變數。"
+
+#: ../../reference/speed_python.rst:326
+msgid "Arguments to a cast can be a Python object or a native Viper variable."
+msgstr "轉型的引數可以是 Python 物件或原生的 Viper 變數。"
+
+#: ../../reference/speed_python.rst:327
+msgid ""
+"If argument is a native Viper variable, then cast is a no-op (i.e. costs "
+"nothing at runtime) that just changes the type (e.g. from ``uint`` to "
+"``ptr8``) so that you can then store/load using this pointer."
+msgstr ""
+"如果引數是原生的 Viper 變數，那麼轉型就是一個無操作（即在執行期不耗費任何成本），它只是改變型別（例如從 ``uint`` 改為 "
+"``ptr8``\\ ），以便你接著能使用這個指標進行儲存／載入。"
+
+#: ../../reference/speed_python.rst:330
+msgid ""
+"If the argument is a Python object and the cast is ``int`` or ``uint``, then"
+" the Python object must be of integral type and the value of that integral "
+"object is returned."
+msgstr ""
+"如果引數是 Python 物件且轉型為 ``int`` 或 ``uint``\\ ，那麼該 Python 物件必須是整數型別，並會回傳該整數物件的值。"
+
+#: ../../reference/speed_python.rst:332
+msgid ""
+"The argument to a bool cast must be integral type (boolean or integer); when"
+" used as a return type the viper function will return True or False objects."
+msgstr "bool 轉型的引數必須是整數型別（布林值或整數）；當用作回傳型別時，viper 函式會回傳 True 或 False 物件。"
+
+#: ../../reference/speed_python.rst:334
+msgid ""
+"If the argument is a Python object and the cast is ``ptr``, ``ptr8``, "
+"``ptr16`` or ``ptr32``, then the Python object must either have the buffer "
+"protocol (in which case a pointer to the start of the buffer is returned) or"
+" it must be of integral type (in which case the value of that integral "
+"object is returned)."
+msgstr ""
+"如果引數是 Python 物件且轉型為 ``ptr``\\ 、\\ ``ptr8``\\ 、\\ ``ptr16`` 或 ``ptr32``\\ "
+"，那麼該 Python 物件必須具備緩衝協定（在此情況下會回傳指向緩衝區開頭的指標），或者必須是整數型別（在此情況下會回傳該整數物件的值）。"
+
+#: ../../reference/speed_python.rst:339
+msgid ""
+"Writing to a pointer which points to a read-only object will lead to "
+"undefined behaviour."
+msgstr "對指向唯讀物件的指標進行寫入會導致未定義行為。"
+
+#: ../../reference/speed_python.rst:343
+msgid ""
+"The code examples below are given for the STM32-based OpenMV Cams, which "
+"provide the ``stm`` module. The techniques described apply generally."
+msgstr "下方的程式碼範例是針對基於 STM32 的 OpenMV Cam 所提供，這類相機提供 ``stm`` 模組。所描述的技巧普遍適用。"
+
+#: ../../reference/speed_python.rst:346
+msgid ""
+"The ``stm`` module exposes the memory addresses of the MCU's peripheral "
+"registers. Each GPIO port has an *output data register* (ODR) whose bits map"
+" one-to-one to that port's pins: writing the register drives those pins "
+"directly, without the overhead of a :class:`machine.Pin` method call, and "
+"XOR-ing a bit toggles its pin. On the original OpenMV Cam the blue LED is "
+"wired to ``GPIOC`` pin 2, so the following example uses a ``ptr16`` cast to "
+"toggle the blue LED ``n`` times:"
+msgstr ""
+"``stm`` 模組公開了 MCU 周邊裝置暫存器的記憶體位址。每個 GPIO 埠都有一個\\ *輸出資料暫存器*\\ "
+"（ODR），其位元與該埠的接腳一對一對應：寫入該暫存器會直接驅動那些接腳，而無須 :class:`machine.Pin` "
+"方法呼叫的額外開銷，而對某個位元進行 XOR 運算則會切換其對應接腳。在最初的 OpenMV Cam 上，藍色 LED 接到 ``GPIOC`` 接腳 "
+"2，因此下列範例使用 ``ptr16`` 轉型來將藍色 LED 切換 ``n`` 次："
+
+#: ../../reference/speed_python.rst:363
+msgid ""
+"A detailed technical description of the three code emitters may be found on "
+"Kickstarter here `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ and here `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+msgstr ""
+"關於這三種程式碼產生器的詳細技術說明，可在 Kickstarter 上找到，分別於此 `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ 與此 `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+
+#: ../../reference/speed_python.rst:368
+msgid "Accessing hardware directly"
+msgstr "直接存取硬體"
+
+#: ../../reference/speed_python.rst:370
+msgid ""
+"This comes into the category of more advanced programming and involves some "
+"knowledge of the target MCU. Consider the example of toggling an output pin "
+"on an OpenMV Cam. The standard approach would be to write"
+msgstr ""
+"這屬於較進階的程式設計範疇，並牽涉到對目標 MCU 的一些了解。考慮在 OpenMV Cam 上切換一支輸出接腳的例子。標準的做法會是這樣寫"
+
+#: ../../reference/speed_python.rst:378
+msgid ""
+"This involves the overhead of two calls to the :class:`~machine.Pin` "
+"instance's :meth:`~machine.Pin.value()` method. This overhead can be "
+"eliminated by performing a read/write to the relevant bit of the chip's GPIO"
+" port output data register (ODR). To facilitate this the ``stm`` module "
+"provides a set of constants giving the addresses of the relevant registers "
+"(``stm.GPIOC`` is the base address of the GPIOC port, ``stm.GPIO_ODR`` the "
+"offset of its output data register). As above, the blue LED on the original "
+"OpenMV Cam is ``GPIOC`` pin 2, so a fast toggle of it can be performed as "
+"follows:"
+msgstr ""
+"這牽涉到對 :class:`~machine.Pin` 實例的 :meth:`~machine.Pin.value()` "
+"方法進行兩次呼叫的額外開銷。藉由對晶片 GPIO 埠輸出資料暫存器（ODR）的相關位元執行讀取／寫入，便可消除這項開銷。為了便於此事，\\ "
+"``stm`` 模組提供了一組常數，給出相關暫存器的位址（\\ ``stm.GPIOC`` 是 GPIOC 埠的基底位址，\\ "
+"``stm.GPIO_ODR`` 則是其輸出資料暫存器的偏移量）。如上所述，最初的 OpenMV Cam 上的藍色 LED 是 ``GPIOC`` 接腳"
+" 2，因此可以如下方式對它進行快速切換："

@@ -1,0 +1,134 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:2
+msgid "Why a protocol library"
+msgstr "為何需要協定函式庫"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:4
+msgid ""
+"A pair of cables and a baud rate is enough to move bytes from a cam to a "
+"host PC. USB-CDC and UART both give the cam program a stream where ``write``"
+" puts bytes in one end and ``read`` takes them out the other. So what does a"
+" *protocol library* add on top of that?"
+msgstr ""
+"只要一對纜線加上一個鮑率，就足以把位元組從相機傳送到主機 PC。USB-CDC 與 UART 都會給相機程式提供一個串流，其中 ``write`` "
+"把位元組塞入一端，而 ``read`` 從另一端取出。那麼，\\ *協定函式庫* 在這之上又多提供了什麼呢？"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:9
+msgid ""
+"Three things you would have to write yourself, every time, if you tried to "
+"build a serious cam-to-host channel directly on raw bytes:"
+msgstr "如果你想直接以原始位元組打造一個真正可用的相機對主機通道，每次都得自行撰寫以下三件事："
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:12
+msgid ""
+"**Framing.** A byte stream has no inherent structure. The cam writes "
+"``temp=42`` and the host reads ``temp=`` plus an interrupt arriving later, "
+"then ``42`` plus the next message starting with ``humid=...`` already "
+"running into it. Bytes don't have boundaries. Every non-trivial host link "
+"ends up inventing some marker -- ``\\n`` between messages, length-prefix "
+"headers, escape sequences for binary payloads -- so the receiver knows where"
+" one message ends and the next begins. The protocol library gives you a "
+"uniform packet format with a sync word and a length field, and the receiver "
+"never has to guess."
+msgstr ""
+"**封包切分（Framing）。** 位元組串流本身沒有任何固有結構。相機寫入 ``temp=42``\\ ，而主機讀到的卻是 ``temp=`` "
+"加上稍後抵達的一個中斷，接著是 ``42`` 以及下一則以 ``humid=...`` "
+"起頭的訊息，兩者已經混在一起。位元組沒有邊界。每一個非平凡的主機連結最後都得自行發明某種標記——訊息之間的 ``\\n``\\ "
+"、長度前綴標頭、二進位酬載的跳脫序列——好讓接收端知道一則訊息在哪裡結束、下一則從哪裡開始。協定函式庫提供你一個統一的封包格式，內含同步字（sync "
+"word）與長度欄位，接收端再也不必猜測。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:24
+msgid ""
+"**Reliability.** USB-CDC doesn't drop bytes silently in normal operation, "
+"but UART does (when the host stops servicing the port quickly enough), and a"
+" serial cable unplugged and reseated can leave one side with a partial "
+"packet. The right thing to do is to detect the corruption, ask the other "
+"side to retransmit, and only ever hand application code messages that "
+"arrived intact. The protocol library does that for every packet with a CRC "
+"and per-packet acknowledgements -- on by default; the application doesn't "
+"see the retries."
+msgstr ""
+"**可靠性（Reliability）。** USB-CDC 在正常運作下不會無聲地遺失位元組，但 UART "
+"會（當主機未能夠快地服務該連接埠時），而序列纜線拔除後再重新插上，可能讓其中一端留下一個不完整的封包。正確的做法是偵測損毀、要求對方重傳，並且只把完整抵達的訊息交給應用程式碼。協定函式庫透過"
+" CRC 與逐封包的確認（acknowledgement）為每個封包做到這一點——預設啟用；應用程式看不到那些重試。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:34
+msgid ""
+"**Multiplexing.** There's exactly one USB-CDC port between the cam and the "
+"host. If the cam is streaming an image *and* the host is sending it "
+"configuration *and* the IDE is reading ``stdout`` for ``print`` output, all "
+"three exchanges have to share that single byte stream. The protocol library "
+"gives each independent stream a *channel* number, lets the cam register a "
+"Python class for each one, and keeps the host's reads on each channel from "
+"interfering with the others. From application code, each channel looks like "
+"its own private link."
+msgstr ""
+"**多工（Multiplexing）。** 相機與主機之間恰好只有一個 USB-CDC 連接埠。如果相機正在串流一張影像，\\ *同時* "
+"主機正在傳送組態給它，\\ *而且* IDE 正在讀取 ``stdout`` 以取得 ``print`` "
+"的輸出，這三個交換就都必須共用那一條位元組串流。協定函式庫給每個獨立串流一個 *通道（channel）* 編號，讓相機為每個通道註冊一個 Python "
+"類別，並避免主機在各通道上的讀取彼此干擾。從應用程式碼的角度來看，每個通道看起來都像是自己的私有連結。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:46
+msgid "Why not write that yourself"
+msgstr "為何不自己寫就好"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:48
+msgid ""
+"You can. It's a few weeks of work to get all three correct on a serial line "
+"and another few weeks to make the framing handle hot-plug recovery cleanly, "
+"the retransmits work without burning energy on round-trips, and the "
+"multiplexer survive partial reads without corrupting one channel's bytes "
+"into another's."
+msgstr ""
+"你當然可以。要在一條序列線上把這三件事全部做對，得花上好幾週；而要讓封包切分能乾淨地處理熱插拔復原、讓重傳不致在往返上浪費能量、並讓多工器在部分讀取下仍能存活而不把某個通道的位元組混入另一個通道，又得再花上好幾週。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:54
+msgid ""
+"The protocol library has already done that work, has been validated on every"
+" supported cam, and has matching libraries on the host side that speak the "
+"same wire format. Using it means the cam-side code is one small class per "
+"channel and the host-side code is a :class:`~openmv.camera.Camera` object "
+"with ``channel_read`` and ``channel_write`` methods. The mental space saved "
+"goes to whatever the application actually does."
+msgstr ""
+"協定函式庫早已完成了那些工作，已在每一款支援的相機上通過驗證，並在主機端備有採用相同線上格式（wire "
+"format）的對應函式庫。使用它，意味著相機端的程式碼就是每個通道一個小類別，而主機端的程式碼則是一個帶有 ``channel_read`` 與 "
+"``channel_write`` 方法的 :class:`~openmv.camera.Camera` "
+"物件。省下來的腦力空間，就能全部投入應用程式真正要做的事情上。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:62
+msgid ""
+"This chapter teaches the protocol from the ground up: the wire format, the "
+"framing rules, the reliability machinery, the channel model, and finally the"
+" Python classes on both ends. By the end the reader can build a host GUI "
+"that talks to the cam, a script that streams sensor data from cam to laptop,"
+" and the kind of interactive calibration tool that ships in `openmv-"
+"projects/tools/ <https://github.com/openmv/openmv-"
+"projects/tree/master/tools>`_."
+msgstr ""
+"本章從頭開始教導這個協定：線上格式、封包切分規則、可靠性機制、通道模型，最後是兩端的 Python 類別。讀完之後，讀者就能打造一個與相機對話的主機 "
+"GUI、一個把感測器資料從相機串流到筆電的指令碼，以及像 `openmv-projects/tools/ "
+"<https://github.com/openmv/openmv-projects/tree/master/tools>`_ "
+"中所附那種互動式校正工具。"

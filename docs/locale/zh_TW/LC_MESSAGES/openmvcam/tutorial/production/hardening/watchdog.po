@@ -1,0 +1,212 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:2
+msgid "The watchdog"
+msgstr "看門狗"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:4
+msgid ""
+"The hardware watchdog is the floor every other hardening choice sits on. It "
+"is a tiny independent timer that resets the processor when it has not been "
+"told otherwise for too long. A script that wedges on a flaky sensor, a "
+"network call that blocks past its timeout, a memory allocator stuck in a "
+"corner of the heap, an exception that escaped the loop -- none of them stop "
+"the watchdog. The timer counts down regardless, and the cam reboots."
+msgstr ""
+"硬體看門狗是其他每一項強化選擇所立足的底層基礎。它是一個微小且獨立的計時器，當處理器太久沒有另行通知時，它就會將其重置。一個卡在不穩定感測器上的指令碼、一個阻塞超過逾時限制的網路呼叫、一個卡在堆積某個角落的記憶體配置器、一個逃出迴圈的例外——這些都無法讓看門狗停下來。計時器無論如何都會倒數，而"
+" cam 會重新開機。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:13
+msgid ""
+"For a shipped product, a watchdog is not optional. Without it, any of the "
+"failure modes above leaves the cam dead until someone notices and power-"
+"cycles it. With it, the cam comes back up by itself and the only evidence of"
+" the failure is one line in the log."
+msgstr ""
+"對於出貨的產品而言，看門狗並非選配。沒有它，上述任何一種失效模式都會讓 cam 死掉，直到有人察覺並重新開關電源。有了它，cam "
+"會自行恢復運作，而失效留下的唯一證據就是記錄檔中的一行。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:21
+msgid ""
+"The hardware chapter's :doc:`watchdog timer "
+"</openmvcam/tutorial/hardware/production/watchdog>` page covers what a "
+"watchdog is at the hardware level and the basics of the :class:`machine.WDT`"
+" API. This page covers what changes for a production deployment."
+msgstr ""
+"硬體章節的 :doc:`看門狗計時器 </openmvcam/tutorial/hardware/production/watchdog>` "
+"頁面，說明了看門狗在硬體層面是什麼，以及 :class:`machine.WDT` API 的基礎。本頁說明的是在量產部署中有哪些改變。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:28
+msgid "Starting the watchdog"
+msgstr "啟動看門狗"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:30
+msgid ""
+":class:`machine.WDT` is the API. It is hardware-backed: once constructed, "
+"the timer runs until the next reset. There is no ``stop()``, no "
+"``deinit()``, no Ctrl-C escape. That is the point."
+msgstr ""
+":class:`machine.WDT` 就是這個 API。它由硬體支撐：一旦建構完成，計時器就會持續運行直到下一次重置。沒有 ``stop()``\\"
+" 、沒有 ``deinit()``\\ 、也沒有 Ctrl-C 可以逃脫。這正是重點所在。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:35
+msgid ""
+"A typical setup at the top of ``main.py``, immediately before the loop it "
+"protects::"
+msgstr "在 ``main.py`` 頂端的典型設定，緊接在它所保護的迴圈之前::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:42
+msgid ""
+"``main.py`` is the right home for the watchdog because that is where the "
+"loop lives. A watchdog reset is a hardware reset, so the cold-boot path re-"
+"runs and ``main.py`` re-enters the loop on its own -- recovery works without"
+" any wiring in ``boot.py``. Starting the watchdog in ``boot.py`` instead "
+"means every soft reset (a developer's Ctrl-D, for instance) hands the "
+"application a hardware timer it has no way to stop, which is an annoyance at"
+" the bench and a trap in production setup code that runs before the loop is "
+"ready."
+msgstr ""
+"``main.py`` 是看門狗的合適安身之處，因為迴圈就住在那裡。看門狗重置是一次硬體重置，所以冷開機路徑會重新執行，\\ ``main.py`` "
+"會自行重新進入迴圈——恢復機制無需在 ``boot.py`` 中做任何接線就能運作。改在 ``boot.py`` "
+"中啟動看門狗，意味著每一次軟重置（例如開發者按下的 "
+"Ctrl-D）都會交給應用程式一個它無法停止的硬體計時器，這在工作檯上是個惱人之事，而在迴圈尚未就緒前就執行的量產設定程式碼中則是個陷阱。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:52
+msgid ""
+"Pick the timeout to be 2 to 3 times longer than the worst observed iteration"
+" time of the main loop. Frame-rate jitter, a slow sensor read on a cold "
+"sensor, a brief Wi-Fi hiccup -- none of those should trip the watchdog. A "
+"real hang (an infinite loop, a blocked I/O call) should. Too-short timeouts "
+"turn the watchdog into a source of false resets; too-long timeouts let the "
+"cam sit unresponsive for minutes before recovery fires."
+msgstr ""
+"將逾時設定為主迴圈最差觀測迭代時間的 2 到 3 倍。影格率抖動、冷感測器上一次緩慢的感測器讀取、短暫的 Wi-Fi "
+"卡頓——這些都不該觸發看門狗。真正的當機（無窮迴圈、被阻塞的 I/O 呼叫）則應該觸發。逾時設得太短會讓看門狗變成誤重置的來源；設得太長則會讓 cam "
+"在恢復機制啟動前枯坐數分鐘無回應。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:62
+msgid "Feeding it"
+msgstr "餵食看門狗"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:64
+msgid ""
+"``wdt.feed()`` resets the countdown. Call it once per iteration of the main "
+"loop, at the **top** of the loop body so the feed happens unconditionally "
+"before any work that might hang::"
+msgstr ""
+"``wdt.feed()`` 會重置倒數計時。在主迴圈的每一次迭代中呼叫它一次，放在迴圈本體的\\ **頂端**\\ "
+"，這樣餵食動作就會在任何可能當機的工作之前無條件發生::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:75
+msgid "Surviving exceptions"
+msgstr "在例外中存活"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:77
+msgid ""
+"The watchdog handles hangs. Exceptions are a different failure mode. An "
+"unhandled exception bubbles up to the script's top level, ``main.py`` exits,"
+" and the cam drops to the REPL. The watchdog then trips after its timeout "
+"because nothing is feeding it from the REPL, the cam resets, and ``main.py``"
+" runs again -- so recovery does work, but the field pays a full timeout-"
+"plus-reboot for every crash, the traceback goes to USB stdout that nothing "
+"reads, and any in-memory state the application was keeping is gone."
+msgstr ""
+"看門狗處理的是當機。例外則是另一種失效模式。未處理的例外會向上冒泡到指令碼的最頂層，\\ ``main.py`` 結束，cam 掉回 "
+"REPL。看門狗接著會在其逾時後觸發，因為 REPL 中沒有任何東西在餵食它，cam 重置，\\ ``main.py`` "
+"再次執行——所以恢復機制確實有效，但現場每次當機都要付出一整段逾時加上重新開機的代價，回溯訊息送往沒有人讀取的 USB "
+"標準輸出，而應用程式所保留的任何記憶體內狀態都消失了。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:87
+msgid ""
+"Wrapping the main loop in a top-level ``try`` / ``except`` turns a crash "
+"into a logged event the application continues through, without paying for a "
+"reset::"
+msgstr ""
+"將主迴圈包在一個最頂層的 ``try`` / ``except`` "
+"中，能把當機變成一個應用程式可繼續執行下去、被記錄下來的事件，而無需付出重置的代價::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:103
+msgid ""
+"Catching ``Exception`` (not ``BaseException``) keeps ``KeyboardInterrupt`` "
+"and :class:`SystemExit` working, which is what a developer attached over USB"
+" wants."
+msgstr ""
+"捕捉 ``Exception``\\ （而非 ``BaseException``\\ ）能讓 ``KeyboardInterrupt`` 與 "
+":class:`SystemExit` 維持運作，這正是透過 USB 連接的開發者所想要的。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:107
+msgid ""
+"This pattern is the software half of liveness: the watchdog catches the "
+"hangs, the wrapper catches the crashes, and the log records what either of "
+"them caught."
+msgstr "這個模式是存活性的軟體那一半：看門狗捕捉當機，包裹器捕捉崩潰，記錄檔記下兩者中任一所捕捉到的事件。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:112
+msgid "Knowing why a boot happened"
+msgstr "知道開機為何發生"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:114
+msgid ""
+"Every soft reset and every watchdog reset eventually shows up as a fresh "
+"boot. The boot-time diagnostics helper logs :func:`machine.reset_cause` on "
+"every cold start; the ``reset cause`` line is what tells the field whether "
+"recovery actually fired versus the cam just power-cycling normally."
+msgstr ""
+"每一次軟重置與每一次看門狗重置，最終都會以一次全新的開機呈現出來。開機時診斷輔助工具會在每次冷啟動時記錄 "
+":func:`machine.reset_cause`\\ ；\\ ``reset cause`` 這一行正是告訴現場恢復機制究竟是真的啟動了，還是 "
+"cam 只是正常地重新開關電源。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:120
+msgid ""
+"The reset-cause line is what makes the watchdog's work visible in the log. A"
+" log full of ``watchdog timeout`` resets says the application has been "
+"hanging and the watchdog has been recovering it. A log without them says the"
+" watchdog has not had to fire -- which usually means the application is "
+"healthy, but can also mean the timeout is set too long to catch the hangs "
+"that are actually happening."
+msgstr ""
+"重置原因這一行，正是讓看門狗的工作在記錄檔中可見的東西。一份滿是 ``watchdog timeout`` "
+"重置的記錄檔，說明應用程式一直在當機，而看門狗一直在恢復它。一份沒有這些的記錄檔，說明看門狗未曾需要觸發——這通常意味著應用程式很健康，但也可能意味著逾時設得太長，以致無法捕捉到實際正在發生的當機。"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:129
+msgid "A complete starter"
+msgstr "一個完整的起步範本"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:131
+msgid ""
+"A ``main.py`` that pulls watchdog, logging setup, boot-time diagnostics, and"
+" the wrapper together looks like::"
+msgstr "一個把看門狗、記錄設定、開機時診斷與包裹器整合在一起的 ``main.py`` 看起來像這樣::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:153
+msgid ""
+"``step()`` is the application's per-iteration work; the rest of this "
+"scaffold does not change between products. Hardening is one watchdog, one "
+"wrapper, and a logged boot every cold start -- not much code, and the "
+"difference between a cam that recovers on its own and one that needs a "
+"service call."
+msgstr ""
+"``step()`` "
+"是應用程式每次迭代的工作；這個鷹架的其餘部分在不同產品之間不會改變。強化就是一個看門狗、一個包裹器，以及每次冷啟動時記錄一筆開機——程式碼不多，卻是一個能自行恢復的"
+" cam 與一個需要叫服務的 cam 之間的差別。"

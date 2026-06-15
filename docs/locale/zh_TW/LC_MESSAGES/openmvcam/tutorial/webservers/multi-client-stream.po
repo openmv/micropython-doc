@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:2
+msgid "Sharing one capture loop across viewers"
+msgstr "在多個觀看者間共用單一擷取迴圈"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:4
+msgid ""
+"Each connected client calling ``csi0.snapshot()`` independently is wasteful,"
+" and once two streams are open at once it gets worse: the sensor delivers "
+"frames at its own rate, and every duplicated capture slows everybody down. "
+"The right approach is one capture coroutine that publishes \"the latest "
+"frame\" to a shared slot, plus per-client iterators that read from the slot."
+msgstr ""
+"每個已連線的用戶端各自獨立呼叫 ``csi0.snapshot()`` "
+"是浪費的，而且一旦同時開啟兩個串流，情況會更糟：感測器以它自己的速率送出影格，每一次重複的擷取都會拖慢所有人。正確的做法是用一個擷取協程，把「最新的影格」發布到一個共用插槽，再加上各用戶端各自的迭代器去從該插槽讀取。"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:11
+msgid ""
+"One capture task writes JPEG bytes to a single latest_jpeg\n"
+"slot; three stream-client iterators read from the slot and\n"
+"each wait on the shared new_frame event."
+msgstr ""
+"一個擷取工作把 JPEG 位元組寫到單一的 latest_jpeg\n"
+"插槽；三個串流用戶端的迭代器從該插槽讀取，並\n"
+"各自等待共用的 new_frame 事件。"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:18
+msgid "The capture task"
+msgstr "擷取工作"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:20
+msgid ""
+"A background coroutine grabs frames as fast as the sensor delivers them, "
+"JPEG-compresses each one into a shared ``bytes``, and pulses an event so any"
+" waiting client wakes up:"
+msgstr ""
+"一個背景協程以感測器送出影格的最快速度抓取影格，把每一張 JPEG 壓縮進一個共用的 ``bytes``\\ "
+"，並觸發一個事件，好讓任何正在等待的用戶端醒來："
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:37
+msgid ""
+"The ``set()`` / ``clear()`` pair is the *pulse* pattern. ``set()`` unblocks "
+"every coroutine currently waiting on the event in one go; ``clear()`` "
+"immediately resets the event so the next ``wait()`` blocks again. With "
+"multiple consumers (a viewer, another viewer, any other coroutine that needs"
+" to react to a new frame), no single consumer is responsible for resetting "
+"the event, and nobody steals a wake-up from anybody else."
+msgstr ""
+"``set()`` / ``clear()`` 這一對是 *脈衝* 模式。\\ ``set()`` 會一口氣解除所有目前正在等待該事件的協程的阻塞；\\"
+" ``clear()`` 則立即重置該事件，讓下一次 ``wait()`` "
+"再次阻塞。在有多個消費者（一個觀看者、另一個觀看者，以及任何其他需要對新影格做出反應的協程）的情況下，沒有任何單一消費者要負責重置該事件，也沒有人會偷走別人的喚醒。"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:47
+msgid ""
+"The ``bytes(...)`` wrap around the JPEG is load-bearing here. "
+":meth:`~image.Image.bytearray` returns a view into the camera's image "
+"buffer; the very next :meth:`~csi.CSI.snapshot` call rewrites that buffer in"
+" place with the next frame. ``latest_jpeg`` outlives the local ``img``, so "
+"without the copy every reader would see the slot shift under them on every "
+"capture."
+msgstr ""
+"圍繞 JPEG 的 ``bytes(...)`` 包裝在此是關鍵。\\ :meth:`~image.Image.bytearray` "
+"回傳的是相機影像緩衝區的一個檢視；緊接著的下一次 :meth:`~csi.CSI.snapshot` 呼叫會就地用下一張影格改寫該緩衝區。\\ "
+"``latest_jpeg`` 的存活時間比區域變數 ``img`` 更長，所以若沒有這份複製，每個讀取者都會在每次擷取時看到插槽在腳下被換掉。"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:56
+msgid "Per-client iterators read from the slot"
+msgstr "各用戶端的迭代器從插槽讀取"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:58
+msgid ""
+"The MJPEG stream handler stops calling ``csi0.snapshot()`` itself. Instead, "
+"each ``FrameStream`` instance waits on the shared event and reads from the "
+"shared bytes:"
+msgstr ""
+"MJPEG 串流處理常式不再自己呼叫 ``csi0.snapshot()``\\ 。取而代之，每個 ``FrameStream`` "
+"實例都等待共用事件，並從共用的 bytes 讀取："
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:80
+msgid ""
+"The snapshot route changes too: it no longer triggers a capture, it returns "
+"whatever ``latest_jpeg`` currently holds:"
+msgstr "快照路由也跟著改變：它不再觸發擷取，而是回傳 ``latest_jpeg`` 目前所持有的任何內容："
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:94
+msgid ""
+"The ``(body, status)`` tuple is microdot's shorthand for setting an HTTP "
+"status code without constructing a :class:`microdot.Response`. 503 says *I'm"
+" here but not ready* -- the right code for \"ask again in a moment.\""
+msgstr ""
+"``(body, status)`` 元組是 microdot 在不建構 :class:`microdot.Response` 的情況下設定 HTTP "
+"狀態碼的簡寫。503 表示 *我在這裡，但還沒準備好*\\ ——這正是「請稍後再問一次」的恰當狀態碼。"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:100
+msgid "Running capture alongside the server"
+msgstr "讓擷取與伺服器並行執行"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:102
+msgid ""
+"``main`` now has two top-level coroutines: the capture loop and the HTTP "
+"server. :func:`asyncio.gather` runs them both, and if either crashes the "
+"other is cancelled:"
+msgstr ""
+"``main`` 現在有兩個頂層協程：擷取迴圈與 HTTP 伺服器。\\ :func:`asyncio.gather` "
+"會同時執行兩者，且如果其中一個當掉，另一個會被取消："
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:116
+msgid ""
+"Now the sensor reads one frame per cycle no matter how many viewers are "
+"connected. The first browser to ``/stream.jpg`` sees frames; so does the "
+"second, the third, the tenth -- they all share the same capture, and the cam"
+" stays as responsive on its other routes."
+msgstr ""
+"現在，無論連線了多少個觀看者，感測器每個週期都只讀取一張影格。第一個連到 ``/stream.jpg`` "
+"的瀏覽器會看到影格；第二個、第三個、第十個也一樣——它們全都共用同一份擷取，而相機在其他路由上也維持同樣的回應能力。"

@@ -1,0 +1,166 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:2
+msgid "Building a ROMFS image"
+msgstr "建置 ROMFS 映像"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:4
+msgid ""
+"A *ROMFS image* is a flash-resident, read-only filesystem the runtime auto-"
+"mounts at ``/rom``. It solves the asset problem the previous page closed on:"
+" machine-learning model files, label tables, JSON configuration, image "
+"templates -- anything the application opens and reads but never writes -- "
+"ride into the build without paying the cost of being embedded as Python "
+"literals."
+msgstr ""
+"*ROMFS 映像* 是一個常駐於 flash、唯讀的檔案系統，執行階段會自動將其掛載在 ``/rom``\\ "
+"。它解決了上一頁結尾所提及的資產問題：機器學習模型檔、標籤表、JSON "
+"設定、影像範本——任何應用程式只會開啟並讀取、卻從不寫入的東西——都能搭上建置的便車，而無需付出被當成 Python 字面值嵌入的代價。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:12
+msgid "Three things make ROMFS the right tool for shipped assets:"
+msgstr "有三點使 ROMFS 成為處理出貨資產的恰當工具："
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:14
+msgid ""
+"The filesystem is *part of the firmware image*. End users cannot delete a "
+"file out of ``/rom``, edit one, or replace one with their own."
+msgstr "這個檔案系統是 *韌體映像的一部分*\\ 。終端使用者無法從 ``/rom`` 刪除某個檔案、編輯它，或用自己的檔案替換它。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:17
+msgid ""
+"Files in ``/rom`` are accessible *in place*. Consumers like the :mod:`ml` "
+"module loading a model file get a direct view into flash with no RAM copy --"
+" a multi-megabyte model on ``/rom`` \"loads\" essentially for free, where "
+"the same file on ``/sdcard`` is read into RAM at load time and stays there "
+"for the lifetime of the reference. Ordinary :func:`open` + ``read`` copies "
+"on demand: each ``read(n)`` call copies ``n`` bytes from flash to RAM at the"
+" moment of the call, with a bare ``read()`` asking for the whole file."
+msgstr ""
+"``/rom`` 中的檔案可 *原地* 存取。像 :mod:`ml` 模組這類的取用方在載入模型檔時，會取得一個直接指向 flash 的檢視，完全不需要"
+" RAM 副本——位於 ``/rom`` 上一個數百萬位元組的模型，「載入」起來基本上不花成本，而同一個檔案若位於 ``/sdcard``\\ "
+"，則會在載入時被讀入 RAM，並在該參照的整個生命週期中一直留存於其中。一般的 :func:`open` + ``read`` 則是按需複製：每一次 "
+"``read(n)`` 呼叫都會在該呼叫的當下從 flash 複製 ``n`` 個位元組到 RAM，而不帶參數的 ``read()`` "
+"則是要求讀取整個檔案。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:26
+msgid ""
+"``/rom`` and ``/rom/lib`` are added to :data:`sys.path` at boot. Python "
+"packages dropped into the image are importable by name; nothing special at "
+"the call site."
+msgstr ""
+"``/rom`` 與 ``/rom/lib`` 會在開機時加入 :data:`sys.path`\\ 。放進映像中的 Python "
+"套件可依名稱匯入；在呼叫端不需要任何特殊處理。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:31
+msgid "Building an image"
+msgstr "建置一份映像"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:33
+msgid ""
+"ROMFS images are created, edited, and flashed through the IDE. Use it as the"
+" source of truth for the contents of every shipped ROMFS partition."
+msgstr "ROMFS 映像是透過 IDE 來建立、編輯與燒錄的。請將它當成每一個出貨 ROMFS 分割區內容的單一可信來源。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:37
+msgid ""
+"The reason this matters: model files come with alignment requirements that "
+"the loader at runtime enforces. ``.tflite`` files must be padded to 16-byte "
+"boundaries, and the N6's NPU requires 32-byte alignment for compiled models."
+" The IDE applies that padding automatically when it writes the image. Tools "
+"that walk the source tree without applying the padding -- ``mpremote romfs``"
+" in particular -- produce an image that mounts cleanly but whose models fail"
+" at the first inference call."
+msgstr ""
+"之所以重要的原因：模型檔帶有對齊需求，執行階段的載入器會強制執行這些需求。\\ ``.tflite`` 檔案必須填補對齊到 16 位元組邊界，而 N6 "
+"的 NPU 對於編譯後的模型則要求 32 位元組對齊。IDE 在寫出映像時會自動套用該填補。那些走訪原始碼樹卻不套用填補的工具——尤其是 "
+"``mpremote romfs``\\ ——所產生的映像雖能順利掛載，但其模型會在第一次推論呼叫時失敗。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:47
+msgid ""
+"The IDE's ROMFS editor is an interactive view of the image's contents. Files"
+" and folders can be added, renamed, and deleted in memory; saving writes the"
+" result out as an ``.img`` file ready to flash. A typical structure for an "
+"application that ships a model alongside some assets and a Python package "
+"looks like::"
+msgstr ""
+"IDE 的 ROMFS 編輯器是映像內容的互動式檢視。檔案與資料夾可在記憶體中新增、重新命名與刪除；存檔時會把結果寫出為一份可供燒錄的 ``.img``"
+" 檔案。對於一個出貨模型外加若干資產與一個 Python 套件的應用程式，典型的結構看起來像::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:66
+msgid ""
+"Both the IDE and ``mpremote`` cross-compile ``.py`` files to ``.mpy`` "
+"bytecode on the way into a ROMFS image, so the cam imports them without "
+"paying the parse cost at load time. Source files in the editor stay ``.py``;"
+" the image contains ``.mpy``."
+msgstr ""
+"IDE 與 ``mpremote`` 在把 ``.py`` 檔案放入 ROMFS 映像的過程中，都會將其交叉編譯成 ``.mpy`` "
+"位元組碼，如此相機在匯入它們時就不必在載入階段付出剖析成本。編輯器中的原始檔仍維持為 ``.py``\\ ；映像中包含的則是 ``.mpy``\\ 。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:72
+msgid ""
+"Once the image is flashed, the tree is visible from MicroPython at "
+"``/rom/``::"
+msgstr "映像一經燒錄，該樹從 MicroPython 即可在 ``/rom/`` 看見::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:83
+msgid "Most of the application lives in ROMFS"
+msgstr "應用程式大部分都住在 ROMFS 中"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:85
+msgid ""
+"ROMFS is the right home for almost everything an application ships: the "
+"libraries it imports, the model files it loads, the configuration it reads, "
+"any asset whose output came from a build tool that emits a file tree (model "
+"converters, image pipelines, asset packers), and -- importantly -- the "
+"application code itself."
+msgstr ""
+"對於應用程式所出貨的幾乎一切，ROMFS "
+"都是恰當的歸宿：它所匯入的函式庫、它所載入的模型檔、它所讀取的設定、任何輸出來自會產生檔案樹的建置工具（模型轉換器、影像流水線、資產打包工具）的資產，以及——尤為重要的——應用程式碼本身。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:92
+msgid ""
+"The frozen-modules side should stay small: ``boot.py`` for pre-REPL setup, "
+"``main.py`` as a thin entry point, and only the libraries the cam genuinely "
+"cannot boot without. Everything else goes in ROMFS, where iterating on it is"
+" a fresh ``.img`` saved out of the IDE and reflashed -- no firmware rebuild "
+"required, no toolchain on hand to do it."
+msgstr ""
+"凍結模組那一側則應保持精簡：用於 REPL 前置設定的 ``boot.py``\\ 、作為精簡進入點的 ``main.py``\\ "
+"，以及只有那些相機若缺了就真的無法開機的函式庫。其餘一切都放進 ROMFS，在那裡迭代它只需從 IDE 存出一份新的 ``.img`` "
+"再重新燒錄——不需要重新建置韌體，也不需要手邊備有工具鏈。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:99
+msgid ""
+"The pattern that falls out is a ``main.py`` that does nothing but delegate "
+"into the ROMFS-resident application::"
+msgstr "由此衍生出的模式，是一個除了委派給常駐於 ROMFS 的應用程式之外什麼都不做的 ``main.py``::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:110
+msgid ""
+"A change to ``app`` is a ROMFS edit and a reflash. The firmware build stays "
+"put for the lifetime of the product unless something on the frozen side "
+"actually has to change."
+msgstr ""
+"對 ``app`` 的修改就是一次 ROMFS 編輯加一次重新燒錄。除非凍結那一側真的有東西非改不可，否則韌體建置在產品的整個生命週期中都維持不動。"

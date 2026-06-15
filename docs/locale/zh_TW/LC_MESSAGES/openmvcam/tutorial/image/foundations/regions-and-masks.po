@@ -1,0 +1,277 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:2
+msgid "Regions and masks"
+msgstr "區域與遮罩"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:4
+msgid ""
+"Every operation in the image module touches every pixel of its source image "
+"by default. That is the simplest behaviour to describe, and the right one "
+"when the algorithm's job genuinely spans the whole frame -- a uniform colour"
+" correction, a global histogram, an encoding pass for transmission. But most"
+" algorithms in practice want to look at less than that. A blob tracker "
+"watching a coloured marker cares about the part of the scene the marker can "
+"appear in, not the wall behind it. A morphological cleanup pass is only safe"
+" over the pixels that an earlier stage marked as candidates. A face detector"
+" might only run inside the bounding box a coarser detector already narrowed "
+"down. The image module supports that work through two mechanisms that scope "
+"an operation to a subset of pixels: rectangular *regions of interest*, and "
+"binary *masks*. They compose freely, and almost every method that touches "
+"pixels accepts one or the other -- or both -- as a keyword argument."
+msgstr ""
+"image "
+"模組中的每一項操作預設都會處理其來源影像的每一個像素。這是最容易描述的行為，而且當演算法的工作確實涵蓋整個影格時，這也是正確的做法——例如均勻的色彩校正、全域直方圖，或是用於傳輸的編碼程序。但在實務上，大多數演算法想要處理的範圍其實更小。一個盯著彩色標記的色塊追蹤器，只在乎場景中標記可能出現的部分，而不在乎後方的牆壁。一個形態學清理程序只有在處理早期階段標記為候選的像素時才是安全的。一個臉部偵測器可能只會在較粗略的偵測器已縮小範圍的邊界框內執行。image"
+" 模組透過兩種機制來支援這類工作，將操作限定在像素的子集合上：矩形的\\ *感興趣區域*\\ ，以及二值\\ *遮罩*\\ "
+"。它們可以自由組合，而且幾乎每一個會觸及像素的方法都接受其中之一——或兩者——作為關鍵字引數。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:26
+msgid "Regions of interest"
+msgstr "感興趣區域"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:28
+msgid ""
+"A region of interest is a rectangle of pixels named by the ``(x, y, w, h)`` "
+"four-tuple introduced on the coordinates page. About thirty methods on the "
+"surface accept an ``roi`` keyword argument; when present, the operation runs"
+" only on the pixels inside that rectangle and leaves the rest of the image "
+"untouched. When ``roi`` is :data:`None` or omitted, the operation runs over "
+"the whole image -- the same as if ``roi=(0, 0, width, height)`` had been "
+"passed."
+msgstr ""
+"感興趣區域是由座標頁面所介紹的 ``(x, y, w, h)`` 四元組所指定的矩形像素區域。介面上大約有三十個方法接受 ``roi`` "
+"關鍵字引數；當其存在時，操作只會在該矩形內的像素上執行，而保持影像其餘部分不變。當 ``roi`` 為 :data:`None` "
+"或省略時，操作會在整張影像上執行——效果如同傳入了 ``roi=(0, 0, width, height)``\\ 。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:39
+msgid ""
+"In code the keyword sits alongside whatever other arguments the operation "
+"takes:"
+msgstr "在程式碼中，這個關鍵字會與操作所接受的其他引數並列："
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:47
+msgid ""
+"The first thing ROIs buy is *false-positive control*. A colour tracker that "
+"only looks at the table will never trigger on the shirt walking past it; an "
+"edge detector that only runs inside the defined work area will never report "
+"the edges of the camera mount itself. Cutting the search area down to the "
+"part of the scene the algorithm actually cares about is the cheapest "
+"improvement a pipeline can make to its own reliability."
+msgstr ""
+"ROI 帶來的第一項好處是\\ *偽陽性控制*\\ "
+"。一個只觀察桌面的色彩追蹤器，永遠不會被走過旁邊的襯衫觸發；一個只在已定義的工作區域內執行的邊緣偵測器，永遠不會回報相機支架本身的邊緣。將搜尋範圍縮減至場景中演算法實際在乎的部分，是一條管線能對自身可靠性所做的最廉價改善。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:57
+msgid ""
+"The second thing they buy is the *coarse-to-fine pipeline*. Detection result"
+" objects -- a ``blob``, a ``rect``, an ``apriltag``, and so on -- expose "
+"their bounding boxes as the same ``(x, y, w, h)`` four-tuple that ``roi`` "
+"accepts. So a coarse first stage can return a bounding box, the box drops "
+"directly into the next stage's ``roi``, and the second stage runs over the "
+"narrower area. Each progressive narrowing both speeds the next stage up and "
+"makes its results more reliable, because the search space has already been "
+"filtered."
+msgstr ""
+"它們帶來的第二項好處是\\ *由粗到細的管線*\\ 。偵測結果物件——例如 ``blob``\\ 、\\ ``rect``\\ 、\\ "
+"``apriltag`` 等等——以與 ``roi`` 所接受相同的 ``(x, y, w, h)`` "
+"四元組形式公開其邊界框。因此，粗略的第一階段可以回傳一個邊界框，該邊界框直接放入下一階段的 ``roi``\\ "
+"，而第二階段便在這個更窄的範圍上執行。每一次漸進的縮小都既加快了下一階段的速度，又使其結果更可靠，因為搜尋空間已經先過濾過了。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:70
+msgid "Binary masks"
+msgstr "二值遮罩"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:72
+msgid ""
+"A rectangle is the right form when the area of interest is axis-aligned. "
+"When it is not -- a curved region, a non-convex one, the pixels that some "
+"earlier stage classified as \"matches\" -- the operation has to be told to "
+"scope itself to an arbitrary pattern of pixels instead. The mechanism for "
+"that is a binary mask: a separate :class:`Image`, the same dimensions as the"
+" source, used as a per-pixel on / off switch. A non-zero pixel in the mask "
+"says \"include the matching source pixel\"; a zero pixel says \"leave the "
+"source pixel alone.\""
+msgstr ""
+"當感興趣的區域是軸對齊的時候，矩形是正確的形式。當它不是時——例如曲線區域、非凸區域，或是某個早期階段分類為「相符」的像素——就必須告訴操作將自己限定在任意的像素圖樣上。實現這點的機制是二值遮罩：一個獨立的"
+" :class:`Image`\\ "
+"，與來源具有相同的尺寸，用作逐像素的開／關開關。遮罩中的非零像素表示「納入相對應的來源像素」；零像素則表示「保持來源像素不變」。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:85
+msgid ""
+"A mask is usually a :data:`~image.BINARY` image -- the one-bit-per-pixel "
+"format that exists for exactly this purpose -- but any single-channel image "
+"will work, because the consumer treats any non-zero value as on."
+msgstr ""
+"遮罩通常是一張 :data:`~image.BINARY` "
+"影像——正是為此目的而存在的每像素一位元格式——但任何單通道影像都可以使用，因為消費端會將任何非零值視為開啟。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:91
+msgid ""
+"Filtering, thresholding, and arithmetic methods accept a ``mask`` keyword "
+"argument. The form is the same on each: a separately allocated binary image,"
+" the same dimensions as the source, passed through."
+msgstr "濾波、閾值處理與算術方法都接受 ``mask`` 關鍵字引數。其形式在每個方法上都相同：傳入一張獨立配置的二值影像，與來源具有相同的尺寸。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:97
+msgid ""
+"ROIs and masks *compose*. Pass both, and the operation runs only on pixels "
+"that are inside the ROI **and** on in the mask. The two mechanisms give "
+"application code independent levers -- one for the rectangular area of "
+"interest, one for the arbitrary pattern within it -- without making either "
+"form inherit constraints from the other."
+msgstr ""
+"ROI 與遮罩可以\\ *組合*\\ 。同時傳入兩者，操作便只會在位於 ROI 內\\ **且**\\ "
+"在遮罩中為開啟的像素上執行。這兩種機制給了應用程式碼各自獨立的調節桿——一個用於矩形的感興趣區域，一個用於其中的任意圖樣——而不會讓任一種形式繼承另一種的限制。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:105
+msgid ""
+"A small grid representing an image. A\n"
+"dashed rectangle drawn across the\n"
+"upper-middle portion of the grid labels\n"
+"the ROI: only pixels inside this\n"
+"rectangle are considered. Inside the ROI,\n"
+"a roughly circular set of filled cells\n"
+"labels the mask: only those filled cells\n"
+"are actually modified. The remaining\n"
+"cells are shaded lightly to indicate they\n"
+"are untouched."
+msgstr ""
+"一個代表影像的小型格點。一個橫跨\n"
+"格點上中部位的虛線矩形標示出\n"
+"ROI：只有此矩形內的像素會被\n"
+"考慮。在 ROI 內部，一組大致呈\n"
+"圓形的填滿格子標示出遮罩：只有\n"
+"那些填滿的格子才會實際被修改。\n"
+"其餘的格子以淺色陰影表示它們\n"
+"未被觸及。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:117
+msgid ""
+"An ROI confines an operation to an axis-aligned rectangle. A mask further "
+"narrows it to an arbitrary pattern of pixels. The two compose: only pixels "
+"inside the ROI **and** on in the mask are modified."
+msgstr ""
+"ROI 將操作限定於一個軸對齊的矩形。遮罩則進一步將其縮小至任意的像素圖樣。兩者組合：只有位於 ROI 內\\ **且**\\ "
+"在遮罩中為開啟的像素才會被修改。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:124
+msgid "Building masks"
+msgstr "建立遮罩"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:126
+msgid ""
+"Three :class:`Image` methods build common mask geometries in place by "
+"zeroing the pixels *outside* the chosen region:"
+msgstr "三個 :class:`Image` 方法透過將所選區域\\ *之外*\\ 的像素歸零，就地建立常見的遮罩幾何形狀："
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:130
+msgid ":meth:`~image.Image.mask_rectangle` keeps a rectangle."
+msgstr ":meth:`~image.Image.mask_rectangle` 保留一個矩形。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:132
+msgid ":meth:`~image.Image.mask_circle` keeps a circle."
+msgstr ":meth:`~image.Image.mask_circle` 保留一個圓形。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:133
+msgid ":meth:`~image.Image.mask_ellipse` keeps an ellipse."
+msgstr ":meth:`~image.Image.mask_ellipse` 保留一個橢圓形。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:136
+msgid ""
+"Each takes ``(x, y, w, h)`` (for the rectangle and the ellipse) or ``(x, y, "
+"radius)`` (for the circle). Calling any of them without arguments centres "
+"the geometry and sizes it to fill the image, which is the form an "
+"application reaches for when the goal is a simple full-image oval or circle "
+"that hides nothing but the corners."
+msgstr ""
+"每個方法都接受 ``(x, y, w, h)``\\ （用於矩形與橢圓）或 ``(x, y, radius)``\\ "
+"（用於圓形）。不帶任何引數呼叫其中任一個，會將幾何形狀置中，並調整大小以填滿影像，這正是當應用程式的目標是一個只遮住四角、別無他物的簡單全影像橢圓或圓形時所會採用的形式。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:150
+msgid ""
+"The interesting masks rarely come from the ``mask_*`` methods alone. They "
+"come from earlier stages of the pipeline: a thresholding pass produces a "
+"binary image whose non-zero pixels mark the matches, exactly the right form "
+"to feed into the next stage's ``mask=`` argument. A morphological cleanup "
+"pass refines that mask without changing its form. Anything that ends up as a"
+" single-channel image is itself a valid mask."
+msgstr ""
+"有趣的遮罩很少單獨來自 ``mask_*`` "
+"方法。它們來自管線的早期階段：一次閾值處理程序會產生一張二值影像，其非零像素標示出相符之處，正是適合饋入下一階段 ``mask=`` "
+"引數的形式。一次形態學清理程序會在不改變其形式的情況下精修該遮罩。任何最終成為單通道影像的東西，本身都是一個有效的遮罩。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:161
+msgid "How operations modify the image"
+msgstr "操作如何修改影像"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:163
+msgid ""
+"A pattern visible in every code snippet on the last few pages -- the "
+"operation returning the same ``img`` for chaining -- is worth pulling out "
+"explicitly so it does not have to be re-stated each time a new method is "
+"introduced. Three families of methods appear on the :class:`Image` surface, "
+"each treating the source image differently:"
+msgstr ""
+"前幾頁每個程式碼片段中都可見的一種模式——操作回傳同一個 ``img`` 以供串接——值得明確地提出來，這樣每次介紹新方法時就不必重述。\\ "
+":class:`Image` 介面上出現三大類方法，每一類對來源影像的處理方式各不相同："
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:172
+msgid ""
+"**Operating methods** modify the source's pixels in place and return the "
+"same image for chaining. The drawing, arithmetic, threshold, and filter "
+"families all behave this way. ``img.gaussian(1)`` blurs ``img`` and returns "
+"the same ``img``; reassigning -- ``img = img.gaussian(1)`` -- is harmless "
+"but unnecessary."
+msgstr ""
+"**操作型方法**\\ 會就地修改來源的像素，並回傳同一張影像以供串接。繪製、算術、閾值與濾波各系列都以這種方式運作。\\ "
+"``img.gaussian(1)`` 會模糊 ``img`` 並回傳同一個 ``img``\\ ；重新指派——\\ ``img = "
+"img.gaussian(1)``\\ ——無害但沒有必要。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:179
+msgid ""
+"**Conversion methods** operate in place by default the same way operating "
+"methods do, but they accept ``copy=True`` and ``copy_to_fb=True`` to "
+"allocate a separate result image when the source needs to be preserved. The "
+"format conversions and the geometric copies are the main members of this "
+"family."
+msgstr ""
+"**轉換型方法**\\ 預設會像操作型方法一樣就地運作，但它們接受 ``copy=True`` 與 ``copy_to_fb=True``\\ "
+"，以便在需要保留來源時配置一張獨立的結果影像。格式轉換與幾何複製是這一類的主要成員。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:186
+msgid ""
+"**Inspection methods** read the pixels and return a *result object* -- a "
+"list of detected features, a histogram, a set of statistics -- without "
+"modifying the source image at all."
+msgstr "**檢查型方法**\\ 會讀取像素並回傳一個\\ *結果物件*\\ ——一份偵測到的特徵清單、一張直方圖、一組統計資料——而完全不修改來源影像。"
+
+#: ../../openmvcam/tutorial/image/foundations/regions-and-masks.rst:191
+msgid ""
+"That trichotomy is consistent across the whole surface. Knowing which family"
+" a method belongs to tells the application what to expect from a call: "
+"whether the source's pixels will survive intact, whether a separate result "
+"image will be allocated, and whether the return value is the source itself "
+"or something else."
+msgstr ""
+"這套三分法在整個介面上都是一致的。知道一個方法屬於哪一類，就能告訴應用程式對一次呼叫該有什麼預期：來源的像素是否會原封不動地存留、是否會配置一張獨立的結果影像，以及回傳值是來源本身還是其他東西。"

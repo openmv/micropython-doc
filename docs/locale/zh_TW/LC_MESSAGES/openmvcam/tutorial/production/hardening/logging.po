@@ -1,0 +1,554 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "日誌記錄"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"已出貨的產品無法靠 :func:`print` 回報資訊。\\ ``print()`` 會寫入 USB "
+"stdout，而它只在相機放在開發者工作台上、且開啟著終端機時才存在。在現場沒有任何東西會去讀取它；每一行都會被直接丟棄。\\ "
+":mod:`logging` 函式庫就是它的替代方案 -- "
+"提供等級過濾器、由應用程式自行選擇的輸出目的地，以及一種能說明發生了什麼事、又發生在何時的格式。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"相機上的 :mod:`logging` 模組是 CPython 版本的精簡移植 -- 心智模型相同、介面較小，但有幾項對於正式環境設定相當重要的差異。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "心智模型"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr "日誌記錄由四個部分構成。每個部分各司其職；正是這種分離讓單一 logger 能扇出到多個目的地，而每個目的地各自擁有自己的格式與等級："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+"**Logger** 是應用程式呼叫的對象。程式碼寫 ``log.info(\"frame %d\", n)``\\ ；logger "
+"就是這個呼叫所落在的物件。logger 透過 :func:`logging.getLogger` 以名稱查找。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+"**Handler** 決定一筆記錄要送往\\ *何處*\\ 。\\ :class:`~logging.StreamHandler` 會寫入串流（預設為"
+" :data:`sys.stderr`\\ ）；\\ :class:`~logging.FileHandler` 則會附加寫入磁碟上的檔案。一個 "
+"logger 可以擁有任意數量的 handler。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"在相機上，\\ ``sys.stdout`` 與 ``sys.stderr`` 都接到同一條 USB CDC 管線 -- "
+"寫入兩者中任一者都會出現在開發者透過 USB 開啟的同一個終端機上。實務上，一個寫入 ``sys.stderr`` 的 handler 就等於是一個寫到"
+" ``print()`` 所寫位置的 handler。handler 這層抽象仍然提供逐目的地的過濾與格式化；它只是無法提供一條物理上獨立的通道。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+"**Formatter** 決定一筆記錄要\\ *如何*\\ 呈現為文字。它接收一筆記錄並回傳要寫出的那一行。每個 formatter "
+"對應一個格式字串；每個 handler 對應一個 formatter。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"**等級過濾器**\\ 坐落在每個 logger 與每個 handler 上。記錄帶有等級（\\ ``DEBUG`` / ``INFO`` / "
+"``WARNING`` / ``ERROR`` / ``CRITICAL``\\ ）。只有等級達到或高於過濾等級的記錄才會通過。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"這種分離之所以重要，是因為典型的正式環境設定會有不只一個目的地：一個位於 SD 卡上、把一切（低至 ``DEBUG``\\ "
+"）都留下來供事後分析的檔案，以及一個只浮現 ``WARNING`` 及更嚴重訊息的 USB "
+"串流，讓接上相機的開發者能看到重點而不會淹沒在細節裡。同一份程式碼、兩個目的地、兩個過濾器。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "各個等級及其涵義"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr "這五個等級是一個有序的刻度。記錄帶有等級，好讓每個 handler 上的過濾器能丟棄它不關心的那些。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr "``DEBUG`` -- 追蹤、逐影格計數器、內部狀態傾印。最低的等級；數量很大。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr "``INFO`` -- 正常的運作事件。Wi-Fi 已連線、已載入某個模型、看門狗已啟動、已輪替到一個新的日誌檔。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr "``WARNING`` -- 發生了某件意料之外的事，但應用程式已處理它。掉了一個影格、重試了一次網路請求。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr "``ERROR`` -- 某項操作失敗了，應用程式無法完成它。找不到模型檔、SD 卡寫入被拒絕。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr "``CRITICAL`` -- 應用程式完全無法繼續執行。記憶體耗盡、必須掛載的項目遺失。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"有一個重要的預設值要記住：相機的 :mod:`logging` 模組會把每個 logger 的起始等級設為 ``WARNING``\\ 。除非呼叫 "
+":meth:`Logger.setLevel` -- 通常是作為下方 :func:`basicConfig` 呼叫的一部分 -- 否則 "
+"``DEBUG`` 與 ``INFO`` 等級的記錄都會被默默丟棄。日誌設定「沒在運作」最常見的第一個徵兆，就是應用程式以 ``INFO`` "
+"等級發出記錄，而預設過濾器吃掉了那筆記錄。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"等級是相機的 :mod:`logging` 唯一提供的過濾器。並沒有 :class:`Filter` "
+"物件可用於更豐富的逐記錄規則；只要一筆記錄的等級通過，它就會被發出。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig：快速上手"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ":func:`logging.basicConfig` 只需一次呼叫即可設定根 logger。最常出現的有兩種形態："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr "一種開發設定，把一切以 ``INFO`` 等級送往 USB stderr::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr "一種正式環境設定，把一切以帶時間戳記的格式寫入 SD 卡上的檔案::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+"傳入 ``filename=`` 以使用 :class:`FileHandler`\\ ，或傳入 ``stream=`` 以使用 "
+":class:`StreamHandler`\\ ；這兩者在 :func:`basicConfig` 中互斥。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr "格式字串是一個 ``%(field)s`` 風格的範本。相機的 formatter 所支援的欄位："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s`` -- 由 :func:`time.localtime` 格式化而成的時間戳記。預設格式為 ``%Y-%m-%d "
+"%H:%M:%S``\\ ；傳入 ``datefmt=`` 可覆寫之。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ 。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s`` -- logger 的名稱（見下一節）。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s`` -- 記錄已格式化的訊息。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d`` -- 記錄時間戳記的毫秒部分。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"若未指定格式，預設為 ``%(levelname)s:%(name)s:%(message)s`` -- "
+"這對開發設定來說沒問題，但對現場日誌而言並不足夠，因為時間戳記才是讓那個檔案在數週後仍然有用的關鍵。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+":func:`basicConfig` 在後續呼叫時是無作用的（no-op），除非傳入 ``force=True``\\ "
+"。請在啟動時設定一次；不要在執行中途再次呼叫它來「切換目的地」。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"相機的 :mod:`logging` 沒有 :func:`dictConfig` 或 :func:`fileConfig`\\ "
+"。設定一律以程式化方式進行 -- 慣例是寫一個從 ``main.py`` 呼叫一次的 ``setup_logging()`` 輔助函式。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "每個模組各自具名的 logger"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"應用程式碼不應呼叫模組層級的捷徑（\\ :func:`logging.info`\\ 、\\ :func:`logging.warning` "
+"等等）。那些全都會匯流經過根 logger，產生的日誌記錄帶有名稱 ``root`` -- 對於辨別記錄\\ *來自何處*\\ 毫無用處。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "慣例是每個模組一個 logger，並以該模組命名::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr "如此一來每筆記錄都會在 ``%(name)s`` 中帶有 ``app.detector``\\ ，日誌行也就說明了是誰發出它的。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"相機的 :mod:`logging` 在一個重要面向上與 CPython 不同：logger 命名空間是\\ **扁平的**\\ 。\\ "
+"``getLogger('app')`` 與 ``getLogger('app.detector')`` 是各自獨立的 logger，彼此沒有父／子關係"
+" -- 在 ``app`` 上設定等級\\ *並不會*\\ 傳播到 ``app.detector``\\ 。真正有效的機制是：一個本身沒有 "
+"handler 的具名 logger 會借用根 logger 的 handler 與等級。這正是為什麼在 root 上單單一次 "
+":func:`basicConfig` 呼叫，就能為應用程式中其他各處的每個 :func:`getLogger` 呼叫完成設定。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "延遲的 %-引數格式化"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "請寫::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "而非::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"``%``-引數形式讓 logger 在等級過濾器決定是否發出該記錄\\ *之後*\\ 才插補引數。在熱迴圈中一個被過濾掉的 ``DEBUG`` "
+"呼叫不會為其格式字串付出任何代價。而 f-string 會先行求值，每一次都是，甚至在呼叫尚未抵達 logger 之前。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr "相機並不支援 CPython 用於結構化欄位的 ``extra=`` 關鍵字；請改以訊息引數的方式傳遞那些值。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "記錄例外狀況"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+"在 :keyword:`except` 區塊內，\\ :meth:`Logger.exception` 會以 ``ERROR`` 等級記錄訊息，\\ "
+"*並且*\\ 把目前例外的回溯資訊附加到該記錄上::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"回溯資訊是透過 :func:`sys.print_exception` 擷取的，這正是讓一筆例外日誌擁有多行 ``Traceback (most "
+"recent call last):`` 區塊的原因。這是處理頂層例外的正確工具 -- 攔截、記錄，然後繼續執行。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "多個 handler"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"開頭提到的正式環境分流 -- 把一切以 ``DEBUG`` 寫入檔案、把重點以 ``WARNING`` 送往 stderr -- 就是兩個附加到同一個 "
+"logger 的 handler，各自擁有自己的等級與 formatter::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"根 logger 的等級是每筆記錄碰到的\\ *第一個*\\ 過濾器。請把它設為任何 handler 想要看到的最低等級 -- 此處為 "
+"``DEBUG`` -- 這樣兩個 handler 都不會被 logger 本身餓著。接著各 handler "
+"的等級才決定哪些記錄真正會被發送到哪個目的地。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "輪替日誌檔"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"相機的 :mod:`logging` 沒有 :class:`RotatingFileHandler` 或 "
+":class:`TimedRotatingFileHandler`\\ 。輪替是應用程式自己的工作。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"其手法是把目前的 :class:`FileHandler` "
+"保留在一個已知的位置，當輪替條件觸發時把它換成一個新的，並讓一個帶日期的路徑提供自然的檔案界線。以每小時輪替到 "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log`` 為例::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"在主迴圈的每次迭代中呼叫一次 ``rotate_if_needed()``\\ ；路徑檢查很廉價，而切換只會在整點界線發生。在 "
+":class:`FileHandler` 能開啟該檔案之前，目錄樹必須先存在。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "在對斷電敏感的部署中進行刷新"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+":class:`FileHandler` 的寫入會經過底層檔案物件的 Python "
+"緩衝。在一次寫入與一次刷新之間發生斷電，會遺失尾端的那些記錄。對於電池供電或會被直接拔插的部署，請在關鍵記錄之後、或定時對 handler 的串流呼叫 "
+"``flush()``\\ 。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr "一個能刷新附加到根 logger 之每個 handler 的小型輔助函式::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr "在應用程式無法承受遺失的一筆記錄之後立即呼叫 ``flush_handlers()``::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"為了背景安全，請在主迴圈中以任何能在日誌新鮮度與快閃記憶體磨損之間取得平衡的節奏呼叫它 -- 每秒一次通常綽綽有餘。\\ "
+":meth:`Logger.critical` 本身\\ *並不會*\\ 觸發刷新。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "開機時的診斷資訊"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"缺乏脈絡的現場日誌幾乎沒有用。每次冷開機的最初幾筆記錄都應辨識出\\ *是哪一台*\\ 相機、\\ *正在執行什麼版本*\\ 的建置，以及相機\\ "
+"*如何*\\ 走到這次開機。三個裝置端來源加起來涵蓋了這一切："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv` -- OpenMV 韌體版本。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ""
+":func:`os.uname` -- MicroPython 版本、開發板名稱與 MCU，以及建置該韌體所用原始碼的 git 標籤與建置日期。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ":mod:`machine` -- MCU 獨一無二的晶片 ID，以及觸發這次開機的重置原因。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr "對每個掛載點呼叫 :func:`os.listdir` -- 實際成功掛起的那些檔案系統。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr "一個把上述每一項都拉進日誌最初幾筆記錄的輔助函式::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "一個典型的日誌會以類似這樣的內容開頭::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"每個日誌檔開頭的八行裡，操作人員就知道了實體單元、韌體血統、相機為何開機，以及哪些儲存裝置成功掛起。\\ ``unique id`` 是 MCU "
+"出廠燒錄的晶片序號；它在重新燒錄之間、在更換 SD 卡之間都保持不變。\\ ``build`` 是建置該映像之韌體樹的 git 標籤與日期 -- "
+"這個欄位獨力說明了「這正是在此時間點出貨給這台單元的那個二進位檔」。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "把它們組合起來"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr "一套完整的正式環境日誌設定，整理成一個由 ``main.py`` 在啟動時呼叫一次的輔助函式::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "接著在 ``main.py`` 的最上方::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "應用程式中其他各處的每個模組只需這麼做::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr ""
+"便能免費取得已設定好的輸出 -- 含完整細節的檔案、含警告的串流、具名的記錄、帶時間戳記的 formatter，以及每次冷開機都有完整記錄的開機過程。"

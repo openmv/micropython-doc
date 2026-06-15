@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:2
+msgid "Why arrays"
+msgstr "為什麼要用陣列"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:4
+msgid ""
+"The :class:`~image.Image` class is the right tool for pixel work because "
+"every method on it operates directly on the camera's native pixel buffer in "
+"a single fast call. Most of what the application does to a frame -- "
+"thresholding, blob finding, AprilTag detection, edge filters -- already "
+"lives there."
+msgstr ""
+":class:`~image.Image` "
+"類別是處理像素工作的正確工具，因為它上面的每個方法都直接在相機原生的像素緩衝區上以單次快速呼叫運作。應用程式對一個影格所做的大部分工作 —— "
+"閾值處理、色塊尋找、AprilTag 偵測、邊緣濾鏡 —— 都已經存在於那裡。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:11
+msgid ""
+"What the image library does *not* expose is the rest of the numerical work "
+"an OpenMV application runs into:"
+msgstr "影像函式庫 *未* 公開的，是 OpenMV 應用程式會遇到的其餘數值工作："
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:14
+msgid ""
+"sensor buffers that are not pixels -- ADC samples, axes from an *IMU* "
+"(inertial measurement unit), microphone audio,"
+msgstr "並非像素的感測器緩衝區 —— ADC 取樣值、來自 *IMU*\\ （慣性測量單元）的各軸資料、麥克風音訊，"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:17
+msgid ""
+"derived numbers from the image that no built-in method returns -- a "
+"histogram column, a custom blend of two frames, a per-pixel transform the "
+"catalogue does not cover,"
+msgstr "從影像衍生出、但沒有任何內建方法會回傳的數值 —— 直方圖的某一欄、兩個影格的自訂混合、目錄未涵蓋的某種逐像素轉換，"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:21
+msgid ""
+"small linear algebra -- the calibration matrix that rectifies the lens, the "
+"rotation that fuses the IMU,"
+msgstr "小型線性代數 —— 用來校正鏡頭的校準矩陣、用來融合 IMU 的旋轉，"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:23
+msgid ""
+"signal-processing math -- the frequency content of a vibration buffer, "
+"smoothing applied to a sensor's output, a feature vector a classifier wants "
+"as input."
+msgstr "訊號處理數學 —— 振動緩衝區的頻率內容、套用於某感測器輸出的平滑化、分類器想要作為輸入的特徵向量。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:27
+msgid ""
+"All of these want the same form: a buffer of numbers with one operation "
+"applied to every element. A Python ``for`` loop is the obvious way to write "
+"it::"
+msgstr "這些全都需要相同的形式：一個由數字組成的緩衝區，對每個元素套用一項操作。Python 的 ``for`` 迴圈是最直覺的寫法：："
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:34
+msgid ""
+"The loop works. It is also slow. Python is an interpreted language, and "
+"every iteration of a Python loop carries the cost of running the interpreter"
+" once: look up ``samples``, read element ``i``, multiply, write back, "
+"advance the loop counter, check the loop condition. On a buffer of a "
+"thousand sensor samples those interpreter costs add up to tens of "
+"milliseconds for what is fundamentally a quick operation."
+msgstr ""
+"這個迴圈能運作，但它也很慢。Python 是直譯式語言，Python 迴圈的每一次迭代都帶有執行一次直譯器的成本：查找 ``samples``\\ "
+"、讀取元素 ``i``\\ "
+"、相乘、寫回、推進迴圈計數器、檢查迴圈條件。在一個一千個感測器取樣值的緩衝區上，對於本質上是個快速操作的工作來說，這些直譯器成本累積起來達到數十毫秒。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:43
+msgid ""
+"That overhead bites every time a script reaches a buffer. A QVGA grayscale "
+"frame is 76,800 pixels; an accelerometer at 100 Hz delivers a hundred three-"
+"axis samples a second; a microphone fills a 1024-sample buffer every 64 ms. "
+"A pure-Python ``for`` loop over any of those turns a job that should take a "
+"few microseconds into one that takes tens of milliseconds -- and roughly ten"
+" times longer again on an image-sized buffer."
+msgstr ""
+"每當指令碼觸及一個緩衝區，這項開銷就會咬上一口。一個 QVGA 灰階影格有 76,800 個像素；一個 100 Hz "
+"的加速度計每秒提供一百個三軸取樣值；一個麥克風每 64 毫秒填滿一個 1024 取樣值的緩衝區。在這些之中任何一個上跑純 Python 的 "
+"``for`` 迴圈，都會把一個本應只需數微秒的工作變成需要數十毫秒的工作 —— 而在影像大小的緩衝區上，又再大約多花十倍的時間。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:53
+msgid "Library functions are faster than loops"
+msgstr "函式庫函式比迴圈更快"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:55
+msgid ""
+"The fix is to express the operation as a single function call against the "
+"whole buffer, instead of a Python loop over its elements. :mod:`numpy` is "
+"exactly that: a library of array math where every operation is one already-"
+"optimised function that walks the buffer once from start to finish. "
+"``np.multiply(samples, cal)`` multiplies every element of ``samples`` by "
+"``cal`` inside a single call -- the same arithmetic the loop did, without "
+"the per-iteration interpreter cost. The same 1000-element multiply that took"
+" tens of milliseconds as a Python loop takes tens of microseconds as a numpy"
+" call."
+msgstr ""
+"解決之道是把該操作表達成針對整個緩衝區的單次函式呼叫，而非針對其元素的 Python 迴圈。\\ :mod:`numpy` "
+"正是如此：一個陣列數學的函式庫，其中每項操作都是一個已最佳化、會從頭到尾遍歷緩衝區一次的函式。\\ ``np.multiply(samples, "
+"cal)`` 會在單次呼叫內把 ``samples`` 的每個元素乘以 ``cal`` —— 與迴圈所做的相同算術，但沒有逐次迭代的直譯器成本。同樣的 "
+"1000 元素相乘，作為 Python 迴圈花費數十毫秒，作為 numpy 呼叫則只花費數十微秒。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:68
+msgid ""
+"This is the deal :mod:`numpy` offers across the board: sum, mean, sin, exp, "
+"matrix multiply, signal-processing primitives -- each one is a single "
+"library function that operates on a whole buffer at once. The trade is that "
+"the data has to live in numpy's array type and the operation has to be "
+"expressed against that array, not against its elements one at a time."
+msgstr ""
+"這就是 :mod:`numpy` 全面提供的交易：sum、mean、sin、exp、矩陣相乘、訊號處理基本運算 —— "
+"每一項都是一個一次操作整個緩衝區的單一函式庫函式。其代價是資料必須存放在 numpy "
+"的陣列型別中，而且操作必須針對該陣列來表達，而非一次針對其一個元素。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:77
+msgid "Why a list will not do"
+msgstr "為什麼 list 不行"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:79
+msgid ""
+"A Python :class:`list` cannot stand in. A list can hold any mix of objects "
+"-- integers, floats, strings, other lists -- and a library function reading "
+"it still has to look at each slot to find out what is in it and pull the "
+"value out before any arithmetic happens. That per-slot overhead is exactly "
+"the cost the Python loop pays. Lists are the wrong fit for fast array math."
+msgstr ""
+"Python 的 :class:`list` 無法勝任。一個 list 可以持有任何物件的混合 —— 整數、浮點數、字串、其他 list —— "
+"而讀取它的函式庫函式仍必須逐一查看每個欄位，找出裡面是什麼並把值取出來，之後才能進行任何算術運算。那種逐欄位的開銷正是 Python "
+"迴圈所付出的成本。對於快速的陣列數學運算來說，list 是不合適的選擇。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:88
+msgid "Why bytearray is not enough either"
+msgstr "為什麼 bytearray 也不夠"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:90
+msgid ""
+"A :class:`bytearray` is the right *form* -- one typed buffer, one byte per "
+"element, all in one contiguous block. It is what most byte-oriented "
+"peripheral APIs hand back. What it lacks is the *math*. ``bytearray * 2`` "
+"repeats the buffer rather than doubling each value, and there is no sensible"
+" meaning for ``bytearray + bytearray`` element by element."
+msgstr ""
+":class:`bytearray` 是正確的 *形式* —— "
+"一個型別化的緩衝區、每個元素一位元組、全部在一個連續區塊中。它是大多數面向位元組的周邊裝置 API 所交回的東西。它所缺乏的是 *數學運算*\\ 。\\"
+" ``bytearray * 2`` 是把緩衝區重複一次，而非把每個值加倍，而且 ``bytearray + bytearray`` "
+"逐元素相加也沒有合理的意義。"
+
+#: ../../openmvcam/tutorial/numpy/basics/why-arrays.rst:98
+msgid ""
+"The data structure that combines a typed buffer with element-wise math is "
+"the :class:`~numpy.ndarray`. What is inside the box and how each field "
+"shapes the fast-path behaviour are the foundations the rest of this chapter "
+"rests on."
+msgstr ""
+"兼具型別化緩衝區與逐元素數學運算的資料結構就是 :class:`~numpy.ndarray`\\ "
+"。盒子裡面有什麼，以及每個欄位如何形塑其快速路徑的行為，正是本章其餘部分所依憑的基礎。"

@@ -1,0 +1,283 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_TW <LL@li.org>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:2
+msgid "Custom convolution kernels"
+msgstr "自訂卷積核"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:4
+msgid ""
+"The neighbourhood filters covered so far each had a *built-in* statistic the"
+" filter applied to the window at every position -- the mean, the Gaussian-"
+"weighted average, the median. :meth:`~image.Image.morph` is the one filter "
+"that lets the application supply the statistic itself, in the form of a "
+"kernel: a small matrix of weights that describes how the filter should "
+"combine the neighbourhood pixels into a single output value."
+msgstr ""
+"到目前為止介紹的鄰域濾波器，每一種都有一個\\ *內建*\\ 的統計量，在每個位置套用於視窗——平均值、高斯加權平均、中位數。\\ "
+":meth:`~image.Image.morph` "
+"是唯一讓應用程式自行提供統計量的濾波器，其形式為一個核（kernel）：一個描述濾波器應如何將鄰域像素結合為單一輸出值的小型權重矩陣。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:15
+msgid ""
+"The mechanism is the classical *convolution* operation. At every output "
+"position, every neighbourhood pixel is multiplied by the matching weight in "
+"the kernel, the products are summed, the result is optionally scaled and "
+"offset, and the value is written to the output pixel. Different kernels "
+"produce different results from the same input. A kernel with all equal "
+"positive weights reproduces the :meth:`~image.Image.mean` filter; a bell-"
+"shaped one reproduces :meth:`~image.Image.gaussian`. Patterns beyond those "
+"produce edge responses, embosses, gradients, sharpening, motion blur, and a "
+"long catalogue of other effects -- everything classical image processing has"
+" ever wanted to do with a single linear pass."
+msgstr ""
+"其機制就是經典的\\ *卷積*\\ "
+"運算。在每個輸出位置上，每個鄰域像素都會乘上核中對應的權重，將這些乘積加總起來，再選擇性地進行縮放與偏移，最後將該值寫入輸出像素。不同的核會從相同的輸入產生不同的結果。權重全部相等且為正的核可重現"
+" :meth:`~image.Image.mean` 濾波器；鐘形分佈的核則可重現 :meth:`~image.Image.gaussian`\\ "
+"。除此之外的各種模式還能產生邊緣響應、浮雕、梯度、銳化、運動模糊，以及一長串其他效果——凡是經典影像處理想用單一線性處理達成的事，幾乎都能辦到。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:34
+msgid "The morph method"
+msgstr "morph 方法"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:36
+msgid ""
+"The signature looks like the other neighbourhood filters with one extra "
+"argument:"
+msgstr "其簽章看起來與其他鄰域濾波器相似，只是多了一個參數："
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:43
+msgid ""
+"``size`` is the radius the same way as everywhere else, so the kernel must "
+"be exactly ``(2 * size + 1)`` rows by ``(2 * size + 1)`` columns. The kernel"
+" itself is a flat Python list of those many numbers, in *row-major* order --"
+" the first ``(2 * size + 1)`` entries are the top row, the next ``(2 * size "
+"+ 1)`` are the second row, and so on, down to the bottom row. ``mul`` scales"
+" the sum-of-products before it is written into the output pixel, and ``add``"
+" adds a constant. The default ``mul=1.0`` and ``add=0.0`` leave the "
+"convolution output unchanged."
+msgstr ""
+"``size`` 與其他地方一樣代表半徑，因此核必須剛好是 ``(2 * size + 1)`` 列乘以 ``(2 * size + 1)`` "
+"行。核本身是一個包含那麼多數字的扁平 Python 串列，依\\ *列優先*\\ （row-major）順序排列——前 ``(2 * size + "
+"1)`` 個項目為最上面一列，接下來 ``(2 * size + 1)`` 個為第二列，依此類推，直到最下面一列。\\ ``mul`` "
+"在乘積總和寫入輸出像素前先進行縮放，\\ ``add`` 則加上一個常數。預設的 ``mul=1.0`` 與 ``add=0.0`` "
+"會讓卷積輸出維持不變。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:57
+msgid ""
+"One detail worth being explicit about: the method automatically divides the "
+"sum-of-products by the *sum of the kernel entries* before writing the "
+"output. That auto-division means an averaging kernel whose entries sum to "
+"nine -- a 3-by-3 box blur, for example -- comes out at one-ninth scale with "
+"no extra effort, and a Gaussian-approximation kernel that sums to sixteen "
+"comes out at one-sixteenth scale, both without the application having to "
+"compute the division itself. The application sets ``mul`` only when it wants"
+" a *further* scale on top of the auto-normalisation -- or, more commonly, "
+"when the kernel sums to zero (an edge-response kernel) and the auto-division"
+" would be a division by nothing. The framework treats the sum as one in that"
+" case, and ``mul`` becomes the only knob for keeping the unscaled sum-of-"
+"products in range."
+msgstr ""
+"有一個細節值得明確說明：此方法在寫入輸出前，會自動將乘積總和除以\\ *核各項目的總和*\\ "
+"。這種自動除法意謂著，一個各項目總和為九的平均化核——例如一個 3 乘 3 "
+"的盒狀模糊——無需任何額外處理即可得到九分之一的縮放結果，而一個總和為十六的高斯近似核則得到十六分之一的縮放結果，兩者都不需要應用程式自行計算除法。只有當應用程式想在自動正規化之上再進行\\"
+" *額外*\\ 縮放時，才會設定 ``mul``\\ "
+"——或者更常見的情況是，當核的總和為零（邊緣響應核）時，自動除法等於除以零。在這種情況下框架會將總和視為一，而 ``mul`` "
+"便成為唯一可用來將未縮放的乘積總和保持在範圍內的調節旋鈕。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:78
+msgid ""
+"The ``threshold=True`` / ``offset=N`` pair from the adaptive-threshold "
+"section also works on :meth:`~image.Image.morph`, so the same custom-kernel "
+"framework can produce a binary threshold whose cutoff is computed by a "
+"custom statistic."
+msgstr ""
+"來自自適應閾值章節的 ``threshold=True`` / ``offset=N`` 這組參數同樣適用於 "
+":meth:`~image.Image.morph`\\ ，因此這套自訂核框架也能產生一個其切割點由自訂統計量計算得出的二值閾值。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:86
+msgid "The kernel layout"
+msgstr "核的版面配置"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:88
+msgid ""
+"A 3-by-3 kernel (``size=1``) is a flat list of nine numbers laid out left to"
+" right, top to bottom. The convention reads naturally if the list is broken "
+"across three Python lines:"
+msgstr ""
+"一個 3 乘 3 的核（\\ ``size=1``\\ ）是由九個數字組成的扁平串列，依照由左到右、由上到下的順序排列。若將該串列拆成三行 Python"
+" 程式碼來寫，這個慣例會讀起來相當自然："
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:99
+msgid ""
+"This is the *Sobel-x* gradient operator -- the first standard kernel any "
+"application is going to want and a useful one to walk through end to end. "
+"The pattern is straightforward: negative weights on the left column, "
+"positive weights on the right column, with the centre column zero. The row "
+"weights ``-1, -2, -1`` (or ``1, 2, 1`` on the right) are higher in the "
+"middle than at the corners, which gives the centre row more influence over "
+"the result than the corner rows."
+msgstr ""
+"這是 *Sobel-x* "
+"梯度運算子——任何應用程式都會最先用到的標準核，也是值得從頭到尾走過一遍的範例。其模式很直觀：左行為負權重，右行為正權重，中間行為零。各列的權重 "
+"``-1, -2, -1``\\ （右側則為 ``1, 2, 1``\\ ）在中間比在角落大，使得中間列對結果的影響力高於角落列。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:111
+msgid ""
+"When the kernel sweeps across a vertical edge -- a column of pixels that "
+"goes from dark on the left to bright on the right -- the negative weights "
+"pick up the dark side and the positive weights pick up the bright side. The "
+"sum of products is a large positive number, which the filter writes as a "
+"bright output pixel. A horizontal patch of uniform brightness produces zero,"
+" because every positive weight is matched by a negative weight of the same "
+"magnitude on a pixel with the same value."
+msgstr ""
+"當核掃過一條垂直邊緣時——也就是一列由左側暗轉為右側亮的像素——負權重會擷取暗的一側，正權重會擷取亮的一側。乘積總和會是一個很大的正數，濾波器便將其寫成一個明亮的輸出像素。一塊水平且亮度均勻的區域會產生零，因為每個正權重都會被一個位於相同數值像素上、大小相等的負權重所抵消。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:124
+msgid "Running the kernel:"
+msgstr "執行此核："
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:130
+msgid ""
+"The Sobel kernel sums to zero -- every negative weight on the left side is "
+"matched by an equal positive weight on the right -- so the auto-division "
+"does not divide by anything, and ``mul`` is the only scale on the sum-of-"
+"products. ``mul=0.25`` keeps the response in range: the largest absolute sum"
+" the Sobel-x can produce from a 3-by-3 patch is roughly ``4 * 255 = 1020`` "
+"(eight bright pixels weighted up to ``2``), and dividing that down by four "
+"lands the extreme cases at ``255``, where the format clips them cleanly."
+msgstr ""
+"Sobel 核的總和為零——左側每個負權重都被右側一個相等的正權重抵消——因此自動除法不會除以任何東西，\\ ``mul`` "
+"是乘積總和上唯一的縮放。\\ ``mul=0.25`` 能讓響應保持在範圍內：Sobel-x 從一塊 3 乘 3 區域能產生的最大絕對總和大約是 ``4"
+" * 255 = 1020``\\ （八個亮像素，權重最高達 ``2``\\ ），將其除以四後可讓極端情況落在 ``255``\\ "
+"，正好可被格式乾淨地裁切。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:143
+msgid ""
+"The matching Sobel-y kernel detects horizontal edges by rotating the same "
+"weight pattern 90 degrees:"
+msgstr "與之對應的 Sobel-y 核則藉由將同樣的權重模式旋轉 90 度來偵測水平邊緣："
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:153
+msgid ""
+"Applications that want to detect *any* edge, regardless of direction, "
+"typically run both Sobels and combine the responses."
+msgstr "想偵測\\ *任意*\\ 方向邊緣的應用程式，通常會同時執行兩個 Sobel 並結合其響應。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:158
+msgid "Offsetting the output"
+msgstr "對輸出進行偏移"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:160
+msgid ""
+"``add`` is the other half of the scaling story. A zero-sum kernel's response"
+" is *signed* -- positive on one side of an edge, negative on the other -- "
+"and the negative half clips to zero when written into an unsigned pixel. "
+"``add=128`` shifts the response to be centred at mid-grey, so negative "
+"responses survive as values below ``128`` and positive ones land above it: "
+"an edge response or an emboss becomes visible in both directions, at the "
+"cost of half the range in each."
+msgstr ""
+"``add`` 是縮放故事的另一半。零總和核的響應是\\ *帶正負號的*\\ "
+"——在邊緣的一側為正，另一側為負——而當寫入無號像素時，負的那一半會被裁切為零。\\ ``add=128`` "
+"會將響應平移至以中灰為中心，因此負響應會以低於 ``128`` "
+"的數值存留下來，正響應則落在其上方：邊緣響應或浮雕效果在兩個方向上都變得可見，代價是兩個方向各損失一半的範圍。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:172
+msgid ""
+"Which combination of ``mul`` and ``add`` a kernel expects is part of the "
+"kernel's design; the :doc:`standard kernel catalogue <standard-kernels>` "
+"lists the right settings for each common kernel."
+msgstr ""
+"一個核預期搭配哪種 ``mul`` 與 ``add`` 的組合，是該核設計的一部分；\\ :doc:`標準核目錄 <standard-kernels>`"
+" 列出了每個常用核的正確設定。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:179
+msgid "Larger kernels"
+msgstr "較大的核"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:181
+msgid ""
+"Everything on this page has been described with 3-by-3 kernels (``size=1``),"
+" because that is the size the standard catalogue uses and because the row-"
+"major layout is easy to write out by hand at that size. Nothing in the "
+"mechanism restricts the kernel to 3-by-3, though. ``size=2`` runs a 5-by-5 "
+"kernel, with twenty-five entries in the flat list; ``size=3`` runs a 7-by-7 "
+"with forty-nine; and so on, up to whatever radius the application is willing"
+" to pay for. The framework handles either flat-list or nested-row layouts at"
+" any odd size."
+msgstr ""
+"本頁的所有內容都是以 3 乘 3 的核（\\ ``size=1``\\ "
+"）來描述的，因為那是標準目錄所使用的尺寸，也因為在那個尺寸下，列優先的版面配置很容易用手寫出來。不過機制本身並未限制核必須是 3 乘 3。\\ "
+"``size=2`` 會執行一個 5 乘 5 的核，扁平串列中有二十五個項目；\\ ``size=3`` 會執行一個 7 乘 7 "
+"的核，有四十九個項目；依此類推，直到應用程式願意付出代價的任何半徑為止。框架在任何奇數尺寸下都能處理扁平串列或巢狀列的版面配置。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:195
+msgid ""
+"The reason to reach for a larger kernel is the same reason to reach for a "
+"larger neighbourhood on any of the built-in filters: more averaging, broader"
+" feature detection, less sensitivity to single-pixel noise. The cost grows "
+"as the square of the radius -- a 5-by-5 does roughly 2.8 times the per-pixel"
+" work of a 3-by-3, a 7-by-7 about 5.4 times -- and that multiplier comes "
+"straight out of the frame rate."
+msgstr ""
+"選用較大核的理由，與在任何內建濾波器上選用較大鄰域的理由相同：更多的平均化、更廣的特徵偵測、對單一像素雜訊較不敏感。其成本隨半徑的平方成長——5 乘 5"
+" 的每像素工作量約為 3 乘 3 的 2.8 倍，7 乘 7 約為 5.4 倍——而這個倍數會直接從影格率中扣除。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:205
+msgid ""
+"The practical pattern is to stay at ``size=1`` for the standard catalogue "
+"and reach for larger sizes only when the algorithm needs the larger "
+"neighbourhood. Edge detectors rarely benefit beyond 3-by-3; smoothing "
+"filters sometimes do; the right size depends on the scale of the features "
+"the application is trying to emphasise or suppress."
+msgstr ""
+"實務上的做法是，使用標準目錄時維持在 ``size=1``\\ ，只有在演算法需要較大鄰域時才選用較大的尺寸。邊緣偵測器很少能從超過 3 乘 3 "
+"的尺寸中獲益；平滑化濾波器有時可以；正確的尺寸取決於應用程式試圖強調或抑制的特徵的尺度。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:215
+msgid "When to reach for morph"
+msgstr "何時該選用 morph"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:217
+msgid ""
+"For everyday smoothing, :meth:`~image.Image.mean`, "
+":meth:`~image.Image.gaussian`, and :meth:`~image.Image.bilateral` are faster"
+" and cleaner. For edge detection, :meth:`~image.Image.laplacian` and "
+":meth:`~image.Image.find_edges` are purpose-built. The case for reaching "
+"into :meth:`~image.Image.morph` directly is when the application needs a "
+"*specific* convolution that the built-in filters do not expose -- a "
+"directional Sobel, a custom edge template, a kernel tuned to a particular "
+"texture the rest of the pipeline is going to look for, or any of the "
+"standard catalogue of useful kernels that classical image processing has "
+"built up over the decades. The full flexibility of arbitrary kernels is "
+"available; the price is that the application is responsible for choosing the"
+" kernel values that produce the result it wants."
+msgstr ""
+"對於日常的平滑化，\\ :meth:`~image.Image.mean`\\ 、\\ :meth:`~image.Image.gaussian` 與 "
+":meth:`~image.Image.bilateral` 更快也更乾淨。對於邊緣偵測，\\ "
+":meth:`~image.Image.laplacian` 與 :meth:`~image.Image.find_edges` "
+"則是專門設計的工具。直接動用 :meth:`~image.Image.morph` 的理由，是當應用程式需要一個內建濾波器未提供的\\ *特定*\\ "
+"卷積時——例如一個有方向性的 "
+"Sobel、一個自訂的邊緣樣板、一個針對管線後續會尋找的特定紋理而調校的核，或是經典影像處理數十年來累積下來的標準目錄中任何一個有用的核。任意核的完整彈性皆可使用；代價是應用程式必須自行負責選擇能產生其所想結果的核數值。"
