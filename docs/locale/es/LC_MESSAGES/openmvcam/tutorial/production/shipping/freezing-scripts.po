@@ -1,0 +1,375 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: es <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:2
+msgid "Freezing scripts into the firmware"
+msgstr "Congelar scripts en el firmware"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:4
+msgid ""
+"A *frozen* module is a ``.py`` file compiled to bytecode and linked into the"
+" firmware image at build time. The runtime imports a frozen module straight "
+"from flash, without ever looking at the on-disk filesystem. For a shipped "
+"product this is the right place for the application code: nothing for the "
+"end user to delete, nothing for a stale ``.py`` on the SD card to override, "
+"and the cam runs the same code every boot regardless of what (if anything) "
+"is on its drives."
+msgstr ""
+"Un módulo *congelado* es un archivo ``.py`` compilado a bytecode y enlazado "
+"en la imagen del firmware en tiempo de compilación. El entorno de ejecución "
+"importa un módulo congelado directamente desde la memoria flash, sin mirar "
+"nunca el sistema de archivos del disco. Para un producto comercializado este"
+" es el lugar correcto para el código de la aplicación: nada que el usuario "
+"final pueda eliminar, nada que un ``.py`` obsoleto en la tarjeta SD pueda "
+"sobrescribir, y la cámara ejecuta el mismo código en cada arranque sin "
+"importar lo que (si es que hay algo) haya en sus unidades."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:13
+msgid ""
+"This page covers the startup sequence the cam follows, then how "
+"``manifest.py`` and the ``freeze`` directive bake an application into the "
+"build."
+msgstr ""
+"Esta página cubre la secuencia de arranque que sigue la cámara, y después "
+"cómo ``manifest.py`` y la directiva ``freeze`` integran una aplicación en la"
+" compilación."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:18
+msgid "The startup sequence"
+msgstr "La secuencia de arranque"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:20
+msgid "What runs, and when, on a cam coming out of reset:"
+msgstr "Qué se ejecuta, y cuándo, en una cámara que sale de un reinicio:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:22
+msgid ""
+"**The bootloader.** Power-up enters a short DFU window the IDE uses to push "
+"firmware updates. The window closes after a few seconds and the bootloader "
+"hands off to MicroPython. A running script can re-enter this window on "
+"demand by calling :func:`machine.bootloader`."
+msgstr ""
+"**El bootloader.** El encendido entra en una breve ventana DFU que el IDE "
+"utiliza para enviar actualizaciones de firmware. La ventana se cierra "
+"después de unos segundos y el bootloader cede el control a MicroPython. Un "
+"script en ejecución puede volver a entrar en esta ventana bajo demanda "
+"llamando a :func:`machine.bootloader`."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:28
+msgid ""
+"**Frozen filesystem init.** Before any application code runs, the runtime "
+"brings the filesystems up. Internal flash is mounted at ``/flash`` (and "
+"formatted blank if there is nothing there). If an SD card is present *and* a"
+" marker file called ``SKIPSD`` does **not** exist on internal flash, the SD "
+"card is mounted at ``/sdcard``. ROMFS, when the build includes it, is "
+"mounted automatically at ``/rom``. The working directory is set to the boot "
+"directory (``/sdcard`` if the card mounted, ``/flash`` otherwise), and "
+":data:`sys.path` is populated with ``/flash``, ``/flash/lib``, ``/sdcard``, "
+"``/sdcard/lib``, ``/rom``, and ``/rom/lib``. The flash-resident setup is "
+"handled by a frozen module called ``_boot.py`` -- port and board "
+"infrastructure, not an application hook. Applications do not customise "
+"``_boot.py``; the build does. Dropping a ``SKIPSD`` file onto flash from the"
+" IDE is the supported way to make the cam boot from internal flash instead "
+"of the SD card."
+msgstr ""
+"**Inicialización del sistema de archivos congelado.** Antes de que se "
+"ejecute cualquier código de aplicación, el entorno de ejecución pone en "
+"marcha los sistemas de archivos. La memoria flash interna se monta en "
+"``/flash`` (y se formatea vacía si no hay nada allí). Si hay una tarjeta SD "
+"presente *y* un archivo marcador llamado ``SKIPSD`` **no** existe en la "
+"memoria flash interna, la tarjeta SD se monta en ``/sdcard``. ROMFS, cuando "
+"la compilación lo incluye, se monta automáticamente en ``/rom``. El "
+"directorio de trabajo se establece en el directorio de arranque (``/sdcard``"
+" si la tarjeta se montó, ``/flash`` en caso contrario), y :data:`sys.path` "
+"se rellena con ``/flash``, ``/flash/lib``, ``/sdcard``, ``/sdcard/lib``, "
+"``/rom`` y ``/rom/lib``. La configuración residente en la memoria flash la "
+"gestiona un módulo congelado llamado ``_boot.py`` -- infraestructura del "
+"puerto y de la placa, no un punto de enganche de la aplicación. Las "
+"aplicaciones no personalizan ``_boot.py``; lo hace la compilación. Colocar "
+"un archivo ``SKIPSD`` en la memoria flash desde el IDE es la forma admitida "
+"de hacer que la cámara arranque desde la memoria flash interna en lugar de "
+"desde la tarjeta SD."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:46
+msgid ""
+"**Pre-REPL setup.** ``boot.py`` runs on *every* soft reset -- cold boot, "
+"``Ctrl-D`` from the REPL, the running script returning, and watchdog "
+"recovery -- *before* the REPL becomes reachable. Its job is to prepare the "
+"environment the rest of the system runs in: the kind of setup the REPL, the "
+"application, and any recovery tooling all need in place to function. It is "
+"not where the application itself lives. ``main.py`` is the application's "
+"entry point."
+msgstr ""
+"**Configuración previa al REPL.** ``boot.py`` se ejecuta en *cada* reinicio "
+"por software -- arranque en frío, ``Ctrl-D`` desde el REPL, el script en "
+"ejecución que retorna y la recuperación por watchdog -- *antes* de que el "
+"REPL sea accesible. Su trabajo es preparar el entorno en el que se ejecuta "
+"el resto del sistema: el tipo de configuración que el REPL, la aplicación y "
+"cualquier herramienta de recuperación necesitan tener en su sitio para "
+"funcionar. No es donde reside la aplicación en sí. ``main.py`` es el punto "
+"de entrada de la aplicación."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:55
+msgid ""
+"**Main loop.** ``main.py`` is the application's main loop. Runs once on cold"
+" boot, immediately after ``boot.py``. *Not* re-run on subsequent soft resets"
+" -- the cam drops to the REPL instead. That asymmetry matters for "
+"development (a Ctrl-D drops to the REPL without re-running the loop, so the "
+"developer can inspect state) but not for production: a fielded cam sees "
+"power-on, watchdog, and hard resets, which are all hardware resets that re-"
+"enter the cold-boot path and run ``main.py`` again."
+msgstr ""
+"**Bucle principal.** ``main.py`` es el bucle principal de la aplicación. Se "
+"ejecuta una vez en el arranque en frío, inmediatamente después de "
+"``boot.py``. *No* se vuelve a ejecutar en reinicios por software posteriores"
+" -- en su lugar, la cámara cae al REPL. Esa asimetría importa para el "
+"desarrollo (un Ctrl-D cae al REPL sin volver a ejecutar el bucle, de modo "
+"que el desarrollador puede inspeccionar el estado) pero no para la "
+"producción: una cámara desplegada ve encendidos, watchdog y reinicios por "
+"hardware, que son todos reinicios de hardware que vuelven a entrar en la "
+"ruta de arranque en frío y ejecutan ``main.py`` de nuevo."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:66
+msgid "Freezing into the firmware"
+msgstr "Congelar en el firmware"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:68
+msgid ""
+"A board's frozen-module set is declared in ``boards/<TARGET>/manifest.py`` "
+"in the firmware tree. The manifest is a small Python file that calls a "
+"handful of directives:"
+msgstr ""
+"El conjunto de módulos congelados de una placa se declara en "
+"``boards/<TARGET>/manifest.py`` dentro del árbol del firmware. El manifiesto"
+" es un pequeño archivo de Python que llama a un puñado de directivas:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:73
+msgid ""
+"``freeze(\"$(OMV_LIB_DIR)/\", \"foo.py\")`` -- bakes a single ``foo.py`` "
+"into the build."
+msgstr ""
+"``freeze(\"$(OMV_LIB_DIR)/\", \"foo.py\")`` -- integra un único ``foo.py`` "
+"en la compilación."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:75
+msgid ""
+"``package(\"mylib\", base_path=\"...\")`` -- bakes a multi-file Python "
+"package, preserving its directory layout under the given base path."
+msgstr ""
+"``package(\"mylib\", base_path=\"...\")`` -- integra un paquete de Python de"
+" varios archivos, preservando su disposición de directorios bajo la ruta "
+"base indicada."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:78
+msgid ""
+"``include(\"...\")`` -- pulls in another manifest file. The board manifests "
+"use this to share common module sets."
+msgstr ""
+"``include(\"...\")`` -- incorpora otro archivo de manifiesto. Los "
+"manifiestos de las placas usan esto para compartir conjuntos comunes de "
+"módulos."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:80
+msgid ""
+"``require(\"logging\")`` -- pulls in a named upstream ``micropython-lib`` "
+"module by name."
+msgstr ""
+"``require(\"logging\")`` -- incorpora por nombre un módulo de ``micropython-"
+"lib`` ascendente."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:83
+msgid ""
+"A minimal application manifest adds one ``freeze`` line per top-level script"
+" and a ``package`` line per package the application depends on."
+msgstr ""
+"Un manifiesto de aplicación mínimo añade una línea ``freeze`` por cada "
+"script de nivel superior y una línea ``package`` por cada paquete del que "
+"dependa la aplicación."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:88
+msgid "Where the source lives"
+msgstr "Dónde reside el código fuente"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:90
+msgid ""
+"Application source lives under ``scripts/libraries/`` in the firmware tree, "
+"alongside the modules the build already freezes. The manifest variable "
+"``$(OMV_LIB_DIR)`` expands to that path, so manifest entries stay short. "
+"Editing the manifest is already an in-tree operation, so keeping the source "
+"in-tree avoids juggling a separate project repo on the path resolution."
+msgstr ""
+"El código fuente de la aplicación reside bajo ``scripts/libraries/`` en el "
+"árbol del firmware, junto a los módulos que la compilación ya congela. La "
+"variable de manifiesto ``$(OMV_LIB_DIR)`` se expande a esa ruta, de modo que"
+" las entradas del manifiesto se mantienen cortas. Editar el manifiesto ya es"
+" una operación dentro del árbol, por lo que mantener el código fuente dentro"
+" del árbol evita tener que hacer malabares con un repositorio de proyecto "
+"separado en la resolución de rutas."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:98
+msgid ""
+"A typical layout for an application that ships a single ``main.py`` plus a "
+"supporting package::"
+msgstr ""
+"Una disposición típica para una aplicación que distribuye un único "
+"``main.py`` más un paquete de soporte::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:107
+msgid ""
+"And in the board's ``boards/<TARGET>/manifest.py``, one ``freeze`` line for "
+"the script and one ``package`` line for the package::"
+msgstr ""
+"Y en el ``boards/<TARGET>/manifest.py`` de la placa, una línea ``freeze`` "
+"para el script y una línea ``package`` para el paquete::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:114
+msgid ""
+"Single-file scripts -- ``main.py`` here, but the same rule applies to "
+"``boot.py`` or any standalone helper -- use ``freeze``. Multi-file packages "
+"use ``package``. Adding another script is one more ``freeze`` line; adding "
+"another package is one more ``package`` line."
+msgstr ""
+"Los scripts de un solo archivo -- ``main.py`` aquí, pero la misma regla se "
+"aplica a ``boot.py`` o a cualquier ayudante autónomo -- usan ``freeze``. Los"
+" paquetes de varios archivos usan ``package``. Añadir otro script es una "
+"línea ``freeze`` más; añadir otro paquete es una línea ``package`` más."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:121
+msgid "Building and flashing"
+msgstr "Compilar y flashear"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:123
+msgid ""
+"Once the manifest is in place, build the firmware exactly as the "
+":doc:`firmware chapter </openmvcam/tutorial/production/firmware/building>` "
+"describes::"
+msgstr ""
+"Una vez que el manifiesto está en su sitio, compila el firmware exactamente "
+"como describe el :doc:`capítulo sobre firmware "
+"</openmvcam/tutorial/production/firmware/building>`::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:130
+msgid "The output lands in ``build/<TARGET>/bin/``::"
+msgstr "La salida queda en ``build/<TARGET>/bin/``::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:136
+msgid ""
+"Flashing the ``.bin`` and ``.img`` through the IDE lands a cam whose "
+"application is part of the build."
+msgstr ""
+"Flashear el ``.bin`` y el ``.img`` a través del IDE deja una cámara cuya "
+"aplicación forma parte de la compilación."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:139
+msgid ""
+"The startup sequence above is what makes the bake-in effective: the runtime "
+"resolves ``boot.py`` and ``main.py`` to the frozen copies before it ever "
+"checks the filesystem, so a shipped cam runs the build's code even if the SD"
+" card holds a stale ``boot.py`` left from development."
+msgstr ""
+"La secuencia de arranque anterior es lo que hace eficaz la integración: el "
+"entorno de ejecución resuelve ``boot.py`` y ``main.py`` a las copias "
+"congeladas antes de comprobar siquiera el sistema de archivos, de modo que "
+"una cámara comercializada ejecuta el código de la compilación incluso si la "
+"tarjeta SD contiene un ``boot.py`` obsoleto dejado durante el desarrollo."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:146
+msgid "Lookup order"
+msgstr "Orden de búsqueda"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:148
+msgid ""
+"The override semantics are *different* for the ``boot.py`` / ``main.py`` "
+"execution path and for ordinary ``import`` statements. Knowing which is "
+"which matters for both production and development:"
+msgstr ""
+"La semántica de sobrescritura es *diferente* para la ruta de ejecución de "
+"``boot.py`` / ``main.py`` y para las sentencias ``import`` ordinarias. Saber"
+" cuál es cuál importa tanto para la producción como para el desarrollo:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:153
+msgid ""
+"For ``boot.py`` and ``main.py``: the runtime looks for a *frozen* copy "
+"first, then the filesystem. A frozen ``boot.py`` cannot be overridden by "
+"dropping one onto the SD card -- whoever holds the cam cannot change the "
+"entry point without reflashing."
+msgstr ""
+"Para ``boot.py`` y ``main.py``: el entorno de ejecución busca primero una "
+"copia *congelada*, y después el sistema de archivos. Un ``boot.py`` "
+"congelado no se puede sobrescribir colocando uno en la tarjeta SD -- quien "
+"tenga la cámara no puede cambiar el punto de entrada sin reflashear."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:159
+msgid ""
+"For ``import foo``: the runtime searches :data:`sys.path` first -- which "
+"covers ``/flash``, ``/sdcard``, ``/rom``, and their ``lib`` subdirectories "
+"-- then frozen modules. A same-name ``foo.py`` on flash or SD *does* "
+"override a frozen ``foo``. This is the development affordance: drop a fixed "
+"module on the card, soft-reset, see the change without reflashing."
+msgstr ""
+"Para ``import foo``: el entorno de ejecución busca primero en "
+":data:`sys.path` -- que cubre ``/flash``, ``/sdcard``, ``/rom`` y sus "
+"subdirectorios ``lib`` -- y después en los módulos congelados. Un ``foo.py``"
+" del mismo nombre en la memoria flash o en la SD *sí* sobrescribe a un "
+"``foo`` congelado. Esta es la facilidad para el desarrollo: coloca un módulo"
+" corregido en la tarjeta, reinicia por software y ve el cambio sin "
+"reflashear."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:167
+msgid ""
+"A shipped product that wants to suppress the filesystem-overrides-frozen "
+"behaviour for imports can clear :data:`sys.path` early in ``boot.py``::"
+msgstr ""
+"Un producto comercializado que quiera suprimir el comportamiento de "
+"sobrescritura del sistema de archivos sobre lo congelado para las "
+"importaciones puede vaciar :data:`sys.path` al principio de ``boot.py``::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:175
+msgid ""
+"With ``sys.path`` empty, all imports resolve from the frozen modules only; "
+"nothing on flash, SD, or ROMFS can shadow them."
+msgstr ""
+"Con ``sys.path`` vacío, todas las importaciones se resuelven únicamente "
+"desde los módulos congelados; nada en la memoria flash, la SD o ROMFS puede "
+"eclipsarlos."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:180
+msgid "The asset problem"
+msgstr "El problema de los recursos"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:182
+msgid ""
+"Freezing is great for code. It is *not* great for large binary assets: "
+"machine-learning model files, label tables, JSON configuration, image "
+"templates. Embedding those as Python literals balloons the source, "
+"recompiles slowly, and wastes the bytecode container on data the interpreter"
+" is just going to read raw anyway. The :doc:`romfs-image` page covers the "
+"read-only flash filesystem that fills this gap."
+msgstr ""
+"Congelar es estupendo para el código. *No* es estupendo para recursos "
+"binarios grandes: archivos de modelos de aprendizaje automático, tablas de "
+"etiquetas, configuración JSON, plantillas de imagen. Incrustar esos "
+"elementos como literales de Python hincha el código fuente, recompila "
+"lentamente y desperdicia el contenedor de bytecode en datos que el "
+"intérprete va a leer en bruto de todos modos. La página :doc:`romfs-image` "
+"cubre el sistema de archivos flash de solo lectura que llena este hueco."

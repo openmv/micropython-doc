@@ -1,0 +1,2105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: es <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.csi.rst:4
+msgid ":mod:`csi` --- camera sensors"
+msgstr ":mod:`csi` --- sensores de cámara"
+
+#: ../../library/omv.csi.rst:9
+msgid ""
+"The :mod:`csi` module is the modern, object-oriented interface to the camera"
+" sensor(s) on an OpenMV Cam. Each physical sensor is represented by a "
+":class:`CSI` instance, so the multispectral imager boards that pair a colour"
+" sensor with a thermal or event sensor can drive each one independently by "
+"passing a different ``cid`` to the constructor. Single-sensor cams just "
+"instantiate one :class:`CSI`."
+msgstr ""
+"El módulo :mod:`csi` es la interfaz moderna y orientada a objetos para los "
+"sensores de cámara de una OpenMV Cam. Cada sensor físico está representado "
+"por una instancia de :class:`CSI`, de modo que las placas de imagen "
+"multiespectral que combinan un sensor de color con un sensor térmico o de "
+"eventos pueden controlar cada uno de forma independiente pasando un ``cid`` "
+"distinto al constructor. Las cámaras de un solo sensor simplemente "
+"instancian un único :class:`CSI`."
+
+#: ../../library/omv.csi.rst:16
+msgid ""
+"A :class:`CSI` object owns the full sensor configuration -- pixel format, "
+"framesize / window, exposure / gain / white-balance, hardware mirror and "
+"flip, colour-bar test pattern, frame-rate clock, ROI for auto-exposure, and "
+"chip-specific :meth:`ioctl <CSI.ioctl>` commands. Frames are captured with "
+":meth:`CSI.snapshot`, which returns an :class:`image.Image` backed by the "
+"frame buffer."
+msgstr ""
+"Un objeto :class:`CSI` posee la configuración completa del sensor: formato "
+"de píxel, framesize / ventana, exposición / ganancia / balance de blancos, "
+"espejo y volteo por hardware, patrón de prueba de barras de color, reloj de "
+"velocidad de fotogramas, ROI para la exposición automática y comandos "
+":meth:`ioctl <CSI.ioctl>` específicos del chip. Los fotogramas se capturan "
+"con :meth:`CSI.snapshot`, que devuelve una :class:`image.Image` respaldada "
+"por el búfer de fotogramas (frame buffer)."
+
+#: ../../library/omv.csi.rst:23
+msgid ""
+"This module supersedes the legacy :mod:`sensor` module (which exposed the "
+"same functionality as module-level functions tied to a single hidden "
+"sensor). New code should use :class:`CSI`."
+msgstr ""
+"Este módulo reemplaza al antiguo módulo :mod:`sensor` (que exponía la misma "
+"funcionalidad como funciones a nivel de módulo ligadas a un único sensor "
+"oculto). El código nuevo debería usar :class:`CSI`."
+
+#: ../../library/omv.csi.rst:27
+msgid "Example usage::"
+msgstr "Ejemplo de uso::"
+
+#: ../../library/omv.csi.rst:43
+msgid "Asyncio usage"
+msgstr "Uso con asyncio"
+
+#: ../../library/omv.csi.rst:45
+msgid ""
+"The blocking :meth:`CSI.snapshot` loop above does not cooperate with the "
+":mod:`asyncio` event loop -- while ``snapshot`` is waiting on the next "
+"frame, every other coroutine in the program is frozen. To let a capture loop"
+" coexist with other concurrent work (a UART client, a button watcher, a "
+"network task) wrap :class:`CSI` in a small adapter that turns ``snapshot`` "
+"into an :keyword:`await`-friendly coroutine by polling "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` and yielding to the event "
+"loop between checks::"
+msgstr ""
+"El bucle bloqueante de :meth:`CSI.snapshot` anterior no coopera con el bucle"
+" de eventos de :mod:`asyncio`: mientras ``snapshot`` espera el siguiente "
+"fotograma, todas las demás corrutinas del programa quedan congeladas. Para "
+"que un bucle de captura coexista con otro trabajo concurrente (un cliente "
+"UART, un vigilante de botones, una tarea de red), envuelve :class:`CSI` en "
+"un pequeño adaptador que convierte ``snapshot`` en una corrutina compatible "
+"con :keyword:`await` sondeando :meth:`snapshot(blocking=False) "
+"<CSI.snapshot>` y cediendo al bucle de eventos entre comprobaciones::"
+
+#: ../../library/omv.csi.rst:72
+msgid ""
+"``__getattr__`` forwards every other attribute (``reset``, ``pixformat``, "
+"``framesize``, the sensor knobs) to the underlying :class:`CSI` so the "
+"wrapper is a drop-in replacement. The first non-blocking call also starts "
+"the camera's DMA capture if it was not already running, so no extra "
+"bootstrap is needed."
+msgstr ""
+"``__getattr__`` reenvía cualquier otro atributo (``reset``, ``pixformat``, "
+"``framesize``, los ajustes del sensor) al :class:`CSI` subyacente, de modo "
+"que el envoltorio es un reemplazo directo. La primera llamada no bloqueante "
+"también inicia la captura DMA de la cámara si aún no estaba en marcha, por "
+"lo que no se necesita ningún arranque adicional."
+
+#: ../../library/omv.csi.rst:78
+msgid ""
+"A capture loop then fits into a larger asyncio program as just another "
+"coroutine::"
+msgstr ""
+"Un bucle de captura encaja entonces en un programa asyncio más grande como "
+"una corrutina más::"
+
+#: ../../library/omv.csi.rst:97
+msgid ""
+"The :meth:`framebuffers <CSI.framebuffers>` setting still matters in this "
+"shape -- single-buffer mode makes ``snapshot(blocking=False)`` return "
+":data:`None` until the next frame is captured, while double or triple "
+"buffering smooths that over so the wrapper usually finds a buffered frame "
+"waiting on the first poll. See the *AsyncCSI* capstone on the asyncio "
+"tutorial for the full walkthrough."
+msgstr ""
+"El ajuste :meth:`framebuffers <CSI.framebuffers>` sigue siendo importante en"
+" esta forma: el modo de búfer único hace que ``snapshot(blocking=False)`` "
+"devuelva :data:`None` hasta que se capture el siguiente fotograma, mientras "
+"que el doble o triple búfer lo suaviza de modo que el envoltorio normalmente"
+" encuentra un fotograma en búfer esperando en el primer sondeo. Consulta la "
+"sección culminante *AsyncCSI* del tutorial de asyncio para ver el recorrido "
+"completo."
+
+#: ../../library/omv.csi.rst:106
+msgid "class CSI -- Camera Sensor Interface"
+msgstr "clase CSI -- Interfaz del sensor de cámara"
+
+#: ../../library/omv.csi.rst:108
+msgid "The `CSI` class is used to control a camera sensor."
+msgstr "La clase `CSI` se usa para controlar un sensor de cámara."
+
+#: ../../library/omv.csi.rst:112
+msgid ""
+"Create an object to talk with a camera sensor. On boards with multiple "
+"sensors, the particular CSI object may be selected by passing a ``cid`` like"
+" `csi.LEPTON` to select a FLIR Lepton sensor module. If ``cid`` is -1 the "
+"primary sensor is selected (typically a color camera module on multi-sensor "
+"boards)."
+msgstr ""
+"Crea un objeto para comunicarse con un sensor de cámara. En placas con "
+"varios sensores, se puede seleccionar el objeto CSI concreto pasando un "
+"``cid`` como `csi.LEPTON` para seleccionar un módulo de sensor FLIR Lepton. "
+"Si ``cid`` es -1 se selecciona el sensor principal (normalmente un módulo de"
+" cámara de color en placas multisensor)."
+
+#: ../../library/omv.csi.rst:117
+msgid ""
+"If ``delays`` is ``False`` then all settling time delays in the csi driver "
+"are disabled. By default the sensor driver delays after reset / mode change "
+"to prevent corrupt frames being returned by `CSI.snapshot`. Disabling delays"
+" lets you batch updates and apply a single delay at the end before calling "
+"`CSI.snapshot`."
+msgstr ""
+"Si ``delays`` es ``False``, se desactivan todos los retardos de "
+"estabilización del controlador csi. De forma predeterminada, el controlador "
+"del sensor introduce retardos tras el reinicio o el cambio de modo para "
+"evitar que `CSI.snapshot` devuelva fotogramas corruptos. Desactivar los "
+"retardos te permite agrupar las actualizaciones y aplicar un único retardo "
+"al final antes de llamar a `CSI.snapshot`."
+
+#: ../../library/omv.csi.rst:122
+msgid ""
+"If ``fflush`` is ``False`` then automatic framebuffer flushing mentioned in "
+"`CSI.framebuffers` is disabled. This removes any time limit on frames in the"
+" frame buffer fifo."
+msgstr ""
+"Si ``fflush`` es ``False``, se desactiva el vaciado automático del "
+"framebuffer mencionado en `CSI.framebuffers`. Esto elimina cualquier límite "
+"de tiempo sobre los fotogramas en la cola FIFO del búfer de fotogramas "
+"(frame buffer)."
+
+#: ../../library/omv.csi.rst:125
+msgid ""
+"``stream`` selects whether this CSI is the stream source sent to the IDE. If"
+" ``None`` (default) the CSI becomes the stream source only if it is the "
+"primary (non-auxiliary) sensor. Pass ``True`` to force this CSI to be the "
+"stream source, or any false value to leave the existing stream source "
+"unchanged."
+msgstr ""
+"``stream`` selecciona si este CSI es la fuente de transmisión enviada al "
+"IDE. Si es ``None`` (predeterminado), el CSI se convierte en la fuente de "
+"transmisión solo si es el sensor principal (no auxiliar). Pasa ``True`` para"
+" forzar que este CSI sea la fuente de transmisión, o cualquier valor falso "
+"para dejar sin cambios la fuente de transmisión existente."
+
+#: ../../library/omv.csi.rst:131
+msgid "Methods"
+msgstr "Métodos"
+
+#: ../../library/omv.csi.rst:135
+msgid ""
+"Initializes the camera sensor. Performs a hardware reset by toggling the "
+"RESET signal GPIO to the camera module if ``hard`` is ``True``. ``hard`` "
+"should be set to false when resetting auxiliary camera sensors that share "
+"the same RESET signal GPIO as the primary module."
+msgstr ""
+"Inicializa el sensor de cámara. Realiza un reinicio por hardware alternando "
+"el GPIO de la señal RESET hacia el módulo de la cámara si ``hard`` es "
+"``True``. ``hard`` debe establecerse en false al reiniciar sensores de "
+"cámara auxiliares que comparten el mismo GPIO de señal RESET con el módulo "
+"principal."
+
+#: ../../library/omv.csi.rst:141
+msgid ""
+"Puts the camera into a lower power mode than sleep (but the camera must be "
+"reset on being woken up)."
+msgstr ""
+"Pone la cámara en un modo de menor consumo que el de reposo (pero la cámara "
+"debe reiniciarse al despertar)."
+
+#: ../../library/omv.csi.rst:146
+msgid ""
+"Puts the camera to sleep if ``enable`` is True. Otherwise, wakes it back up."
+msgstr ""
+"Pone la cámara en reposo si ``enable`` es True. De lo contrario, la vuelve a"
+" activar."
+
+#: ../../library/omv.csi.rst:150
+msgid ""
+"Copies the current frame buffer contents to the IDE preview. Call this after"
+" the last `CSI.snapshot` if the script terminates so the IDE shows the last "
+"frame."
+msgstr ""
+"Copia el contenido actual del búfer de fotogramas (frame buffer) a la vista "
+"previa del IDE. Llama a esto después de la última `CSI.snapshot` si el "
+"script termina, para que el IDE muestre el último fotograma."
+
+#: ../../library/omv.csi.rst:155
+msgid "Takes a picture using the camera and returns an `image.Image` object."
+msgstr "Toma una foto con la cámara y devuelve un objeto `image.Image`."
+
+#: ../../library/omv.csi.rst:157
+msgid ""
+"If ``time`` and/or ``frames`` is passed snapshot will block for that many "
+"``time`` milliseconds and/or ``frames`` captured from the camera. Both "
+"arguments may be used at the same time. After ``time`` and/or ``frames`` has"
+" passed snapshot will return ``None``."
+msgstr ""
+"Si se pasa ``time`` o ``frames``, snapshot se bloqueará durante esa cantidad"
+" de ``time`` milisegundos o ``frames`` capturados desde la cámara. Ambos "
+"argumentos pueden usarse al mismo tiempo. Una vez transcurridos ``time`` o "
+"``frames``, snapshot devolverá ``None``."
+
+#: ../../library/omv.csi.rst:161
+msgid ""
+"``blocking`` may be ``False`` to enable non-blocking behavior which will "
+"cause snapshot to return ``None`` when the next image from the camera is not"
+" ready versus waiting."
+msgstr ""
+"``blocking`` puede ser ``False`` para habilitar el comportamiento no "
+"bloqueante, que hará que snapshot devuelva ``None`` cuando la siguiente "
+"imagen de la cámara no esté lista en lugar de esperar."
+
+#: ../../library/omv.csi.rst:164
+msgid ""
+"``image`` may be another `image.Image` object to update with the new image "
+"captured from the camera instead of returning a new `image.Image` object. "
+"The previous image contents are overwritten via a deep copy."
+msgstr ""
+"``image`` puede ser otro objeto `image.Image` para actualizarlo con la nueva"
+" imagen capturada desde la cámara en lugar de devolver un nuevo objeto "
+"`image.Image`. El contenido anterior de la imagen se sobrescribe mediante "
+"una copia profunda."
+
+#: ../../library/omv.csi.rst:168
+msgid ""
+"If `CSI.auto_rotation` is enabled this method will return an already-rotated"
+" `image.Image`."
+msgstr ""
+"Si `CSI.auto_rotation` está habilitado, este método devolverá una "
+"`image.Image` ya rotada."
+
+#: ../../library/omv.csi.rst:172
+msgid "Returns the sensor resolution width."
+msgstr "Devuelve el ancho de la resolución del sensor."
+
+#: ../../library/omv.csi.rst:176
+msgid "Returns the sensor resolution height."
+msgstr "Devuelve la altura de la resolución del sensor."
+
+#: ../../library/omv.csi.rst:180
+msgid ""
+"Returns the camera module chip ID. Compare against any of `csi.OV2640`, "
+"`csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, `csi.OV9650`, "
+"`csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, `csi.MT9M114`, "
+"`csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, `csi.HM0360`, "
+"`csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, `csi.PAG7936`, "
+"`csi.PAJ6100`, `csi.FROGEYE2020`, or `csi.SOFTCSI`."
+msgstr ""
+"Devuelve el ID del chip del módulo de cámara. Compáralo con cualquiera de "
+"`csi.OV2640`, `csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, "
+"`csi.OV9650`, `csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, "
+"`csi.MT9M114`, `csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, "
+"`csi.HM0360`, `csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, "
+"`csi.PAG7936`, `csi.PAJ6100`, `csi.FROGEYE2020` o `csi.SOFTCSI`."
+
+#: ../../library/omv.csi.rst:188
+msgid ""
+"Returns ``True`` if there is an image ready to be returned by `CSI.snapshot`"
+" so a call to snapshot will not block."
+msgstr ""
+"Devuelve ``True`` si hay una imagen lista para ser devuelta por "
+"`CSI.snapshot`, de modo que una llamada a snapshot no se bloqueará."
+
+#: ../../library/omv.csi.rst:193
+msgid ""
+"Sets the pixel format for the camera module to one of `csi.GRAYSCALE`, "
+"`csi.RGB565`, `csi.BAYER`, `csi.YUV422`, or `csi.JPEG` (only on the "
+"OV2640/OV5640)."
+msgstr ""
+"Establece el formato de píxel del módulo de cámara en uno de "
+"`csi.GRAYSCALE`, `csi.RGB565`, `csi.BAYER`, `csi.YUV422` o `csi.JPEG` (solo "
+"en la OV2640/OV5640)."
+
+#: ../../library/omv.csi.rst:196
+msgid "Returns the current pixformat if called with no arguments."
+msgstr "Devuelve el pixformat actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:200
+msgid ""
+"Sets the frame size for the camera module to one of the size constants (e.g."
+" `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- see the constants section)."
+msgstr ""
+"Establece el tamaño de fotograma del módulo de cámara en una de las "
+"constantes de tamaño (p. ej. `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- "
+"consulta la sección de constantes)."
+
+#: ../../library/omv.csi.rst:203
+msgid ""
+"Alternatively, you may pass a custom framesize as a ``(w, h)`` tuple. When "
+"`CSI.snapshot` is called the custom framesize will be evaluated against DMA "
+"rules. Generally framesizes need to be a multiple of 8 pixels and/or 16 "
+"bytes."
+msgstr ""
+"Como alternativa, puedes pasar un framesize personalizado como una tupla "
+"``(w, h)``. Cuando se llama a `CSI.snapshot`, el framesize personalizado se "
+"evaluará según las reglas de DMA. En general, los framesizes deben ser "
+"múltiplos de 8 píxeles o de 16 bytes."
+
+#: ../../library/omv.csi.rst:207
+msgid "Returns the current framesize if called with no arguments."
+msgstr "Devuelve el framesize actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:211
+msgid "Sets the frame rate in Hz for the camera module."
+msgstr "Establece la velocidad de fotogramas en Hz del módulo de cámara."
+
+#: ../../library/omv.csi.rst:213
+msgid "Returns the current framerate if called with no arguments."
+msgstr ""
+"Devuelve la velocidad de fotogramas actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:217
+msgid ""
+"`CSI.framerate` works by dropping frames received by the camera module to "
+"keep the frame rate at or below the rate specified. By default the camera "
+"will run at the maximum frame rate. If implemented for the particular camera"
+" sensor `CSI.framerate` will also reduce the camera sensor frame rate "
+"internally to save power and improve image quality by increasing the sensor "
+"exposure. `CSI.framerate` may conflict with `CSI.auto_exposure` on some "
+"cameras."
+msgstr ""
+"`CSI.framerate` funciona descartando fotogramas recibidos del módulo de "
+"cámara para mantener la velocidad de fotogramas igual o por debajo de la "
+"velocidad especificada. De forma predeterminada, la cámara funcionará a la "
+"máxima velocidad de fotogramas. Si está implementado para el sensor de "
+"cámara concreto, `CSI.framerate` también reducirá internamente la velocidad "
+"de fotogramas del sensor de cámara para ahorrar energía y mejorar la calidad"
+" de imagen aumentando la exposición del sensor. `CSI.framerate` puede entrar"
+" en conflicto con `CSI.auto_exposure` en algunas cámaras."
+
+#: ../../library/omv.csi.rst:226
+msgid ""
+"Sets the resolution of the camera to a sub-region of the current resolution."
+" ``roi`` is a ``(x, y, w, h)`` tuple. You may also pass ``(w, h)`` and the "
+"window will be centered."
+msgstr ""
+"Establece la resolución de la cámara en una subregión de la resolución "
+"actual. ``roi`` es una tupla ``(x, y, w, h)``. También puedes pasar ``(w, "
+"h)`` y la ventana quedará centrada."
+
+#: ../../library/omv.csi.rst:229
+msgid ""
+"Returns the current ``(x, y, w, h)`` tuple if called with no arguments."
+msgstr "Devuelve la tupla ``(x, y, w, h)`` actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:233
+msgid ""
+"Set the camera image gainceiling to one of 2, 4, 8, 16, 32, 64, or 128."
+msgstr ""
+"Establece el techo de ganancia de la imagen de la cámara en uno de 2, 4, 8, "
+"16, 32, 64 o 128."
+
+#: ../../library/omv.csi.rst:235 ../../library/omv.csi.rst:241
+#: ../../library/omv.csi.rst:247 ../../library/omv.csi.rst:253
+#: ../../library/omv.csi.rst:259 ../../library/omv.csi.rst:269
+#: ../../library/omv.csi.rst:390 ../../library/omv.csi.rst:398
+msgid "Returns ``True`` on success and ``False`` on failure."
+msgstr "Devuelve ``True`` en caso de éxito y ``False`` en caso de fallo."
+
+#: ../../library/omv.csi.rst:239
+msgid "Set the camera image brightness."
+msgstr "Establece el brillo de la imagen de la cámara."
+
+#: ../../library/omv.csi.rst:245
+msgid "Set the camera image contrast."
+msgstr "Establece el contraste de la imagen de la cámara."
+
+#: ../../library/omv.csi.rst:251
+msgid "Set the camera image saturation."
+msgstr "Establece la saturación de la imagen de la cámara."
+
+#: ../../library/omv.csi.rst:257
+msgid "Set the camera image JPEG compression quality. 0 - 100."
+msgstr ""
+"Establece la calidad de compresión JPEG de la imagen de la cámara. 0 - 100."
+
+#: ../../library/omv.csi.rst:263
+msgid "Only for the OV2640/OV5640 cameras."
+msgstr "Solo para las cámaras OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:267
+msgid ""
+"Turns color bar mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Activa (``True``) o desactiva (``False``) el modo de barras de color. Está "
+"desactivado de forma predeterminada."
+
+#: ../../library/omv.csi.rst:273
+msgid ""
+"``enable`` turns auto gain control on (``True``) or off (``False``). The "
+"camera starts up with auto gain control on."
+msgstr ""
+"``enable`` activa (``True``) o desactiva (``False``) el control automático "
+"de ganancia. La cámara arranca con el control automático de ganancia "
+"activado."
+
+#: ../../library/omv.csi.rst:276
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels with "
+"``gain_db``."
+msgstr ""
+"Si ``enable`` es ``False``, puedes establecer una ganancia fija en "
+"decibelios con ``gain_db``."
+
+#: ../../library/omv.csi.rst:278
+msgid ""
+"If ``enable`` is ``True`` you may set the maximum gain ceiling in decibels "
+"with ``gain_db_ceiling`` for the automatic gain control algorithm."
+msgstr ""
+"Si ``enable`` es ``True``, puedes establecer el techo máximo de ganancia en "
+"decibelios con ``gain_db_ceiling`` para el algoritmo de control automático "
+"de ganancia."
+
+#: ../../library/omv.csi.rst:283
+msgid "You need to turn off white balance too if you want to track colors."
+msgstr ""
+"También debes desactivar el balance de blancos si quieres rastrear colores."
+
+#: ../../library/omv.csi.rst:287
+msgid "Returns the current camera gain value in decibels."
+msgstr "Devuelve el valor actual de ganancia de la cámara en decibelios."
+
+#: ../../library/omv.csi.rst:291
+msgid ""
+"``enable`` turns auto exposure control on (``True``) or off (``False``). The"
+" camera starts up with auto exposure control on."
+msgstr ""
+"``enable`` activa (``True``) o desactiva (``False``) el control automático "
+"de exposición. La cámara arranca con el control automático de exposición "
+"activado."
+
+#: ../../library/omv.csi.rst:294
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed exposure time in microseconds"
+" with ``exposure_us``."
+msgstr ""
+"Si ``enable`` es ``False``, puedes establecer un tiempo de exposición fijo "
+"en microsegundos con ``exposure_us``."
+
+#: ../../library/omv.csi.rst:299
+msgid ""
+"Camera auto exposure algorithms are pretty conservative about how much they "
+"adjust the exposure value by and will generally avoid changing the exposure "
+"value by much. Instead, they change the gain value a lot to deal with "
+"changing lighting."
+msgstr ""
+"Los algoritmos de exposición automática de la cámara son bastante "
+"conservadores en cuanto a cuánto ajustan el valor de exposición y, por lo "
+"general, evitan cambiarlo mucho. En su lugar, cambian bastante el valor de "
+"ganancia para hacer frente a los cambios de iluminación."
+
+#: ../../library/omv.csi.rst:305
+msgid "Returns the current camera exposure value in microseconds."
+msgstr "Devuelve el valor actual de exposición de la cámara en microsegundos."
+
+#: ../../library/omv.csi.rst:309
+msgid ""
+"``enable`` turns auto white balance on (``True``) or off (``False``). The "
+"camera starts up with auto white balance on."
+msgstr ""
+"``enable`` activa (``True``) o desactiva (``False``) el balance de blancos "
+"automático. La cámara arranca con el balance de blancos automático activado."
+
+#: ../../library/omv.csi.rst:312
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels for the red,"
+" green, and blue channels respectively with ``rgb_gain_db``."
+msgstr ""
+"Si ``enable`` es ``False``, puedes establecer una ganancia fija en "
+"decibelios para los canales rojo, verde y azul respectivamente con "
+"``rgb_gain_db``."
+
+#: ../../library/omv.csi.rst:317
+msgid "You need to turn off gain control too if you want to track colors."
+msgstr ""
+"También debes desactivar el control de ganancia si quieres rastrear colores."
+
+#: ../../library/omv.csi.rst:321
+msgid ""
+"Returns a tuple ``(r, g, b)`` of the current camera red, green, and blue "
+"gain values in decibels."
+msgstr ""
+"Devuelve una tupla ``(r, g, b)`` con los valores actuales de ganancia roja, "
+"verde y azul de la cámara en decibelios."
+
+#: ../../library/omv.csi.rst:326
+msgid "Sets the auto black-level calibration (BLC) on the camera."
+msgstr ""
+"Establece la calibración automática del nivel de negro (BLC) en la cámara."
+
+#: ../../library/omv.csi.rst:328
+msgid ""
+"``enable`` pass ``True`` or ``False`` to turn BLC on or off. You typically "
+"always want this on."
+msgstr ""
+"``enable`` pasa ``True`` o ``False`` para activar o desactivar el BLC. "
+"Normalmente siempre conviene tenerlo activado."
+
+#: ../../library/omv.csi.rst:331
+msgid ""
+"``regs`` if disabled then you can manually set the BLC register values from "
+"a previous call to `CSI.blc_regs`."
+msgstr ""
+"``regs`` si está desactivado, puedes establecer manualmente los valores de "
+"los registros BLC de una llamada anterior a `CSI.blc_regs`."
+
+#: ../../library/omv.csi.rst:336
+msgid ""
+"Returns the sensor BLC registers as a list of integers. For use with "
+"`CSI.auto_blc`."
+msgstr ""
+"Devuelve los registros BLC del sensor como una lista de enteros. Para usar "
+"con `CSI.auto_blc`."
+
+#: ../../library/omv.csi.rst:340
+msgid ""
+"Turns horizontal mirror mode on (``True``) or off (``False``). Defaults to "
+"off."
+msgstr ""
+"Activa (``True``) o desactiva (``False``) el modo de espejo horizontal. Está"
+" desactivado de forma predeterminada."
+
+#: ../../library/omv.csi.rst:342 ../../library/omv.csi.rst:348
+#: ../../library/omv.csi.rst:359 ../../library/omv.csi.rst:365
+#: ../../library/omv.csi.rst:628
+msgid "Returns the current setting if called with no arguments."
+msgstr "Devuelve el ajuste actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:346
+msgid ""
+"Turns vertical flip mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Activa (``True``) o desactiva (``False``) el modo de volteo vertical. Está "
+"desactivado de forma predeterminada."
+
+#: ../../library/omv.csi.rst:352
+msgid ""
+"Turns transpose mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Activa (``True``) o desactiva (``False``) el modo de transposición. Está "
+"desactivado de forma predeterminada."
+
+#: ../../library/omv.csi.rst:354
+msgid "vflip=False, hmirror=False, transpose=False -> 0 degree rotation"
+msgstr "vflip=False, hmirror=False, transpose=False -> rotación de 0 grados"
+
+#: ../../library/omv.csi.rst:355
+msgid "vflip=True,  hmirror=False, transpose=True  -> 90 degree rotation"
+msgstr "vflip=True,  hmirror=False, transpose=True  -> rotación de 90 grados"
+
+#: ../../library/omv.csi.rst:356
+msgid "vflip=True,  hmirror=True,  transpose=False -> 180 degree rotation"
+msgstr "vflip=True,  hmirror=True,  transpose=False -> rotación de 180 grados"
+
+#: ../../library/omv.csi.rst:357
+msgid "vflip=False, hmirror=True,  transpose=True  -> 270 degree rotation"
+msgstr "vflip=False, hmirror=True,  transpose=True  -> rotación de 270 grados"
+
+#: ../../library/omv.csi.rst:363
+msgid ""
+"Turns auto rotation mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Activa (``True``) o desactiva (``False``) el modo de rotación automática. "
+"Está desactivado de forma predeterminada."
+
+#: ../../library/omv.csi.rst:369
+msgid ""
+"This method only works when the OpenMV Cam has an :py:mod:`imu` installed "
+"and is enabled automatically."
+msgstr ""
+"Este método solo funciona cuando la OpenMV Cam tiene una :py:mod:`imu` "
+"instalada y se habilita automáticamente."
+
+#: ../../library/omv.csi.rst:374
+msgid ""
+"Sets the number of frame buffers used to receive image data. By default the "
+"OpenMV Cam will try to allocate the maximum number of frame buffers it can. "
+"Reallocation occurs whenever `CSI.pixformat`, `CSI.framesize`, or "
+"`CSI.window` are called."
+msgstr ""
+"Establece el número de búferes de fotogramas usados para recibir datos de "
+"imagen. De forma predeterminada, la OpenMV Cam intentará asignar el máximo "
+"número de búferes de fotogramas que pueda. La reasignación se produce cada "
+"vez que se llama a `CSI.pixformat`, `CSI.framesize` o `CSI.window`."
+
+#: ../../library/omv.csi.rst:378
+msgid ""
+"``count`` of 1 (single buffer), 2 (double buffer), or 3 (triple buffer) "
+"selects the corresponding capture mode. Pass 4 or greater to put the driver "
+"into video FIFO mode where ``count`` buffers are queued --- useful for video"
+" recording to an SD card. On frame drop, all frame buffers except the active"
+" one are cleared so `CSI.snapshot` always returns a recent frame."
+msgstr ""
+"Un ``count`` de 1 (búfer único), 2 (doble búfer) o 3 (triple búfer) "
+"selecciona el modo de captura correspondiente. Pasa 4 o más para poner el "
+"controlador en modo FIFO de vídeo, donde se encolan ``count`` búferes --- "
+"útil para grabar vídeo en una tarjeta SD. Al descartar un fotograma, se "
+"vacían todos los búferes de fotogramas excepto el activo, de modo que "
+"`CSI.snapshot` siempre devuelve un fotograma reciente."
+
+#: ../../library/omv.csi.rst:384
+msgid "Returns the current count if called with no arguments."
+msgstr "Devuelve el recuento actual si se llama sin argumentos."
+
+#: ../../library/omv.csi.rst:388
+msgid ""
+"Sets the special digital effect (one of `csi.NORMAL` or `csi.NEGATIVE`)."
+msgstr ""
+"Establece el efecto digital especial (uno de `csi.NORMAL` o `csi.NEGATIVE`)."
+
+#: ../../library/omv.csi.rst:394
+msgid ""
+"``enable`` ``True`` to enable, ``False`` to disable. ``radi`` integer radius"
+" of pixels to correct. ``coef`` power of correction."
+msgstr ""
+"``enable`` ``True`` para habilitar, ``False`` para deshabilitar. ``radi`` "
+"radio entero de píxeles a corregir. ``coef`` potencia de la corrección."
+
+#: ../../library/omv.csi.rst:402
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame (but before the frame is received)."
+msgstr ""
+"Registra la función de retorno (callback) ``cb`` para ejecutarla (en "
+"contexto de interrupción) cada vez que el módulo de cámara genera un nuevo "
+"fotograma (pero antes de que se reciba el fotograma)."
+
+#: ../../library/omv.csi.rst:405
+msgid ""
+"``cb`` takes one argument and is passed the current state of the vsync pin "
+"after changing."
+msgstr ""
+"``cb`` toma un argumento y se le pasa el estado actual del pin vsync tras el"
+" cambio."
+
+#: ../../library/omv.csi.rst:407 ../../library/omv.csi.rst:418
+msgid ""
+"Returns the registered callback if called with no arguments. Pass any non-"
+"callable to clear the callback."
+msgstr ""
+"Devuelve la función de retorno (callback) registrada si se llama sin "
+"argumentos. Pasa cualquier valor no invocable para borrar la función de "
+"retorno (callback)."
+
+#: ../../library/omv.csi.rst:412
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame and the frame is ready to be read via "
+"`CSI.snapshot`."
+msgstr ""
+"Registra la función de retorno (callback) ``cb`` para ejecutarla (en "
+"contexto de interrupción) cada vez que el módulo de cámara genera un nuevo "
+"fotograma y el fotograma está listo para leerse mediante `CSI.snapshot`."
+
+#: ../../library/omv.csi.rst:415
+msgid ""
+"``cb`` takes no arguments. Use this to schedule reading a frame later with "
+"``micropython.schedule()``."
+msgstr ""
+"``cb`` no toma argumentos. Úsalo para programar la lectura de un fotograma "
+"más tarde con ``micropython.schedule()``."
+
+#: ../../library/omv.csi.rst:423
+msgid ""
+"Execute a sensor-specific request. ``request`` is one of the :data:`IOCTL_*`"
+" constants; the remaining positional arguments and the return value depend "
+"on the request. The supported requests are grouped by sensor family below."
+msgstr ""
+"Ejecuta una petición específica del sensor. ``request`` es una de las "
+"constantes :data:`IOCTL_*`; los demás argumentos posicionales y el valor de "
+"retorno dependen de la petición. Las peticiones admitidas se agrupan por "
+"familia de sensores a continuación."
+
+#: ../../library/omv.csi.rst:428
+msgid "**Generic (any sensor):**"
+msgstr "**Genérico (cualquier sensor):**"
+
+#: ../../library/omv.csi.rst:430
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:431
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:433
+msgid ""
+"Set the sensor readout window. A smaller window raises the frame rate at the"
+" cost of field-of-view."
+msgstr ""
+"Establece la ventana de lectura del sensor. Una ventana más pequeña aumenta "
+"la velocidad de fotogramas a costa del campo de visión."
+
+#: ../../library/omv.csi.rst:436
+msgid "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+msgstr "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+
+#: ../../library/omv.csi.rst:437
+msgid "Returns the current readout window as an ``(x, y, w, h)`` tuple."
+msgstr ""
+"Devuelve la ventana de lectura actual como una tupla ``(x, y, w, h)``."
+
+#: ../../library/omv.csi.rst:440
+msgid "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:441
+msgid ""
+"Enable (``True``) or disable (``False``) triggered mode on the MT9V034."
+msgstr ""
+"Habilita (``True``) o deshabilita (``False``) el modo disparado en el "
+"MT9V034."
+
+#: ../../library/omv.csi.rst:444
+msgid "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+msgstr "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+
+#: ../../library/omv.csi.rst:445
+msgid "Returns the current triggered-mode state as a ``bool``."
+msgstr "Devuelve el estado actual del modo disparado como un ``bool``."
+
+#: ../../library/omv.csi.rst:447
+msgid "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+msgstr "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+
+#: ../../library/omv.csi.rst:448
+msgid ""
+"When ``True``, instruct :meth:`framesize` to optimize for field-of-view "
+"rather than frame rate."
+msgstr ""
+"Cuando es ``True``, indica a :meth:`framesize` que optimice para el campo de"
+" visión en lugar de la velocidad de fotogramas."
+
+#: ../../library/omv.csi.rst:451
+msgid "``ioctl(IOCTL_GET_FOV_WIDE)``"
+msgstr "``ioctl(IOCTL_GET_FOV_WIDE)``"
+
+#: ../../library/omv.csi.rst:452
+msgid "Returns the current FOV-wide state as a ``bool``."
+msgstr "Devuelve el estado actual de FOV-wide como un ``bool``."
+
+#: ../../library/omv.csi.rst:454
+msgid "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:455
+msgid ""
+"Enable (``True``) or disable (``False``) the sensor's low-light \"night "
+"mode\". OV7725 and OV5640 only."
+msgstr ""
+"Habilita (``True``) o deshabilita (``False``) el \"modo nocturno\" de baja "
+"luz del sensor. Solo OV7725 y OV5640."
+
+#: ../../library/omv.csi.rst:458
+msgid "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+msgstr "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+
+#: ../../library/omv.csi.rst:459
+msgid "Returns the current night-mode state as a ``bool``."
+msgstr "Devuelve el estado actual del modo nocturno como un ``bool``."
+
+#: ../../library/omv.csi.rst:461
+msgid "``ioctl(IOCTL_GET_RGB_STATS)``"
+msgstr "``ioctl(IOCTL_GET_RGB_STATS)``"
+
+#: ../../library/omv.csi.rst:462
+msgid ""
+"Returns a 4-tuple of raw RGB-channel statistics ``(r, gb, gr, b)`` read from"
+" the sensor (typically used for white-balance tuning)."
+msgstr ""
+"Devuelve una tupla de 4 elementos con estadísticas brutas de los canales RGB"
+" ``(r, gb, gr, b)`` leídas del sensor (normalmente usada para ajustar el "
+"balance de blancos)."
+
+#: ../../library/omv.csi.rst:466
+msgid "**OV5640 FPC -- auto-focus:**"
+msgstr "**OV5640 FPC -- enfoque automático:**"
+
+#: ../../library/omv.csi.rst:468
+msgid "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:469
+msgid "Start an auto-focus sweep on the OV5640 FPC module."
+msgstr "Inicia un barrido de enfoque automático en el módulo OV5640 FPC."
+
+#: ../../library/omv.csi.rst:471
+msgid "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:472
+msgid "Pause an in-progress auto-focus sweep."
+msgstr "Pausa un barrido de enfoque automático en curso."
+
+#: ../../library/omv.csi.rst:474
+msgid "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:475
+msgid "Reset the auto-focus position to the default."
+msgstr "Restablece la posición de enfoque automático al valor predeterminado."
+
+#: ../../library/omv.csi.rst:477
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:478
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+
+#: ../../library/omv.csi.rst:480
+msgid ""
+"Block until the current auto-focus sweep finishes. ``timeout_ms`` defaults "
+"to 5000 if omitted."
+msgstr ""
+"Se bloquea hasta que finaliza el barrido de enfoque automático actual. "
+"``timeout_ms`` toma el valor 5000 de forma predeterminada si se omite."
+
+#: ../../library/omv.csi.rst:483
+msgid "**FLIR Lepton:**"
+msgstr "**FLIR Lepton:**"
+
+#: ../../library/omv.csi.rst:485
+msgid "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+
+#: ../../library/omv.csi.rst:486
+msgid "Returns the Lepton image width in pixels."
+msgstr "Devuelve el ancho de la imagen del Lepton en píxeles."
+
+#: ../../library/omv.csi.rst:488
+msgid "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+
+#: ../../library/omv.csi.rst:489
+msgid "Returns the Lepton image height in pixels."
+msgstr "Devuelve la altura de la imagen del Lepton en píxeles."
+
+#: ../../library/omv.csi.rst:491
+msgid "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+
+#: ../../library/omv.csi.rst:492
+msgid "Returns the Lepton's type (radiometric or not) as an int."
+msgstr "Devuelve el tipo del Lepton (radiométrico o no) como un entero."
+
+#: ../../library/omv.csi.rst:494
+msgid "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+
+#: ../../library/omv.csi.rst:495
+msgid "Returns the Lepton's refresh rate in Hz."
+msgstr "Devuelve la tasa de refresco del Lepton en Hz."
+
+#: ../../library/omv.csi.rst:497
+msgid "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+
+#: ../../library/omv.csi.rst:498
+msgid "Returns the Lepton's ADC resolution in bits."
+msgstr "Devuelve la resolución ADC del Lepton en bits."
+
+#: ../../library/omv.csi.rst:500
+msgid "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+msgstr "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+
+#: ../../library/omv.csi.rst:501
+msgid ""
+"Run a FLIR Lepton SDK command. ``cmd`` is the 16-bit command id defined by "
+"the SDK."
+msgstr ""
+"Ejecuta un comando del SDK de FLIR Lepton. ``cmd`` es el id de comando de 16"
+" bits definido por el SDK."
+
+#: ../../library/omv.csi.rst:504
+msgid "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+
+#: ../../library/omv.csi.rst:505
+msgid ""
+"Write a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``payload`` is a ``bytes``/``bytearray`` whose length must be a multiple of "
+"16 bits."
+msgstr ""
+"Escribe un atributo del SDK de Lepton. ``attr_id`` es el id de atributo de "
+"16 bits; ``payload`` es un ``bytes``/``bytearray`` cuya longitud debe ser "
+"múltiplo de 16 bits."
+
+#: ../../library/omv.csi.rst:509
+msgid "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+
+#: ../../library/omv.csi.rst:510
+msgid ""
+"Read a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``words`` is the number of 16-bit words to read. Returns a ``bytearray``."
+msgstr ""
+"Lee un atributo del SDK de Lepton. ``attr_id`` es el id de atributo de 16 "
+"bits; ``words`` es el número de palabras de 16 bits a leer. Devuelve un "
+"``bytearray``."
+
+#: ../../library/omv.csi.rst:514
+msgid "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+
+#: ../../library/omv.csi.rst:515
+msgid "Returns the Lepton focal-plane-array temperature in degrees Celsius."
+msgstr ""
+"Devuelve la temperatura de la matriz de plano focal del Lepton en grados "
+"Celsius."
+
+#: ../../library/omv.csi.rst:518
+msgid "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+
+#: ../../library/omv.csi.rst:519
+msgid "Returns the Lepton auxiliary temperature in degrees Celsius."
+msgstr "Devuelve la temperatura auxiliar del Lepton en grados Celsius."
+
+#: ../../library/omv.csi.rst:522
+msgid "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+
+#: ../../library/omv.csi.rst:523
+msgid ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+msgstr ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+
+#: ../../library/omv.csi.rst:525
+msgid ""
+"Switch the Lepton between AGC and direct-temperature output. "
+"``measurement_enabled=True`` enables direct temperature output. The optional"
+" ``high_temp_enabled`` flag selects the high-temperature range."
+msgstr ""
+"Cambia el Lepton entre la salida AGC y la de temperatura directa. "
+"``measurement_enabled=True`` habilita la salida de temperatura directa. La "
+"opción ``high_temp_enabled`` selecciona el rango de alta temperatura."
+
+#: ../../library/omv.csi.rst:530
+msgid "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+
+#: ../../library/omv.csi.rst:531
+msgid "Returns a 2-tuple ``(measurement_enabled, high_temp_enabled)``."
+msgstr ""
+"Devuelve una tupla de 2 elementos ``(measurement_enabled, "
+"high_temp_enabled)``."
+
+#: ../../library/omv.csi.rst:534
+msgid "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+
+#: ../../library/omv.csi.rst:535
+msgid ""
+"Set the temperature range mapped to ``0..255`` when measurement mode is "
+"enabled."
+msgstr ""
+"Establece el rango de temperatura asignado a ``0..255`` cuando el modo de "
+"medición está habilitado."
+
+#: ../../library/omv.csi.rst:538
+msgid "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+
+#: ../../library/omv.csi.rst:539
+msgid "Returns the current ``(min_celsius, max_celsius)`` range."
+msgstr "Devuelve el rango ``(min_celsius, max_celsius)`` actual."
+
+#: ../../library/omv.csi.rst:541
+msgid "**Himax HM01B0 -- motion detection:**"
+msgstr "**Himax HM01B0 -- detección de movimiento:**"
+
+#: ../../library/omv.csi.rst:543
+msgid "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:544
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's on-sensor motion-"
+"detection block."
+msgstr ""
+"Habilita (``True``) o deshabilita (``False``) el bloque de detección de "
+"movimiento en el sensor del HM01B0."
+
+#: ../../library/omv.csi.rst:547
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:548
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:550
+msgid "Set the motion-detection window on the HM01B0."
+msgstr "Establece la ventana de detección de movimiento en el HM01B0."
+
+#: ../../library/omv.csi.rst:552
+msgid "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+
+#: ../../library/omv.csi.rst:553
+msgid "Set the motion-detection threshold (``0`` -- ``255``)."
+msgstr "Establece el umbral de detección de movimiento (``0`` -- ``255``)."
+
+#: ../../library/omv.csi.rst:555
+msgid "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+
+#: ../../library/omv.csi.rst:556
+msgid "Clear the motion-detection interrupt latch."
+msgstr "Borra el pestillo de interrupción de detección de movimiento."
+
+#: ../../library/omv.csi.rst:558
+msgid "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:559
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's internal oscillator."
+msgstr ""
+"Habilita (``True``) o deshabilita (``False``) el oscilador interno del "
+"HM01B0."
+
+#: ../../library/omv.csi.rst:562
+msgid "**Prophesee GENX320 -- event sensor:**"
+msgstr "**Prophesee GENX320 -- sensor de eventos:**"
+
+#: ../../library/omv.csi.rst:564
+msgid "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+
+#: ../../library/omv.csi.rst:565
+msgid ""
+"Apply a bias preset. ``preset`` is one of the :data:`GENX320_BIASES_*` "
+"constants."
+msgstr ""
+"Aplica un preajuste de polarización (bias). ``preset`` es una de las "
+"constantes :data:`GENX320_BIASES_*`."
+
+#: ../../library/omv.csi.rst:568
+msgid "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+
+#: ../../library/omv.csi.rst:569
+msgid ""
+"Set a single bias. ``bias`` is one of the :data:`GENX320_BIAS_*` constants; "
+"``value`` is the integer setting."
+msgstr ""
+"Establece una única polarización (bias). ``bias`` es una de las constantes "
+":data:`GENX320_BIAS_*`; ``value`` es el ajuste entero."
+
+#: ../../library/omv.csi.rst:573
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+
+#: ../../library/omv.csi.rst:574
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+
+#: ../../library/omv.csi.rst:576
+msgid ""
+"Configure the anti-flicker filter. ``enable`` is a bool; the optional "
+"frequency arguments set the filter passband."
+msgstr ""
+"Configura el filtro antiparpadeo. ``enable`` es un bool; los argumentos de "
+"frecuencia opcionales establecen la banda de paso del filtro."
+
+#: ../../library/omv.csi.rst:580
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+
+#: ../../library/omv.csi.rst:581
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+
+#: ../../library/omv.csi.rst:583
+msgid ""
+"Configure the spatio-temporal contrast filter. ``mode`` is one of the "
+":data:`GENX320_STC_*` constants; up to two further arguments are mode-"
+"specific."
+msgstr ""
+"Configura el filtro de contraste espacio-temporal. ``mode`` es una de las "
+"constantes :data:`GENX320_STC_*`; hasta dos argumentos adicionales son "
+"específicos del modo."
+
+#: ../../library/omv.csi.rst:587
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+
+#: ../../library/omv.csi.rst:588
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+
+#: ../../library/omv.csi.rst:590
+msgid ""
+"Switch the sensor between frame and event modes. ``mode`` is one of the "
+":data:`GENX320_MODE_*` constants. For event mode, ``evt_res`` is the row-"
+"axis length of the event buffer passed to :data:`IOCTL_GENX320_READ_EVENTS`."
+msgstr ""
+"Cambia el sensor entre los modos de fotograma y de eventos. ``mode`` es una "
+"de las constantes :data:`GENX320_MODE_*`. Para el modo de eventos, "
+"``evt_res`` es la longitud del eje de filas del búfer de eventos pasado a "
+":data:`IOCTL_GENX320_READ_EVENTS`."
+
+#: ../../library/omv.csi.rst:595
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+
+#: ../../library/omv.csi.rst:596
+msgid ""
+"Read events into ``buf``, a ``uint16`` ``ndarray`` of shape ``(EVT_res, 6)``"
+" where ``EVT_res`` is a power of two between 1024 and 65536. The columns "
+"are:"
+msgstr ""
+"Lee eventos en ``buf``, un ``ndarray`` de ``uint16`` de forma ``(EVT_res, "
+"6)`` donde ``EVT_res`` es una potencia de dos entre 1024 y 65536. Las "
+"columnas son:"
+
+#: ../../library/omv.csi.rst:600
+msgid ""
+"``[0]`` -- event type (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+msgstr ""
+"``[0]`` -- tipo de evento (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"disparador)."
+
+#: ../../library/omv.csi.rst:603
+msgid "``[1]`` -- seconds."
+msgstr "``[1]`` -- segundos."
+
+#: ../../library/omv.csi.rst:604
+msgid "``[2]`` -- milliseconds."
+msgstr "``[2]`` -- milisegundos."
+
+#: ../../library/omv.csi.rst:605
+msgid "``[3]`` -- microseconds."
+msgstr "``[3]`` -- microsegundos."
+
+#: ../../library/omv.csi.rst:606
+msgid "``[4]`` -- ``x`` coordinate."
+msgstr "``[4]`` -- coordenada ``x``."
+
+#: ../../library/omv.csi.rst:607
+msgid "``[5]`` -- ``y`` coordinate."
+msgstr "``[5]`` -- coordenada ``y``."
+
+#: ../../library/omv.csi.rst:609
+msgid "Returns the number of events written."
+msgstr "Devuelve el número de eventos escritos."
+
+#: ../../library/omv.csi.rst:611
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+
+#: ../../library/omv.csi.rst:612
+msgid ""
+"Returns an :class:`image.Image` containing the raw event frame from the "
+"GENX320."
+msgstr ""
+"Devuelve una :class:`image.Image` que contiene el fotograma de eventos en "
+"bruto del GENX320."
+
+#: ../../library/omv.csi.rst:615
+msgid "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+msgstr "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+
+#: ../../library/omv.csi.rst:616
+msgid ""
+"Turn off pixels whose noise is more than ``sigma`` standard deviations from "
+"the normal distribution. ``iterations`` is the integer number of calibration"
+" passes. Returns the number of pixels disabled."
+msgstr ""
+"Desactiva los píxeles cuyo ruido supera ``sigma`` desviaciones estándar "
+"respecto a la distribución normal. ``iterations`` es el número entero de "
+"pasadas de calibración. Devuelve el número de píxeles desactivados."
+
+#: ../../library/omv.csi.rst:623
+msgid ""
+"Sets the color palette to use for things like FLIR Lepton grayscale to "
+"RGB565 conversion or GENX320 event visualization. One of "
+"`image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, and (when supported) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, or "
+"`image.PALETTE_EVT_LIGHT`."
+msgstr ""
+"Establece la paleta de colores que se usará para cosas como la conversión de"
+" escala de grises a RGB565 del FLIR Lepton o la visualización de eventos del"
+" GENX320. Una de `image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW` y (cuando "
+"sea compatible) `image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK` o "
+"`image.PALETTE_EVT_LIGHT`."
+
+#: ../../library/omv.csi.rst:632
+msgid "Write ``value`` to the camera register at ``address``."
+msgstr "Escribe ``value`` en el registro de la cámara situado en ``address``."
+
+#: ../../library/omv.csi.rst:634 ../../library/omv.csi.rst:640
+msgid "See the camera data sheet for register info."
+msgstr ""
+"Consulta la hoja de datos de la cámara para obtener información sobre los "
+"registros."
+
+#: ../../library/omv.csi.rst:638
+msgid "Read the camera register at ``address``."
+msgstr "Lee el registro de la cámara situado en ``address``."
+
+#: ../../library/omv.csi.rst:643
+msgid "Functions"
+msgstr "Funciones"
+
+#: ../../library/omv.csi.rst:647
+msgid "Returns a list of the detected sensor chip IDs."
+msgstr "Devuelve una lista de los ID de chip de sensor detectados."
+
+#: ../../library/omv.csi.rst:650
+msgid "Constants"
+msgstr "Constantes"
+
+#: ../../library/omv.csi.rst:655
+msgid ""
+"BINARY (bitmap) pixel format. Each pixel is 1-bit. Useful for mask storage; "
+"can be used with `image.Image()`."
+msgstr ""
+"Formato de píxel BINARY (mapa de bits). Cada píxel es de 1 bit. Útil para "
+"almacenar máscaras; puede usarse con `image.Image()`."
+
+#: ../../library/omv.csi.rst:661
+msgid "GRAYSCALE pixel format (Y from YUV422). Each pixel is 8-bits."
+msgstr "Formato de píxel GRAYSCALE (Y de YUV422). Cada píxel es de 8 bits."
+
+#: ../../library/omv.csi.rst:666
+msgid ""
+"RGB565 pixel format. Each pixel is 16-bits (5-bits red, 6-bits green, 5-bits"
+" blue)."
+msgstr ""
+"Formato de píxel RGB565. Cada píxel es de 16 bits (5 bits rojo, 6 bits "
+"verde, 5 bits azul)."
+
+#: ../../library/omv.csi.rst:671
+msgid "RAW BAYER image pixel format."
+msgstr "Formato de píxel de imagen RAW BAYER."
+
+#: ../../library/omv.csi.rst:676
+msgid ""
+"YUV422 pixel format. Each pixel is stored as a grayscale 8-bit Y value "
+"followed by alternating 8-bit U/V color values shared between two Y values "
+"(Y1, U, Y2, V, ...). Only some image processing methods work with YUV422."
+msgstr ""
+"Formato de píxel YUV422. Cada píxel se almacena como un valor Y de 8 bits en"
+" escala de grises seguido de valores de color U/V de 8 bits alternados, "
+"compartidos entre dos valores Y (Y1, U, Y2, V, ...). Solo algunos métodos de"
+" procesamiento de imágenes funcionan con YUV422."
+
+#: ../../library/omv.csi.rst:683
+msgid ""
+"JPEG mode. The camera module outputs compressed JPEG images. Use "
+"`CSI.quality` to control the JPEG quality. Only works for the OV2640/OV5640 "
+"cameras."
+msgstr ""
+"Modo JPEG. El módulo de cámara emite imágenes JPEG comprimidas. Usa "
+"`CSI.quality` para controlar la calidad JPEG. Solo funciona en las cámaras "
+"OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:689
+msgid "`CSI.cid` returns this for the OV2640 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV2640."
+
+#: ../../library/omv.csi.rst:694
+msgid "`CSI.cid` returns this for the OV5640 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV5640."
+
+#: ../../library/omv.csi.rst:699
+msgid "`CSI.cid` returns this for the OV7670 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV7670."
+
+#: ../../library/omv.csi.rst:704
+msgid "`CSI.cid` returns this for the OV7690 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV7690."
+
+#: ../../library/omv.csi.rst:709
+msgid "`CSI.cid` returns this for the OV7725 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV7725."
+
+#: ../../library/omv.csi.rst:714
+msgid "`CSI.cid` returns this for the OV9650 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara OV9650."
+
+#: ../../library/omv.csi.rst:719
+msgid "`CSI.cid` returns this for the MT9V022 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara MT9V022."
+
+#: ../../library/omv.csi.rst:724
+msgid "`CSI.cid` returns this for the MT9V024 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara MT9V024."
+
+#: ../../library/omv.csi.rst:729
+msgid "`CSI.cid` returns this for the MT9V032 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara MT9V032."
+
+#: ../../library/omv.csi.rst:734
+msgid "`CSI.cid` returns this for the MT9V034 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara MT9V034."
+
+#: ../../library/omv.csi.rst:739
+msgid "`CSI.cid` returns this for the MT9M114 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara MT9M114."
+
+#: ../../library/omv.csi.rst:744
+msgid "`CSI.cid` returns this for the BOSON 320x256 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara BOSON 320x256."
+
+#: ../../library/omv.csi.rst:749
+msgid "`CSI.cid` returns this for the BOSON 640x512 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara BOSON 640x512."
+
+#: ../../library/omv.csi.rst:754
+msgid "`CSI.cid` returns this for the LEPTON1/2/3 cameras."
+msgstr "`CSI.cid` devuelve esto para las cámaras LEPTON1/2/3."
+
+#: ../../library/omv.csi.rst:759
+msgid "`CSI.cid` returns this for the HM01B0 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara HM01B0."
+
+#: ../../library/omv.csi.rst:764
+msgid "`CSI.cid` returns this for the HM0360 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara HM0360."
+
+#: ../../library/omv.csi.rst:769
+msgid "`CSI.cid` returns this for the GC2145 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara GC2145."
+
+#: ../../library/omv.csi.rst:774
+msgid "`CSI.cid` returns this for the GENX320 (engineering sample) camera."
+msgstr ""
+"`CSI.cid` devuelve esto para la cámara GENX320 (muestra de ingeniería)."
+
+#: ../../library/omv.csi.rst:779
+msgid "`CSI.cid` returns this for the GENX320 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara GENX320."
+
+#: ../../library/omv.csi.rst:784
+msgid "`CSI.cid` returns this for the PAG7920 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara PAG7920."
+
+#: ../../library/omv.csi.rst:789
+msgid "`CSI.cid` returns this for the PAG7936 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara PAG7936."
+
+#: ../../library/omv.csi.rst:794
+msgid "`CSI.cid` returns this for the PAJ6100 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara PAJ6100."
+
+#: ../../library/omv.csi.rst:799
+msgid "`CSI.cid` returns this for the FROGEYE2020 camera."
+msgstr "`CSI.cid` devuelve esto para la cámara FROGEYE2020."
+
+#: ../../library/omv.csi.rst:804
+msgid "`CSI.cid` returns this for the software CSI camera."
+msgstr "`CSI.cid` devuelve esto para la cámara CSI por software."
+
+#: ../../library/omv.csi.rst:809
+msgid "Normal mode for `CSI.special_effect`."
+msgstr "Modo normal para `CSI.special_effect`."
+
+#: ../../library/omv.csi.rst:814
+msgid "Negative mode for `CSI.special_effect`."
+msgstr "Modo negativo para `CSI.special_effect`."
+
+#: ../../library/omv.csi.rst:819
+msgid "176x144 resolution for the camera sensor."
+msgstr "Resolución de 176x144 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:824
+msgid "352x288 resolution for the camera sensor."
+msgstr "Resolución de 352x288 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:829
+msgid "176x120 resolution for the camera sensor."
+msgstr "Resolución de 176x120 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:834
+msgid "352x240 resolution for the camera sensor."
+msgstr "Resolución de 352x240 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:839
+msgid "80x60 resolution for the camera sensor."
+msgstr "Resolución de 80x60 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:844
+msgid "160x120 resolution for the camera sensor."
+msgstr "Resolución de 160x120 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:849
+msgid "320x240 resolution for the camera sensor."
+msgstr "Resolución de 320x240 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:854
+msgid "640x480 resolution for the camera sensor."
+msgstr "Resolución de 640x480 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:859
+msgid "240x160 resolution for the camera sensor."
+msgstr "Resolución de 240x160 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:864
+msgid "480x320 resolution for the camera sensor."
+msgstr "Resolución de 480x320 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:869
+msgid "720x480 resolution for the MT9V034 camera sensor."
+msgstr "Resolución de 720x480 para el sensor de cámara MT9V034."
+
+#: ../../library/omv.csi.rst:874
+msgid "752x480 resolution for the MT9V034 camera sensor."
+msgstr "Resolución de 752x480 para el sensor de cámara MT9V034."
+
+#: ../../library/omv.csi.rst:879
+msgid "800x600 resolution for the camera sensor."
+msgstr "Resolución de 800x600 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:884
+msgid "1024x768 resolution for the camera sensor."
+msgstr "Resolución de 1024x768 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:889
+msgid "1280x768 resolution for the MT9M114 camera sensor."
+msgstr "Resolución de 1280x768 para el sensor de cámara MT9M114."
+
+#: ../../library/omv.csi.rst:894
+msgid ""
+"1280x1024 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr ""
+"Resolución de 1280x1024 para el sensor de cámara. Solo funciona en las "
+"cámaras OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:899
+msgid "1280x960 resolution for the MT9M114 camera sensor."
+msgstr "Resolución de 1280x960 para el sensor de cámara MT9M114."
+
+#: ../../library/omv.csi.rst:904
+msgid ""
+"1600x1200 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr ""
+"Resolución de 1600x1200 para el sensor de cámara. Solo funciona en las "
+"cámaras OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:909
+msgid "1280x720 resolution for the camera sensor."
+msgstr "Resolución de 1280x720 para el sensor de cámara."
+
+#: ../../library/omv.csi.rst:914
+msgid ""
+"1920x1080 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Resolución de 1920x1080 para el sensor de cámara. Solo funciona en la cámara"
+" OV5640."
+
+#: ../../library/omv.csi.rst:919
+msgid ""
+"2560x1440 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Resolución de 2560x1440 para el sensor de cámara. Solo funciona en la cámara"
+" OV5640."
+
+#: ../../library/omv.csi.rst:924
+msgid ""
+"2048x1536 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Resolución de 2048x1536 para el sensor de cámara. Solo funciona en la cámara"
+" OV5640."
+
+#: ../../library/omv.csi.rst:929
+msgid ""
+"2560x1600 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Resolución de 2560x1600 para el sensor de cámara. Solo funciona en la cámara"
+" OV5640."
+
+#: ../../library/omv.csi.rst:934
+msgid ""
+"2592x1944 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Resolución de 2592x1944 para el sensor de cámara. Solo funciona en la cámara"
+" OV5640."
+
+#: ../../library/omv.csi.rst:939
+msgid "Sets the readout window. See `CSI.ioctl`."
+msgstr "Establece la ventana de lectura. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:944
+msgid "Gets the readout window. See `CSI.ioctl`."
+msgstr "Obtiene la ventana de lectura. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:949
+msgid "Sets triggered mode for the MT9V034. See `CSI.ioctl`."
+msgstr "Establece el modo disparado para el MT9V034. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:954
+msgid "Gets the triggered mode state for the MT9V034. See `CSI.ioctl`."
+msgstr ""
+"Obtiene el estado del modo disparado para el MT9V034. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:959
+msgid ""
+"Enable `CSI.framesize` to optimize for field-of-view over FPS. See "
+"`CSI.ioctl`."
+msgstr ""
+"Permite que `CSI.framesize` optimice para el campo de visión en lugar de los"
+" FPS. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:964
+msgid ""
+"Returns whether `CSI.framesize` is optimizing for field-of-view over FPS. "
+"See `CSI.ioctl`."
+msgstr ""
+"Devuelve si `CSI.framesize` está optimizando para el campo de visión en "
+"lugar de los FPS. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:969
+msgid "Trigger auto focus on the OV5640 FPC camera module. See `CSI.ioctl`."
+msgstr ""
+"Dispara el enfoque automático en el módulo de cámara OV5640 FPC. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:974
+msgid ""
+"Pause auto focus (while running) for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Pausa el enfoque automático (mientras se ejecuta) para el módulo de cámara "
+"OV5640 FPC. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:979
+msgid ""
+"Reset auto focus to default for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Restablece el enfoque automático al valor predeterminado para el módulo de "
+"cámara OV5640 FPC. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:984
+msgid ""
+"Wait for auto focus to finish on the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Espera a que finalice el enfoque automático en el módulo de cámara OV5640 "
+"FPC. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:989
+msgid ""
+"Turn night mode on or off. Reduces frame rate to increase exposure "
+"dynamically. See `CSI.ioctl`."
+msgstr ""
+"Activa o desactiva el modo nocturno. Reduce la velocidad de fotogramas para "
+"aumentar dinámicamente la exposición. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:994
+msgid "Returns whether night mode is enabled. See `CSI.ioctl`."
+msgstr "Devuelve si el modo nocturno está habilitado. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:999
+msgid ""
+"Returns the FLIR Lepton image resolution width in pixels. See `CSI.ioctl`."
+msgstr ""
+"Devuelve el ancho de la resolución de imagen del FLIR Lepton en píxeles. "
+"Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1004
+msgid ""
+"Returns the FLIR Lepton image resolution height in pixels. See `CSI.ioctl`."
+msgstr ""
+"Devuelve la altura de la resolución de imagen del FLIR Lepton en píxeles. "
+"Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1009
+msgid "Returns the FLIR Lepton type (radiometric or not). See `CSI.ioctl`."
+msgstr ""
+"Devuelve el tipo del FLIR Lepton (radiométrico o no). Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1014
+msgid "Returns the FLIR Lepton refresh rate in Hz. See `CSI.ioctl`."
+msgstr ""
+"Devuelve la tasa de refresco del FLIR Lepton en Hz. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1019
+msgid "Returns the FLIR Lepton ADC resolution in bits. See `CSI.ioctl`."
+msgstr ""
+"Devuelve la resolución ADC del FLIR Lepton en bits. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1024
+msgid "Executes a 16-bit command from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Ejecuta un comando de 16 bits del SDK de FLIR Lepton. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1029
+msgid ""
+"Sets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Establece un atributo del FLIR Lepton del SDK de FLIR Lepton. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1034
+msgid ""
+"Gets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr ""
+"Obtiene un atributo del FLIR Lepton del SDK de FLIR Lepton. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1039
+msgid "Gets the FLIR Lepton FPA temp in Celsius. See `CSI.ioctl`."
+msgstr ""
+"Obtiene la temperatura de la FPA del FLIR Lepton en Celsius. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1044
+msgid "Gets the FLIR Lepton AUX temp in Celsius. See `CSI.ioctl`."
+msgstr ""
+"Obtiene la temperatura AUX del FLIR Lepton en Celsius. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1049
+msgid ""
+"Sets the FLIR Lepton driver into a mode where each pixel is a temperature "
+"value. See `CSI.ioctl`."
+msgstr ""
+"Pone el controlador del FLIR Lepton en un modo donde cada píxel es un valor "
+"de temperatura. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1055
+msgid ""
+"Returns whether measurement mode is enabled for the FLIR Lepton sensor. See "
+"`CSI.ioctl`."
+msgstr ""
+"Devuelve si el modo de medición está habilitado para el sensor FLIR Lepton. "
+"Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1060
+msgid ""
+"Sets the temperature range mapped to pixel values in measurement mode. See "
+"`CSI.ioctl`."
+msgstr ""
+"Establece el rango de temperatura asignado a los valores de píxel en el modo"
+" de medición. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1065
+msgid ""
+"Returns the temperature range used for measurement mode. See `CSI.ioctl`."
+msgstr ""
+"Devuelve el rango de temperatura usado en el modo de medición. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1070
+msgid ""
+"Controls the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Controla la interrupción de detección de movimiento en el HM01B0. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1075
+msgid "Sets the motion detection window on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Establece la ventana de detección de movimiento en el HM01B0. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1080
+msgid "Sets the motion detection threshold on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Establece el umbral de detección de movimiento en el HM01B0. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1085
+msgid "Clears the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr ""
+"Borra la interrupción de detección de movimiento en el HM01B0. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1090
+msgid "Controls the internal oscillator on the HM01B0. See `CSI.ioctl`."
+msgstr "Controla el oscilador interno en el HM01B0. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1095
+msgid "Returns the RGB statistics from the camera sensor. See `CSI.ioctl`."
+msgstr ""
+"Devuelve las estadísticas RGB del sensor de cámara. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1100
+msgid ""
+"Sets the GENX320 sensor biases to one of the ``GENX320_BIASES_*`` presets. "
+"See `CSI.ioctl`. After `CSI.reset` the driver applies "
+"`csi.GENX320_BIASES_LOW_NOISE`, not `csi.GENX320_BIASES_DEFAULT` --- use "
+"this ioctl to switch to a different preset when the application needs more "
+"sensitivity or bandwidth."
+msgstr ""
+"Establece las polarizaciones (biases) del sensor GENX320 en uno de los "
+"preajustes ``GENX320_BIASES_*``. Consulta `CSI.ioctl`. Tras `CSI.reset`, el "
+"controlador aplica `csi.GENX320_BIASES_LOW_NOISE`, no "
+"`csi.GENX320_BIASES_DEFAULT` --- usa este ioctl para cambiar a un preajuste "
+"distinto cuando la aplicación necesite más sensibilidad o ancho de banda."
+
+#: ../../library/omv.csi.rst:1110
+msgid ""
+"GenX320 datasheet defaults --- balanced sensitivity, noise, and bandwidth "
+"for general scenes."
+msgstr ""
+"Valores predeterminados de la hoja de datos del GenX320 --- sensibilidad, "
+"ruido y ancho de banda equilibrados para escenas generales."
+
+#: ../../library/omv.csi.rst:1116
+msgid ""
+"Tuned for low-light conditions --- both contrast thresholds loosened for "
+"higher sensitivity, FO lowered, HPF disabled so slow brightness changes "
+"still register."
+msgstr ""
+"Ajustado para condiciones de poca luz --- ambos umbrales de contraste "
+"relajados para mayor sensibilidad, FO reducido, HPF desactivado para que los"
+" cambios lentos de brillo sigan registrándose."
+
+#: ../../library/omv.csi.rst:1123
+msgid ""
+"Tuned for tracking high-contrast blinking LEDs (active markers) --- contrast"
+" thresholds raised so only sharp transitions trigger, FO and HPF cranked "
+"high to maximize bandwidth and reject slow ambient drift, REFR=0 so every "
+"blink edge is captured."
+msgstr ""
+"Ajustado para rastrear LED parpadeantes de alto contraste (marcadores "
+"activos) --- umbrales de contraste elevados para que solo las transiciones "
+"bruscas disparen, FO y HPF muy altos para maximizar el ancho de banda y "
+"rechazar la deriva ambiental lenta, REFR=0 para que se capture cada flanco "
+"de parpadeo."
+
+#: ../../library/omv.csi.rst:1131
+msgid ""
+"Driver default --- lower sensitivity than ``DEFAULT`` (raised contrast "
+"thresholds) and a lower FO for less background-noise activity. Best for "
+"static or slow scenes where false events would dominate."
+msgstr ""
+"Valor predeterminado del controlador --- menor sensibilidad que ``DEFAULT`` "
+"(umbrales de contraste elevados) y un FO más bajo para menos actividad por "
+"ruido de fondo. Ideal para escenas estáticas o lentas donde los eventos "
+"falsos dominarían."
+
+#: ../../library/omv.csi.rst:1139
+msgid ""
+"Tuned for fast-motion scenes --- higher FO for wider pixel bandwidth, higher"
+" HPF to reject slow changes, higher REFR for a longer dead time after each "
+"event so the readout doesn't saturate."
+msgstr ""
+"Ajustado para escenas de movimiento rápido --- FO más alto para mayor ancho "
+"de banda de píxel, HPF más alto para rechazar cambios lentos, REFR más alto "
+"para un tiempo muerto más largo tras cada evento de modo que la lectura no "
+"se sature."
+
+#: ../../library/omv.csi.rst:1147
+msgid ""
+"Sets a single GENX320 sensor bias to a DAC value. Pass a ``GENX320_BIAS_*`` "
+"constant (`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, or `csi.GENX320_BIAS_REFR`) "
+"and an integer DAC value. Each bias is independent --- call this ioctl "
+"repeatedly to tweak only the biases you need after applying a preset. See "
+"`CSI.ioctl`."
+msgstr ""
+"Establece una única polarización (bias) del sensor GENX320 a un valor DAC. "
+"Pasa una constante ``GENX320_BIAS_*`` (`csi.GENX320_BIAS_DIFF_OFF`, "
+"`csi.GENX320_BIAS_DIFF_ON`, `csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF` o "
+"`csi.GENX320_BIAS_REFR`) y un valor DAC entero. Cada polarización es "
+"independiente --- llama a este ioctl repetidamente para ajustar solo las "
+"polarizaciones que necesites tras aplicar un preajuste. Consulta "
+"`CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1158
+msgid ""
+"Negative comparator contrast threshold --- controls how much a pixel has to "
+"darken before a `csi.PIX_OFF_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Umbral de contraste del comparador negativo --- controla cuánto debe "
+"oscurecerse un píxel antes de que se dispare un `csi.PIX_OFF_EVENT`. Valor "
+"más bajo = más sensible (más eventos)."
+
+#: ../../library/omv.csi.rst:1165
+msgid ""
+"Positive comparator contrast threshold --- controls how much a pixel has to "
+"brighten before a `csi.PIX_ON_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Umbral de contraste del comparador positivo --- controla cuánto debe "
+"iluminarse un píxel antes de que se dispare un `csi.PIX_ON_EVENT`. Valor más"
+" bajo = más sensible (más eventos)."
+
+#: ../../library/omv.csi.rst:1172
+msgid ""
+"Pixel low-pass cut-off frequency --- trades pixel bandwidth (speed/latency) "
+"against background-noise activity. Higher value = faster pixel response, "
+"more noise."
+msgstr ""
+"Frecuencia de corte del filtro paso bajo del píxel --- equilibra el ancho de"
+" banda del píxel (velocidad/latencia) frente a la actividad por ruido de "
+"fondo. Valor más alto = respuesta de píxel más rápida, más ruido."
+
+#: ../../library/omv.csi.rst:1179
+msgid ""
+"Pixel high-pass cut-off frequency --- rejects slow brightness changes. "
+"Higher value = slower changes filtered out (only fast transitions register)."
+msgstr ""
+"Frecuencia de corte del filtro paso alto del píxel --- rechaza los cambios "
+"lentos de brillo. Valor más alto = se filtran los cambios más lentos (solo "
+"se registran las transiciones rápidas)."
+
+#: ../../library/omv.csi.rst:1186
+msgid ""
+"Pixel refractory period --- dead time after a pixel emits an event during "
+"which it cannot fire again. Higher value = longer dead time, fewer events "
+"from a busy pixel."
+msgstr ""
+"Periodo refractario del píxel --- tiempo muerto tras la emisión de un evento"
+" por un píxel durante el cual no puede volver a dispararse. Valor más alto ="
+" tiempo muerto más largo, menos eventos de un píxel activo."
+
+#: ../../library/omv.csi.rst:1193
+msgid ""
+"Sets the GENX320 anti-flicker (AFK) filter, which rejects events from pixels"
+" toggling at a periodic frequency band (fluorescent lighting, LED-driven "
+"displays, etc.). Pass ``enable`` (1 to enable, 0 to disable) and, when "
+"enabling, the band edges in hertz: ``(enable, freq_low_hz, freq_high_hz)``. "
+"See `CSI.ioctl`."
+msgstr ""
+"Establece el filtro antiparpadeo (AFK) del GENX320, que rechaza eventos de "
+"píxeles que conmutan a una banda de frecuencia periódica (iluminación "
+"fluorescente, pantallas con LED, etc.). Pasa ``enable`` (1 para habilitar, 0"
+" para deshabilitar) y, al habilitar, los bordes de la banda en hercios: "
+"``(enable, freq_low_hz, freq_high_hz)``. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1203
+msgid ""
+"Sets the GENX320 spatio-temporal contrast (STC) filter mode. Pass a "
+"``GENX320_STC_*`` constant (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) followed by the threshold(s) the mode requires (in "
+"milliseconds). See `CSI.ioctl`."
+msgstr ""
+"Establece el modo del filtro de contraste espacio-temporal (STC) del "
+"GENX320. Pasa una constante ``GENX320_STC_*`` (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) seguida del umbral o umbrales que el modo requiera "
+"(en milisegundos). Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1213
+msgid "Disable the GENX320 STC/trail filter --- every event passes through."
+msgstr ""
+"Deshabilita el filtro STC/trail del GENX320 --- todos los eventos pasan."
+
+#: ../../library/omv.csi.rst:1219
+msgid ""
+"*Keeps the second event of a burst*; drops the first event and any later "
+"events. Takes one parameter, ``stc_threshold`` in milliseconds --- events "
+"within that window of a prior event on the same pixel are considered part of"
+" the same burst."
+msgstr ""
+"*Conserva el segundo evento de una ráfaga*; descarta el primer evento y "
+"cualquier evento posterior. Toma un parámetro, ``stc_threshold`` en "
+"milisegundos --- los eventos dentro de esa ventana respecto a un evento "
+"previo en el mismo píxel se consideran parte de la misma ráfaga."
+
+#: ../../library/omv.csi.rst:1227
+msgid ""
+"*Keeps the first event of a burst*; drops subsequent events on the same "
+"pixel until ``trail_threshold`` has elapsed. Takes one parameter, "
+"``trail_threshold`` in milliseconds."
+msgstr ""
+"*Conserva el primer evento de una ráfaga*; descarta los eventos posteriores "
+"en el mismo píxel hasta que haya transcurrido ``trail_threshold``. Toma un "
+"parámetro, ``trail_threshold`` en milisegundos."
+
+#: ../../library/omv.csi.rst:1234
+msgid ""
+"*Keeps the first event of a burst plus subsequent edges* --- combines "
+"`csi.GENX320_STC_ONLY` and `csi.GENX320_STC_TRAIL_ONLY`. Takes two "
+"parameters, ``stc_threshold`` and ``trail_threshold`` (both ms); the sensor "
+"requires the two to stay within roughly a 13:1 ratio."
+msgstr ""
+"*Conserva el primer evento de una ráfaga más los flancos posteriores* --- "
+"combina `csi.GENX320_STC_ONLY` y `csi.GENX320_STC_TRAIL_ONLY`. Toma dos "
+"parámetros, ``stc_threshold`` y ``trail_threshold`` (ambos en ms); el sensor"
+" requiere que ambos se mantengan aproximadamente dentro de una relación de "
+"13:1."
+
+#: ../../library/omv.csi.rst:1243
+msgid ""
+"Sets the GENX320 operating mode. Pass `csi.GENX320_MODE_HISTO` for the on-"
+"chip event histogram (the cam behaves like a regular grayscale camera at the"
+" configured framerate) or `csi.GENX320_MODE_EVENT` followed by the row-axis "
+"length of the event ``ndarray`` (a power of two between 1024 and 65536) for "
+"raw event streaming. See `CSI.ioctl`."
+msgstr ""
+"Establece el modo de funcionamiento del GENX320. Pasa "
+"`csi.GENX320_MODE_HISTO` para el histograma de eventos en el chip (la cámara"
+" se comporta como una cámara de escala de grises normal a la velocidad de "
+"fotogramas configurada) o `csi.GENX320_MODE_EVENT` seguido de la longitud "
+"del eje de filas del ``ndarray`` de eventos (una potencia de dos entre 1024 "
+"y 65536) para la transmisión de eventos en bruto. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1253
+msgid ""
+"Histogram mode --- events are accumulated on-chip into per-pixel bins and "
+"reported as a 320x320 grayscale frame at the configured rate (~20-350 FPS). "
+"The cam looks like a regular camera, so all the standard image-processing "
+"routines work directly."
+msgstr ""
+"Modo histograma --- los eventos se acumulan en el chip en compartimentos por"
+" píxel y se reportan como un fotograma en escala de grises de 320x320 a la "
+"velocidad configurada (~20-350 FPS). La cámara parece una cámara normal, por"
+" lo que todas las rutinas estándar de procesamiento de imágenes funcionan "
+"directamente."
+
+#: ../../library/omv.csi.rst:1262
+msgid ""
+"Event mode --- bypasses the on-chip histogram and streams raw events into a "
+"numpy ``ndarray`` with microsecond timestamps, for applications that need "
+"full temporal detail rather than a pre-binned frame."
+msgstr ""
+"Modo eventos --- omite el histograma en el chip y transmite eventos en bruto"
+" a un ``ndarray`` de numpy con marcas de tiempo en microsegundos, para "
+"aplicaciones que necesitan todo el detalle temporal en lugar de un fotograma"
+" preagrupado."
+
+#: ../../library/omv.csi.rst:1270
+msgid ""
+"Reads raw events into a uint16 ``ndarray`` of shape ``(EVT_res, 6)`` (with "
+"``EVT_res`` matching the buffer size passed to "
+"`csi.IOCTL_GENX320_SET_MODE`). The columns are ``[0]`` event type "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` seconds timestamp, ``[2]`` milliseconds, ``[3]`` microseconds, "
+"``[4]`` X coord (0-319), ``[5]`` Y coord (0-319). Returns the number of "
+"events written into the buffer, leaving older rows beyond that count "
+"untouched. See `CSI.ioctl`."
+msgstr ""
+"Lee eventos en bruto en un ``ndarray`` de uint16 de forma ``(EVT_res, 6)`` "
+"(con ``EVT_res`` coincidiendo con el tamaño de búfer pasado a "
+"`csi.IOCTL_GENX320_SET_MODE`). Las columnas son ``[0]`` tipo de evento "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` marca de tiempo en segundos, ``[2]`` milisegundos, ``[3]`` "
+"microsegundos, ``[4]`` coordenada X (0-319), ``[5]`` coordenada Y (0-319). "
+"Devuelve el número de eventos escritos en el búfer, dejando intactas las "
+"filas más antiguas más allá de ese recuento. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1284
+msgid ""
+"Automatically disables hot pixels --- pixels that fire spuriously even on a "
+"static scene. The driver builds a 320x320 per-pixel hit count, computes the "
+"mean and standard deviation, and disables any pixel whose count exceeds "
+"``mean + sigma * stddev``. Pass an event-count budget (events to tally "
+"before computing statistics --- higher = more reliable estimate, slower; "
+"~10000 is a good default) and a sigma float (lower = more aggressive, ~0.5 "
+"default). Returns the number of pixels disabled. Aim the cam at a static "
+"scene first so motion-driven events don't get counted against pixels that "
+"are actually fine. See `CSI.ioctl`."
+msgstr ""
+"Desactiva automáticamente los píxeles calientes --- píxeles que se disparan "
+"de forma espuria incluso en una escena estática. El controlador construye un"
+" recuento de impactos por píxel de 320x320, calcula la media y la desviación"
+" estándar, y desactiva todo píxel cuyo recuento supere ``mean + sigma * "
+"stddev``. Pasa un presupuesto de recuento de eventos (eventos a contabilizar"
+" antes de calcular las estadísticas --- más alto = estimación más fiable, "
+"más lento; ~10000 es un buen valor predeterminado) y un sigma float (más "
+"bajo = más agresivo, ~0.5 predeterminado). Devuelve el número de píxeles "
+"desactivados. Apunta primero la cámara a una escena estática para que los "
+"eventos provocados por el movimiento no se cuenten en contra de píxeles que "
+"en realidad están bien. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1299
+msgid ""
+"Returns a raw event-frame `image.Image` from the GENX320, with the events "
+"still in the chip's native packed encoding --- useful if you want to forward"
+" the raw stream to a PC for off-line decoding rather than process it on the "
+"cam. See `CSI.ioctl`."
+msgstr ""
+"Devuelve una `image.Image` de fotograma de eventos en bruto del GENX320, con"
+" los eventos todavía en la codificación empaquetada nativa del chip --- útil"
+" si quieres reenviar el flujo en bruto a un PC para decodificarlo sin "
+"conexión en lugar de procesarlo en la cámara. Consulta `CSI.ioctl`."
+
+#: ../../library/omv.csi.rst:1308
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"decrease (the negative-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- un píxel detectó una "
+"disminución de brillo (se cruzó el umbral de contraste negativo). Las "
+"columnas ``[4]/[5]`` llevan la X/Y del píxel."
+
+#: ../../library/omv.csi.rst:1315
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"increase (the positive-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- un píxel detectó un aumento"
+" de brillo (se cruzó el umbral de contraste positivo). Las columnas "
+"``[4]/[5]`` llevan la X/Y del píxel."
+
+#: ../../library/omv.csi.rst:1322
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, rising edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- disparador de reinicio de "
+"píxel, flanco de subida. X/Y no se usan. El firmware no lo genera por ahora."
+
+#: ../../library/omv.csi.rst:1329
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, falling edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- disparador de reinicio de "
+"píxel, flanco de bajada. X/Y no se usan. El firmware no lo genera por ahora."
+
+#: ../../library/omv.csi.rst:1336
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a rising edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- el pin de disparo externo "
+"del sensor vio un flanco de subida. La entrada de disparo externo del "
+"GENX320 está cableada a la línea de sincronización de fotogramas de la "
+"cámara, que también se enruta a **P10** en el procesador y al conector de "
+"pines. X/Y no se usan."
+
+#: ../../library/omv.csi.rst:1345
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a falling edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"Tipo de evento del GENX320 (columna ``[0]``) --- el pin de disparo externo "
+"del sensor vio un flanco de bajada. La entrada de disparo externo del "
+"GENX320 está cableada a la línea de sincronización de fotogramas de la "
+"cámara, que también se enruta a **P10** en el procesador y al conector de "
+"pines. X/Y no se usan."
