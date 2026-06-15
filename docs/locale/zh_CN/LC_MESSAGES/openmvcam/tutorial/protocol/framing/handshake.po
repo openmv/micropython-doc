@@ -1,0 +1,178 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:2
+msgid "Handshake and capability negotiation"
+msgstr "握手与能力协商"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:4
+msgid ""
+"The cam and host both arrive at the transport with their own ideas about how"
+" the protocol should run: which CRC modes, whether ACKs are required, what "
+"the largest payload they can buffer is. Before real traffic starts they "
+"exchange a handshake that fixes those parameters for the rest of the "
+"session."
+msgstr ""
+"摄像头和主机来到传输层时，各自对协议应当如何运行都有自己的想法：使用哪些 CRC 模式、是否要求 "
+"ACK、它们能缓冲的最大载荷是多少。在真正的流量开始之前，它们会交换一次握手，为本次会话其余部分确定这些参数。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:11
+msgid "The host opens the connection"
+msgstr "主机打开连接"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:13
+msgid ""
+"The cam side starts the protocol stack at boot (or the application restarts "
+"it with :func:`protocol.init` to change parameters), then sits quietly "
+"waiting for a host. From the cam's point of view there is nothing to do "
+"until a packet arrives."
+msgstr ""
+"摄像头一侧在启动时就开始运行协议栈（或者应用通过 :func:`protocol.init` "
+"重新启动它以更改参数），然后安静地等待主机。从摄像头的角度看，在数据包到达之前无事可做。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:18
+msgid ""
+"The host side opens the transport -- USB port or UART -- and immediately "
+"sends a ``PROTO_SYNC`` packet (opcode ``0x00``). This packet has a magic "
+"payload that lets the cam recognise it even if both sides got out of sync, "
+"and it's the only packet the cam ever responds to before capabilities are "
+"negotiated."
+msgstr ""
+"主机一侧打开传输——USB 端口或 UART——并立即发送一个 ``PROTO_SYNC`` 数据包（操作码 ``0x00``\\ "
+"）。这个数据包带有一个魔法载荷，即使两端失去了同步，也能让摄像头识别出它，而且它是能力协商之前摄像头唯一会回应的数据包。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:24
+msgid ""
+"If the cam doesn't reply within the retransmit timeout the host sends "
+"``PROTO_SYNC`` again, up to ``rtx_retries`` times. After that it gives up "
+"and reports a connection failure. The retry is what makes \"unplug, replug, "
+"restart the host script\" work without the cam needing to know the host went"
+" away."
+msgstr ""
+"如果摄像头在重传超时内没有回复，主机就再次发送 ``PROTO_SYNC``\\ ，最多发送 ``rtx_retries`` "
+"次。此后它放弃并报告连接失败。正是这种重试让“拔下、重插、重启主机脚本”能够正常工作，而无需摄像头知道主机曾经离开过。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:31
+msgid "Capability exchange"
+msgstr "能力交换"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:33
+msgid ""
+"Once the cam acknowledges the sync, the host sends ``PROTO_GET_CAPS`` "
+"(opcode ``0x01``) to ask what the cam supports. The reply payload reports:"
+msgstr "一旦摄像头确认了同步，主机就发送 ``PROTO_GET_CAPS``\\ （操作码 ``0x01``\\ ）以询问摄像头支持什么。回复载荷报告："
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:37
+msgid "CRC validation enabled or disabled"
+msgstr "CRC 校验已启用或已禁用"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:38
+msgid "Sequence-number tracking enabled or disabled"
+msgstr "序列号跟踪已启用或已禁用"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:39
+msgid "ACKs enabled or disabled"
+msgstr "ACK 已启用或已禁用"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:40
+msgid "Event notifications enabled or disabled"
+msgstr "事件通知已启用或已禁用"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:41
+msgid "The cam's maximum payload size in bytes"
+msgstr "摄像头以字节为单位的最大载荷大小"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:42
+msgid "The current retransmit retry count, timeout, and polling parameters"
+msgstr "当前的重传重试次数、超时以及轮询参数"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:45
+msgid ""
+"The host compares those against its own configuration. If the host needs to "
+"*change* any of them -- for example, to negotiate a smaller max payload "
+"because its receive buffer is smaller than the cam's -- it sends "
+"``PROTO_SET_CAPS`` (opcode ``0x02``) with the new values. The cam "
+"reconfigures its stack and acknowledges. From here on, every packet that "
+"crosses the wire follows that shared contract."
+msgstr ""
+"主机将这些与它自己的配置进行比较。如果主机需要\\ *更改*\\ "
+"其中任何一项——例如，由于其接收缓冲区比摄像头的小而要协商一个更小的最大载荷——它就发送带有新值的 ``PROTO_SET_CAPS``\\ （操作码 "
+"``0x02``\\ ）。摄像头重新配置其协议栈并予以确认。从此以后，每一个跨越线缆的数据包都遵循这份共享契约。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:52
+msgid ""
+"If the host doesn't override anything, the defaults are all on: CRC "
+"validation, sequence-number tracking, ACKs, and event notifications. The "
+"default max payload is the cam's per-board buffer minus 14 bytes of framing "
+"overhead (the 10-byte header plus the 4-byte trailing payload CRC). For most"
+" cam-to-laptop work the defaults are the right starting point; the "
+"reliability page covers when and why an application opts pieces of them off."
+msgstr ""
+"如果主机不覆盖任何内容，那么默认值全部为开启：CRC 校验、序列号跟踪、ACK 以及事件通知。默认的最大载荷是摄像头的逐板缓冲区减去 14 "
+"字节的分帧开销（10 字节的报头加上 4 字节的载荷尾部 "
+"CRC）。对于大多数摄像头到笔记本电脑的工作，默认值是正确的起点；可靠性页面会讲到应用在何时以及为何要关闭其中的某些部分。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:61
+msgid "Channel discovery"
+msgstr "通道发现"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:63
+msgid ""
+"After capabilities, the host sends ``CHANNEL_LIST`` (opcode ``0x20``). The "
+"cam replies with a list of registered channels -- the four built-in ones "
+"(``stdin``, ``stdout``, ``stream``, ``profile``) plus any the application "
+"registered with :func:`protocol.register`. Each entry carries the channel's "
+"ID, its name, and its capability flags (read-only, write-only, lockable)."
+msgstr ""
+"能力协商之后，主机发送 ``CHANNEL_LIST``\\ （操作码 ``0x20``\\ ）。摄像头回复一个已注册通道的列表——四个内置通道（\\ "
+"``stdin``\\ 、\\ ``stdout``\\ 、\\ ``stream``\\ 、\\ ``profile``\\ ）加上应用通过 "
+":func:`protocol.register` 注册的任何通道。每一项都携带该通道的 ID、名称以及能力标志（只读、只写、可锁定）。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:70
+msgid ""
+"The host stashes the list and uses it later when application code asks for "
+"``channel_read(\"frame\")`` or ``channel_write(\"config\", ...)`` -- the "
+"name is looked up to a channel ID once, then every subsequent packet on that"
+" channel uses the ID directly."
+msgstr ""
+"主机把这个列表收好，稍后当应用代码请求 ``channel_read(\"frame\")`` 或 "
+"``channel_write(\"config\", ...)`` 时再使用它——名称会被查找为一个通道 ID "
+"一次，此后该通道上的每一个数据包都直接使用该 ID。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:75
+msgid ""
+"If the cam registers a new channel after the initial list -- common when an "
+"application starts running after the handshake -- the cam emits a "
+"``CHANNEL_REGISTERED`` event packet. The host listens for those and "
+"refreshes its internal channel list, so a host script that attached early "
+"sees newly-registered channels appear without restarting."
+msgstr ""
+"如果摄像头在初始列表之后注册了新通道——当应用在握手之后才开始运行时这很常见——摄像头会发出一个 ``CHANNEL_REGISTERED`` "
+"事件数据包。主机会监听这些事件并刷新其内部的通道列表，这样一个较早连接上的主机脚本就能看到新注册的通道出现，而无需重启。"
+
+#: ../../openmvcam/tutorial/protocol/framing/handshake.rst:82
+msgid ""
+"The handshake takes a few round-trips on connection setup and then never "
+"repeats. Steady-state traffic is just packets: framed bytes in, framed bytes"
+" out, the channel IDs already known on both sides."
+msgstr "握手在连接建立时占用几次往返，此后便不再重复。稳态流量就只是数据包：分帧字节进、分帧字节出，通道 ID 两端都已知晓。"

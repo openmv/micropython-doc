@@ -1,0 +1,382 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "逐字节解析 MQTT"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"到这一步，摄像头已经具备了与开放互联网上真实服务通信所需的一切：TCP socket、用来加密封装的 TLS、用来给对端命名的 "
+"DNS，以及让同一个脚本在连接打开期间还能处理其他工作的 asyncio。MQTT 是第一个把这些全部串联起来、真正被部署产品所采用的有线协议。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"本页讲解协议本身——它的有线格式、各参与方扮演的角色以及设计上的权衡取舍——讲得足够透彻，使得内置的 :mod:`mqtt` "
+"客户端看起来像是对已知内容的一种显而易见的封装，而不是一次盲目的跃进。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "发布/订阅 vs 请求/响应"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"HTTP——大多数摄像头项目最先想到的协议——是 *请求/响应* "
+"式的。客户端向某个特定服务器请求某个特定资源；服务器作出应答。每一次交互都是一对一的，且两端都事先知道对方的地址。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT 是 *发布/订阅* 式的。客户端连接到位于中间的第三方，称为 **代理（broker）**\\ 。\\ *发布者* 向一个具名的 "
+"**主题（topic）** 发送消息，而无需知道也无需关心谁在收听。\\ *订阅者* "
+"告诉代理它想要哪些主题，此后便会收到发布到这些主题的每一条消息。代理就是那个扇出节点：在 ``yard-cam/motion`` "
+"上发布一次，就会到达每一个订阅了 ``yard-cam/motion`` 的设备，无论它们是零个、一个还是五十个。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "这种模型上的转变带来三个结果："
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**解耦。** 发布者无需知道订阅者的存在。订阅者可以来去自如而不被发布者察觉。新增第二个仪表盘只需在新仪表盘上写一行代码；摄像头无需任何改动。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr "**扇出。** 代理负责处理每一份副本，因此无论有多少设备读取，摄像头都只发送一个数据包。这正是 MQTT 当初被设计来解决的使用场景。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**不对称性。** 代理如今成了必需的基础设施——没有它，协议就无法工作。对于家庭项目来说，这通常是一个免费的公共代理（\\ "
+"``test.mosquitto.org``\\ 、\\ ``broker.hivemq.com``\\ ），或是你自己运行的一个小型代理。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"一个摄像头向代理上的 yard-cam/motion 主题发布消息，\n"
+"同时两个浏览器仪表盘和一个云端归档器各自\n"
+"收到同一条消息。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "主题"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr "主题是以斜杠分隔的字符串。惯例是最通用的部分在左侧，最具体的部分在右侧::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr "两个通配符可用于 *订阅*\\ （而不能用于发布）："
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` 匹配单个层级。\\ ``+/motion`` 订阅每个摄像头的 motion 主题；\\ ``yard-cam/+`` 订阅 yard-"
+"cam 下的每个子主题。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` 匹配一个或多个尾部层级。\\ ``yard-cam/#`` 订阅 ``yard-cam/motion``\\ 、\\ ``yard-"
+"cam/temperature``\\ 、\\ ``yard-cam/temperature/sensor-3`` 以及 ``yard-cam/`` "
+"下的任何其他内容。它必须出现在订阅字符串的末尾。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr "主题字符串区分大小写。根据规范，以 ``$`` 开头标识代理内部主题（\\ ``$SYS/...``\\ ），发布者不应向其写入。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "数据包格式"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"MQTT 运行在 TCP 之上。每个控制包都以一个单字节的 *固定头部* 开始，后跟一个可变长度的 *剩余长度（Remaining Length）* "
+"字段，然后是特定于包类型的 *可变头部*\\ ，最后是 *有效载荷*\\ "
+"。同样的外层格式涵盖了每一个命令——CONNECT、PUBLISH、SUBSCRIBE、PUBACK、DISCONNECT 等等——这也是为什么一个 "
+"MQTT 客户端可以用几百行代码写完。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"一个 MQTT PUBLISH 包的字节布局，显示了\n"
+"固定头部的类型与标志字节、可变长度的\n"
+"剩余长度字段、主题名称、可选的包\n"
+"标识符以及有效载荷字节。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "固定头部为一个字节："
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"第 7..4 位是 **控制包类型**\\ 。\\ ``0x3`` 表示 PUBLISH（所以第一个字节通常以 ``0x3?`` 开头）。\\ "
+"``0x1`` 是 CONNECT，\\ ``0x2`` 是 CONNACK，\\ ``0x8`` 是 SUBSCRIBE，\\ ``0xC`` 是 "
+"PINGREQ，\\ ``0xE`` 是 DISCONNECT，等等。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"第 3..0 位是特定于包类型的 **标志**\\ 。对于 PUBLISH，这些标志编码了 DUP 重传标志、QoS 等级（2 位）和 RETAIN "
+"标志。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"剩余长度是一个 1 到 4 字节的可变长度整数，用于统计它自身之后的每一个字节。每个字节的最高位是延续标记——1 表示“后面还有一个长度字节”，0 "
+"表示“这是最后一个”。小于 128 的长度可以用一个字节表示；更大的有效载荷则使用更多字节。最大可编码长度为 256 MiB。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"对于 PUBLISH 来说，可变头部是主题名称——一个 2 字节的长度，然后是 UTF-8 字节——后跟一个 2 字节的 *包标识符*\\ "
+"，该标识符仅在 QoS 为 1 或 2 时才存在。其余字节即为有效载荷，协议将其视为不透明的字节。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "一个将 ``ok`` 以 QoS-0 发布到 ``a/b`` 的最小 PUBLISH 包为::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` —— PUBLISH，所有标志为零。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` —— 后面跟着 7 个字节。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` —— 主题长度为 3。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` —— 主题。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` —— 有效载荷。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr "线路上九个字节，消息就送达代理上每一个订阅了 ``a/b`` 的订阅者。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "QoS 等级"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr "服务质量（Quality-of-Service）控制代理（以及客户端）为确保送达而付出多大努力。三个等级为："
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 —— 至多一次。** 发完即忘。PUBLISH 包被发出后从不确认。如果 TCP "
+"送达了，代理就转发。如果连接在发送途中断开，消息就丢失了。大多数传感器遥测在 QoS 0 下都没问题——在每 30 "
+"秒发送一次的数据流中漏掉一次温度读数无关紧要。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 —— 至少一次。** 发布者包含一个包标识符并等待 PUBACK。如果在超时之前没有收到 PUBACK，发布者就会设置 DUP "
+"标志并重传。代理最终可能会向同一等级上的订阅者投递同一条消息两次；订阅者必须能够处理重复消息。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 —— 恰好一次。** 一个四步握手（PUBREC / PUBREL / "
+"PUBCOMP）确保消息恰好送达一次，即使跨越重连也是如此。这在往返次数和代理状态上代价高昂。很少有摄像头应用需要它。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"内置的 :mod:`mqtt` 客户端实现了 QoS 0 和 QoS 1；如果你请求 QoS 2 "
+"则会抛出异常。对于一个上报传感器读数的摄像头来说，QoS 0 几乎总是正确的选择。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "保留消息与遗嘱"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr "有两个特性值得了解，因为它们改变了代理对你的主题所记住的内容。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN。** 如果一个 PUBLISH 设置了 RETAIN 标志，代理就会存储该消息，并在每个 *未来的* "
+"订阅者订阅的那一刻将其转发给它们。MQTT "
+"就是这样处理“当前值是多少？”的——传感器以保留方式发布它最新的读数，十分钟后才订阅的仪表盘仍然会收到最近的值，而不必等待下一次发布。用同一主题重新发布会覆盖保留值；发布一个空的有效载荷则会清除它。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**遗嘱。** 客户端连接时可以给代理留一份“遗嘱（last will and testament）”：一个主题、一个有效载荷、一个 QoS "
+"和一个保留标志。如果该客户端 *非正常地* 断开连接——TCP RESET、断电、未发送 DISCONNECT "
+"包的网络中断——代理就会代该客户端发布这份遗嘱。订阅者会把它看作摄像头已经离线的通知。摄像头自身从不发送遗嘱；由代理发送，因为到那时摄像头已经下线了。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "保活与重连"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"CONNECT 携带一个以秒为单位的 *保活（keepalive）* "
+"间隔。如果客户端沉默了那么长时间，代理就会认为它已经失效。为防止这种情况，客户端会定期发送一个 PINGREQ（一个字节：\\ ``0xC0``\\ "
+"）并收到一个 PINGRESP（\\ ``0xD0``\\ ）回应——这是该协议所能承载的最小、最廉价的心跳。大多数摄像头应用会把保活设为 30 或 "
+"60 秒。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"如果 TCP 连接断开，双方都会察觉并从头重新连接。断开之前所做的订阅会丢失，除非客户端在连接时使用了 *持久会话*\\ "
+"；对于简单的摄像头应用来说，重连即重新订阅的模式更简短，而且效果同样好。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"这些内容已足以阅读 MQTT 规范，或在 :class:`socket.socket` 之上手写一个客户端。\\ :mod:`mqtt` "
+"中内置的客户端正是这么做的，并额外为应用代码提供了一套合理的 API。"

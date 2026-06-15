@@ -1,0 +1,1789 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.csi.rst:4
+msgid ":mod:`csi` --- camera sensors"
+msgstr ":mod:`csi` --- 摄像头传感器"
+
+#: ../../library/omv.csi.rst:9
+msgid ""
+"The :mod:`csi` module is the modern, object-oriented interface to the camera"
+" sensor(s) on an OpenMV Cam. Each physical sensor is represented by a "
+":class:`CSI` instance, so the multispectral imager boards that pair a colour"
+" sensor with a thermal or event sensor can drive each one independently by "
+"passing a different ``cid`` to the constructor. Single-sensor cams just "
+"instantiate one :class:`CSI`."
+msgstr ""
+":mod:`csi` 模块是 OpenMV Cam 上摄像头传感器的现代化、面向对象的接口。每个物理传感器都由一个 :class:`CSI` "
+"实例表示，因此那些将彩色传感器与热成像或事件传感器配对的多光谱成像板，可以通过向构造函数传入不同的 ``cid`` "
+"来独立驱动每一个传感器。单传感器的相机只需实例化一个 :class:`CSI` 即可。"
+
+#: ../../library/omv.csi.rst:16
+msgid ""
+"A :class:`CSI` object owns the full sensor configuration -- pixel format, "
+"framesize / window, exposure / gain / white-balance, hardware mirror and "
+"flip, colour-bar test pattern, frame-rate clock, ROI for auto-exposure, and "
+"chip-specific :meth:`ioctl <CSI.ioctl>` commands. Frames are captured with "
+":meth:`CSI.snapshot`, which returns an :class:`image.Image` backed by the "
+"frame buffer."
+msgstr ""
+"一个 :class:`CSI` 对象拥有完整的传感器配置——像素格式、framesize / 窗口、曝光 / 增益 / "
+"白平衡、硬件镜像与翻转、彩条测试图案、帧率时钟、用于自动曝光的 ROI，以及特定芯片的 :meth:`ioctl <CSI.ioctl>` 命令。帧通过"
+" :meth:`CSI.snapshot` 捕获，它返回一个由帧缓冲区支撑的 :class:`image.Image`\\ 。"
+
+#: ../../library/omv.csi.rst:23
+msgid ""
+"This module supersedes the legacy :mod:`sensor` module (which exposed the "
+"same functionality as module-level functions tied to a single hidden "
+"sensor). New code should use :class:`CSI`."
+msgstr ""
+"本模块取代了旧的 :mod:`sensor` 模块（后者将相同的功能以模块级函数的形式暴露，并绑定到单个隐藏的传感器上）。新代码应使用 "
+":class:`CSI`\\ 。"
+
+#: ../../library/omv.csi.rst:27
+msgid "Example usage::"
+msgstr "用法示例::"
+
+#: ../../library/omv.csi.rst:43
+msgid "Asyncio usage"
+msgstr "Asyncio 用法"
+
+#: ../../library/omv.csi.rst:45
+msgid ""
+"The blocking :meth:`CSI.snapshot` loop above does not cooperate with the "
+":mod:`asyncio` event loop -- while ``snapshot`` is waiting on the next "
+"frame, every other coroutine in the program is frozen. To let a capture loop"
+" coexist with other concurrent work (a UART client, a button watcher, a "
+"network task) wrap :class:`CSI` in a small adapter that turns ``snapshot`` "
+"into an :keyword:`await`-friendly coroutine by polling "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` and yielding to the event "
+"loop between checks::"
+msgstr ""
+"上面阻塞式的 :meth:`CSI.snapshot` 循环无法与 :mod:`asyncio` 事件循环协作——当 ``snapshot`` "
+"在等待下一帧时，程序中其他所有的协程都会被冻结。要让捕获循环与其他并发任务（UART 客户端、按钮监视器、网络任务）共存，可以将 "
+":class:`CSI` 包装在一个小型适配器中，通过轮询 :meth:`snapshot(blocking=False) "
+"<CSI.snapshot>` 并在每次检查之间让出给事件循环，从而把 ``snapshot`` 变成一个 :keyword:`await` "
+"友好的协程::"
+
+#: ../../library/omv.csi.rst:72
+msgid ""
+"``__getattr__`` forwards every other attribute (``reset``, ``pixformat``, "
+"``framesize``, the sensor knobs) to the underlying :class:`CSI` so the "
+"wrapper is a drop-in replacement. The first non-blocking call also starts "
+"the camera's DMA capture if it was not already running, so no extra "
+"bootstrap is needed."
+msgstr ""
+"``__getattr__`` 会把其他所有属性（\\ ``reset``\\ 、\\ ``pixformat``\\ 、\\ "
+"``framesize`` 以及各个传感器调节项）转发给底层的 :class:`CSI`\\ ，因此该包装器可作为无缝替换。第一次非阻塞调用还会在相机的"
+" DMA 捕获尚未运行时将其启动，因此无需额外的引导步骤。"
+
+#: ../../library/omv.csi.rst:78
+msgid ""
+"A capture loop then fits into a larger asyncio program as just another "
+"coroutine::"
+msgstr "捕获循环随后便可作为又一个协程融入更大的 asyncio 程序中::"
+
+#: ../../library/omv.csi.rst:97
+msgid ""
+"The :meth:`framebuffers <CSI.framebuffers>` setting still matters in this "
+"shape -- single-buffer mode makes ``snapshot(blocking=False)`` return "
+":data:`None` until the next frame is captured, while double or triple "
+"buffering smooths that over so the wrapper usually finds a buffered frame "
+"waiting on the first poll. See the *AsyncCSI* capstone on the asyncio "
+"tutorial for the full walkthrough."
+msgstr ""
+":meth:`framebuffers <CSI.framebuffers>` 设置在这种形式下仍然很重要——单缓冲模式会让 "
+"``snapshot(blocking=False)`` 在下一帧捕获之前返回 :data:`None`\\ "
+"，而双缓冲或三缓冲则可平滑这一过程，使包装器通常在第一次轮询时就能找到一个已缓冲的帧在等待。完整的演练请参阅 asyncio 教程中的 "
+"*AsyncCSI* 总结案例。"
+
+#: ../../library/omv.csi.rst:106
+msgid "class CSI -- Camera Sensor Interface"
+msgstr "class CSI -- 摄像头传感器接口"
+
+#: ../../library/omv.csi.rst:108
+msgid "The `CSI` class is used to control a camera sensor."
+msgstr "`CSI` 类用于控制摄像头传感器。"
+
+#: ../../library/omv.csi.rst:112
+msgid ""
+"Create an object to talk with a camera sensor. On boards with multiple "
+"sensors, the particular CSI object may be selected by passing a ``cid`` like"
+" `csi.LEPTON` to select a FLIR Lepton sensor module. If ``cid`` is -1 the "
+"primary sensor is selected (typically a color camera module on multi-sensor "
+"boards)."
+msgstr ""
+"创建一个用于与摄像头传感器通信的对象。在拥有多个传感器的板子上，可以通过传入像 `csi.LEPTON` 这样的 ``cid`` 来选择特定的 CSI "
+"对象，以选中 FLIR Lepton 传感器模块。如果 ``cid`` 为 -1，则选中主传感器（在多传感器板上通常是彩色摄像头模块）。"
+
+#: ../../library/omv.csi.rst:117
+msgid ""
+"If ``delays`` is ``False`` then all settling time delays in the csi driver "
+"are disabled. By default the sensor driver delays after reset / mode change "
+"to prevent corrupt frames being returned by `CSI.snapshot`. Disabling delays"
+" lets you batch updates and apply a single delay at the end before calling "
+"`CSI.snapshot`."
+msgstr ""
+"如果 ``delays`` 为 ``False``\\ ，则禁用 csi 驱动中所有的稳定时间延迟。默认情况下，传感器驱动会在复位 / "
+"模式切换后进行延迟，以防止 `CSI.snapshot` 返回损坏的帧。禁用延迟可让你批量进行更新，并在调用 `CSI.snapshot` "
+"之前于最后统一应用一次延迟。"
+
+#: ../../library/omv.csi.rst:122
+msgid ""
+"If ``fflush`` is ``False`` then automatic framebuffer flushing mentioned in "
+"`CSI.framebuffers` is disabled. This removes any time limit on frames in the"
+" frame buffer fifo."
+msgstr ""
+"如果 ``fflush`` 为 ``False``\\ ，则禁用 `CSI.framebuffers` 中提到的自动帧缓冲区刷新。这将取消帧缓冲区 "
+"fifo 中帧的任何时间限制。"
+
+#: ../../library/omv.csi.rst:125
+msgid ""
+"``stream`` selects whether this CSI is the stream source sent to the IDE. If"
+" ``None`` (default) the CSI becomes the stream source only if it is the "
+"primary (non-auxiliary) sensor. Pass ``True`` to force this CSI to be the "
+"stream source, or any false value to leave the existing stream source "
+"unchanged."
+msgstr ""
+"``stream`` 选择此 CSI 是否作为发送到 IDE 的流源。如果为 ``None``\\ （默认），则仅当此 CSI "
+"为主（非辅助）传感器时才成为流源。传入 ``True`` 可强制此 CSI 成为流源，或传入任何假值以保持现有流源不变。"
+
+#: ../../library/omv.csi.rst:131
+msgid "Methods"
+msgstr "方法"
+
+#: ../../library/omv.csi.rst:135
+msgid ""
+"Initializes the camera sensor. Performs a hardware reset by toggling the "
+"RESET signal GPIO to the camera module if ``hard`` is ``True``. ``hard`` "
+"should be set to false when resetting auxiliary camera sensors that share "
+"the same RESET signal GPIO as the primary module."
+msgstr ""
+"初始化摄像头传感器。如果 ``hard`` 为 ``True``\\ ，则通过切换连接到摄像头模块的 RESET 信号 GPIO "
+"来执行硬件复位。在复位与主模块共用同一 RESET 信号 GPIO 的辅助摄像头传感器时，\\ ``hard`` 应设为 false。"
+
+#: ../../library/omv.csi.rst:141
+msgid ""
+"Puts the camera into a lower power mode than sleep (but the camera must be "
+"reset on being woken up)."
+msgstr "使摄像头进入比睡眠更低的功耗模式（但摄像头在被唤醒时必须复位）。"
+
+#: ../../library/omv.csi.rst:146
+msgid ""
+"Puts the camera to sleep if ``enable`` is True. Otherwise, wakes it back up."
+msgstr "如果 ``enable`` 为 True，则使摄像头进入睡眠。否则将其唤醒。"
+
+#: ../../library/omv.csi.rst:150
+msgid ""
+"Copies the current frame buffer contents to the IDE preview. Call this after"
+" the last `CSI.snapshot` if the script terminates so the IDE shows the last "
+"frame."
+msgstr ""
+"将当前帧缓冲区的内容复制到 IDE 预览。如果脚本将要终止，请在最后一次 `CSI.snapshot` 之后调用此方法，以便 IDE 显示最后一帧。"
+
+#: ../../library/omv.csi.rst:155
+msgid "Takes a picture using the camera and returns an `image.Image` object."
+msgstr "使用摄像头拍摄一张照片并返回一个 `image.Image` 对象。"
+
+#: ../../library/omv.csi.rst:157
+msgid ""
+"If ``time`` and/or ``frames`` is passed snapshot will block for that many "
+"``time`` milliseconds and/or ``frames`` captured from the camera. Both "
+"arguments may be used at the same time. After ``time`` and/or ``frames`` has"
+" passed snapshot will return ``None``."
+msgstr ""
+"如果传入了 ``time`` 和/或 ``frames``\\ ，snapshot 将阻塞相应的 ``time`` 毫秒数和/或从相机捕获的 "
+"``frames`` 帧数。两个参数可以同时使用。在 ``time`` 和/或 ``frames`` 过去之后，snapshot 将返回 "
+"``None``\\ 。"
+
+#: ../../library/omv.csi.rst:161
+msgid ""
+"``blocking`` may be ``False`` to enable non-blocking behavior which will "
+"cause snapshot to return ``None`` when the next image from the camera is not"
+" ready versus waiting."
+msgstr ""
+"``blocking`` 可以为 ``False`` 以启用非阻塞行为，这将导致 snapshot 在相机的下一帧图像尚未就绪时返回 "
+"``None``\\ ，而不是等待。"
+
+#: ../../library/omv.csi.rst:164
+msgid ""
+"``image`` may be another `image.Image` object to update with the new image "
+"captured from the camera instead of returning a new `image.Image` object. "
+"The previous image contents are overwritten via a deep copy."
+msgstr ""
+"``image`` 可以是另一个 `image.Image` 对象，用于以从相机捕获的新图像更新它，而不是返回一个新的 `image.Image` "
+"对象。先前的图像内容会通过深拷贝被覆盖。"
+
+#: ../../library/omv.csi.rst:168
+msgid ""
+"If `CSI.auto_rotation` is enabled this method will return an already-rotated"
+" `image.Image`."
+msgstr "如果启用了 `CSI.auto_rotation`\\ ，此方法将返回一个已经旋转过的 `image.Image`\\ 。"
+
+#: ../../library/omv.csi.rst:172
+msgid "Returns the sensor resolution width."
+msgstr "返回传感器的分辨率宽度。"
+
+#: ../../library/omv.csi.rst:176
+msgid "Returns the sensor resolution height."
+msgstr "返回传感器的分辨率高度。"
+
+#: ../../library/omv.csi.rst:180
+msgid ""
+"Returns the camera module chip ID. Compare against any of `csi.OV2640`, "
+"`csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, `csi.OV9650`, "
+"`csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, `csi.MT9M114`, "
+"`csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, `csi.HM0360`, "
+"`csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, `csi.PAG7936`, "
+"`csi.PAJ6100`, `csi.FROGEYE2020`, or `csi.SOFTCSI`."
+msgstr ""
+"返回摄像头模块的芯片 ID。可与 `csi.OV2640`\\ 、\\ `csi.OV5640`\\ 、\\ `csi.OV7670`\\ 、\\ "
+"`csi.OV7690`\\ 、\\ `csi.OV7725`\\ 、\\ `csi.OV9650`\\ 、\\ `csi.MT9V022`\\ 、\\"
+" `csi.MT9V024`\\ 、\\ `csi.MT9V032`\\ 、\\ `csi.MT9V034`\\ 、\\ `csi.MT9M114`\\"
+" 、\\ `csi.BOSON320`\\ 、\\ `csi.BOSON640`\\ 、\\ `csi.LEPTON`\\ 、\\ "
+"`csi.HM01B0`\\ 、\\ `csi.HM0360`\\ 、\\ `csi.GC2145`\\ 、\\ `csi.GENX320ES`\\ "
+"、\\ `csi.GENX320`\\ 、\\ `csi.PAG7920`\\ 、\\ `csi.PAG7936`\\ 、\\ "
+"`csi.PAJ6100`\\ 、\\ `csi.FROGEYE2020` 或 `csi.SOFTCSI` 中的任意一个进行比较。"
+
+#: ../../library/omv.csi.rst:188
+msgid ""
+"Returns ``True`` if there is an image ready to be returned by `CSI.snapshot`"
+" so a call to snapshot will not block."
+msgstr "如果有一张图像已就绪可由 `CSI.snapshot` 返回（即调用 snapshot 不会阻塞），则返回 ``True``\\ 。"
+
+#: ../../library/omv.csi.rst:193
+msgid ""
+"Sets the pixel format for the camera module to one of `csi.GRAYSCALE`, "
+"`csi.RGB565`, `csi.BAYER`, `csi.YUV422`, or `csi.JPEG` (only on the "
+"OV2640/OV5640)."
+msgstr ""
+"将摄像头模块的像素格式设置为 `csi.GRAYSCALE`\\ 、\\ `csi.RGB565`\\ 、\\ `csi.BAYER`\\ 、\\ "
+"`csi.YUV422` 或 `csi.JPEG`\\ （仅限 OV2640/OV5640）之一。"
+
+#: ../../library/omv.csi.rst:196
+msgid "Returns the current pixformat if called with no arguments."
+msgstr "如果不带参数调用，则返回当前的 pixformat。"
+
+#: ../../library/omv.csi.rst:200
+msgid ""
+"Sets the frame size for the camera module to one of the size constants (e.g."
+" `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- see the constants section)."
+msgstr "将摄像头模块的帧尺寸设置为某个尺寸常量（例如 `csi.QVGA`\\ 、\\ `csi.VGA`\\ 、\\ `csi.HD` 等——参见常量部分）。"
+
+#: ../../library/omv.csi.rst:203
+msgid ""
+"Alternatively, you may pass a custom framesize as a ``(w, h)`` tuple. When "
+"`CSI.snapshot` is called the custom framesize will be evaluated against DMA "
+"rules. Generally framesizes need to be a multiple of 8 pixels and/or 16 "
+"bytes."
+msgstr ""
+"或者，你也可以传入一个 ``(w, h)`` 元组作为自定义 framesize。在调用 `CSI.snapshot` 时，自定义 framesize "
+"将根据 DMA 规则进行校验。一般来说，framesize 需要是 8 像素和/或 16 字节的倍数。"
+
+#: ../../library/omv.csi.rst:207
+msgid "Returns the current framesize if called with no arguments."
+msgstr "如果不带参数调用，则返回当前的 framesize。"
+
+#: ../../library/omv.csi.rst:211
+msgid "Sets the frame rate in Hz for the camera module."
+msgstr "设置摄像头模块的帧率（单位 Hz）。"
+
+#: ../../library/omv.csi.rst:213
+msgid "Returns the current framerate if called with no arguments."
+msgstr "如果不带参数调用，则返回当前的帧率。"
+
+#: ../../library/omv.csi.rst:217
+msgid ""
+"`CSI.framerate` works by dropping frames received by the camera module to "
+"keep the frame rate at or below the rate specified. By default the camera "
+"will run at the maximum frame rate. If implemented for the particular camera"
+" sensor `CSI.framerate` will also reduce the camera sensor frame rate "
+"internally to save power and improve image quality by increasing the sensor "
+"exposure. `CSI.framerate` may conflict with `CSI.auto_exposure` on some "
+"cameras."
+msgstr ""
+"`CSI.framerate` "
+"的工作方式是丢弃摄像头模块接收到的帧，以使帧率保持在指定速率或更低。默认情况下，相机将以最大帧率运行。如果特定摄像头传感器实现了该功能，\\ "
+"`CSI.framerate` 还会在内部降低摄像头传感器的帧率，以节省功耗并通过增加传感器曝光来提升图像质量。在某些相机上，\\ "
+"`CSI.framerate` 可能与 `CSI.auto_exposure` 冲突。"
+
+#: ../../library/omv.csi.rst:226
+msgid ""
+"Sets the resolution of the camera to a sub-region of the current resolution."
+" ``roi`` is a ``(x, y, w, h)`` tuple. You may also pass ``(w, h)`` and the "
+"window will be centered."
+msgstr ""
+"将摄像头的分辨率设置为当前分辨率的一个子区域。\\ ``roi`` 是一个 ``(x, y, w, h)`` 元组。你也可以传入 ``(w, "
+"h)``\\ ，此时窗口将居中。"
+
+#: ../../library/omv.csi.rst:229
+msgid ""
+"Returns the current ``(x, y, w, h)`` tuple if called with no arguments."
+msgstr "如果不带参数调用，则返回当前的 ``(x, y, w, h)`` 元组。"
+
+#: ../../library/omv.csi.rst:233
+msgid ""
+"Set the camera image gainceiling to one of 2, 4, 8, 16, 32, 64, or 128."
+msgstr "将摄像头图像的增益上限设置为 2、4、8、16、32、64 或 128 之一。"
+
+#: ../../library/omv.csi.rst:235 ../../library/omv.csi.rst:241
+#: ../../library/omv.csi.rst:247 ../../library/omv.csi.rst:253
+#: ../../library/omv.csi.rst:259 ../../library/omv.csi.rst:269
+#: ../../library/omv.csi.rst:390 ../../library/omv.csi.rst:398
+msgid "Returns ``True`` on success and ``False`` on failure."
+msgstr "成功时返回 ``True``\\ ，失败时返回 ``False``\\ 。"
+
+#: ../../library/omv.csi.rst:239
+msgid "Set the camera image brightness."
+msgstr "设置摄像头图像的亮度。"
+
+#: ../../library/omv.csi.rst:245
+msgid "Set the camera image contrast."
+msgstr "设置摄像头图像的对比度。"
+
+#: ../../library/omv.csi.rst:251
+msgid "Set the camera image saturation."
+msgstr "设置摄像头图像的饱和度。"
+
+#: ../../library/omv.csi.rst:257
+msgid "Set the camera image JPEG compression quality. 0 - 100."
+msgstr "设置摄像头图像的 JPEG 压缩质量。范围为 0 - 100。"
+
+#: ../../library/omv.csi.rst:263
+msgid "Only for the OV2640/OV5640 cameras."
+msgstr "仅适用于 OV2640/OV5640 相机。"
+
+#: ../../library/omv.csi.rst:267
+msgid ""
+"Turns color bar mode on (``True``) or off (``False``). Defaults to off."
+msgstr "开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）彩条模式。默认为关闭。"
+
+#: ../../library/omv.csi.rst:273
+msgid ""
+"``enable`` turns auto gain control on (``True``) or off (``False``). The "
+"camera starts up with auto gain control on."
+msgstr "``enable`` 开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）自动增益控制。相机启动时自动增益控制为开启状态。"
+
+#: ../../library/omv.csi.rst:276
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels with "
+"``gain_db``."
+msgstr "如果 ``enable`` 为 ``False``\\ ，你可以用 ``gain_db`` 设置一个固定的增益（单位分贝）。"
+
+#: ../../library/omv.csi.rst:278
+msgid ""
+"If ``enable`` is ``True`` you may set the maximum gain ceiling in decibels "
+"with ``gain_db_ceiling`` for the automatic gain control algorithm."
+msgstr ""
+"如果 ``enable`` 为 ``True``\\ ，你可以用 ``gain_db_ceiling`` "
+"为自动增益控制算法设置最大增益上限（单位分贝）。"
+
+#: ../../library/omv.csi.rst:283
+msgid "You need to turn off white balance too if you want to track colors."
+msgstr "如果你想跟踪颜色，还需要关闭白平衡。"
+
+#: ../../library/omv.csi.rst:287
+msgid "Returns the current camera gain value in decibels."
+msgstr "返回当前摄像头的增益值（单位分贝）。"
+
+#: ../../library/omv.csi.rst:291
+msgid ""
+"``enable`` turns auto exposure control on (``True``) or off (``False``). The"
+" camera starts up with auto exposure control on."
+msgstr "``enable`` 开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）自动曝光控制。相机启动时自动曝光控制为开启状态。"
+
+#: ../../library/omv.csi.rst:294
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed exposure time in microseconds"
+" with ``exposure_us``."
+msgstr "如果 ``enable`` 为 ``False``\\ ，你可以用 ``exposure_us`` 设置一个固定的曝光时间（单位微秒）。"
+
+#: ../../library/omv.csi.rst:299
+msgid ""
+"Camera auto exposure algorithms are pretty conservative about how much they "
+"adjust the exposure value by and will generally avoid changing the exposure "
+"value by much. Instead, they change the gain value a lot to deal with "
+"changing lighting."
+msgstr "相机的自动曝光算法在调整曝光值的幅度上相当保守，通常会避免大幅改变曝光值。相反，它们会大幅改变增益值来应对光照变化。"
+
+#: ../../library/omv.csi.rst:305
+msgid "Returns the current camera exposure value in microseconds."
+msgstr "返回当前摄像头的曝光值（单位微秒）。"
+
+#: ../../library/omv.csi.rst:309
+msgid ""
+"``enable`` turns auto white balance on (``True``) or off (``False``). The "
+"camera starts up with auto white balance on."
+msgstr "``enable`` 开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）自动白平衡。相机启动时自动白平衡为开启状态。"
+
+#: ../../library/omv.csi.rst:312
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels for the red,"
+" green, and blue channels respectively with ``rgb_gain_db``."
+msgstr ""
+"如果 ``enable`` 为 ``False``\\ ，你可以用 ``rgb_gain_db`` 分别为红、绿、蓝通道设置固定的增益（单位分贝）。"
+
+#: ../../library/omv.csi.rst:317
+msgid "You need to turn off gain control too if you want to track colors."
+msgstr "如果你想跟踪颜色，还需要关闭增益控制。"
+
+#: ../../library/omv.csi.rst:321
+msgid ""
+"Returns a tuple ``(r, g, b)`` of the current camera red, green, and blue "
+"gain values in decibels."
+msgstr "返回一个元组 ``(r, g, b)``\\ ，包含当前摄像头红、绿、蓝增益值（单位分贝）。"
+
+#: ../../library/omv.csi.rst:326
+msgid "Sets the auto black-level calibration (BLC) on the camera."
+msgstr "设置摄像头上的自动黑电平校准（BLC）。"
+
+#: ../../library/omv.csi.rst:328
+msgid ""
+"``enable`` pass ``True`` or ``False`` to turn BLC on or off. You typically "
+"always want this on."
+msgstr "``enable`` 传入 ``True`` 或 ``False`` 以开启或关闭 BLC。通常你总是希望开启它。"
+
+#: ../../library/omv.csi.rst:331
+msgid ""
+"``regs`` if disabled then you can manually set the BLC register values from "
+"a previous call to `CSI.blc_regs`."
+msgstr "``regs`` 如果禁用了 BLC，你可以根据之前对 `CSI.blc_regs` 的调用结果手动设置 BLC 寄存器的值。"
+
+#: ../../library/omv.csi.rst:336
+msgid ""
+"Returns the sensor BLC registers as a list of integers. For use with "
+"`CSI.auto_blc`."
+msgstr "以整数列表的形式返回传感器的 BLC 寄存器。用于配合 `CSI.auto_blc` 使用。"
+
+#: ../../library/omv.csi.rst:340
+msgid ""
+"Turns horizontal mirror mode on (``True``) or off (``False``). Defaults to "
+"off."
+msgstr "开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）水平镜像模式。默认为关闭。"
+
+#: ../../library/omv.csi.rst:342 ../../library/omv.csi.rst:348
+#: ../../library/omv.csi.rst:359 ../../library/omv.csi.rst:365
+#: ../../library/omv.csi.rst:628
+msgid "Returns the current setting if called with no arguments."
+msgstr "如果不带参数调用，则返回当前设置。"
+
+#: ../../library/omv.csi.rst:346
+msgid ""
+"Turns vertical flip mode on (``True``) or off (``False``). Defaults to off."
+msgstr "开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）垂直翻转模式。默认为关闭。"
+
+#: ../../library/omv.csi.rst:352
+msgid ""
+"Turns transpose mode on (``True``) or off (``False``). Defaults to off."
+msgstr "开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）转置模式。默认为关闭。"
+
+#: ../../library/omv.csi.rst:354
+msgid "vflip=False, hmirror=False, transpose=False -> 0 degree rotation"
+msgstr "vflip=False, hmirror=False, transpose=False -> 旋转 0 度"
+
+#: ../../library/omv.csi.rst:355
+msgid "vflip=True,  hmirror=False, transpose=True  -> 90 degree rotation"
+msgstr "vflip=True,  hmirror=False, transpose=True  -> 旋转 90 度"
+
+#: ../../library/omv.csi.rst:356
+msgid "vflip=True,  hmirror=True,  transpose=False -> 180 degree rotation"
+msgstr "vflip=True,  hmirror=True,  transpose=False -> 旋转 180 度"
+
+#: ../../library/omv.csi.rst:357
+msgid "vflip=False, hmirror=True,  transpose=True  -> 270 degree rotation"
+msgstr "vflip=False, hmirror=True,  transpose=True  -> 旋转 270 度"
+
+#: ../../library/omv.csi.rst:363
+msgid ""
+"Turns auto rotation mode on (``True``) or off (``False``). Defaults to off."
+msgstr "开启（\\ ``True``\\ ）或关闭（\\ ``False``\\ ）自动旋转模式。默认为关闭。"
+
+#: ../../library/omv.csi.rst:369
+msgid ""
+"This method only works when the OpenMV Cam has an :py:mod:`imu` installed "
+"and is enabled automatically."
+msgstr "此方法仅在 OpenMV Cam 安装了 :py:mod:`imu` 时有效，并且会自动启用。"
+
+#: ../../library/omv.csi.rst:374
+msgid ""
+"Sets the number of frame buffers used to receive image data. By default the "
+"OpenMV Cam will try to allocate the maximum number of frame buffers it can. "
+"Reallocation occurs whenever `CSI.pixformat`, `CSI.framesize`, or "
+"`CSI.window` are called."
+msgstr ""
+"设置用于接收图像数据的帧缓冲区数量。默认情况下，OpenMV Cam 将尝试分配它所能分配的最大数量的帧缓冲区。每当调用 "
+"`CSI.pixformat`\\ 、\\ `CSI.framesize` 或 `CSI.window` 时都会发生重新分配。"
+
+#: ../../library/omv.csi.rst:378
+msgid ""
+"``count`` of 1 (single buffer), 2 (double buffer), or 3 (triple buffer) "
+"selects the corresponding capture mode. Pass 4 or greater to put the driver "
+"into video FIFO mode where ``count`` buffers are queued --- useful for video"
+" recording to an SD card. On frame drop, all frame buffers except the active"
+" one are cleared so `CSI.snapshot` always returns a recent frame."
+msgstr ""
+"``count`` 为 1（单缓冲）、2（双缓冲）或 3（三缓冲）时，选择相应的捕获模式。传入 4 或更大的值可将驱动置于视频 FIFO "
+"模式，此时会排队 ``count`` 个缓冲区——对于录制视频到 SD 卡很有用。在丢帧时，除当前活动的缓冲区外，所有帧缓冲区都会被清空，因此 "
+"`CSI.snapshot` 总能返回最近的一帧。"
+
+#: ../../library/omv.csi.rst:384
+msgid "Returns the current count if called with no arguments."
+msgstr "如果不带参数调用，则返回当前的数量。"
+
+#: ../../library/omv.csi.rst:388
+msgid ""
+"Sets the special digital effect (one of `csi.NORMAL` or `csi.NEGATIVE`)."
+msgstr "设置特殊数字效果（\\ `csi.NORMAL` 或 `csi.NEGATIVE` 之一）。"
+
+#: ../../library/omv.csi.rst:394
+msgid ""
+"``enable`` ``True`` to enable, ``False`` to disable. ``radi`` integer radius"
+" of pixels to correct. ``coef`` power of correction."
+msgstr ""
+"``enable`` 传入 ``True`` 以启用，\\ ``False`` 以禁用。\\ ``radi`` 要校正的像素半径（整数）。\\ "
+"``coef`` 校正强度。"
+
+#: ../../library/omv.csi.rst:402
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame (but before the frame is received)."
+msgstr "注册回调 ``cb``\\ ，使其在每当摄像头模块生成新帧时（但在接收该帧之前）执行（在中断上下文中）。"
+
+#: ../../library/omv.csi.rst:405
+msgid ""
+"``cb`` takes one argument and is passed the current state of the vsync pin "
+"after changing."
+msgstr "``cb`` 接受一个参数，传入的是 vsync 引脚在变化后的当前状态。"
+
+#: ../../library/omv.csi.rst:407 ../../library/omv.csi.rst:418
+msgid ""
+"Returns the registered callback if called with no arguments. Pass any non-"
+"callable to clear the callback."
+msgstr "如果不带参数调用，则返回已注册的回调。传入任何不可调用的值可清除回调。"
+
+#: ../../library/omv.csi.rst:412
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame and the frame is ready to be read via "
+"`CSI.snapshot`."
+msgstr "注册回调 ``cb``\\ ，使其在每当摄像头模块生成新帧且该帧已就绪可通过 `CSI.snapshot` 读取时执行（在中断上下文中）。"
+
+#: ../../library/omv.csi.rst:415
+msgid ""
+"``cb`` takes no arguments. Use this to schedule reading a frame later with "
+"``micropython.schedule()``."
+msgstr "``cb`` 不接受任何参数。可以用它配合 ``micropython.schedule()`` 稍后调度读取一帧。"
+
+#: ../../library/omv.csi.rst:423
+msgid ""
+"Execute a sensor-specific request. ``request`` is one of the :data:`IOCTL_*`"
+" constants; the remaining positional arguments and the return value depend "
+"on the request. The supported requests are grouped by sensor family below."
+msgstr ""
+"执行一个特定于传感器的请求。\\ ``request`` 是 :data:`IOCTL_*` "
+"常量之一；其余位置参数和返回值取决于具体请求。下面按传感器系列对支持的请求进行了分组。"
+
+#: ../../library/omv.csi.rst:428
+msgid "**Generic (any sensor):**"
+msgstr "**通用（任意传感器）：**"
+
+#: ../../library/omv.csi.rst:430
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:431
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:433
+msgid ""
+"Set the sensor readout window. A smaller window raises the frame rate at the"
+" cost of field-of-view."
+msgstr "设置传感器读出窗口。较小的窗口以视场为代价提高帧率。"
+
+#: ../../library/omv.csi.rst:436
+msgid "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+msgstr "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+
+#: ../../library/omv.csi.rst:437
+msgid "Returns the current readout window as an ``(x, y, w, h)`` tuple."
+msgstr "以 ``(x, y, w, h)`` 元组的形式返回当前读出窗口。"
+
+#: ../../library/omv.csi.rst:440
+msgid "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:441
+msgid ""
+"Enable (``True``) or disable (``False``) triggered mode on the MT9V034."
+msgstr "在 MT9V034 上启用（\\ ``True``\\ ）或禁用（\\ ``False``\\ ）触发模式。"
+
+#: ../../library/omv.csi.rst:444
+msgid "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+msgstr "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+
+#: ../../library/omv.csi.rst:445
+msgid "Returns the current triggered-mode state as a ``bool``."
+msgstr "以 ``bool`` 形式返回当前触发模式状态。"
+
+#: ../../library/omv.csi.rst:447
+msgid "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+msgstr "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+
+#: ../../library/omv.csi.rst:448
+msgid ""
+"When ``True``, instruct :meth:`framesize` to optimize for field-of-view "
+"rather than frame rate."
+msgstr "当为 ``True`` 时，指示 :meth:`framesize` 优化视场而非帧率。"
+
+#: ../../library/omv.csi.rst:451
+msgid "``ioctl(IOCTL_GET_FOV_WIDE)``"
+msgstr "``ioctl(IOCTL_GET_FOV_WIDE)``"
+
+#: ../../library/omv.csi.rst:452
+msgid "Returns the current FOV-wide state as a ``bool``."
+msgstr "以 ``bool`` 形式返回当前的宽视场（FOV-wide）状态。"
+
+#: ../../library/omv.csi.rst:454
+msgid "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:455
+msgid ""
+"Enable (``True``) or disable (``False``) the sensor's low-light \"night "
+"mode\". OV7725 and OV5640 only."
+msgstr "启用（\\ ``True``\\ ）或禁用（\\ ``False``\\ ）传感器的弱光\"夜间模式\"。仅限 OV7725 和 OV5640。"
+
+#: ../../library/omv.csi.rst:458
+msgid "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+msgstr "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+
+#: ../../library/omv.csi.rst:459
+msgid "Returns the current night-mode state as a ``bool``."
+msgstr "以 ``bool`` 形式返回当前夜间模式状态。"
+
+#: ../../library/omv.csi.rst:461
+msgid "``ioctl(IOCTL_GET_RGB_STATS)``"
+msgstr "``ioctl(IOCTL_GET_RGB_STATS)``"
+
+#: ../../library/omv.csi.rst:462
+msgid ""
+"Returns a 4-tuple of raw RGB-channel statistics ``(r, gb, gr, b)`` read from"
+" the sensor (typically used for white-balance tuning)."
+msgstr "返回一个从传感器读取的原始 RGB 通道统计信息的 4 元组 ``(r, gb, gr, b)``\\ （通常用于白平衡调校）。"
+
+#: ../../library/omv.csi.rst:466
+msgid "**OV5640 FPC -- auto-focus:**"
+msgstr "**OV5640 FPC -- 自动对焦：**"
+
+#: ../../library/omv.csi.rst:468
+msgid "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:469
+msgid "Start an auto-focus sweep on the OV5640 FPC module."
+msgstr "在 OV5640 FPC 模块上启动一次自动对焦扫描。"
+
+#: ../../library/omv.csi.rst:471
+msgid "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:472
+msgid "Pause an in-progress auto-focus sweep."
+msgstr "暂停正在进行的自动对焦扫描。"
+
+#: ../../library/omv.csi.rst:474
+msgid "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:475
+msgid "Reset the auto-focus position to the default."
+msgstr "将自动对焦位置复位为默认值。"
+
+#: ../../library/omv.csi.rst:477
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:478
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+
+#: ../../library/omv.csi.rst:480
+msgid ""
+"Block until the current auto-focus sweep finishes. ``timeout_ms`` defaults "
+"to 5000 if omitted."
+msgstr "阻塞直到当前的自动对焦扫描完成。如果省略 ``timeout_ms``\\ ，则默认为 5000。"
+
+#: ../../library/omv.csi.rst:483
+msgid "**FLIR Lepton:**"
+msgstr "**FLIR Lepton：**"
+
+#: ../../library/omv.csi.rst:485
+msgid "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+
+#: ../../library/omv.csi.rst:486
+msgid "Returns the Lepton image width in pixels."
+msgstr "返回 Lepton 图像宽度（单位像素）。"
+
+#: ../../library/omv.csi.rst:488
+msgid "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+
+#: ../../library/omv.csi.rst:489
+msgid "Returns the Lepton image height in pixels."
+msgstr "返回 Lepton 图像高度（单位像素）。"
+
+#: ../../library/omv.csi.rst:491
+msgid "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+
+#: ../../library/omv.csi.rst:492
+msgid "Returns the Lepton's type (radiometric or not) as an int."
+msgstr "以整数形式返回 Lepton 的类型（是否为辐射测量型）。"
+
+#: ../../library/omv.csi.rst:494
+msgid "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+
+#: ../../library/omv.csi.rst:495
+msgid "Returns the Lepton's refresh rate in Hz."
+msgstr "返回 Lepton 的刷新率（单位 Hz）。"
+
+#: ../../library/omv.csi.rst:497
+msgid "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+
+#: ../../library/omv.csi.rst:498
+msgid "Returns the Lepton's ADC resolution in bits."
+msgstr "返回 Lepton 的 ADC 分辨率（单位位）。"
+
+#: ../../library/omv.csi.rst:500
+msgid "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+msgstr "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+
+#: ../../library/omv.csi.rst:501
+msgid ""
+"Run a FLIR Lepton SDK command. ``cmd`` is the 16-bit command id defined by "
+"the SDK."
+msgstr "运行一条 FLIR Lepton SDK 命令。\\ ``cmd`` 是 SDK 定义的 16 位命令 id。"
+
+#: ../../library/omv.csi.rst:504
+msgid "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+
+#: ../../library/omv.csi.rst:505
+msgid ""
+"Write a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``payload`` is a ``bytes``/``bytearray`` whose length must be a multiple of "
+"16 bits."
+msgstr ""
+"写入一个 Lepton SDK 属性。\\ ``attr_id`` 是 16 位属性 id；\\ ``payload`` 是一个 "
+"``bytes``/``bytearray``\\ ，其长度必须是 16 位的倍数。"
+
+#: ../../library/omv.csi.rst:509
+msgid "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+
+#: ../../library/omv.csi.rst:510
+msgid ""
+"Read a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``words`` is the number of 16-bit words to read. Returns a ``bytearray``."
+msgstr ""
+"读取一个 Lepton SDK 属性。\\ ``attr_id`` 是 16 位属性 id；\\ ``words`` 是要读取的 16 "
+"位字的数量。返回一个 ``bytearray``\\ 。"
+
+#: ../../library/omv.csi.rst:514
+msgid "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+
+#: ../../library/omv.csi.rst:515
+msgid "Returns the Lepton focal-plane-array temperature in degrees Celsius."
+msgstr "返回 Lepton 焦平面阵列的温度（单位摄氏度）。"
+
+#: ../../library/omv.csi.rst:518
+msgid "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+
+#: ../../library/omv.csi.rst:519
+msgid "Returns the Lepton auxiliary temperature in degrees Celsius."
+msgstr "返回 Lepton 的辅助温度（单位摄氏度）。"
+
+#: ../../library/omv.csi.rst:522
+msgid "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+
+#: ../../library/omv.csi.rst:523
+msgid ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+msgstr ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+
+#: ../../library/omv.csi.rst:525
+msgid ""
+"Switch the Lepton between AGC and direct-temperature output. "
+"``measurement_enabled=True`` enables direct temperature output. The optional"
+" ``high_temp_enabled`` flag selects the high-temperature range."
+msgstr ""
+"在 AGC 和直接温度输出之间切换 Lepton。\\ ``measurement_enabled=True`` 启用直接温度输出。可选的 "
+"``high_temp_enabled`` 标志选择高温量程。"
+
+#: ../../library/omv.csi.rst:530
+msgid "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+
+#: ../../library/omv.csi.rst:531
+msgid "Returns a 2-tuple ``(measurement_enabled, high_temp_enabled)``."
+msgstr "返回一个 2 元组 ``(measurement_enabled, high_temp_enabled)``\\ 。"
+
+#: ../../library/omv.csi.rst:534
+msgid "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+
+#: ../../library/omv.csi.rst:535
+msgid ""
+"Set the temperature range mapped to ``0..255`` when measurement mode is "
+"enabled."
+msgstr "设置在启用测量模式时映射到 ``0..255`` 的温度范围。"
+
+#: ../../library/omv.csi.rst:538
+msgid "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+
+#: ../../library/omv.csi.rst:539
+msgid "Returns the current ``(min_celsius, max_celsius)`` range."
+msgstr "返回当前的 ``(min_celsius, max_celsius)`` 范围。"
+
+#: ../../library/omv.csi.rst:541
+msgid "**Himax HM01B0 -- motion detection:**"
+msgstr "**Himax HM01B0 -- 运动检测：**"
+
+#: ../../library/omv.csi.rst:543
+msgid "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:544
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's on-sensor motion-"
+"detection block."
+msgstr "启用（\\ ``True``\\ ）或禁用（\\ ``False``\\ ）HM01B0 的传感器内运动检测模块。"
+
+#: ../../library/omv.csi.rst:547
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:548
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:550
+msgid "Set the motion-detection window on the HM01B0."
+msgstr "设置 HM01B0 上的运动检测窗口。"
+
+#: ../../library/omv.csi.rst:552
+msgid "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+
+#: ../../library/omv.csi.rst:553
+msgid "Set the motion-detection threshold (``0`` -- ``255``)."
+msgstr "设置运动检测阈值（\\ ``0`` -- ``255``\\ ）。"
+
+#: ../../library/omv.csi.rst:555
+msgid "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+
+#: ../../library/omv.csi.rst:556
+msgid "Clear the motion-detection interrupt latch."
+msgstr "清除运动检测中断锁存。"
+
+#: ../../library/omv.csi.rst:558
+msgid "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:559
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's internal oscillator."
+msgstr "启用（\\ ``True``\\ ）或禁用（\\ ``False``\\ ）HM01B0 的内部振荡器。"
+
+#: ../../library/omv.csi.rst:562
+msgid "**Prophesee GENX320 -- event sensor:**"
+msgstr "**Prophesee GENX320 -- 事件传感器：**"
+
+#: ../../library/omv.csi.rst:564
+msgid "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+
+#: ../../library/omv.csi.rst:565
+msgid ""
+"Apply a bias preset. ``preset`` is one of the :data:`GENX320_BIASES_*` "
+"constants."
+msgstr "应用一个偏置预设。\\ ``preset`` 是 :data:`GENX320_BIASES_*` 常量之一。"
+
+#: ../../library/omv.csi.rst:568
+msgid "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+
+#: ../../library/omv.csi.rst:569
+msgid ""
+"Set a single bias. ``bias`` is one of the :data:`GENX320_BIAS_*` constants; "
+"``value`` is the integer setting."
+msgstr "设置单个偏置。\\ ``bias`` 是 :data:`GENX320_BIAS_*` 常量之一；\\ ``value`` 是整数设定值。"
+
+#: ../../library/omv.csi.rst:573
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+
+#: ../../library/omv.csi.rst:574
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+
+#: ../../library/omv.csi.rst:576
+msgid ""
+"Configure the anti-flicker filter. ``enable`` is a bool; the optional "
+"frequency arguments set the filter passband."
+msgstr "配置抗闪烁滤波器。\\ ``enable`` 是一个布尔值；可选的频率参数设置滤波器的通带。"
+
+#: ../../library/omv.csi.rst:580
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+
+#: ../../library/omv.csi.rst:581
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+
+#: ../../library/omv.csi.rst:583
+msgid ""
+"Configure the spatio-temporal contrast filter. ``mode`` is one of the "
+":data:`GENX320_STC_*` constants; up to two further arguments are mode-"
+"specific."
+msgstr "配置时空对比度滤波器。\\ ``mode`` 是 :data:`GENX320_STC_*` 常量之一；最多两个额外参数视模式而定。"
+
+#: ../../library/omv.csi.rst:587
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+
+#: ../../library/omv.csi.rst:588
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+
+#: ../../library/omv.csi.rst:590
+msgid ""
+"Switch the sensor between frame and event modes. ``mode`` is one of the "
+":data:`GENX320_MODE_*` constants. For event mode, ``evt_res`` is the row-"
+"axis length of the event buffer passed to :data:`IOCTL_GENX320_READ_EVENTS`."
+msgstr ""
+"在帧模式和事件模式之间切换传感器。\\ ``mode`` 是 :data:`GENX320_MODE_*` 常量之一。对于事件模式，\\ "
+"``evt_res`` 是传递给 :data:`IOCTL_GENX320_READ_EVENTS` 的事件缓冲区的行轴长度。"
+
+#: ../../library/omv.csi.rst:595
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+
+#: ../../library/omv.csi.rst:596
+msgid ""
+"Read events into ``buf``, a ``uint16`` ``ndarray`` of shape ``(EVT_res, 6)``"
+" where ``EVT_res`` is a power of two between 1024 and 65536. The columns "
+"are:"
+msgstr ""
+"将事件读入 ``buf``\\ ，它是一个形状为 ``(EVT_res, 6)`` 的 ``uint16`` ``ndarray``\\ ，其中 "
+"``EVT_res`` 是介于 1024 和 65536 之间的 2 的幂。各列含义为："
+
+#: ../../library/omv.csi.rst:600
+msgid ""
+"``[0]`` -- event type (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+msgstr "``[0]`` -- 事件类型（\\ :data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / 触发）。"
+
+#: ../../library/omv.csi.rst:603
+msgid "``[1]`` -- seconds."
+msgstr "``[1]`` -- 秒。"
+
+#: ../../library/omv.csi.rst:604
+msgid "``[2]`` -- milliseconds."
+msgstr "``[2]`` -- 毫秒。"
+
+#: ../../library/omv.csi.rst:605
+msgid "``[3]`` -- microseconds."
+msgstr "``[3]`` -- 微秒。"
+
+#: ../../library/omv.csi.rst:606
+msgid "``[4]`` -- ``x`` coordinate."
+msgstr "``[4]`` -- ``x`` 坐标。"
+
+#: ../../library/omv.csi.rst:607
+msgid "``[5]`` -- ``y`` coordinate."
+msgstr "``[5]`` -- ``y`` 坐标。"
+
+#: ../../library/omv.csi.rst:609
+msgid "Returns the number of events written."
+msgstr "返回写入的事件数量。"
+
+#: ../../library/omv.csi.rst:611
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+
+#: ../../library/omv.csi.rst:612
+msgid ""
+"Returns an :class:`image.Image` containing the raw event frame from the "
+"GENX320."
+msgstr "返回一个包含来自 GENX320 的原始事件帧的 :class:`image.Image`\\ 。"
+
+#: ../../library/omv.csi.rst:615
+msgid "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+msgstr "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+
+#: ../../library/omv.csi.rst:616
+msgid ""
+"Turn off pixels whose noise is more than ``sigma`` standard deviations from "
+"the normal distribution. ``iterations`` is the integer number of calibration"
+" passes. Returns the number of pixels disabled."
+msgstr ""
+"关闭那些噪声偏离正态分布超过 ``sigma`` 个标准差的像素。\\ ``iterations`` 是校准遍数（整数）。返回被禁用的像素数量。"
+
+#: ../../library/omv.csi.rst:623
+msgid ""
+"Sets the color palette to use for things like FLIR Lepton grayscale to "
+"RGB565 conversion or GENX320 event visualization. One of "
+"`image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, and (when supported) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, or "
+"`image.PALETTE_EVT_LIGHT`."
+msgstr ""
+"设置用于诸如 FLIR Lepton 灰度转 RGB565 或 GENX320 事件可视化等用途的颜色调色板。可选 "
+"`image.PALETTE_RAINBOW`\\ 、\\ `image.PALETTE_IRONBOW`\\ ，以及（在支持时）\\ "
+"`image.PALETTE_DEPTH`\\ 、\\ `image.PALETTE_EVT_DARK` 或 "
+"`image.PALETTE_EVT_LIGHT` 之一。"
+
+#: ../../library/omv.csi.rst:632
+msgid "Write ``value`` to the camera register at ``address``."
+msgstr "将 ``value`` 写入摄像头位于 ``address`` 的寄存器。"
+
+#: ../../library/omv.csi.rst:634 ../../library/omv.csi.rst:640
+msgid "See the camera data sheet for register info."
+msgstr "有关寄存器信息，请参阅摄像头数据手册。"
+
+#: ../../library/omv.csi.rst:638
+msgid "Read the camera register at ``address``."
+msgstr "读取摄像头位于 ``address`` 的寄存器。"
+
+#: ../../library/omv.csi.rst:643
+msgid "Functions"
+msgstr "函数"
+
+#: ../../library/omv.csi.rst:647
+msgid "Returns a list of the detected sensor chip IDs."
+msgstr "返回一个检测到的传感器芯片 ID 列表。"
+
+#: ../../library/omv.csi.rst:650
+msgid "Constants"
+msgstr "常量"
+
+#: ../../library/omv.csi.rst:655
+msgid ""
+"BINARY (bitmap) pixel format. Each pixel is 1-bit. Useful for mask storage; "
+"can be used with `image.Image()`."
+msgstr "BINARY（位图）像素格式。每个像素为 1 位。适用于掩码存储；可与 `image.Image()` 一起使用。"
+
+#: ../../library/omv.csi.rst:661
+msgid "GRAYSCALE pixel format (Y from YUV422). Each pixel is 8-bits."
+msgstr "GRAYSCALE 像素格式（取自 YUV422 的 Y）。每个像素为 8 位。"
+
+#: ../../library/omv.csi.rst:666
+msgid ""
+"RGB565 pixel format. Each pixel is 16-bits (5-bits red, 6-bits green, 5-bits"
+" blue)."
+msgstr "RGB565 像素格式。每个像素为 16 位（5 位红、6 位绿、5 位蓝）。"
+
+#: ../../library/omv.csi.rst:671
+msgid "RAW BAYER image pixel format."
+msgstr "RAW BAYER 图像像素格式。"
+
+#: ../../library/omv.csi.rst:676
+msgid ""
+"YUV422 pixel format. Each pixel is stored as a grayscale 8-bit Y value "
+"followed by alternating 8-bit U/V color values shared between two Y values "
+"(Y1, U, Y2, V, ...). Only some image processing methods work with YUV422."
+msgstr ""
+"YUV422 像素格式。每个像素以一个灰度 8 位 Y 值存储，后跟在两个 Y 值之间共享的交替 8 位 U/V 颜色值（Y1, U, Y2, V, "
+"...）。只有部分图像处理方法可用于 YUV422。"
+
+#: ../../library/omv.csi.rst:683
+msgid ""
+"JPEG mode. The camera module outputs compressed JPEG images. Use "
+"`CSI.quality` to control the JPEG quality. Only works for the OV2640/OV5640 "
+"cameras."
+msgstr ""
+"JPEG 模式。摄像头模块输出压缩的 JPEG 图像。使用 `CSI.quality` 控制 JPEG 质量。仅适用于 OV2640/OV5640 "
+"相机。"
+
+#: ../../library/omv.csi.rst:689
+msgid "`CSI.cid` returns this for the OV2640 camera."
+msgstr "`CSI.cid` 对 OV2640 相机返回此值。"
+
+#: ../../library/omv.csi.rst:694
+msgid "`CSI.cid` returns this for the OV5640 camera."
+msgstr "`CSI.cid` 对 OV5640 相机返回此值。"
+
+#: ../../library/omv.csi.rst:699
+msgid "`CSI.cid` returns this for the OV7670 camera."
+msgstr "`CSI.cid` 对 OV7670 相机返回此值。"
+
+#: ../../library/omv.csi.rst:704
+msgid "`CSI.cid` returns this for the OV7690 camera."
+msgstr "`CSI.cid` 对 OV7690 相机返回此值。"
+
+#: ../../library/omv.csi.rst:709
+msgid "`CSI.cid` returns this for the OV7725 camera."
+msgstr "`CSI.cid` 对 OV7725 相机返回此值。"
+
+#: ../../library/omv.csi.rst:714
+msgid "`CSI.cid` returns this for the OV9650 camera."
+msgstr "`CSI.cid` 对 OV9650 相机返回此值。"
+
+#: ../../library/omv.csi.rst:719
+msgid "`CSI.cid` returns this for the MT9V022 camera."
+msgstr "`CSI.cid` 对 MT9V022 相机返回此值。"
+
+#: ../../library/omv.csi.rst:724
+msgid "`CSI.cid` returns this for the MT9V024 camera."
+msgstr "`CSI.cid` 对 MT9V024 相机返回此值。"
+
+#: ../../library/omv.csi.rst:729
+msgid "`CSI.cid` returns this for the MT9V032 camera."
+msgstr "`CSI.cid` 对 MT9V032 相机返回此值。"
+
+#: ../../library/omv.csi.rst:734
+msgid "`CSI.cid` returns this for the MT9V034 camera."
+msgstr "`CSI.cid` 对 MT9V034 相机返回此值。"
+
+#: ../../library/omv.csi.rst:739
+msgid "`CSI.cid` returns this for the MT9M114 camera."
+msgstr "`CSI.cid` 对 MT9M114 相机返回此值。"
+
+#: ../../library/omv.csi.rst:744
+msgid "`CSI.cid` returns this for the BOSON 320x256 camera."
+msgstr "`CSI.cid` 对 BOSON 320x256 相机返回此值。"
+
+#: ../../library/omv.csi.rst:749
+msgid "`CSI.cid` returns this for the BOSON 640x512 camera."
+msgstr "`CSI.cid` 对 BOSON 640x512 相机返回此值。"
+
+#: ../../library/omv.csi.rst:754
+msgid "`CSI.cid` returns this for the LEPTON1/2/3 cameras."
+msgstr "`CSI.cid` 对 LEPTON1/2/3 相机返回此值。"
+
+#: ../../library/omv.csi.rst:759
+msgid "`CSI.cid` returns this for the HM01B0 camera."
+msgstr "`CSI.cid` 对 HM01B0 相机返回此值。"
+
+#: ../../library/omv.csi.rst:764
+msgid "`CSI.cid` returns this for the HM0360 camera."
+msgstr "`CSI.cid` 对 HM0360 相机返回此值。"
+
+#: ../../library/omv.csi.rst:769
+msgid "`CSI.cid` returns this for the GC2145 camera."
+msgstr "`CSI.cid` 对 GC2145 相机返回此值。"
+
+#: ../../library/omv.csi.rst:774
+msgid "`CSI.cid` returns this for the GENX320 (engineering sample) camera."
+msgstr "`CSI.cid` 对 GENX320（工程样品）相机返回此值。"
+
+#: ../../library/omv.csi.rst:779
+msgid "`CSI.cid` returns this for the GENX320 camera."
+msgstr "`CSI.cid` 对 GENX320 相机返回此值。"
+
+#: ../../library/omv.csi.rst:784
+msgid "`CSI.cid` returns this for the PAG7920 camera."
+msgstr "`CSI.cid` 对 PAG7920 相机返回此值。"
+
+#: ../../library/omv.csi.rst:789
+msgid "`CSI.cid` returns this for the PAG7936 camera."
+msgstr "`CSI.cid` 对 PAG7936 相机返回此值。"
+
+#: ../../library/omv.csi.rst:794
+msgid "`CSI.cid` returns this for the PAJ6100 camera."
+msgstr "`CSI.cid` 对 PAJ6100 相机返回此值。"
+
+#: ../../library/omv.csi.rst:799
+msgid "`CSI.cid` returns this for the FROGEYE2020 camera."
+msgstr "`CSI.cid` 对 FROGEYE2020 相机返回此值。"
+
+#: ../../library/omv.csi.rst:804
+msgid "`CSI.cid` returns this for the software CSI camera."
+msgstr "`CSI.cid` 对软件 CSI 相机返回此值。"
+
+#: ../../library/omv.csi.rst:809
+msgid "Normal mode for `CSI.special_effect`."
+msgstr "`CSI.special_effect` 的正常模式。"
+
+#: ../../library/omv.csi.rst:814
+msgid "Negative mode for `CSI.special_effect`."
+msgstr "`CSI.special_effect` 的反相模式。"
+
+#: ../../library/omv.csi.rst:819
+msgid "176x144 resolution for the camera sensor."
+msgstr "摄像头传感器的 176x144 分辨率。"
+
+#: ../../library/omv.csi.rst:824
+msgid "352x288 resolution for the camera sensor."
+msgstr "摄像头传感器的 352x288 分辨率。"
+
+#: ../../library/omv.csi.rst:829
+msgid "176x120 resolution for the camera sensor."
+msgstr "摄像头传感器的 176x120 分辨率。"
+
+#: ../../library/omv.csi.rst:834
+msgid "352x240 resolution for the camera sensor."
+msgstr "摄像头传感器的 352x240 分辨率。"
+
+#: ../../library/omv.csi.rst:839
+msgid "80x60 resolution for the camera sensor."
+msgstr "摄像头传感器的 80x60 分辨率。"
+
+#: ../../library/omv.csi.rst:844
+msgid "160x120 resolution for the camera sensor."
+msgstr "摄像头传感器的 160x120 分辨率。"
+
+#: ../../library/omv.csi.rst:849
+msgid "320x240 resolution for the camera sensor."
+msgstr "摄像头传感器的 320x240 分辨率。"
+
+#: ../../library/omv.csi.rst:854
+msgid "640x480 resolution for the camera sensor."
+msgstr "摄像头传感器的 640x480 分辨率。"
+
+#: ../../library/omv.csi.rst:859
+msgid "240x160 resolution for the camera sensor."
+msgstr "摄像头传感器的 240x160 分辨率。"
+
+#: ../../library/omv.csi.rst:864
+msgid "480x320 resolution for the camera sensor."
+msgstr "摄像头传感器的 480x320 分辨率。"
+
+#: ../../library/omv.csi.rst:869
+msgid "720x480 resolution for the MT9V034 camera sensor."
+msgstr "MT9V034 摄像头传感器的 720x480 分辨率。"
+
+#: ../../library/omv.csi.rst:874
+msgid "752x480 resolution for the MT9V034 camera sensor."
+msgstr "MT9V034 摄像头传感器的 752x480 分辨率。"
+
+#: ../../library/omv.csi.rst:879
+msgid "800x600 resolution for the camera sensor."
+msgstr "摄像头传感器的 800x600 分辨率。"
+
+#: ../../library/omv.csi.rst:884
+msgid "1024x768 resolution for the camera sensor."
+msgstr "摄像头传感器的 1024x768 分辨率。"
+
+#: ../../library/omv.csi.rst:889
+msgid "1280x768 resolution for the MT9M114 camera sensor."
+msgstr "MT9M114 摄像头传感器的 1280x768 分辨率。"
+
+#: ../../library/omv.csi.rst:894
+msgid ""
+"1280x1024 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "摄像头传感器的 1280x1024 分辨率。仅适用于 OV2640/OV5640 相机。"
+
+#: ../../library/omv.csi.rst:899
+msgid "1280x960 resolution for the MT9M114 camera sensor."
+msgstr "MT9M114 摄像头传感器的 1280x960 分辨率。"
+
+#: ../../library/omv.csi.rst:904
+msgid ""
+"1600x1200 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr "摄像头传感器的 1600x1200 分辨率。仅适用于 OV2640/OV5640 相机。"
+
+#: ../../library/omv.csi.rst:909
+msgid "1280x720 resolution for the camera sensor."
+msgstr "摄像头传感器的 1280x720 分辨率。"
+
+#: ../../library/omv.csi.rst:914
+msgid ""
+"1920x1080 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "摄像头传感器的 1920x1080 分辨率。仅适用于 OV5640 相机。"
+
+#: ../../library/omv.csi.rst:919
+msgid ""
+"2560x1440 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "摄像头传感器的 2560x1440 分辨率。仅适用于 OV5640 相机。"
+
+#: ../../library/omv.csi.rst:924
+msgid ""
+"2048x1536 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "摄像头传感器的 2048x1536 分辨率。仅适用于 OV5640 相机。"
+
+#: ../../library/omv.csi.rst:929
+msgid ""
+"2560x1600 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "摄像头传感器的 2560x1600 分辨率。仅适用于 OV5640 相机。"
+
+#: ../../library/omv.csi.rst:934
+msgid ""
+"2592x1944 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr "摄像头传感器的 2592x1944 分辨率。仅适用于 OV5640 相机。"
+
+#: ../../library/omv.csi.rst:939
+msgid "Sets the readout window. See `CSI.ioctl`."
+msgstr "设置读出窗口。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:944
+msgid "Gets the readout window. See `CSI.ioctl`."
+msgstr "获取读出窗口。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:949
+msgid "Sets triggered mode for the MT9V034. See `CSI.ioctl`."
+msgstr "为 MT9V034 设置触发模式。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:954
+msgid "Gets the triggered mode state for the MT9V034. See `CSI.ioctl`."
+msgstr "获取 MT9V034 的触发模式状态。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:959
+msgid ""
+"Enable `CSI.framesize` to optimize for field-of-view over FPS. See "
+"`CSI.ioctl`."
+msgstr "启用 `CSI.framesize` 优先优化视场而非 FPS。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:964
+msgid ""
+"Returns whether `CSI.framesize` is optimizing for field-of-view over FPS. "
+"See `CSI.ioctl`."
+msgstr "返回 `CSI.framesize` 是否正在优先优化视场而非 FPS。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:969
+msgid "Trigger auto focus on the OV5640 FPC camera module. See `CSI.ioctl`."
+msgstr "在 OV5640 FPC 摄像头模块上触发自动对焦。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:974
+msgid ""
+"Pause auto focus (while running) for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "暂停 OV5640 FPC 摄像头模块（运行中）的自动对焦。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:979
+msgid ""
+"Reset auto focus to default for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "将 OV5640 FPC 摄像头模块的自动对焦复位为默认值。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:984
+msgid ""
+"Wait for auto focus to finish on the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr "等待 OV5640 FPC 摄像头模块上的自动对焦完成。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:989
+msgid ""
+"Turn night mode on or off. Reduces frame rate to increase exposure "
+"dynamically. See `CSI.ioctl`."
+msgstr "开启或关闭夜间模式。降低帧率以动态增加曝光。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:994
+msgid "Returns whether night mode is enabled. See `CSI.ioctl`."
+msgstr "返回是否启用了夜间模式。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:999
+msgid ""
+"Returns the FLIR Lepton image resolution width in pixels. See `CSI.ioctl`."
+msgstr "返回 FLIR Lepton 图像分辨率宽度（单位像素）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1004
+msgid ""
+"Returns the FLIR Lepton image resolution height in pixels. See `CSI.ioctl`."
+msgstr "返回 FLIR Lepton 图像分辨率高度（单位像素）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1009
+msgid "Returns the FLIR Lepton type (radiometric or not). See `CSI.ioctl`."
+msgstr "返回 FLIR Lepton 的类型（是否为辐射测量型）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1014
+msgid "Returns the FLIR Lepton refresh rate in Hz. See `CSI.ioctl`."
+msgstr "返回 FLIR Lepton 的刷新率（单位 Hz）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1019
+msgid "Returns the FLIR Lepton ADC resolution in bits. See `CSI.ioctl`."
+msgstr "返回 FLIR Lepton 的 ADC 分辨率（单位位）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1024
+msgid "Executes a 16-bit command from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "执行一条来自 FLIR Lepton SDK 的 16 位命令。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1029
+msgid ""
+"Sets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "设置一个来自 FLIR Lepton SDK 的 FLIR Lepton 属性。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1034
+msgid ""
+"Gets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "获取一个来自 FLIR Lepton SDK 的 FLIR Lepton 属性。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1039
+msgid "Gets the FLIR Lepton FPA temp in Celsius. See `CSI.ioctl`."
+msgstr "获取 FLIR Lepton 的 FPA 温度（单位摄氏度）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1044
+msgid "Gets the FLIR Lepton AUX temp in Celsius. See `CSI.ioctl`."
+msgstr "获取 FLIR Lepton 的 AUX 温度（单位摄氏度）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1049
+msgid ""
+"Sets the FLIR Lepton driver into a mode where each pixel is a temperature "
+"value. See `CSI.ioctl`."
+msgstr "将 FLIR Lepton 驱动设置为每个像素都是温度值的模式。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1055
+msgid ""
+"Returns whether measurement mode is enabled for the FLIR Lepton sensor. See "
+"`CSI.ioctl`."
+msgstr "返回 FLIR Lepton 传感器是否启用了测量模式。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1060
+msgid ""
+"Sets the temperature range mapped to pixel values in measurement mode. See "
+"`CSI.ioctl`."
+msgstr "设置在测量模式下映射到像素值的温度范围。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1065
+msgid ""
+"Returns the temperature range used for measurement mode. See `CSI.ioctl`."
+msgstr "返回用于测量模式的温度范围。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1070
+msgid ""
+"Controls the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "控制 HM01B0 上的运动检测中断。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1075
+msgid "Sets the motion detection window on the HM01B0. See `CSI.ioctl`."
+msgstr "设置 HM01B0 上的运动检测窗口。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1080
+msgid "Sets the motion detection threshold on the HM01B0. See `CSI.ioctl`."
+msgstr "设置 HM01B0 上的运动检测阈值。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1085
+msgid "Clears the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "清除 HM01B0 上的运动检测中断。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1090
+msgid "Controls the internal oscillator on the HM01B0. See `CSI.ioctl`."
+msgstr "控制 HM01B0 上的内部振荡器。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1095
+msgid "Returns the RGB statistics from the camera sensor. See `CSI.ioctl`."
+msgstr "返回来自摄像头传感器的 RGB 统计信息。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1100
+msgid ""
+"Sets the GENX320 sensor biases to one of the ``GENX320_BIASES_*`` presets. "
+"See `CSI.ioctl`. After `CSI.reset` the driver applies "
+"`csi.GENX320_BIASES_LOW_NOISE`, not `csi.GENX320_BIASES_DEFAULT` --- use "
+"this ioctl to switch to a different preset when the application needs more "
+"sensitivity or bandwidth."
+msgstr ""
+"将 GENX320 传感器偏置设置为 ``GENX320_BIASES_*`` 预设之一。参见 `CSI.ioctl`\\ 。在 `CSI.reset`"
+" 之后，驱动会应用 `csi.GENX320_BIASES_LOW_NOISE`\\ ，而非 "
+"`csi.GENX320_BIASES_DEFAULT`\\ ——当应用需要更高的灵敏度或带宽时，可使用此 ioctl 切换到不同的预设。"
+
+#: ../../library/omv.csi.rst:1110
+msgid ""
+"GenX320 datasheet defaults --- balanced sensitivity, noise, and bandwidth "
+"for general scenes."
+msgstr "GenX320 数据手册默认值——为一般场景平衡灵敏度、噪声和带宽。"
+
+#: ../../library/omv.csi.rst:1116
+msgid ""
+"Tuned for low-light conditions --- both contrast thresholds loosened for "
+"higher sensitivity, FO lowered, HPF disabled so slow brightness changes "
+"still register."
+msgstr "针对弱光条件调校——两个对比度阈值均放宽以获得更高灵敏度，降低 FO，禁用 HPF 以便缓慢的亮度变化仍能被记录。"
+
+#: ../../library/omv.csi.rst:1123
+msgid ""
+"Tuned for tracking high-contrast blinking LEDs (active markers) --- contrast"
+" thresholds raised so only sharp transitions trigger, FO and HPF cranked "
+"high to maximize bandwidth and reject slow ambient drift, REFR=0 so every "
+"blink edge is captured."
+msgstr ""
+"针对跟踪高对比度闪烁的 LED（主动标记）调校——提高对比度阈值，使只有剧烈的跳变才会触发，FO 和 HPF "
+"调到很高以最大化带宽并抑制缓慢的环境漂移，REFR=0 以便每个闪烁边沿都被捕获。"
+
+#: ../../library/omv.csi.rst:1131
+msgid ""
+"Driver default --- lower sensitivity than ``DEFAULT`` (raised contrast "
+"thresholds) and a lower FO for less background-noise activity. Best for "
+"static or slow scenes where false events would dominate."
+msgstr ""
+"驱动默认值——灵敏度低于 ``DEFAULT``\\ （提高了对比度阈值）且 FO "
+"更低，以减少背景噪声活动。最适合静态或缓慢场景，在这些场景中虚假事件会占主导。"
+
+#: ../../library/omv.csi.rst:1139
+msgid ""
+"Tuned for fast-motion scenes --- higher FO for wider pixel bandwidth, higher"
+" HPF to reject slow changes, higher REFR for a longer dead time after each "
+"event so the readout doesn't saturate."
+msgstr ""
+"针对快速运动场景调校——更高的 FO 以获得更宽的像素带宽，更高的 HPF 以抑制缓慢变化，更高的 REFR "
+"以在每个事件之后获得更长的死区时间，使读出不会饱和。"
+
+#: ../../library/omv.csi.rst:1147
+msgid ""
+"Sets a single GENX320 sensor bias to a DAC value. Pass a ``GENX320_BIAS_*`` "
+"constant (`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, or `csi.GENX320_BIAS_REFR`) "
+"and an integer DAC value. Each bias is independent --- call this ioctl "
+"repeatedly to tweak only the biases you need after applying a preset. See "
+"`CSI.ioctl`."
+msgstr ""
+"将单个 GENX320 传感器偏置设置为一个 DAC 值。传入一个 ``GENX320_BIAS_*`` 常量（\\ "
+"`csi.GENX320_BIAS_DIFF_OFF`\\ 、\\ `csi.GENX320_BIAS_DIFF_ON`\\ 、\\ "
+"`csi.GENX320_BIAS_FO`\\ 、\\ `csi.GENX320_BIAS_HPF` 或 "
+"`csi.GENX320_BIAS_REFR`\\ ）和一个整数 DAC 值。每个偏置都是独立的——在应用预设后可反复调用此 ioctl "
+"以仅微调你需要的偏置。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1158
+msgid ""
+"Negative comparator contrast threshold --- controls how much a pixel has to "
+"darken before a `csi.PIX_OFF_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr "负比较器对比度阈值——控制一个像素必须变暗多少才会触发 `csi.PIX_OFF_EVENT`\\ 。值越低 = 越灵敏（事件越多）。"
+
+#: ../../library/omv.csi.rst:1165
+msgid ""
+"Positive comparator contrast threshold --- controls how much a pixel has to "
+"brighten before a `csi.PIX_ON_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr "正比较器对比度阈值——控制一个像素必须变亮多少才会触发 `csi.PIX_ON_EVENT`\\ 。值越低 = 越灵敏（事件越多）。"
+
+#: ../../library/omv.csi.rst:1172
+msgid ""
+"Pixel low-pass cut-off frequency --- trades pixel bandwidth (speed/latency) "
+"against background-noise activity. Higher value = faster pixel response, "
+"more noise."
+msgstr "像素低通截止频率——在像素带宽（速度/延迟）与背景噪声活动之间进行权衡。值越高 = 像素响应越快、噪声越多。"
+
+#: ../../library/omv.csi.rst:1179
+msgid ""
+"Pixel high-pass cut-off frequency --- rejects slow brightness changes. "
+"Higher value = slower changes filtered out (only fast transitions register)."
+msgstr "像素高通截止频率——抑制缓慢的亮度变化。值越高 = 过滤掉越缓慢的变化（只有快速跳变才会被记录）。"
+
+#: ../../library/omv.csi.rst:1186
+msgid ""
+"Pixel refractory period --- dead time after a pixel emits an event during "
+"which it cannot fire again. Higher value = longer dead time, fewer events "
+"from a busy pixel."
+msgstr "像素不应期——像素发出一个事件后的死区时间，在此期间它无法再次触发。值越高 = 死区时间越长，繁忙像素产生的事件越少。"
+
+#: ../../library/omv.csi.rst:1193
+msgid ""
+"Sets the GENX320 anti-flicker (AFK) filter, which rejects events from pixels"
+" toggling at a periodic frequency band (fluorescent lighting, LED-driven "
+"displays, etc.). Pass ``enable`` (1 to enable, 0 to disable) and, when "
+"enabling, the band edges in hertz: ``(enable, freq_low_hz, freq_high_hz)``. "
+"See `CSI.ioctl`."
+msgstr ""
+"设置 GENX320 抗闪烁（AFK）滤波器，它会抑制以某个周期性频段切换的像素产生的事件（荧光灯、LED 驱动的显示器等）。传入 "
+"``enable``\\ （1 表示启用，0 表示禁用），并在启用时传入以赫兹为单位的频段边界：\\ ``(enable, freq_low_hz, "
+"freq_high_hz)``\\ 。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1203
+msgid ""
+"Sets the GENX320 spatio-temporal contrast (STC) filter mode. Pass a "
+"``GENX320_STC_*`` constant (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) followed by the threshold(s) the mode requires (in "
+"milliseconds). See `CSI.ioctl`."
+msgstr ""
+"设置 GENX320 时空对比度（STC）滤波器模式。传入一个 ``GENX320_STC_*`` 常量（\\ "
+"`csi.GENX320_STC_DISABLE`\\ 、\\ `csi.GENX320_STC_ONLY`\\ 、\\ "
+"`csi.GENX320_STC_TRAIL_ONLY`\\ 、\\ `csi.GENX320_STC_TRAIL`\\ "
+"），后跟该模式所需的阈值（单位毫秒）。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1213
+msgid "Disable the GENX320 STC/trail filter --- every event passes through."
+msgstr "禁用 GENX320 STC/拖尾滤波器——每个事件都会通过。"
+
+#: ../../library/omv.csi.rst:1219
+msgid ""
+"*Keeps the second event of a burst*; drops the first event and any later "
+"events. Takes one parameter, ``stc_threshold`` in milliseconds --- events "
+"within that window of a prior event on the same pixel are considered part of"
+" the same burst."
+msgstr ""
+"*保留一次突发中的第二个事件*\\ ；丢弃第一个事件以及之后的所有事件。接受一个参数 ``stc_threshold``\\ "
+"（单位毫秒）——在同一像素上位于前一个事件该窗口内的事件被视为同一突发的一部分。"
+
+#: ../../library/omv.csi.rst:1227
+msgid ""
+"*Keeps the first event of a burst*; drops subsequent events on the same "
+"pixel until ``trail_threshold`` has elapsed. Takes one parameter, "
+"``trail_threshold`` in milliseconds."
+msgstr ""
+"*保留一次突发中的第一个事件*\\ ；丢弃同一像素上后续的事件，直到 ``trail_threshold`` 已过去。接受一个参数 "
+"``trail_threshold``\\ （单位毫秒）。"
+
+#: ../../library/omv.csi.rst:1234
+msgid ""
+"*Keeps the first event of a burst plus subsequent edges* --- combines "
+"`csi.GENX320_STC_ONLY` and `csi.GENX320_STC_TRAIL_ONLY`. Takes two "
+"parameters, ``stc_threshold`` and ``trail_threshold`` (both ms); the sensor "
+"requires the two to stay within roughly a 13:1 ratio."
+msgstr ""
+"*保留一次突发中的第一个事件以及后续边沿*\\ ——结合了 `csi.GENX320_STC_ONLY` 和 "
+"`csi.GENX320_STC_TRAIL_ONLY`\\ 。接受两个参数 ``stc_threshold`` 和 "
+"``trail_threshold``\\ （均为毫秒）；传感器要求二者大致保持在 13:1 的比例之内。"
+
+#: ../../library/omv.csi.rst:1243
+msgid ""
+"Sets the GENX320 operating mode. Pass `csi.GENX320_MODE_HISTO` for the on-"
+"chip event histogram (the cam behaves like a regular grayscale camera at the"
+" configured framerate) or `csi.GENX320_MODE_EVENT` followed by the row-axis "
+"length of the event ``ndarray`` (a power of two between 1024 and 65536) for "
+"raw event streaming. See `CSI.ioctl`."
+msgstr ""
+"设置 GENX320 工作模式。传入 `csi.GENX320_MODE_HISTO` "
+"以使用片上事件直方图（此时相机以配置的帧率表现得像一台普通的灰度相机），或传入 `csi.GENX320_MODE_EVENT` 后跟事件 "
+"``ndarray`` 的行轴长度（介于 1024 和 65536 之间的 2 的幂）以进行原始事件流式传输。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1253
+msgid ""
+"Histogram mode --- events are accumulated on-chip into per-pixel bins and "
+"reported as a 320x320 grayscale frame at the configured rate (~20-350 FPS). "
+"The cam looks like a regular camera, so all the standard image-processing "
+"routines work directly."
+msgstr ""
+"直方图模式——事件在片上被累加到逐像素的箱中，并以配置的速率（约 20-350 FPS）以 320x320 "
+"灰度帧的形式报告。相机看起来就像一台普通相机，因此所有标准的图像处理例程都可直接使用。"
+
+#: ../../library/omv.csi.rst:1262
+msgid ""
+"Event mode --- bypasses the on-chip histogram and streams raw events into a "
+"numpy ``ndarray`` with microsecond timestamps, for applications that need "
+"full temporal detail rather than a pre-binned frame."
+msgstr ""
+"事件模式——绕过片上直方图，将带有微秒时间戳的原始事件流式传输到一个 numpy ``ndarray`` "
+"中，适用于需要完整时间细节而非预先分箱的帧的应用。"
+
+#: ../../library/omv.csi.rst:1270
+msgid ""
+"Reads raw events into a uint16 ``ndarray`` of shape ``(EVT_res, 6)`` (with "
+"``EVT_res`` matching the buffer size passed to "
+"`csi.IOCTL_GENX320_SET_MODE`). The columns are ``[0]`` event type "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` seconds timestamp, ``[2]`` milliseconds, ``[3]`` microseconds, "
+"``[4]`` X coord (0-319), ``[5]`` Y coord (0-319). Returns the number of "
+"events written into the buffer, leaving older rows beyond that count "
+"untouched. See `CSI.ioctl`."
+msgstr ""
+"将原始事件读入一个形状为 ``(EVT_res, 6)`` 的 uint16 ``ndarray``\\ （其中 ``EVT_res`` 与传给 "
+"`csi.IOCTL_GENX320_SET_MODE` 的缓冲区大小相匹配）。各列为：\\ ``[0]`` 事件类型（\\ "
+"`csi.PIX_OFF_EVENT`\\ 、\\ `csi.PIX_ON_EVENT`\\ 、\\ "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``\\ 、\\ "
+"`csi.RST_TRIGGER_RISING`/``FALLING``\\ ），\\ ``[1]`` 秒时间戳，\\ ``[2]`` 毫秒，\\ "
+"``[3]`` 微秒，\\ ``[4]`` X 坐标（0-319），\\ ``[5]`` Y "
+"坐标（0-319）。返回写入缓冲区的事件数量，超出该计数的旧行保持不变。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1284
+msgid ""
+"Automatically disables hot pixels --- pixels that fire spuriously even on a "
+"static scene. The driver builds a 320x320 per-pixel hit count, computes the "
+"mean and standard deviation, and disables any pixel whose count exceeds "
+"``mean + sigma * stddev``. Pass an event-count budget (events to tally "
+"before computing statistics --- higher = more reliable estimate, slower; "
+"~10000 is a good default) and a sigma float (lower = more aggressive, ~0.5 "
+"default). Returns the number of pixels disabled. Aim the cam at a static "
+"scene first so motion-driven events don't get counted against pixels that "
+"are actually fine. See `CSI.ioctl`."
+msgstr ""
+"自动禁用热像素——即使在静态场景下也会虚假触发的像素。驱动会构建一个 320x320 的逐像素命中计数，计算其均值和标准差，并禁用任何命中数超过 "
+"``mean + sigma * stddev`` 的像素。传入一个事件计数预算（在计算统计信息之前要统计的事件数——越高 = 估计越可靠、越慢；约 "
+"10000 是一个不错的默认值）和一个 sigma 浮点数（越低 = 越激进，默认约 "
+"0.5）。返回被禁用的像素数量。请先将相机对准一个静态场景，以免运动驱动的事件被计入实际正常的像素。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1299
+msgid ""
+"Returns a raw event-frame `image.Image` from the GENX320, with the events "
+"still in the chip's native packed encoding --- useful if you want to forward"
+" the raw stream to a PC for off-line decoding rather than process it on the "
+"cam. See `CSI.ioctl`."
+msgstr ""
+"从 GENX320 返回一个原始事件帧 `image.Image`\\ ，其中的事件仍处于芯片原生的打包编码中——如果你想把原始流转发到 PC "
+"上离线解码而非在相机上处理，这会很有用。参见 `CSI.ioctl`\\ 。"
+
+#: ../../library/omv.csi.rst:1308
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"decrease (the negative-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320 事件类型（列 ``[0]``\\ ）——某个像素检测到亮度下降（越过了负对比度阈值）。列 ``[4]/[5]`` 携带该像素的 X/Y。"
+
+#: ../../library/omv.csi.rst:1315
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"increase (the positive-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"GENX320 事件类型（列 ``[0]``\\ ）——某个像素检测到亮度上升（越过了正对比度阈值）。列 ``[4]/[5]`` 携带该像素的 X/Y。"
+
+#: ../../library/omv.csi.rst:1322
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, rising edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr "GENX320 事件类型（列 ``[0]``\\ ）——像素复位触发，上升沿。X/Y 未使用。当前固件不生成此事件。"
+
+#: ../../library/omv.csi.rst:1329
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, falling edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr "GENX320 事件类型（列 ``[0]``\\ ）——像素复位触发，下降沿。X/Y 未使用。当前固件不生成此事件。"
+
+#: ../../library/omv.csi.rst:1336
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a rising edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320 事件类型（列 ``[0]``\\ ）——传感器的外部触发引脚检测到上升沿。GENX320 "
+"的外部触发输入连接到相机的帧同步线，该线也被路由到处理器上的 **P10** 以及排针。X/Y 未使用。"
+
+#: ../../library/omv.csi.rst:1345
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a falling edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"GENX320 事件类型（列 ``[0]``\\ ）——传感器的外部触发引脚检测到下降沿。GENX320 "
+"的外部触发输入连接到相机的帧同步线，该线也被路由到处理器上的 **P10** 以及排针。X/Y 未使用。"

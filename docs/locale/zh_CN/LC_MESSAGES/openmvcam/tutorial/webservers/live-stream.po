@@ -1,0 +1,206 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:2
+msgid "Live streaming -- one viewer"
+msgstr "实时流——单个观看者"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:4
+msgid ""
+"Browsers can render multi-part *Motion JPEG* (MJPEG) streams directly inside"
+" an ``<img>`` tag. Hand the browser one HTTP response that never finishes, "
+"write JPEGs separated by a multipart boundary, and the browser displays each"
+" frame as it arrives."
+msgstr ""
+"浏览器可以直接在一个 ``<img>`` 标签内渲染多部分的 *Motion JPEG*\\ （MJPEG）流。只需向浏览器返回一个永不结束的 HTTP"
+" 响应，写入以多部分边界分隔的多张 JPEG，浏览器就会随着每一帧的到达逐一显示出来。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:9
+msgid ""
+"The browser sends GET /stream.jpg; the cam responds with\n"
+"Content-Type multipart/x-mixed-replace and writes one\n"
+"JPEG-bodied part per frame until the browser disconnects."
+msgstr ""
+"浏览器发送 GET /stream.jpg；摄像头以\n"
+"Content-Type multipart/x-mixed-replace 作出响应，并持续\n"
+"写入每帧一个 JPEG 主体的部分，直到浏览器断开连接。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:15
+msgid ""
+"The wire is straightforward: one response header, ``Content-Type: "
+"multipart/x-mixed-replace; boundary=frame``, then a ``--frame`` line, "
+"``Content-Type: image/jpeg``, a blank line, the JPEG bytes, ``\\r\\n``, and "
+"repeat. The browser closes the connection when the ``<img>`` is removed or "
+"the tab is closed."
+msgstr ""
+"线路上的内容很简单：一个响应头 ``Content-Type: multipart/x-mixed-replace; "
+"boundary=frame``\\ ，然后是一行 ``--frame``\\ 、\\ ``Content-Type: image/jpeg``\\ "
+"、一个空行、JPEG 字节、\\ ``\\r\\n``\\ ，如此反复。当 ``<img>`` 被移除或标签页被关闭时，浏览器会关闭连接。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:22
+msgid "Capturing without blocking"
+msgstr "无阻塞地捕获"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:24
+msgid ""
+"The blocking ``csi0.snapshot()`` used so far stalls the whole event loop "
+"until the sensor delivers a frame. That was fine when one request fired one "
+"snapshot and nothing else was running. Once a stream is open the server has "
+"to keep handling other requests while the next frame is being captured -- "
+"the capture call needs to *yield* to the event loop while it's waiting on "
+"the sensor."
+msgstr ""
+"目前为止所用的阻塞式 ``csi0.snapshot()`` "
+"会让整个事件循环停滞，直到传感器交付一帧。当一个请求只触发一次快照、且没有其他东西在运行时，这没有问题。可一旦有一个流处于开启状态，服务器就必须在捕获下一帧的同时继续处理其他请求——这个捕获调用需要在等待传感器期间向事件循环"
+" *让出* 控制权。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:31
+msgid ""
+"The pattern is a thin ``AsyncCSI`` wrapper that polls "
+":meth:`csi.CSI.snapshot` in non-blocking mode and sleeps the coroutine "
+"between polls. The asyncio chapter walked through this pattern in "
+":doc:`/openmvcam/tutorial/asyncio/capstone/snapshot-loop`; inline it into "
+"the script for now:"
+msgstr ""
+"这个模式是一个轻量的 ``AsyncCSI`` 包装器，它以非阻塞模式轮询 :meth:`csi.CSI.snapshot`\\ "
+"，并在两次轮询之间让协程休眠。asyncio 章节在 "
+":doc:`/openmvcam/tutorial/asyncio/capstone/snapshot-loop` "
+"中详细讲解过这个模式；这里暂且把它内联到脚本中："
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:55
+msgid ""
+"Every other CSI method (:meth:`~csi.CSI.reset`, :meth:`~csi.CSI.pixformat`, "
+":meth:`~csi.CSI.framesize`, :meth:`~csi.CSI.gain_db`, ...) is forwarded "
+"through ``__getattr__``; only :meth:`~csi.CSI.snapshot` is replaced with an "
+"awaitable version that lets the event loop schedule other coroutines between"
+" polls."
+msgstr ""
+"其他所有 CSI 方法（\\ :meth:`~csi.CSI.reset`\\ 、\\ :meth:`~csi.CSI.pixformat`\\ 、\\"
+" :meth:`~csi.CSI.framesize`\\ 、\\ :meth:`~csi.CSI.gain_db` 等）都通过 "
+"``__getattr__`` 转发；只有 :meth:`~csi.CSI.snapshot` 被替换成一个可 await "
+"的版本，从而让事件循环能在两次轮询之间调度其他协程。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:61
+msgid ""
+"Swap the bare ``csi.CSI()`` from the snapshot route for an ``AsyncCSI()``:"
+msgstr "把快照路由中裸用的 ``csi.CSI()`` 替换成一个 ``AsyncCSI()``\\ ："
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:72
+msgid "Streaming bodies are class-based iterators"
+msgstr "流式响应体是基于类的迭代器"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:74
+msgid ""
+"A streaming response body is just an object microdot iterates with ``async "
+"for``, sending each yielded chunk down the socket. On CPython this is "
+"normally an *async generator function* -- ``async def`` with ``yield``. "
+"MicroPython doesn't support that:"
+msgstr ""
+"流式响应体只是一个 microdot 用 ``async for`` 迭代的对象，它会把每个产出的数据块写入套接字。在 CPython 上，这通常是一个"
+" *异步生成器函数*\\ ——带 ``yield`` 的 ``async def``\\ 。但 MicroPython 不支持这种写法："
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:81
+msgid ""
+"MicroPython's :mod:`asyncio` does not support async-generator functions "
+"(``async def name(): ... yield ...``). Streaming response bodies must be "
+"**class-based** async iterators with ``__aiter__`` returning ``self`` and "
+"``__anext__`` defined as ``async def``."
+msgstr ""
+"MicroPython 的 :mod:`asyncio` 不支持异步生成器函数（\\ ``async def name(): ... yield "
+"...``\\ ）。流式响应体必须是 **基于类的** 异步迭代器，其 ``__aiter__`` 返回 ``self``\\ ，并将 "
+"``__anext__`` 定义为 ``async def``\\ 。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:87
+msgid ""
+"For an MJPEG stream that means a class whose ``__anext__`` awaits one frame "
+"and returns it framed in the multipart wrapper:"
+msgstr "对于一个 MJPEG 流来说，这意味着需要一个类，其 ``__anext__`` 会 await 一帧，并将其包裹在多部分封装中返回："
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:115
+msgid ""
+"The instance is fresh per request, so each connected client gets its own "
+"iterator. When the browser disconnects, microdot stops awaiting "
+"``__anext__`` and the iterator is garbage-collected."
+msgstr ""
+"每个请求都会创建一个全新的实例，因此每个连接的客户端都拥有自己的迭代器。当浏览器断开连接时，microdot 停止 await "
+"``__anext__``\\ ，该迭代器随即被垃圾回收。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:121
+msgid ""
+"The ``bytes(...)`` wrap around the JPEG is defensive. "
+":meth:`~image.Image.bytearray` returns a view into the camera's image "
+"buffer, and the next :meth:`~csi.CSI.snapshot` call rewrites that buffer in "
+"place. Wrapping in :class:`bytes` copies the JPEG out so the chunk microdot "
+"is mid-write stays stable even if the writer's flush has not finished by the"
+" time ``__anext__`` runs again."
+msgstr ""
+"JPEG 外层的 ``bytes(...)`` 包裹是一种防御性写法。\\ :meth:`~image.Image.bytearray` "
+"返回的是指向摄像头图像缓冲区的一个视图，而下一次 :meth:`~csi.CSI.snapshot` 调用会就地重写该缓冲区。用 "
+":class:`bytes` 包裹会把 JPEG 复制出来，这样即使在 ``__anext__`` 再次运行时写入方的刷新尚未完成，microdot "
+"正在写入的那个数据块也能保持稳定。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:130
+msgid "Running the server inside asyncio"
+msgstr "在 asyncio 中运行服务器"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:132
+msgid ""
+"The earlier ``app.run(host=..., port=...)`` call is blocking. The MJPEG "
+"handler needs to share the loop with the AsyncCSI snapshot polls, so swap "
+"``app.run`` for :meth:`~microdot.Microdot.start_server` inside an "
+":func:`asyncio.run`:"
+msgstr ""
+"前面的 ``app.run(host=..., port=...)`` 调用是阻塞的。MJPEG 处理函数需要与 AsyncCSI "
+"的快照轮询共享事件循环，因此要把 ``app.run`` 替换成置于 :func:`asyncio.run` 中的 "
+":meth:`~microdot.Microdot.start_server`\\ ："
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:144
+msgid ""
+"The :func:`asyncio.run` wrapper lets the server be one task among several --"
+" the ``main`` coroutine is then the natural place to spawn capture, motion "
+"detection, and anything else that has to share the loop with the HTTP "
+"server."
+msgstr ""
+":func:`asyncio.run` 包装让服务器成为多个任务中的一个——这样 ``main`` 协程便自然成了启动捕获、运动检测以及任何其他必须与 "
+"HTTP 服务器共享事件循环的任务的合适位置。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:150
+msgid "One viewer at a time"
+msgstr "一次只能一个观看者"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:152
+msgid ""
+"Every connected client runs its own ``FrameStream`` iterator, which means "
+"every client triggers its own ``csi0.snapshot()`` call. Two browsers means "
+"two sensor reads per frame interval, three means three, and so on. The "
+"sensor can't actually deliver frames faster than its own frame rate, so the "
+"requests queue up behind each other and everyone's stream slows down."
+msgstr ""
+"每个连接的客户端都会运行它自己的 ``FrameStream`` 迭代器，这意味着每个客户端都会触发它自己的 ``csi0.snapshot()`` "
+"调用。两个浏览器就意味着每个帧间隔有两次传感器读取，三个就是三次，以此类推。传感器实际上无法以快于自身帧率的速度交付帧，因此这些请求会相互排队，导致每个人的流都变慢。"
+
+#: ../../openmvcam/tutorial/webservers/live-stream.rst:159
+msgid ""
+"The fix is a single shared capture loop publishing one frame to many "
+"readers."
+msgstr "解决办法是用一个共享的捕获循环，把一帧发布给多个读取方。"

@@ -1,0 +1,206 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:2
+msgid "Uploading triggered frames to the cloud"
+msgstr "将触发的帧上传到云端"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:4
+msgid ""
+"When motion fires the cam now lights up the dashboard. That's enough for "
+"live use, but the owner also wants a permanent archive of every triggered "
+"frame, stored somewhere outside the cam. That's an outbound HTTP call -- the"
+" cam acting as a *client*."
+msgstr ""
+"现在每当检测到运动，摄像头就会点亮仪表盘。这对于实时查看已经足够了，但摄像头的拥有者还希望把每一个触发的帧永久存档，保存在摄像头之外的某个地方。这就需要一次出站的"
+" HTTP 调用——此时摄像头充当的是\\ *客户端*\\ 。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:10
+msgid "The cam as a client"
+msgstr "摄像头作为客户端"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:12
+msgid ""
+"The :mod:`requests` module is the cam's outbound HTTP client. Its surface is"
+" a deliberate copy of CPython's ``requests`` -- the same verb-named module "
+"functions, the same ``files=``, ``json=``, ``headers=``, ``auth=`` keyword "
+"arguments. If you've made HTTP calls from CPython you already know the API:"
+msgstr ""
+":mod:`requests` 模块就是摄像头的出站 HTTP 客户端。它的接口刻意照搬了 CPython 的 ``requests``\\ "
+"——相同的以动词命名的模块函数，相同的 ``files=``\\ 、\\ ``json=``\\ 、\\ ``headers=``\\ 、\\ "
+"``auth=`` 关键字参数。如果你在 CPython 中发起过 HTTP 调用，那你已经熟悉这套 API："
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:44
+msgid ""
+":func:`requests.post` opens a TCP connection, sends the request, and returns"
+" a :class:`~requests.Response` with ``status_code``, ``reason``, "
+"``headers``, ``content``, ``json()``, and the rest of the familiar "
+"properties."
+msgstr ""
+":func:`requests.post` 会打开一个 TCP 连接、发送请求，并返回一个带有 ``status_code``\\ 、\\ "
+"``reason``\\ 、\\ ``headers``\\ 、\\ ``content``\\ 、\\ ``json()`` 等常见属性的 "
+":class:`~requests.Response` 对象。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:49
+#, python-brace-format
+msgid ""
+"``files={...}`` builds a ``multipart/form-data`` body. The value is a "
+"``(filename, file-like)`` tuple; :func:`requests.post` reads the file-like "
+"in chunks so the whole JPEG doesn't have to be re-buffered into a string "
+"first. :class:`io.BytesIO` wraps the already-in-memory JPEG bytes so they "
+"expose a read-as-file interface."
+msgstr ""
+"``files={...}`` 会构建一个 ``multipart/form-data`` 主体。其值是一个 ``(filename, file-"
+"like)`` 元组；\\ :func:`requests.post` 会分块读取这个类文件对象，这样整个 JPEG 就不必先重新缓冲成一个字符串。\\"
+" :class:`io.BytesIO` 把已经在内存中的 JPEG 字节封装起来，使其对外暴露一个类文件的读取接口。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:55
+#, python-brace-format
+msgid ""
+"``headers={...}`` is a straight dict that gets sent as request headers -- "
+"here, a bearer token in the standard ``Authorization`` position. The archive"
+" provider documents what token format they want; the example is the most "
+"common form."
+msgstr ""
+"``headers={...}`` 是一个普通的字典，会作为请求头发送——这里是放在标准 ``Authorization`` 位置的一个 bearer "
+"token。存档服务商会说明他们需要什么样的 token 格式；此处的示例是最常见的形式。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:61
+msgid "Wiring it into the motion detector"
+msgstr "把它接入运动检测器"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:63
+msgid ""
+"The motion-detector coroutine introduced earlier already runs on every new "
+"frame and fires when ``change > state['threshold']``. Add the upload there, "
+"but fire it as a *background* task so the detector doesn't stop watching "
+"while the upload is in flight:"
+msgstr ""
+"前面介绍过的运动检测器协程已经会在每一个新帧上运行，并在 ``change > state['threshold']`` "
+"时触发。把上传操作加进去，但要把它作为一个\\ *后台*\\ 任务来触发，这样在上传进行期间检测器不会停止监视："
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:87
+msgid ""
+":func:`asyncio.create_task` schedules the upload coroutine and returns "
+"immediately. The detector keeps grabbing frames; the upload runs alongside "
+"it; the cam never stalls."
+msgstr ""
+":func:`asyncio.create_task` 会调度上传协程并立即返回。检测器继续抓取帧；上传在旁边同时进行；摄像头永远不会卡住。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:92
+msgid "Failure modes"
+msgstr "失败模式"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:94
+msgid ""
+"Network code fails. The cam might be offline, the archive might be down, the"
+" bearer token might have expired. The categories worth catching:"
+msgstr "网络代码会失败。摄像头可能离线，存档服务可能宕机，bearer token 可能已经过期。值得捕获的几类情况："
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:98
+msgid ""
+":exc:`OSError` -- the TCP connection couldn't be opened or was closed mid-"
+"transfer. DNS failure, no route, connection reset. ``requests`` raises this "
+"exact exception."
+msgstr ""
+":exc:`OSError`\\ ——TCP 连接无法打开，或者在传输途中被关闭。DNS 解析失败、无路由、连接被重置。\\ ``requests`` "
+"抛出的正是这个异常。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:101
+msgid ""
+"``status_code >= 400`` -- the server received the request and rejected it. "
+"401 for an expired token, 403 for a revoked one, 413 for a too-large body, "
+"5xx for the archive being unhealthy."
+msgstr ""
+"``status_code >= 400``\\ ——服务器收到了请求并拒绝了它。401 表示 token 已过期，403 表示 token "
+"已被吊销，413 表示主体过大，5xx 表示存档服务不健康。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:104
+msgid ""
+"Silent timeout -- ``requests`` uses a default socket timeout (a few "
+"seconds); past that it raises :exc:`OSError` with :data:`errno.ETIMEDOUT`."
+msgstr ""
+"静默超时——\\ ``requests`` 使用一个默认的套接字超时（几秒钟）；超过这个时间它会抛出带有 :data:`errno.ETIMEDOUT`"
+" 的 :exc:`OSError`\\ 。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:108
+msgid ""
+"For an archive that genuinely matters, you'd queue rejected frames to "
+"``/sdcard/pending/`` and retry on a slower loop -- that's a few more lines "
+"per case, on top of what's shown."
+msgstr ""
+"对于一个真正重要的存档来说，你会把被拒绝的帧排入 ``/sdcard/pending/`` "
+"队列，并在一个较慢的循环里重试——在上面所示的基础上，每种情况再多写几行代码即可。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:113
+msgid "What :mod:`requests` doesn't do"
+msgstr ":mod:`requests` 不做什么"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:115
+msgid ""
+"The MicroPython port is deliberately small. A few things the CPython "
+"``requests`` does that this one doesn't:"
+msgstr "MicroPython 版本刻意保持小巧。CPython 的 ``requests`` 能做、而这个版本不做的一些事情："
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:118
+msgid "Connection pooling. Every call opens a new TCP connection."
+msgstr "连接池。每次调用都会打开一个新的 TCP 连接。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:119
+msgid "Automatic retries on transient errors. Wrap the call yourself."
+msgstr "对瞬时错误的自动重试。请自己把调用包裹起来。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:120
+msgid ""
+"Streaming responses. ``r.content`` is read into RAM in full; there's no "
+"``stream=True`` equivalent."
+msgstr "流式响应。\\ ``r.content`` 会被完整读入 RAM；没有 ``stream=True`` 这样的等价用法。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:122
+msgid ""
+"Automatic decompression of gzipped responses. Set the ``Accept-Encoding`` "
+"header explicitly only if the server is configured for it."
+msgstr "对 gzip 压缩响应的自动解压。仅当服务器为此进行了配置时，才显式设置 ``Accept-Encoding`` 请求头。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:126
+msgid ""
+"See :doc:`/library/omv.requests` for the full method list and what's in / "
+"out of scope."
+msgstr "完整的方法列表以及哪些功能在范围之内/之外，请参阅 :doc:`/library/omv.requests`\\ 。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:129
+msgid ""
+"HTTPS works out of the box -- the URL scheme drives it, and the default SSL "
+"context is created on the fly. For verifying the archive's cert against a CA"
+" bundle you've loaded onto the cam, see the *as a client* section of "
+":doc:`/openmvcam/tutorial/production/tls/as-client`."
+msgstr ""
+"HTTPS 开箱即用——由 URL 的协议方案驱动，默认的 SSL 上下文会即时创建。若要根据你加载到摄像头上的 CA "
+"证书包来验证存档服务的证书，请参阅 :doc:`/openmvcam/tutorial/production/tls/as-client` 中\\ "
+"*作为客户端*\\ 的部分。"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:134
+msgid ""
+"The app is fully shipped: live preview, motion detection, dashboard with "
+"login, HTTPS, CORS/CSRF, cloud archive."
+msgstr "这个应用已经完整交付：实时预览、运动检测、带登录的仪表盘、HTTPS、CORS/CSRF、云端存档。"

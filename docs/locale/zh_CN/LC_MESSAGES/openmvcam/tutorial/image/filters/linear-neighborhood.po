@@ -1,0 +1,355 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:2
+msgid "Linear and neighbourhood filters"
+msgstr "线性滤波器与邻域滤波器"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:4
+msgid ""
+"The pixel-math operations earlier in the chapter combined two images point "
+"by point. *Filters* do related work in a different way: they compute the "
+"value of every output pixel from a small *neighbourhood* of input pixels "
+"surrounding the corresponding position. The output at ``(x, y)`` is some "
+"statistic -- the average, the median, the most common value -- of the input "
+"pixels in a small box centred on ``(x, y)``."
+msgstr ""
+"本章前面介绍的像素数学运算是逐点地将两幅图像组合在一起。\\ *滤波器（Filters）* "
+"以另一种相关的方式完成类似的工作：它们根据对应位置周围的一小块输入像素 *邻域（neighbourhood）* 来计算每个输出像素的值。\\ ``(x,"
+" y)`` 处的输出是以 ``(x, y)`` 为中心的小方框内输入像素的某种统计量——平均值、中位数或出现最频繁的值。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:14
+msgid ""
+"That little change in framing -- moving from one pixel at a time to a window"
+" of pixels at a time -- is what makes a whole family of useful operations "
+"work. A simple average over a small window smooths sensor noise out. The "
+"median over the same window removes single-pixel speckle without softening "
+"edges as much. A bilateral average refuses to smooth across strong contrast "
+"boundaries, preserving the edges of objects while cleaning up the textures "
+"inside them. The neighbourhood is the unit of work; the choice of statistic "
+"decides what the filter does."
+msgstr ""
+"这个看似细微的视角变化——从一次处理一个像素转变为一次处理一个像素窗口——正是让一整类实用运算得以工作的关键。在小窗口上做简单平均可以平滑掉传感器噪声。在同一窗口上取中位数则可以去除单像素斑点，同时不像平均那样过度柔化边缘。双边平均拒绝在强对比边界两侧进行平滑，从而既清理了物体内部的纹理，又保留了物体的边缘。邻域是处理的基本单元；而统计量的选择则决定了滤波器的功能。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:28
+msgid "The kernel size"
+msgstr "卷积核大小"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:30
+msgid ""
+"Every neighbourhood filter takes a ``size`` parameter that sets the *radius*"
+" of the window in pixels. The window itself is square and covers ``(2 * size"
+" + 1)`` pixels on each side -- so ``size=1`` means a 3-by-3 neighbourhood, "
+"``size=2`` means 5-by-5, ``size=3`` means 7-by-7, and so on."
+msgstr ""
+"每个邻域滤波器都接受一个 ``size`` 参数，用于设定窗口的 *半径*\\ （以像素为单位）。窗口本身是正方形的，每条边覆盖 ``(2 * size"
+" + 1)`` 个像素——因此 ``size=1`` 表示 3×3 的邻域，\\ ``size=2`` 表示 5×5，\\ ``size=3`` 表示 "
+"7×7，依此类推。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:38
+msgid ""
+"A small image grid with a highlighted\n"
+"3-by-3 sub-grid representing the\n"
+"filter's neighbourhood. An arrow shows\n"
+"the neighbourhood sliding one pixel to\n"
+"the right. A second arrow shows it\n"
+"sliding down to the next row at the end\n"
+"of the row. The output pixel for each\n"
+"position is drawn under the\n"
+"neighbourhood, with a small note saying\n"
+"that the output is some statistic of the\n"
+"input neighbourhood."
+msgstr ""
+"一个小型图像网格，其中高亮显示了一个\n"
+"3×3 的子网格，代表滤波器的邻域。一个\n"
+"箭头表示邻域向右滑动一个像素。第二个\n"
+"箭头表示在到达行末时邻域向下滑动到\n"
+"下一行。每个位置的输出像素绘制在邻域\n"
+"下方，并附有一条小注释，说明输出是\n"
+"输入邻域的某种统计量。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:51
+msgid ""
+"The neighbourhood slides across the image one pixel at a time, top-left to "
+"bottom-right. Each output pixel is the result of applying the filter's "
+"statistic to the input neighbourhood centred on it."
+msgstr "邻域以一次一个像素的方式从左上到右下扫过图像。每个输出像素都是将滤波器的统计量应用到以其为中心的输入邻域所得到的结果。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:57
+msgid ""
+"Larger sizes mean larger neighbourhoods, which means smoother (or more "
+"aggressive) filtering. The cost grows with the area of the window, so a "
+"``size=3`` filter does about nine times the work per pixel that a ``size=1``"
+" filter does. The practical default for most cleanup work is ``size=1`` or "
+"``size=2``; reach for larger sizes only when small neighbourhoods are not "
+"enough to suppress the feature the application is trying to suppress."
+msgstr ""
+"更大的 size 意味着更大的邻域，也就意味着更平滑（或更激进）的滤波。计算开销随窗口面积增长，因此 ``size=3`` "
+"的滤波器对每个像素所做的工作量大约是 ``size=1`` 滤波器的九倍。对于大多数清理工作，实际默认值是 ``size=1`` 或 "
+"``size=2``\\ ；只有当小邻域不足以抑制应用试图抑制的特征时，才需要使用更大的 size。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:68
+msgid "The mean filter"
+msgstr "均值滤波器"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:70
+msgid ""
+":meth:`~image.Image.mean` replaces each pixel with the *arithmetic average* "
+"of its neighbourhood. The result smooths pixel-to-pixel variation over the "
+"size of the window, which makes it the cheapest way to suppress sensor-noise"
+" speckle: high-frequency variation averages out, low-frequency content "
+"survives."
+msgstr ""
+":meth:`~image.Image.mean` 用每个像素邻域的 *算术平均值* "
+"来替换该像素。其结果会在窗口大小范围内平滑像素间的变化，这使它成为抑制传感器噪声斑点最廉价的方式：高频变化被平均掉，而低频内容得以保留。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:79
+msgid ""
+"The trade-off is that edges and other sharp features get averaged too. A "
+"bright edge that was one pixel wide before the filter is two or three pixels"
+" wide after a ``size=1`` mean filter, with the brightness ramped down at the"
+" shoulders. For pure noise reduction on a texture-poor image (a clean wall, "
+"the inside of a coloured marker) the trade is fine. For a busy scene where "
+"edges matter, one of the following filters is usually a better fit."
+msgstr ""
+"代价是边缘和其他锐利特征也会被平均化。在滤波前宽度为一个像素的明亮边缘，经过 ``size=1`` "
+"的均值滤波后会变成两到三个像素宽，并且亮度在两侧逐渐衰减。对于纹理稀少的图像（一面干净的墙、彩色标记物的内部）的纯噪声抑制而言，这种代价是可以接受的。但对于边缘很重要的繁忙场景，下面介绍的某种滤波器通常更合适。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:96
+msgid "Median, mode, midpoint"
+msgstr "中位数、众数、中点"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:98
+msgid ""
+"The other three statistical neighbourhood filters trade the simple "
+"arithmetic average for something more robust against outliers."
+msgstr "另外三种统计邻域滤波器用对离群值更稳健的方式取代了简单的算术平均。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:102
+msgid ""
+":meth:`~image.Image.median` returns the *median* of the neighbourhood -- the"
+" value that ends up in the middle of the sorted list of window pixels. A "
+"single very bright or very dark pixel in the window does not pull the "
+"median; it just becomes one of the discarded extremes. The practical effect "
+"is that median filtering removes single-pixel speckle and salt-and-pepper "
+"noise without softening edges the way ``mean`` does. The cost is more "
+"computation per pixel -- sorting a window is slower than averaging it -- and"
+" the result is not strictly an average, which sometimes matters for "
+"downstream maths."
+msgstr ""
+":meth:`~image.Image.median` 返回邻域的 *中位数*\\ "
+"——即窗口像素排序列表中正中间的那个值。窗口中某个极亮或极暗的像素不会拉动中位数；它只会成为被丢弃的两端极值之一。其实际效果是，中位数滤波能去除单像素斑点和椒盐噪声，而不会像"
+" ``mean`` 那样柔化边缘。代价是每个像素的计算量更大——对窗口排序比求平均要慢——并且结果严格来说并不是平均值，这在下游数学运算中有时会有影响。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:117
+msgid ""
+"A ``percentile`` parameter (default ``0.5``) moves the chosen value off the "
+"strict median. ``percentile=0.0`` returns the minimum of the neighbourhood, "
+"``percentile=1.0`` the maximum; intermediate values pick proportionally "
+"between them in the sorted window. That gives ``median`` the ability to "
+"emphasise dark or bright parts of the neighbourhood without losing the "
+"outlier-robustness of the order statistic."
+msgstr ""
+"``percentile`` 参数（默认 ``0.5``\\ ）可以将所选值从严格的中位数偏移开。\\ ``percentile=0.0`` "
+"返回邻域的最小值，\\ ``percentile=1.0`` 返回最大值；中间的值则在排序窗口中按比例选取二者之间的值。这赋予了 ``median`` "
+"在不失去顺序统计量离群稳健性的前提下，强调邻域中较暗或较亮部分的能力。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:128
+msgid ""
+":meth:`~image.Image.mode` returns the *most common* value in the "
+"neighbourhood. Useful when the noise model is \"most pixels are right, a few"
+" have been corrupted to varying degrees,\" where the right answer is "
+"whichever value appears most often -- which the median can miss when the "
+"corrupted values pile up on one side of the sorted window."
+msgstr ""
+":meth:`~image.Image.mode` 返回邻域中 *出现最频繁* "
+"的值。当噪声模型是“大多数像素是正确的，少数像素被不同程度地破坏”时，它很有用，此时正确答案就是出现次数最多的那个值——当被破坏的值堆积在排序窗口的一侧时，中位数可能会错过这个值。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:137
+msgid ""
+":meth:`~image.Image.midpoint` returns a weighted *combination of the minimum"
+" and the maximum* of the neighbourhood -- ``bias=0.5`` gives the midpoint "
+"between them, ``bias=0.0`` gives the minimum, ``bias=1.0`` gives the "
+"maximum. Less commonly used than the others but worth knowing about when the"
+" goal is specifically to extract dark or bright features."
+msgstr ""
+":meth:`~image.Image.midpoint` 返回邻域 *最小值与最大值的加权组合*\\ ——\\ ``bias=0.5`` "
+"给出二者之间的中点，\\ ``bias=0.0`` 给出最小值，\\ ``bias=1.0`` "
+"给出最大值。它不如其他几种常用，但当目标特别是要提取较暗或较亮的特征时，值得了解。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:148
+msgid "Bilateral, the edge-preserving version"
+msgstr "双边滤波器：保边版本"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:150
+msgid ""
+":meth:`~image.Image.bilateral` is the neighbourhood filter most worth "
+"understanding well. It produces the smoothing effect of "
+":meth:`~image.Image.mean`, but with an extra constraint: the more a "
+"neighbourhood pixel *differs* from the centre pixel, the less it counts in "
+"the average. The result smooths the inside of every uniform region without "
+"bleeding across the edges that separate them, which is exactly what most "
+"applications actually want."
+msgstr ""
+":meth:`~image.Image.bilateral` 是最值得深入理解的邻域滤波器。它能产生与 "
+":meth:`~image.Image.mean` 相同的平滑效果，但带有一个额外约束：邻域像素与中心像素 *差异* "
+"越大，它在平均中所占的权重就越小。其结果是平滑每个均匀区域的内部，而不会跨越分隔它们的边缘渗透，这正是大多数应用真正想要的效果。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:161
+msgid "Two parameters control how aggressively the filter discounts pixels:"
+msgstr "有两个参数控制滤波器对像素的折算力度："
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:164
+msgid ""
+"``color_sigma`` decides how *colour difference* affects the weighting. "
+"Smaller values mean the filter is stricter about discounting pixels that "
+"differ from the centre."
+msgstr "``color_sigma`` 决定 *颜色差异* 如何影响权重。值越小，滤波器对折算与中心像素不同的像素就越严格。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:169
+msgid ""
+"``space_sigma`` decides how *spatial distance* affects the weighting. "
+"Smaller values give more weight to pixels close to the centre."
+msgstr "``space_sigma`` 决定 *空间距离* 如何影响权重。值越小，越靠近中心的像素权重越大。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:173
+msgid ""
+"The defaults (``color_sigma=0.1``, ``space_sigma=1.0``) are reasonable "
+"starting points; tuning them is usually a matter of running the filter on a "
+"sample frame and adjusting until edges are crisp and interiors are clean."
+msgstr ""
+"默认值（\\ ``color_sigma=0.1``\\ 、\\ ``space_sigma=1.0``\\ "
+"）是合理的起点；调优它们通常就是在一帧样本图像上运行滤波器，然后不断调整，直到边缘清晰且内部干净。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:180
+msgid ""
+"Bilateral is more expensive than :meth:`~image.Image.median` and "
+"significantly more expensive than :meth:`~image.Image.mean`, so it is worth "
+"reaching for *only* when the edge-preserving behaviour is the thing the "
+"application needs."
+msgstr ""
+"双边滤波比 :meth:`~image.Image.median` 开销更大，比 :meth:`~image.Image.mean` 开销大得多，因此 "
+"*只有* 当保边行为正是应用所需要时，才值得使用它。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:188
+msgid "Adaptive thresholding"
+msgstr "自适应阈值化"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:190
+msgid ""
+"The mean, median, mode, and midpoint filters all carry the same pair of "
+"keyword arguments that turn their output into a binary threshold:"
+msgstr "均值、中位数、众数和中点滤波器都带有同一对关键字参数，可以将它们的输出变成二值阈值："
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:194
+msgid "``threshold=True`` switches the filter into thresholding mode."
+msgstr "``threshold=True`` 将滤波器切换到阈值化模式。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:196
+msgid ""
+"``offset=N`` shifts the local cutoff by ``N`` units before the comparison."
+msgstr "``offset=N`` 在比较之前将局部阈值偏移 ``N`` 个单位。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:199
+msgid ""
+"The mechanic builds directly on the filter's ordinary behaviour. Without "
+"``threshold=True``, the filter computes its statistic over the neighbourhood"
+" and writes that statistic into the output pixel. With ``threshold=True``, "
+"the filter computes the same statistic, then compares the *source* pixel at "
+"the same position against the statistic plus the offset, and writes the "
+"format's maximum value if the source is greater, zero otherwise."
+msgstr ""
+"其工作机制直接建立在滤波器的常规行为之上。不带 ``threshold=True`` 时，滤波器在邻域上计算其统计量，并将该统计量写入输出像素。带 "
+"``threshold=True`` 时，滤波器计算相同的统计量，然后将同一位置的 *源* "
+"像素与该统计量加上偏移量进行比较，如果源像素更大则写入该格式的最大值，否则写入零。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:210
+msgid ""
+"The result is a binary image whose cutoff *moves with the local brightness* "
+"across the frame. Bright regions get a high cutoff, dim regions get a low "
+"cutoff, and a foreground pixel that is locally brighter than its neighbours "
+"matches whether it sits in a bright region or a dim one -- which is exactly "
+"the behaviour a single global threshold could not produce on an unevenly-lit"
+" image."
+msgstr ""
+"其结果是一幅二值图像，其阈值会随整帧的 *局部亮度* "
+"而移动。明亮区域获得较高的阈值，昏暗区域获得较低的阈值，而一个在局部上比其邻居更亮的前景像素，无论它位于明亮区域还是昏暗区域都能匹配——这正是单一全局阈值在光照不均的图像上无法产生的行为。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:224
+msgid ""
+"The ``offset`` parameter is where the application controls how *strict* the "
+"test is. A small positive offset demands that the source pixel be measurably"
+" brighter than its neighbours before counting as a match, which suppresses "
+"sensor-noise false positives at the cost of dropping faint foreground. A "
+"small negative offset catches faint foreground at the cost of letting some "
+"noise through. The choice depends on what the rest of the pipeline is going "
+"to do with the binary output."
+msgstr ""
+"``offset`` 参数是应用控制测试 *严格程度* "
+"的地方。一个小的正偏移要求源像素明显比其邻居更亮才算作匹配，这以丢失微弱前景为代价抑制了传感器噪声的误报。一个小的负偏移则以放过部分噪声为代价捕获微弱前景。如何选择取决于流水线的其余部分将如何处理二值输出。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:236
+msgid ""
+"Three image panels in a row. The first\n"
+"is an input grayscale frame with a\n"
+"brightness gradient and foreground\n"
+"marks scattered across at uniform\n"
+"darkness. The second panel shows a\n"
+"global threshold applied to it: the\n"
+"foreground is correctly classified on\n"
+"the bright side, but the entire dark\n"
+"side reads as foreground because page\n"
+"and foreground both fall below the\n"
+"cutoff. The third panel shows an\n"
+"adaptive threshold applied to the same\n"
+"input: the foreground is correctly\n"
+"classified across the whole frame."
+msgstr ""
+"一行三个图像面板。第一个是带有亮度\n"
+"渐变的输入灰度帧，前景标记以均匀的\n"
+"暗度散布其上。第二个面板展示对其应用\n"
+"全局阈值的结果：明亮一侧的前景被正确\n"
+"分类，但整个昏暗一侧都被读作前景，\n"
+"因为背景和前景都落在阈值之下。第三个\n"
+"面板展示对同一输入应用自适应阈值的\n"
+"结果：整帧范围内的前景都被正确分类。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:252
+msgid ""
+"Under uneven illumination, a single global threshold cannot describe the "
+"foreground at every position. A neighbourhood filter run with "
+"``threshold=True`` produces a cutoff that moves with the local brightness "
+"and classifies the foreground correctly across the whole frame."
+msgstr ""
+"在光照不均的情况下，单一全局阈值无法描述每个位置上的前景。以 ``threshold=True`` "
+"运行的邻域滤波器会产生一个随局部亮度移动的阈值，从而在整帧范围内正确地对前景进行分类。"
+
+#: ../../openmvcam/tutorial/image/filters/linear-neighborhood.rst:260
+msgid ""
+"The filter family runs the adaptive threshold, so picking the *right* filter"
+" matters: :meth:`~image.Image.mean` for the cheapest adaptive threshold, "
+":meth:`~image.Image.median` when the input has salt-and-pepper noise the "
+"filter should reject before computing the local cutoff."
+msgstr ""
+"整个滤波器家族都能运行自适应阈值，因此选择 *正确的* 滤波器很重要：用 :meth:`~image.Image.mean` "
+"实现开销最低的自适应阈值，当输入存在椒盐噪声、且希望滤波器在计算局部阈值前先剔除它时则用 :meth:`~image.Image.median`\\ 。"

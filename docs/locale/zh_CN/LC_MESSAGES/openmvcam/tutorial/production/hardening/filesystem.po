@@ -1,0 +1,257 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:2
+msgid "Filesystem hygiene"
+msgstr "文件系统卫生"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:4
+msgid ""
+"Flash and SD storage on a shipped cam fill up with files no operator is "
+"going to clean out by hand. Two decisions about that storage stay with the "
+"product for its lifetime: *which surface holds which kind of data*, and *how"
+" the directories are structured so file operations keep working as the "
+"application accumulates records*."
+msgstr ""
+"出厂摄像头上的闪存和 SD 存储会被无人手动清理的文件逐渐填满。关于这部分存储的两个决策会伴随产品的整个生命周期：\\ *哪个存储介质保存哪类数据*\\"
+" ，以及\\ *目录如何组织，才能在应用持续累积记录时让文件操作始终保持正常工作*\\ 。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:12
+msgid "Where things go"
+msgstr "数据该放在哪里"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:14
+msgid ""
+"Code and assets ride in the frozen modules and ROMFS the build commits at "
+"ship time. Application *state* -- anything the application writes at "
+"runtime, anything that grows, anything that changes between boots -- has to "
+"live somewhere else. The cam exposes two writable surfaces for it:"
+msgstr ""
+"代码和资源随构建时提交的冻结模块（frozen modules）和 ROMFS 一起出厂。应用\\ *状态*\\ "
+"——任何应用在运行时写入的内容、任何会增长的内容、任何在两次启动之间发生变化的内容——必须存放在别的地方。摄像头为此暴露了两个可写介质："
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:20
+msgid ""
+"**Internal flash** at ``/flash``: a small writable filesystem mounted before"
+" any application code runs. The right place for *small fixed-size records "
+"that survive reboots*: configuration the application updates at runtime, "
+"last-known calibration, a rolling counter, a one-line marker file saying "
+"\"this cam was provisioned.\" Limited write cycles -- modern internal flash "
+"tolerates thousands to tens of thousands of writes per sector, not millions,"
+" so writes need to be infrequent, not per frame."
+msgstr ""
+"**内部闪存**\\ ，位于 ``/flash``\\ ：一个在任何应用代码运行之前就已挂载的小型可写文件系统。它适合存放\\ "
+"*能在重启后保留的、固定大小的小型记录*\\ "
+"：应用在运行时更新的配置、最近一次的标定结果、滚动计数器，或者一个写着“此摄像头已完成配置”的单行标记文件。写入次数有限——现代内部闪存每个扇区可承受数千到数万次写入，而非数百万次，因此写入操作必须保持低频，而不是每帧都写。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:30
+msgid ""
+"**SD card** at ``/sdcard``: a larger writable filesystem mounted when a card"
+" is present. The right place for *bulky variable files*: image and video "
+"captures, log files, model fine-tuning data, anything that might grow to "
+"megabytes or gigabytes. Higher write capacity than internal flash but still "
+"finite; removable, replaceable, and the surface most likely to disappear "
+"when the application is mid-write."
+msgstr ""
+"**SD 卡**\\ ，位于 ``/sdcard``\\ ：一个在插入存储卡时挂载的较大可写文件系统。它适合存放\\ *体积较大的可变文件*\\ "
+"：图像和视频采集数据、日志文件、模型微调数据，以及任何可能增长到数兆字节或数吉字节的内容。它的写入容量高于内部闪存，但仍然有限；它可移除、可更换，并且是最有可能在应用写入过程中突然消失的介质。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:38
+msgid ""
+"The right answer for *where to write something* is almost always \"flash for"
+" small fixed records, SD for everything else.\" The two are not "
+"interchangeable: an application that scribbles its rolling log file to "
+"``/flash`` will burn through the flash's write endurance in a deployment "
+"that would have been fine on SD."
+msgstr ""
+"对于\\ *某个内容该写到哪里*\\ 这个问题，正确答案几乎总是“小型固定记录写入闪存，其他一切写入 SD”。两者并不可互换：把滚动日志文件乱写到 "
+"``/flash`` 的应用，会在一个本可由 SD 轻松胜任的部署场景中耗尽闪存的写入寿命。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:46
+msgid "Treat both as can-fail"
+msgstr "把两者都当作可能失败来对待"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:48
+msgid ""
+"``/flash`` and ``/sdcard`` can both fail. The SD card can be ejected, the "
+"flash can be corrupted by a power loss mid-write, either can run out of "
+"space, and any operation on either can raise :exc:`OSError` for reasons the "
+"application will not get a chance to diagnose in the field."
+msgstr ""
+"``/flash`` 和 ``/sdcard`` 都可能失败。SD "
+"卡可能被弹出，闪存可能因写入过程中断电而损坏，两者都可能耗尽空间，并且对两者中任意一个执行的任意操作都可能因某些原因抛出 "
+":exc:`OSError`\\ ——而应用在现场根本没有机会去诊断这些原因。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:54
+msgid "Two patterns make the application survive that:"
+msgstr "有两种模式能让应用挺过这种情况："
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:56
+msgid ""
+"**Wrap mounts and operations in try blocks.** Every :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` against user-data paths is potentially"
+" failing. Catch :exc:`OSError`, log it, and fall back to a defined "
+"alternative -- write to ``/flash`` if ``/sdcard`` is gone, skip the "
+"operation if neither is available."
+msgstr ""
+"**用 try 块包裹挂载和操作。** 针对用户数据路径的每一个 :func:`open`\\ 、\\ :func:`os.listdir`\\ 、\\"
+" :func:`os.rename` 都有可能失败。捕获 :exc:`OSError`\\ ，记录它，并回退到一个预先定义好的备选方案——如果 "
+"``/sdcard`` 不在了就写入 ``/flash``\\ ，如果两者都不可用就跳过该操作。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:63
+msgid ""
+"**Atomic writes for files that must survive a power loss.** Write to a "
+"temporary path, close the handle, then :func:`os.rename` over the live name."
+" Either the rename succeeded and the file is the new version, or it did not "
+"and the file is the old version. There is no third state where the file is "
+"half-written::"
+msgstr ""
+"**对必须挺过断电的文件采用原子写入。** 先写入一个临时路径，关闭句柄，然后用 :func:`os.rename` "
+"覆盖正式文件名。要么重命名成功、文件成为新版本，要么重命名失败、文件仍是旧版本。不存在文件写到一半的第三种状态::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:79
+msgid ""
+"The pattern works on both flash and SD. It does *not* work for files large "
+"enough that the tmp file uses up the filesystem's free space; reserve it for"
+" small records."
+msgstr "这种模式在闪存和 SD 上都适用。但它\\ *不*\\ 适用于大到临时文件会耗尽文件系统空闲空间的文件；请将它保留给小型记录使用。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:84
+msgid "The slow-directory trap"
+msgstr "慢目录陷阱"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:86
+msgid ""
+"The MicroPython VFS does not index directory contents the way a desktop "
+"filesystem does. :func:`os.listdir` and :func:`os.stat` walk the underlying "
+"file table linearly. A directory with a hundred files is fine; a directory "
+"with ten thousand files is unusably slow, with every :func:`os.listdir` "
+"taking seconds and every :func:`open` checking against the table on its way "
+"through."
+msgstr ""
+"MicroPython 的 VFS 不会像桌面文件系统那样为目录内容建立索引。\\ :func:`os.listdir` 和 "
+":func:`os.stat` 会线性遍历底层的文件表。一个有一百个文件的目录没有问题；而一个有一万个文件的目录会慢到无法使用，每次 "
+":func:`os.listdir` 都要耗费数秒，每次 :func:`open` 在执行过程中都要去比对那张文件表。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:94
+msgid ""
+"Applications that write logs or captures to disk hit this fastest. A naive "
+"``/sdcard/logs/<timestamp>.log`` scheme that opens one new file per minute "
+"fills the ``logs/`` directory with half a million files in a year of "
+"deployment. Long before then the application starts missing its frame rate "
+"because every file open is taking longer than a frame interval."
+msgstr ""
+"把日志或采集数据写入磁盘的应用最快撞上这个问题。一个简单的 ``/sdcard/logs/<timestamp>.log`` "
+"方案如果每分钟打开一个新文件，会在部署运行一年后把 ``logs/`` "
+"目录填上五十万个文件。早在那之前，应用就会开始跟不上自己的帧率，因为每次打开文件所花的时间已经超过了一个帧间隔。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:102
+msgid ""
+"The right pattern is to split files across a tree of dated subdirectories so"
+" no single directory ever holds more than a few hundred entries::"
+msgstr "正确的模式是把文件分散到一棵按日期组织的子目录树中，使任何单个目录都不会持有超过几百个条目::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:130
+msgid ""
+"A year of one-file-per-hour logging is now spread across 365 day-"
+"directories, each containing at most 24 files; :func:`os.listdir` against "
+"any one directory stays cheap, and the application's frame loop does not "
+"stall on file operations as the deployment ages."
+msgstr ""
+"这样一来，一年中每小时一个文件的日志现在分散在 365 个按天划分的目录里，每个目录最多包含 24 个文件；针对任意一个目录的 "
+":func:`os.listdir` 始终保持低开销，并且随着部署时间增长，应用的帧循环也不会因文件操作而停滞。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:136
+msgid ""
+"The same principle applies to image captures, sensor traces, or anything "
+"else the application writes a file per event for. If the event rate is high,"
+" the tree wants to be deeper (year/month/day/hour, or "
+"year/month/day/hour/minute) so each leaf directory stays small. If the event"
+" rate is low, a year/month tree is enough."
+msgstr ""
+"同样的原则也适用于图像采集、传感器轨迹数据，或者任何其他由应用按事件逐个写文件的内容。如果事件发生率高，这棵树就需要更深（年/月/日/时，或年/月/日/时/分），从而让每个叶子目录都保持很小。如果事件发生率低，一棵年/月树就足够了。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:144
+msgid "Per-device paths"
+msgstr "按设备区分的路径"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:146
+msgid ""
+"In a fleet of more than one cam, log files need to identify which physical "
+"unit they came from. :func:`machine.unique_id` returns a hardware identifier"
+" baked into the cam at the factory; it is the same value across reboots, "
+"across firmware updates, and across SD card swaps. Embed it in the log path "
+"or in the log records and an operator looking at a pile of SD cards or a "
+"centralised log can tell which one is which::"
+msgstr ""
+"在由多台摄像头组成的机群中，日志文件需要标识出它们来自哪一台物理设备。\\ :func:`machine.unique_id` "
+"返回一个在出厂时就烧录到摄像头中的硬件标识符；它在多次重启之间、多次固件更新之间、多次更换 SD "
+"卡之间都保持相同的值。把它嵌入日志路径或日志记录中，这样面对一堆 SD 卡或一份集中式日志的操作员就能分辨出哪一份对应哪一台设备::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:161
+msgid ""
+"Combined with the dated-subdirectory pattern, the layout becomes "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- one unit's hour of records, "
+"in a directory shallow enough to walk, on a path that names the unit on the "
+"file system itself."
+msgstr ""
+"结合按日期划分子目录的模式，整体布局就变成了 ``/sdcard/logs/<unit-id>/2026/06/09/14.log``\\ "
+"——某一台设备某一小时的记录，存放在一个浅到足以遍历的目录中，且其路径本身就在文件系统上标明了所属设备。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:168
+msgid "Pulling it together"
+msgstr "把它们整合起来"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:170
+msgid "A shipped cam's writable storage looks roughly like this:"
+msgstr "一台出厂摄像头的可写存储大致是这样的："
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:172
+msgid ""
+"``/flash`` -- configuration, calibration, a provisioning marker. Written "
+"rarely, read often. Atomic-rename pattern for any file whose loss would "
+"break the next boot."
+msgstr "``/flash`` —— 配置、标定、配置标记文件。很少写入，经常读取。对于任何丢失后会导致下次启动失败的文件，采用原子重命名模式。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:176
+msgid ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- the "
+"operational log. Written continuously, rotated by the path, never written "
+"through a directory with thousands of siblings."
+msgstr ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` —— "
+"运行日志。持续写入，按路径进行轮转，绝不会写入一个拥有数千个同级条目的目录中。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:181
+msgid ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- image or video "
+"captures the application makes. Same tree shape, same reason."
+msgstr ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` —— "
+"应用进行的图像或视频采集。相同的树形结构，相同的理由。"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:185
+msgid ""
+"That layout costs the application about twenty lines of code and saves it "
+"from the failure modes that take the cam down months into a deployment."
+msgstr "这套布局只让应用多花大约二十行代码，却能让它免于那些在部署数月之后才把摄像头拖垮的故障模式。"

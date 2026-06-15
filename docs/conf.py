@@ -340,9 +340,18 @@ gettext_compact = False
 #
 # The zh_CN / zh_TW entries below go live once those builds are deployed.
 html_context["languages"] = [
-    ("English", "/%s.html", "en"),
-    ("简体中文", "/zh_CN/%s.html", "zh-Hans"),
-    ("繁體中文", "/zh_TW/%s.html", "zh-Hant"),
+    ("English",   "/%s.html",       "en"),
+    ("简体中文",   "/zh_CN/%s.html", "zh-Hans"),
+    ("繁體中文",   "/zh_TW/%s.html", "zh-Hant"),
+    ("Deutsch",   "/de/%s.html",    "de"),
+    ("日本語",     "/ja/%s.html",    "ja"),
+    ("Español",   "/es/%s.html",    "es"),
+    ("Русский",   "/ru/%s.html",    "ru"),
+    ("Français",  "/fr/%s.html",    "fr"),
+    ("한국어",     "/ko/%s.html",    "ko"),
+    ("Italiano",  "/it/%s.html",    "it"),
+    ("Português", "/pt_BR/%s.html", "pt-BR"),
+    ("Nederlands","/nl/%s.html",    "nl"),
 ]
 
 # There are two options for replacing |today|: either, you set today to some
@@ -520,6 +529,13 @@ html_static_path = ["static"]
 # Add a custom CSS file for HTML generation
 html_css_files = [
     "custom.css",
+]
+# Client-side locale auto-selection: redirect first-time visitors to the
+# build matching their browser language (English at root is the fallback),
+# while honouring an explicit choice from the "Translations" switcher. Loaded
+# in <head> so the swap happens before paint. See static/lang-redirect.js.
+html_js_files = [
+    "lang-redirect.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

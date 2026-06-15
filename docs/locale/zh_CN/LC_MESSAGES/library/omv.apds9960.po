@@ -1,0 +1,793 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.apds9960.rst:2
+msgid ":mod:`apds9960` --- Proximity, Gesture, and Color Sensor Driver"
+msgstr ":mod:`apds9960` --- 接近、手势和颜色传感器驱动"
+
+#: ../../library/omv.apds9960.rst:7
+msgid ""
+"This module provides a driver for the Broadcom/Avago APDS9960 digital "
+"proximity, ambient-light, RGB color, and gesture sensor over I2C. The driver"
+" exposes per-feature enable/disable controls, raw channel reads (clear, R, "
+"G, B, proximity), and a software gesture-decoding state machine that "
+"classifies swipe up/down/left/right and near/far gestures from the on-chip "
+"4-photodiode FIFO."
+msgstr ""
+"本模块通过 I2C 为 Broadcom/Avago APDS9960 数字接近、环境光、RGB "
+"颜色和手势传感器提供了驱动。该驱动暴露了逐功能的启用/禁用控制、原始通道读取（clear、R、G、B、接近），以及一个软件手势解码状态机，可从片上的 4"
+" 光电二极管 FIFO 中识别上/下/左/右滑动以及靠近/远离手势。"
+
+#: ../../library/omv.apds9960.rst:14
+msgid "Example usage::"
+msgstr "用法示例::"
+
+#: ../../library/omv.apds9960.rst:36
+msgid "Classes"
+msgstr "类"
+
+#: ../../library/omv.apds9960.rst:40
+msgid "Construct an APDS9960 driver instance."
+msgstr "构造一个 APDS9960 驱动实例。"
+
+#: ../../library/omv.apds9960.rst:42
+msgid ""
+"``bus`` is a configured I2C bus object used to communicate with the sensor. "
+"The base class issues SMBus-style ``read_byte_data``, ``write_byte_data``, "
+"and ``read_i2c_block_data`` calls; for MicroPython's ``machine.I2C`` use "
+":class:`uAPDS9960` instead."
+msgstr ""
+"``bus`` 是一个用于与传感器通信的已配置 I2C 总线对象。基类发出 SMBus 风格的 ``read_byte_data``\\ 、\\ "
+"``write_byte_data`` 和 ``read_i2c_block_data`` 调用；对于 MicroPython 的 "
+"``machine.I2C``\\ ，请改用 :class:`uAPDS9960`\\ 。"
+
+#: ../../library/omv.apds9960.rst:46
+msgid ""
+"``address`` is the 7-bit I2C address of the device. Defaults to "
+":data:`APDS9960_I2C_ADDR` (``0x39``)."
+msgstr ""
+"``address`` 是设备的 7 位 I2C 地址。默认为 :data:`APDS9960_I2C_ADDR`\\ （\\ ``0x39``\\ "
+"）。"
+
+#: ../../library/omv.apds9960.rst:48
+msgid ""
+"``valid_id`` is a list of acceptable values returned by the chip's ID "
+"register. Defaults to :data:`APDS9960_DEV_ID`."
+msgstr "``valid_id`` 是芯片 ID 寄存器所返回的可接受值列表。默认为 :data:`APDS9960_DEV_ID`\\ 。"
+
+#: ../../library/omv.apds9960.rst:51
+msgid ""
+"The constructor reads the device ID and raises :exc:`ADPS9960InvalidDevId` "
+"if it is not in ``valid_id``. It then disables every feature, programs the "
+"default ATIME/WTIME/PPULSE values, and applies the default LED drive, "
+"proximity gain, ALS gain, proximity thresholds, ambient-light thresholds, "
+"persistence, and gesture-engine configuration (entry/exit thresholds, "
+"GCONF1, gesture gain, gesture LED drive, gesture wait time, gesture offsets,"
+" GPULSE, GCONF3, and gesture interrupt enable)."
+msgstr ""
+"构造函数读取设备 ID，如果它不在 ``valid_id`` 中则引发 :exc:`ADPS9960InvalidDevId`\\ "
+"。随后它会禁用每个功能，写入默认的 ATIME/WTIME/PPULSE 值，并应用默认的 LED 驱动、接近增益、ALS "
+"增益、接近阈值、环境光阈值、持续性以及手势引擎配置（进入/退出阈值、GCONF1、手势增益、手势 LED "
+"驱动、手势等待时间、手势偏移、GPULSE、GCONF3 以及手势中断使能）。"
+
+#: ../../library/omv.apds9960.rst:60
+msgid "Mode and power control"
+msgstr "模式与电源控制"
+
+#: ../../library/omv.apds9960.rst:64
+msgid ""
+"Return the raw value of the ENABLE register, encoding which features are "
+"currently enabled (power, ALS, proximity, wait, ALS interrupt, proximity "
+"interrupt, gesture)."
+msgstr "返回 ENABLE 寄存器的原始值，其编码了当前启用的功能（电源、ALS、接近、等待、ALS 中断、接近中断、手势）。"
+
+#: ../../library/omv.apds9960.rst:70
+msgid ""
+"Enable or disable an individual feature in the ENABLE register. ``mode`` "
+"must be one of the ``APDS9960_MODE_*`` values (:data:`APDS9960_MODE_POWER` "
+"..\\\\ :data:`APDS9960_MODE_ALL`). When ``mode`` is "
+":data:`APDS9960_MODE_ALL`, all bits are turned on or off at once. Raises "
+":exc:`ADPS9960InvalidMode` for out-of-range values."
+msgstr ""
+"在 ENABLE 寄存器中启用或禁用某个单独的功能。\\ ``mode`` 必须是 ``APDS9960_MODE_*`` 值之一（\\ "
+":data:`APDS9960_MODE_POWER` ..\\\\ :data:`APDS9960_MODE_ALL`\\ ）。当 ``mode`` "
+"为 :data:`APDS9960_MODE_ALL` 时，所有位会被一次性开启或关闭。对于超出范围的值会引发 "
+":exc:`ADPS9960InvalidMode`\\ 。"
+
+#: ../../library/omv.apds9960.rst:78
+msgid "Power the APDS9960 on (sets the PON bit in ENABLE)."
+msgstr "为 APDS9960 上电（设置 ENABLE 中的 PON 位）。"
+
+#: ../../library/omv.apds9960.rst:82
+msgid "Power the APDS9960 off (clears the PON bit in ENABLE)."
+msgstr "为 APDS9960 断电（清除 ENABLE 中的 PON 位）。"
+
+#: ../../library/omv.apds9960.rst:85
+msgid "Ambient light / RGB sensor"
+msgstr "环境光 / RGB 传感器"
+
+#: ../../library/omv.apds9960.rst:89
+msgid ""
+"Restore the default ALS gain, configure the ALS interrupt enable bit, power "
+"the device on, and enable the ambient-light/color engine."
+msgstr "恢复默认的 ALS 增益，配置 ALS 中断使能位，为设备上电，并启用环境光/颜色引擎。"
+
+#: ../../library/omv.apds9960.rst:94
+msgid "Disable the ALS interrupt and stop the ambient-light/color engine."
+msgstr "禁用 ALS 中断并停止环境光/颜色引擎。"
+
+#: ../../library/omv.apds9960.rst:98
+msgid "Read the clear-channel ambient-light level as a 16-bit unsigned value."
+msgstr "以 16 位无符号值读取 clear 通道的环境光强度。"
+
+#: ../../library/omv.apds9960.rst:102
+msgid "Read the red-channel level as a 16-bit unsigned value."
+msgstr "以 16 位无符号值读取红色通道的强度。"
+
+#: ../../library/omv.apds9960.rst:106
+msgid "Read the green-channel level as a 16-bit unsigned value."
+msgstr "以 16 位无符号值读取绿色通道的强度。"
+
+#: ../../library/omv.apds9960.rst:110
+msgid "Read the blue-channel level as a 16-bit unsigned value."
+msgstr "以 16 位无符号值读取蓝色通道的强度。"
+
+#: ../../library/omv.apds9960.rst:113
+msgid "Proximity sensor"
+msgstr "接近传感器"
+
+#: ../../library/omv.apds9960.rst:117
+msgid ""
+"Restore the default proximity gain and LED drive, configure the proximity "
+"interrupt enable bit, power the device on, and enable the proximity engine."
+msgstr "恢复默认的接近增益和 LED 驱动，配置接近中断使能位，为设备上电，并启用接近引擎。"
+
+#: ../../library/omv.apds9960.rst:123
+msgid "Disable the proximity interrupt and stop the proximity engine."
+msgstr "禁用接近中断并停止接近引擎。"
+
+#: ../../library/omv.apds9960.rst:127
+msgid "Read the proximity level as an 8-bit unsigned value."
+msgstr "以 8 位无符号值读取接近强度。"
+
+#: ../../library/omv.apds9960.rst:130
+msgid "Gesture engine"
+msgstr "手势引擎"
+
+#: ../../library/omv.apds9960.rst:134
+msgid ""
+"Reset the gesture state, set WTIME and the gesture pulse count, boost the "
+"LED to 300%, configure the gesture interrupt enable bit, enter the gesture "
+"state machine, power the device on, and enable wait, proximity, and gesture "
+"modes."
+msgstr ""
+"重置手势状态，设置 WTIME 和手势脉冲计数，将 LED 提升至 "
+"300%，配置手势中断使能位，进入手势状态机，为设备上电，并启用等待、接近和手势模式。"
+
+#: ../../library/omv.apds9960.rst:141
+msgid ""
+"Reset the gesture state, disable the gesture interrupt and state machine, "
+"and stop the gesture engine."
+msgstr "重置手势状态，禁用手势中断和状态机，并停止手势引擎。"
+
+#: ../../library/omv.apds9960.rst:146
+msgid ""
+"Return ``True`` if the GVALID bit of the gesture status register is set, "
+"indicating that gesture FIFO data is ready to be read."
+msgstr "如果手势状态寄存器的 GVALID 位被置位，则返回 ``True``\\ ，表示手势 FIFO 数据已就绪可供读取。"
+
+#: ../../library/omv.apds9960.rst:151
+msgid ""
+"Drain the gesture FIFO, run the on-board gesture decoder, and return one of "
+"the ``APDS9960_DIR_*`` direction constants. Returns "
+":data:`APDS9960_DIR_NONE` if the engine is not running, no valid data is "
+"available, or the data did not resolve to a recognized gesture."
+msgstr ""
+"排空手势 FIFO，运行板载手势解码器，并返回 ``APDS9960_DIR_*`` "
+"方向常量之一。如果引擎未运行、无可用的有效数据，或数据未解析为可识别的手势，则返回 :data:`APDS9960_DIR_NONE`\\ 。"
+
+#: ../../library/omv.apds9960.rst:158
+msgid ""
+"Clear the internal gesture FIFO buffer, deltas, counts, near/far counters, "
+"state, and last-decoded motion."
+msgstr "清除内部手势 FIFO 缓冲区、增量、计数、靠近/远离计数器、状态以及上次解码的运动。"
+
+#: ../../library/omv.apds9960.rst:163
+msgid ""
+"Process the raw U/D/L/R FIFO samples currently buffered to update the U/D "
+"and L/R deltas and the near/far counters. Returns ``True`` if a near or far "
+"event was detected, ``False`` otherwise."
+msgstr ""
+"处理当前缓冲的原始 U/D/L/R FIFO 样本，以更新 U/D 和 L/R 增量以及靠近/远离计数器。如果检测到靠近或远离事件则返回 "
+"``True``\\ ，否则返回 ``False``\\ 。"
+
+#: ../../library/omv.apds9960.rst:169
+msgid ""
+"Convert the current U/D and L/R counts and accumulated deltas into a "
+"direction stored in the internal ``gesture_motion_`` field. Returns ``True``"
+" when a direction is recognized, ``False`` otherwise."
+msgstr ""
+"将当前的 U/D 和 L/R 计数以及累积的增量转换为一个方向，存储在内部的 ``gesture_motion_`` 字段中。当识别出方向时返回 "
+"``True``\\ ，否则返回 ``False``\\ 。"
+
+#: ../../library/omv.apds9960.rst:174
+msgid "Proximity thresholds"
+msgstr "接近阈值"
+
+#: ../../library/omv.apds9960.rst:178
+msgid "Return the low proximity-interrupt threshold (PILT register)."
+msgstr "返回低接近中断阈值（PILT 寄存器）。"
+
+#: ../../library/omv.apds9960.rst:182
+msgid "Set the low proximity-interrupt threshold."
+msgstr "设置低接近中断阈值。"
+
+#: ../../library/omv.apds9960.rst:186
+msgid "Return the high proximity-interrupt threshold (PIHT register)."
+msgstr "返回高接近中断阈值（PIHT 寄存器）。"
+
+#: ../../library/omv.apds9960.rst:190
+msgid "Set the high proximity-interrupt threshold."
+msgstr "设置高接近中断阈值。"
+
+#: ../../library/omv.apds9960.rst:194
+msgid "Alias for :meth:`getProxIntLowThresh`."
+msgstr ":meth:`getProxIntLowThresh` 的别名。"
+
+#: ../../library/omv.apds9960.rst:198
+msgid "Alias for :meth:`setProxIntLowThresh`."
+msgstr ":meth:`setProxIntLowThresh` 的别名。"
+
+#: ../../library/omv.apds9960.rst:202
+msgid "Alias for :meth:`getProxIntHighThresh`."
+msgstr ":meth:`getProxIntHighThresh` 的别名。"
+
+#: ../../library/omv.apds9960.rst:206
+msgid "Alias for :meth:`setProxIntHighThresh`."
+msgstr ":meth:`setProxIntHighThresh` 的别名。"
+
+#: ../../library/omv.apds9960.rst:209
+msgid "LED drive, gain, and boost"
+msgstr "LED 驱动、增益与提升"
+
+#: ../../library/omv.apds9960.rst:213
+msgid ""
+"Return the LED drive strength used for proximity and ALS. Encoded as one of "
+"the ``APDS9960_LED_DRIVE_*`` values (0 = 100 mA, 1 = 50 mA, 2 = 25 mA, 3 = "
+"12.5 mA)."
+msgstr ""
+"返回用于接近和 ALS 的 LED 驱动强度。编码为 ``APDS9960_LED_DRIVE_*`` 值之一（0 = 100 mA，1 = 50 "
+"mA，2 = 25 mA，3 = 12.5 mA）。"
+
+#: ../../library/omv.apds9960.rst:219
+msgid ""
+"Set the LED drive strength used for proximity and ALS. ``drive`` is one of "
+"the ``APDS9960_LED_DRIVE_*`` values."
+msgstr "设置用于接近和 ALS 的 LED 驱动强度。\\ ``drive`` 是 ``APDS9960_LED_DRIVE_*`` 值之一。"
+
+#: ../../library/omv.apds9960.rst:224
+msgid ""
+"Return the proximity-receiver gain. Encoded as one of the "
+"``APDS9960_PGAIN_*`` values (0 = 1x, 1 = 2x, 2 = 4x, 3 = 8x)."
+msgstr "返回接近接收器增益。编码为 ``APDS9960_PGAIN_*`` 值之一（0 = 1x，1 = 2x，2 = 4x，3 = 8x）。"
+
+#: ../../library/omv.apds9960.rst:229
+msgid ""
+"Set the proximity-receiver gain. ``drive`` is one of the "
+"``APDS9960_PGAIN_*`` values."
+msgstr "设置接近接收器增益。\\ ``drive`` 是 ``APDS9960_PGAIN_*`` 值之一。"
+
+#: ../../library/omv.apds9960.rst:234
+msgid ""
+"Return the ambient-light-sensor gain. Encoded as one of the "
+"``APDS9960_AGAIN_*`` values (0 = 1x, 1 = 4x, 2 = 16x, 3 = 64x)."
+msgstr ""
+"返回环境光传感器增益。编码为 ``APDS9960_AGAIN_*`` 值之一（0 = 1x，1 = 4x，2 = 16x，3 = 64x）。"
+
+#: ../../library/omv.apds9960.rst:239
+msgid ""
+"Set the ambient-light-sensor gain. ``drive`` is one of the "
+"``APDS9960_AGAIN_*`` values."
+msgstr "设置环境光传感器增益。\\ ``drive`` 是 ``APDS9960_AGAIN_*`` 值之一。"
+
+#: ../../library/omv.apds9960.rst:244
+msgid ""
+"Return the LED current boost. Encoded as one of the ``APDS9960_LED_BOOST_*``"
+" values (0 = 100%, 1 = 150%, 2 = 200%, 3 = 300%)."
+msgstr ""
+"返回 LED 电流提升。编码为 ``APDS9960_LED_BOOST_*`` 值之一（0 = 100%，1 = 150%，2 = 200%，3 = "
+"300%）。"
+
+#: ../../library/omv.apds9960.rst:250
+msgid ""
+"Set the LED current boost. ``boost`` is one of the ``APDS9960_LED_BOOST_*`` "
+"values."
+msgstr "设置 LED 电流提升。\\ ``boost`` 是 ``APDS9960_LED_BOOST_*`` 值之一。"
+
+#: ../../library/omv.apds9960.rst:254
+msgid "Proximity gain compensation and photodiode mask"
+msgstr "接近增益补偿与光电二极管掩码"
+
+#: ../../library/omv.apds9960.rst:258
+msgid "Return ``True`` if proximity gain compensation is enabled."
+msgstr "如果接近增益补偿已启用，则返回 ``True``\\ 。"
+
+#: ../../library/omv.apds9960.rst:262
+msgid "Enable or disable proximity gain compensation."
+msgstr "启用或禁用接近增益补偿。"
+
+#: ../../library/omv.apds9960.rst:266
+msgid ""
+"Return the 4-bit mask of disabled proximity photodiodes. Bits map as "
+"``3=UP``, ``2=DOWN``, ``1=LEFT``, ``0=RIGHT``; ``1`` disables a photodiode "
+"and ``0`` enables it."
+msgstr ""
+"返回被禁用接近光电二极管的 4 位掩码。各位映射为 ``3=UP``\\ 、\\ ``2=DOWN``\\ 、\\ ``1=LEFT``\\ 、\\ "
+"``0=RIGHT``\\ ；\\ ``1`` 禁用某个光电二极管，\\ ``0`` 则启用它。"
+
+#: ../../library/omv.apds9960.rst:272
+msgid ""
+"Set the 4-bit mask of disabled proximity photodiodes (see encoding above)."
+msgstr "设置被禁用接近光电二极管的 4 位掩码（参见上面的编码）。"
+
+#: ../../library/omv.apds9960.rst:276
+msgid "Gesture configuration"
+msgstr "手势配置"
+
+#: ../../library/omv.apds9960.rst:280
+msgid "Return the proximity threshold required to enter gesture mode."
+msgstr "返回进入手势模式所需的接近阈值。"
+
+#: ../../library/omv.apds9960.rst:284
+msgid "Set the proximity threshold required to enter gesture mode."
+msgstr "设置进入手势模式所需的接近阈值。"
+
+#: ../../library/omv.apds9960.rst:288
+msgid "Return the proximity threshold required to exit gesture mode."
+msgstr "返回退出手势模式所需的接近阈值。"
+
+#: ../../library/omv.apds9960.rst:292
+msgid "Set the proximity threshold required to exit gesture mode."
+msgstr "设置退出手势模式所需的接近阈值。"
+
+#: ../../library/omv.apds9960.rst:296
+msgid ""
+"Return the photodiode gain used during gesture mode. Encoded as one of the "
+"``APDS9960_GGAIN_*`` values (0 = 1x, 1 = 2x, 2 = 4x, 3 = 8x)."
+msgstr ""
+"返回手势模式期间使用的光电二极管增益。编码为 ``APDS9960_GGAIN_*`` 值之一（0 = 1x，1 = 2x，2 = 4x，3 = "
+"8x）。"
+
+#: ../../library/omv.apds9960.rst:301
+msgid "Set the photodiode gain used during gesture mode."
+msgstr "设置手势模式期间使用的光电二极管增益。"
+
+#: ../../library/omv.apds9960.rst:305
+msgid ""
+"Return the LED drive current used during gesture mode. Encoded as one of the"
+" ``APDS9960_LED_DRIVE_*`` values."
+msgstr "返回手势模式期间使用的 LED 驱动电流。编码为 ``APDS9960_LED_DRIVE_*`` 值之一。"
+
+#: ../../library/omv.apds9960.rst:310
+msgid "Set the LED drive current used during gesture mode."
+msgstr "设置手势模式期间使用的 LED 驱动电流。"
+
+#: ../../library/omv.apds9960.rst:314
+msgid ""
+"Return the low-power wait time between gesture detections. Encoded as one of"
+" the ``APDS9960_GWTIME_*`` values (0 = 0 ms .. 7 = 39.2 ms)."
+msgstr ""
+"返回手势检测之间的低功耗等待时间。编码为 ``APDS9960_GWTIME_*`` 值之一（0 = 0 ms .. 7 = 39.2 ms）。"
+
+#: ../../library/omv.apds9960.rst:319
+msgid "Set the low-power wait time between gesture detections."
+msgstr "设置手势检测之间的低功耗等待时间。"
+
+#: ../../library/omv.apds9960.rst:323
+msgid "Return ``True`` if the gesture state machine is currently running."
+msgstr "如果手势状态机当前正在运行，则返回 ``True``\\ 。"
+
+#: ../../library/omv.apds9960.rst:327
+msgid "Enter or leave the gesture state machine."
+msgstr "进入或离开手势状态机。"
+
+#: ../../library/omv.apds9960.rst:330
+msgid "Ambient-light interrupt thresholds"
+msgstr "环境光中断阈值"
+
+#: ../../library/omv.apds9960.rst:334
+msgid "Return the 16-bit low threshold used for the ambient-light interrupt."
+msgstr "返回用于环境光中断的 16 位低阈值。"
+
+#: ../../library/omv.apds9960.rst:338
+msgid "Set the 16-bit low threshold used for the ambient-light interrupt."
+msgstr "设置用于环境光中断的 16 位低阈值。"
+
+#: ../../library/omv.apds9960.rst:342
+msgid "Return the 16-bit high threshold used for the ambient-light interrupt."
+msgstr "返回用于环境光中断的 16 位高阈值。"
+
+#: ../../library/omv.apds9960.rst:346
+msgid "Set the 16-bit high threshold used for the ambient-light interrupt."
+msgstr "设置用于环境光中断的 16 位高阈值。"
+
+#: ../../library/omv.apds9960.rst:349
+msgid "Interrupt enables and clears"
+msgstr "中断使能与清除"
+
+#: ../../library/omv.apds9960.rst:353
+msgid "Return ``True`` if ambient-light interrupts are enabled."
+msgstr "如果环境光中断已启用，则返回 ``True``\\ 。"
+
+#: ../../library/omv.apds9960.rst:357
+msgid "Enable or disable ambient-light interrupts."
+msgstr "启用或禁用环境光中断。"
+
+#: ../../library/omv.apds9960.rst:361
+msgid "Return ``True`` if proximity interrupts are enabled."
+msgstr "如果接近中断已启用，则返回 ``True``\\ 。"
+
+#: ../../library/omv.apds9960.rst:365
+msgid "Enable or disable proximity interrupts."
+msgstr "启用或禁用接近中断。"
+
+#: ../../library/omv.apds9960.rst:369
+msgid "Return ``True`` if gesture interrupts are enabled."
+msgstr "如果手势中断已启用，则返回 ``True``\\ 。"
+
+#: ../../library/omv.apds9960.rst:373
+msgid "Enable or disable gesture interrupts."
+msgstr "启用或禁用手势中断。"
+
+#: ../../library/omv.apds9960.rst:377
+msgid "Clear a pending ambient-light interrupt."
+msgstr "清除一个待处理的环境光中断。"
+
+#: ../../library/omv.apds9960.rst:381
+msgid "Clear a pending proximity interrupt."
+msgstr "清除一个待处理的接近中断。"
+
+#: ../../library/omv.apds9960.rst:385
+msgid ""
+"MicroPython subclass of :class:`APDS9960`. Identical public API, but the "
+"underlying register access uses ``machine.I2C``-style ``readfrom_mem`` and "
+"``writeto_mem`` calls rather than SMBus-style methods. This is the class to "
+"use on OpenMV / MicroPython targets."
+msgstr ""
+":class:`APDS9960` 的 MicroPython 子类。公共 API 完全相同，但底层寄存器访问使用 ``machine.I2C`` "
+"风格的 ``readfrom_mem`` 和 ``writeto_mem`` 调用，而非 SMBus 风格的方法。这是在 OpenMV / "
+"MicroPython 目标上应使用的类。"
+
+#: ../../library/omv.apds9960.rst:391
+msgid "Exceptions"
+msgstr "异常"
+
+#: ../../library/omv.apds9960.rst:395
+msgid ""
+"Subclass of :exc:`ValueError`. Raised by the :class:`APDS9960` constructor "
+"when the value read from the chip's ID register is not present in the "
+"``valid_id`` list."
+msgstr ""
+":exc:`ValueError` 的子类。当从芯片 ID 寄存器读取的值不在 ``valid_id`` 列表中时，由 "
+":class:`APDS9960` 构造函数引发。"
+
+#: ../../library/omv.apds9960.rst:401
+msgid ""
+"Subclass of :exc:`ValueError`. Raised by :meth:`APDS9960.setMode` when the "
+"``mode`` argument is outside the range :data:`APDS9960_MODE_POWER`..\\\\ "
+":data:`APDS9960_MODE_ALL`."
+msgstr ""
+":exc:`ValueError` 的子类。当 ``mode`` 参数超出 :data:`APDS9960_MODE_POWER`..\\\\ "
+":data:`APDS9960_MODE_ALL` 范围时，由 :meth:`APDS9960.setMode` 引发。"
+
+#: ../../library/omv.apds9960.rst:406
+msgid "Constants"
+msgstr "常量"
+
+#: ../../library/omv.apds9960.rst:409
+msgid "I2C address and device IDs"
+msgstr "I2C 地址与设备 ID"
+
+#: ../../library/omv.apds9960.rst:414
+msgid "Default 7-bit I2C address of the APDS9960 (``0x39``)."
+msgstr "APDS9960 的默认 7 位 I2C 地址（\\ ``0x39``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:419
+msgid ""
+"Default list of valid device-ID register values (``[0xAB, 0x9C, 0xA8, "
+"-0x55]``)."
+msgstr "有效设备 ID 寄存器值的默认列表（\\ ``[0xAB, 0x9C, 0xA8, -0x55]``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:423
+msgid "Gesture tuning"
+msgstr "手势调优"
+
+#: ../../library/omv.apds9960.rst:428
+msgid ""
+"Minimum sample magnitude (per photodiode) used by the gesture decoder when "
+"searching for the first/last in-range FIFO samples."
+msgstr "手势解码器在搜索首个/末个在量程内的 FIFO 样本时使用的最小样本幅度（每个光电二极管）。"
+
+#: ../../library/omv.apds9960.rst:434
+msgid ""
+"Threshold on the accumulated U/D and L/R deltas above which the decoder "
+"commits to a swipe direction."
+msgstr "累积 U/D 和 L/R 增量的阈值，超过该值解码器即确定为某个滑动方向。"
+
+#: ../../library/omv.apds9960.rst:440
+msgid ""
+"Threshold on the per-step U/D and L/R deltas under which the decoder "
+"considers a sample to be a near/far candidate rather than a swipe."
+msgstr "逐步 U/D 和 L/R 增量的阈值，低于该值解码器会将样本视为靠近/远离候选而非滑动。"
+
+#: ../../library/omv.apds9960.rst:446
+msgid "Milliseconds the gesture loop sleeps between FIFO drains."
+msgstr "手势循环在两次 FIFO 排空之间休眠的毫秒数。"
+
+#: ../../library/omv.apds9960.rst:449
+msgid "Feature modes"
+msgstr "功能模式"
+
+#: ../../library/omv.apds9960.rst:451
+msgid "These values are passed to :meth:`APDS9960.setMode`."
+msgstr "这些值会传递给 :meth:`APDS9960.setMode`\\ 。"
+
+#: ../../library/omv.apds9960.rst:456
+msgid "Power-on bit (``0``)."
+msgstr "上电位（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:461
+msgid "Ambient-light/color engine enable bit (``1``)."
+msgstr "环境光/颜色引擎使能位（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:466
+msgid "Proximity engine enable bit (``2``)."
+msgstr "接近引擎使能位（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:471
+msgid "Wait-state enable bit (``3``)."
+msgstr "等待状态使能位（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:476
+msgid "Ambient-light interrupt enable bit (``4``)."
+msgstr "环境光中断使能位（\\ ``4``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:481
+msgid "Proximity interrupt enable bit (``5``)."
+msgstr "接近中断使能位（\\ ``5``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:486
+msgid "Gesture engine enable bit (``6``)."
+msgstr "手势引擎使能位（\\ ``6``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:491
+msgid ""
+"Sentinel value (``7``) telling :meth:`APDS9960.setMode` to enable or disable"
+" every bit in the ENABLE register at once."
+msgstr "哨兵值（\\ ``7``\\ ），告知 :meth:`APDS9960.setMode` 一次性启用或禁用 ENABLE 寄存器中的每一位。"
+
+#: ../../library/omv.apds9960.rst:495
+msgid "LED drive currents"
+msgstr "LED 驱动电流"
+
+#: ../../library/omv.apds9960.rst:500
+msgid "100 mA LED drive (``0``)."
+msgstr "100 mA LED 驱动（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:505
+msgid "50 mA LED drive (``1``)."
+msgstr "50 mA LED 驱动（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:510
+msgid "25 mA LED drive (``2``)."
+msgstr "25 mA LED 驱动（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:515
+msgid "12.5 mA LED drive (``3``)."
+msgstr "12.5 mA LED 驱动（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:518
+msgid "Proximity gain (PGAIN)"
+msgstr "接近增益（PGAIN）"
+
+#: ../../library/omv.apds9960.rst:523
+msgid "1x proximity gain (``0``)."
+msgstr "1x 接近增益（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:528
+msgid "2x proximity gain (``1``)."
+msgstr "2x 接近增益（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:533
+msgid "4x proximity gain (``2``). Default applied by the constructor."
+msgstr "4x 接近增益（\\ ``2``\\ ）。由构造函数应用的默认值。"
+
+#: ../../library/omv.apds9960.rst:538
+msgid "8x proximity gain (``3``)."
+msgstr "8x 接近增益（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:541
+msgid "Ambient-light gain (AGAIN)"
+msgstr "环境光增益（AGAIN）"
+
+#: ../../library/omv.apds9960.rst:546
+msgid "1x ALS gain (``0``)."
+msgstr "1x ALS 增益（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:551
+msgid "4x ALS gain (``1``). Default applied by the constructor."
+msgstr "4x ALS 增益（\\ ``1``\\ ）。由构造函数应用的默认值。"
+
+#: ../../library/omv.apds9960.rst:556
+msgid "16x ALS gain (``2``)."
+msgstr "16x ALS 增益（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:561
+msgid "64x ALS gain (``3``)."
+msgstr "64x ALS 增益（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:564
+msgid "Gesture gain (GGAIN)"
+msgstr "手势增益（GGAIN）"
+
+#: ../../library/omv.apds9960.rst:569
+msgid "1x gesture gain (``0``)."
+msgstr "1x 手势增益（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:574
+msgid "2x gesture gain (``1``)."
+msgstr "2x 手势增益（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:579
+msgid "4x gesture gain (``2``). Default applied by the constructor."
+msgstr "4x 手势增益（\\ ``2``\\ ）。由构造函数应用的默认值。"
+
+#: ../../library/omv.apds9960.rst:584
+msgid "8x gesture gain (``3``)."
+msgstr "8x 手势增益（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:587
+msgid "LED boost"
+msgstr "LED 提升"
+
+#: ../../library/omv.apds9960.rst:592
+#, python-format
+msgid "100% LED boost (``0``)."
+msgstr "100% LED 提升（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:597
+#, python-format
+msgid "150% LED boost (``1``)."
+msgstr "150% LED 提升（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:602
+#, python-format
+msgid "200% LED boost (``2``)."
+msgstr "200% LED 提升（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:607
+#, python-format
+msgid ""
+"300% LED boost (``3``). Applied automatically by "
+":meth:`APDS9960.enableGestureSensor`."
+msgstr "300% LED 提升（\\ ``3``\\ ）。由 :meth:`APDS9960.enableGestureSensor` 自动应用。"
+
+#: ../../library/omv.apds9960.rst:611
+msgid "Gesture wait times"
+msgstr "手势等待时间"
+
+#: ../../library/omv.apds9960.rst:616
+msgid "0 ms (``0``)."
+msgstr "0 ms（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:621
+msgid "2.8 ms (``1``). Default applied by the constructor."
+msgstr "2.8 ms（\\ ``1``\\ ）。由构造函数应用的默认值。"
+
+#: ../../library/omv.apds9960.rst:626
+msgid "5.6 ms (``2``)."
+msgstr "5.6 ms（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:631
+msgid "8.4 ms (``3``)."
+msgstr "8.4 ms（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:636
+msgid "14.0 ms (``4``)."
+msgstr "14.0 ms（\\ ``4``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:641
+msgid "22.4 ms (``5``)."
+msgstr "22.4 ms（\\ ``5``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:646
+msgid "30.8 ms (``6``)."
+msgstr "30.8 ms（\\ ``6``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:651
+msgid "39.2 ms (``7``)."
+msgstr "39.2 ms（\\ ``7``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:654
+msgid "Gesture directions"
+msgstr "手势方向"
+
+#: ../../library/omv.apds9960.rst:656
+msgid "These values are returned by :meth:`APDS9960.readGesture`."
+msgstr "这些值由 :meth:`APDS9960.readGesture` 返回。"
+
+#: ../../library/omv.apds9960.rst:661
+msgid "No gesture detected (``0``)."
+msgstr "未检测到手势（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:666
+msgid "Left swipe (``1``)."
+msgstr "向左滑动（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:671
+msgid "Right swipe (``2``)."
+msgstr "向右滑动（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:676
+msgid "Up swipe (``3``)."
+msgstr "向上滑动（\\ ``3``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:681
+msgid "Down swipe (``4``)."
+msgstr "向下滑动（\\ ``4``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:686
+msgid "Near event (``5``)."
+msgstr "靠近事件（\\ ``5``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:691
+msgid "Far event (``6``)."
+msgstr "远离事件（\\ ``6``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:696
+msgid "Sentinel value (``7``) used internally to represent \"any direction\"."
+msgstr "哨兵值（\\ ``7``\\ ），内部用于表示“任意方向”。"
+
+#: ../../library/omv.apds9960.rst:699
+msgid "Gesture states"
+msgstr "手势状态"
+
+#: ../../library/omv.apds9960.rst:701
+msgid "Internal state values reported via the gesture state machine."
+msgstr "通过手势状态机报告的内部状态值。"
+
+#: ../../library/omv.apds9960.rst:706
+msgid "No state (``0``)."
+msgstr "无状态（\\ ``0``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:711
+msgid "Near state detected (``1``)."
+msgstr "检测到靠近状态（\\ ``1``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:716
+msgid "Far state detected (``2``)."
+msgstr "检测到远离状态（\\ ``2``\\ ）。"
+
+#: ../../library/omv.apds9960.rst:721
+msgid "Sentinel value (``3``) used internally to represent \"any state\"."
+msgstr "哨兵值（\\ ``3``\\ ），内部用于表示“任意状态”。"

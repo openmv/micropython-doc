@@ -1,0 +1,144 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:2
+msgid "Cooperative concurrency"
+msgstr "协作式并发"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:4
+msgid ""
+"Asyncio's scheduling model is *cooperative*, not *preemptive*. The "
+"distinction is the single most important mental model the rest of this "
+"section builds on, so it is worth pinning down before any code appears."
+msgstr ""
+"Asyncio 的调度模型是\\ *协作式*\\ 的，而非\\ *抢占式*\\ "
+"的。这一区别是本节其余内容所依赖的最重要的心智模型，因此在任何代码出现之前都值得先把它弄清楚。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:10
+msgid "Preemptive vs cooperative"
+msgstr "抢占式与协作式"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:12
+msgid ""
+"A *preemptive* scheduler -- the kind a desktop operating system uses to keep"
+" many programs running at once -- can pause whichever piece of code is "
+"currently running at *any* moment and switch to another. The running code "
+"does not have to do anything special; the scheduler interrupts it. That "
+"makes preemptive scheduling very flexible (no one piece of code can starve "
+"the others by being slow), but it also means any shared variable has to be "
+"defended carefully, because the switch could land anywhere -- even halfway "
+"through writing a value, or partway through reading a list."
+msgstr ""
+"*抢占式*\\ 调度器——桌面操作系统用来同时让许多程序保持运行的那种调度器——可以在\\ *任意*\\ "
+"时刻暂停当前正在运行的那段代码并切换到另一段。正在运行的代码无需做任何特殊处理；调度器会中断它。这使得抢占式调度非常灵活（没有哪一段代码会因为运行缓慢而让其他代码挨饿），但这也意味着任何共享变量都必须小心地加以保护，因为切换可能发生在任何地方——甚至是在写入某个值的过程中，或者读取一个列表的中途。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:23
+msgid ""
+"A *cooperative* scheduler can only switch between pieces of code at points "
+"the currently running piece *explicitly hands control back*. On asyncio, "
+"those points are every ``await`` and every call to a coroutine that yields "
+"internally (most commonly :func:`asyncio.sleep`). Between two awaits, the "
+"running coroutine has the CPU to itself."
+msgstr ""
+"*协作式*\\ 调度器只能在当前正在运行的那段代码\\ *显式交还控制权*\\ 的位置切换到其他代码。在 asyncio 中，这些位置就是每一个 "
+"``await``\\ ，以及每一次对内部会让出执行权的协程的调用（最常见的是 :func:`asyncio.sleep`\\ ）。在两个 await "
+"之间，正在运行的协程独占 CPU。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:30
+msgid "Two consequences fall out of that:"
+msgstr "由此引出两个结果："
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:32
+msgid ""
+"**A coroutine that never awaits never gets paused.** If a coroutine sits in "
+"a tight loop with no ``await`` inside, it monopolises the scheduler and "
+"nothing else makes progress. The fix is to ``await asyncio.sleep_ms(0)`` (or"
+" some other waiting call) at a sensible point in the loop."
+msgstr ""
+"**从不 await 的协程永远不会被暂停。** 如果一个协程停留在一个内部没有 ``await`` "
+"的紧凑循环中，它就会独占调度器，其他任何代码都无法取得进展。解决方法是在循环中合适的位置执行 ``await "
+"asyncio.sleep_ms(0)``\\ （或其他等待调用）。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:37
+msgid ""
+"**Shared state is safe between awaits.** Two coroutines cannot interleave "
+"halfway through an operation that has no ``await`` in it. The kind of "
+"corruption that arises when preemption lands in the middle of a multi-step "
+"update -- one piece of code reading a value while another is partway through"
+" changing it -- simply cannot happen here. Coordination between coroutines "
+"is still needed when several of them have to share a resource *across* "
+"awaits, but the in-the-middle-of-a-line interleaving problem does not apply."
+msgstr ""
+"**共享状态在 await 之间是安全的。** 两个协程无法在一个内部没有 ``await`` "
+"的操作进行到一半时交错执行。当抢占落在一次多步骤更新的中途时所产生的那种损坏——一段代码读取某个值，而另一段代码正在更改它的中途——在这里根本不可能发生。当多个协程必须\\"
+" *跨越* await 共享某个资源时，仍然需要在协程之间进行协调，但语句执行到一半被交错的问题在这里并不适用。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:49
+msgid "The three layers"
+msgstr "三个层次"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:51
+msgid ""
+"Every asyncio script is built from the same three layers. The next two pages"
+" cover them in detail; these are the labels to keep in mind while reading "
+"them."
+msgstr "每个 asyncio 脚本都由相同的三个层次构建而成。接下来的两页会详细介绍它们；这里给出的是阅读它们时需要记住的名称。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:55
+msgid ""
+"**Coroutines** -- functions declared with ``async def``, each one a self-"
+"contained unit of work that awaits where appropriate. The Python Overview "
+"introduced the ``async``/``await`` keywords; in asyncio they are how a "
+"coroutine yields back to the scheduler."
+msgstr ""
+"**协程**\\ ——用 ``async def`` 声明的函数，每个都是一个自包含的工作单元，会在适当的位置进行 await。Python 概述介绍了"
+" ``async``/``await`` 关键字；在 asyncio 中，它们正是协程向调度器让出执行权的方式。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:60
+msgid ""
+"**Tasks** -- a wrapper :func:`asyncio.create_task` puts around a coroutine "
+"to *schedule it concurrently with the current one*. The application "
+"typically creates a handful of tasks for the long-running jobs (the snapshot"
+" loop, the network client, the UART reader, ...)."
+msgstr ""
+"**任务**\\ ——\\ :func:`asyncio.create_task` 在协程外面包裹的一层封装，用于\\ "
+"*让它与当前协程并发地被调度*\\ 。应用程序通常会为那些长时间运行的工作（快照循环、网络客户端、UART 读取器，……）创建少量任务。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:65
+msgid ""
+"**The event loop** -- the engine underneath that keeps track of which "
+"coroutines are waiting and which are ready to run, switching between tasks "
+"at every ``await``. The application doesn't write the loop; it hands a top-"
+"level coroutine to :func:`asyncio.run` and the loop drives everything from "
+"there."
+msgstr ""
+"**事件循环**\\ ——底层的引擎，它跟踪哪些协程正在等待、哪些已准备好运行，并在每一个 ``await`` "
+"处在任务之间切换。应用程序并不编写这个循环；它把一个顶层协程交给 :func:`asyncio.run`\\ ，然后由这个循环从那里开始驱动一切。"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:72
+msgid ""
+"When the application is described that way -- as a small set of coroutines "
+"composed by an event loop -- *concurrency becomes a property of the shape of"
+" the program*, not something the application has to manage step by step."
+msgstr ""
+"当应用程序被这样描述时——作为一小组由事件循环组合起来的协程——\\ *并发就成了程序结构本身的一种属性*\\ ，而不是应用程序需要一步步去管理的东西。"

@@ -1,0 +1,221 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:2
+msgid "Frame differencing"
+msgstr "帧差分"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:4
+msgid ""
+"Frame differencing compares each new frame against a stored reference frame "
+"to find the parts of the scene that have changed. It is the workhorse of "
+"camera applications that watch for something happening -- motion-triggered "
+"capture, intrusion alerts, \"save a video when something moves\" -- and it "
+"is built entirely from the pixel-wise operations covered earlier: an "
+"absolute difference, a threshold, and a region search, run on every frame."
+msgstr ""
+"帧差分将每一帧新图像与一个存储的参考帧进行比较，以找出场景中发生变化的部分。它是各类监视场景中是否发生事件的摄像头应用的主力——例如运动触发的拍摄、入侵警报、\"当有物体移动时保存一段视频\"等——而它完全由前文介绍过的逐像素运算构成：先求绝对差，再做阈值化，最后做区域搜索，并在每一帧上运行。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:16
+msgid "The basic pipeline"
+msgstr "基本流程"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:18
+msgid ""
+"The first stage is to *acquire a reference*. At some point near startup -- "
+"ideally when the scene is in the state that \"no change\" means -- the "
+"application captures a frame and keeps it. The frame becomes the baseline "
+"that every subsequent capture will be compared against."
+msgstr ""
+"第一阶段是\\ *获取参考帧*\\ "
+"。在接近启动的某个时刻——理想情况下是当场景处于代表\"无变化\"的状态时——应用捕获一帧并将其保留下来。这一帧成为后续每次捕获都将与之比较的基准。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:29
+msgid ""
+"The ``.copy()`` matters. ``csi0.snapshot()`` by itself returns an "
+":class:`Image` whose buffer lives in the frame buffer, where the *next* call"
+" to ``snapshot`` will overwrite it. ``.copy()`` allocates a separate buffer "
+"for the reference and lets the pixels of *this* frame survive past the next "
+"capture."
+msgstr ""
+"``.copy()`` 很重要。\\ ``csi0.snapshot()`` 本身返回的 :class:`Image` 的缓冲区位于帧缓冲区中，\\ "
+"*下一次*\\ 调用 ``snapshot`` 会将其覆盖。\\ ``.copy()`` 会为参考帧分配一个独立的缓冲区，让\\ *这一*\\ "
+"帧的像素在下次捕获之后依然存在。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:37
+msgid ""
+"The second stage runs on every frame: capture a fresh image, then compute "
+"the absolute difference between it and the reference. That is exactly what "
+":meth:`~image.Image.difference` does:"
+msgstr ""
+"第二阶段在每一帧上运行：捕获一幅新图像，然后计算它与参考帧之间的绝对差。这正是 :meth:`~image.Image.difference` "
+"所做的事："
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:48
+msgid ""
+"After this call, ``current`` holds an image whose non-zero pixels mark every"
+" position where the scene changed since the reference was taken, with the "
+"magnitude of each pixel proportional to how much it changed at that "
+"position."
+msgstr ""
+"在这次调用之后，\\ ``current`` "
+"保存的图像中，非零像素标记了自参考帧拍摄以来场景发生变化的每一个位置，且每个像素的幅度与该位置变化的程度成正比。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:55
+msgid ""
+"The third stage *thresholds* the difference image. The raw difference always"
+" contains some noise: small brightness variations from sensor shot noise, "
+"gradient changes from lighting drift, sub-pixel jitter from slight camera "
+"motion. A threshold pass -- :meth:`~image.Image.binary` with a threshold set"
+" above that noise floor -- keeps only the changes large enough to count as "
+"real motion and discards the rest, producing a binary image whose non-zero "
+"pixels are the actually-changed positions."
+msgstr ""
+"第三阶段对差分图像进行\\ *阈值化*\\ "
+"。原始差分总会包含一些噪声：来自传感器散粒噪声的微小亮度波动、光照漂移引起的梯度变化、摄像头轻微抖动带来的亚像素抖动。一次阈值处理——使用 "
+":meth:`~image.Image.binary` "
+"并将阈值设置在该噪声底之上——只保留大到足以算作真实运动的变化，丢弃其余部分，从而生成一幅二值图像，其非零像素即为实际发生变化的位置。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:68
+msgid ""
+"The fourth stage extracts *connected regions* of that binary mask -- groups "
+"of adjacent non-zero pixels that form contiguous patches. "
+":meth:`~image.Image.find_blobs` does that in one call, returning a list of "
+"motion regions, each with a bounding box and a pixel count, that the rest of"
+" the application can act on."
+msgstr ""
+"第四阶段从该二值掩码中提取\\ *连通区域*\\ ——形成连续斑块的相邻非零像素群。\\ :meth:`~image.Image.find_blobs`"
+" 用一次调用即可完成这一工作，返回一个运动区域列表，每个区域都带有边界框和像素计数，供应用的其余部分使用。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:76
+msgid ""
+"A horizontal pipeline diagram. The\n"
+"leftmost two panels are a reference\n"
+"frame and a current frame side by\n"
+"side, with a plus mark between them.\n"
+"An arrow leads from the pair to a\n"
+"third panel labelled difference, in\n"
+"which a few patches are bright against\n"
+"a dark background. An arrow leads from\n"
+"there to a fourth panel showing a\n"
+"binary thresholded version of the\n"
+"difference, with the same patches now\n"
+"solid white. A final arrow leads to a\n"
+"fifth panel showing the binary mask\n"
+"annotated with rectangular bounding\n"
+"boxes drawn around each patch."
+msgstr ""
+"一张横向流程图。最左侧的两个面板是并排放置的参考帧和当前帧，二者之间有一个加号标记。一个箭头从这对图像指向第三个标有 difference "
+"的面板，其中在暗背景上有几个明亮的斑块。一个箭头从那里指向第四个面板，显示差分图像的二值阈值化版本，相同的斑块此时呈纯白色。最后一个箭头指向第五个面板，显示带注释的二值掩码，每个斑块周围都绘制了矩形边界框。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:93
+msgid ""
+"The *frame-differencing* pipeline: a reference frame plus a current frame "
+"become a difference image; thresholding turns the difference into a binary "
+"mask of changed positions; a connected-region step turns the mask into a "
+"list of motion regions."
+msgstr ""
+"*帧差分*\\ 流程：一个参考帧加上一个当前帧得到一幅差分图像；阈值化将差分转换为表示变化位置的二值掩码；连通区域步骤将掩码转换为运动区域列表。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:101
+msgid "In-memory and on-disk references"
+msgstr "内存中与磁盘上的参考帧"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:103
+msgid ""
+"The basic pipeline keeps the reference frame in RAM. That is the right "
+"answer when the reference is captured *this* run of the script and only has "
+"to survive for as long as the script keeps running."
+msgstr "基本流程将参考帧保存在 RAM 中。当参考帧是在脚本的\\ *本次*\\ 运行中捕获、且只需在脚本持续运行期间存在时，这是正确的做法。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:109
+msgid ""
+"For a long-running application -- a cam that should resume change detection "
+"after a power cycle, an intermittent script that needs to detect *any* "
+"change since some earlier moment -- the reference frame has to outlive the "
+"running script. The pattern is to *save* the reference to disk:"
+msgstr ""
+"对于长期运行的应用——例如应在断电重启后恢复变化检测的摄像头，或需要检测自某个较早时刻以来\\ *任何*\\ "
+"变化的间歇性脚本——参考帧必须比正在运行的脚本存活得更久。其做法是将参考帧\\ *保存*\\ 到磁盘："
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:121
+msgid "and to load it back at the start of each run:"
+msgstr "并在每次运行开始时将其加载回来："
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:127
+msgid ""
+"The differencing logic does not change; only where the reference lives "
+"between captures does. A few refinements naturally extend this on-disk "
+"variant -- automatic re-capture of the reference on a timer, optional "
+"rolling averages to track slow lighting drift -- but the substitution at the"
+" centre is the same."
+msgstr ""
+"差分逻辑本身不变；改变的只是参考帧在两次捕获之间存放的位置。一些改进可以自然地扩展这种基于磁盘的变体——例如按定时器自动重新捕获参考帧、可选的滚动平均以跟踪缓慢的光照漂移——但其核心的替换是一样的。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:136
+msgid "Light-source isolation"
+msgstr "光源隔离"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:138
+msgid ""
+"The same subtraction pattern shows up in a slightly different setting: "
+"isolating a *light source* against the rest of the scene. The trick is to "
+"capture a \"lights-off\" reference -- a frame taken when whatever is being "
+"detected (an IR beacon, a screen pixel, a status indicator) is *not* "
+"illuminated -- and to subtract that reference from each subsequent frame. "
+"The result has zero brightness everywhere the scene was the same in both "
+"captures, and non-zero brightness only where the light source actually lit "
+"up."
+msgstr ""
+"同样的减法模式也出现在一个略有不同的场景中：将\\ *光源*\\ "
+"从场景的其余部分中隔离出来。其诀窍是捕获一个\"熄灯\"参考帧——一帧在被检测对象（红外信标、屏幕像素、状态指示灯）\\ *未*\\ "
+"点亮时拍摄的画面——然后从后续每一帧中减去该参考帧。结果是：凡是两次捕获中场景相同的地方亮度都为零，只有光源实际点亮的地方才有非零亮度。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:152
+msgid "Choosing difference or sub"
+msgstr "选择 difference 还是 sub"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:154
+msgid ""
+"A practical note about which arithmetic operation to pick. "
+":meth:`~image.Image.difference` returns the absolute value of the change -- "
+"sign-free -- which makes it sensitive to change in either direction "
+"(brightening or darkening) at the cost of not telling the application "
+"*which* direction the change went. For pure motion detection that is the "
+"right answer: anything that moved is interesting, regardless of which way "
+"the brightness shifted."
+msgstr ""
+"关于选择哪种算术运算的一点实用说明。\\ :meth:`~image.Image.difference` "
+"返回变化的绝对值——不带符号——这使它对两个方向上的变化（变亮或变暗）都敏感，代价是无法告诉应用变化朝\\ *哪个*\\ "
+"方向发生。对于纯运动检测而言，这是正确的选择：任何移动的物体都值得关注，无论亮度是往哪个方向变化的。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:166
+msgid ""
+"For light-source detection, the lit pixel is always *brighter* than the "
+"lights-off reference, so :meth:`~image.Image.sub` (with its clipping at "
+"zero) is the more honest choice. Anywhere the current frame is darker than "
+"the reference (which would be sensor noise around the unlit value) clips to "
+"zero rather than reporting a spurious \"the light was on\" signal."
+msgstr ""
+"对于光源检测，被点亮的像素总是比熄灯参考帧\\ *更亮*\\ ，因此 :meth:`~image.Image.sub`\\ "
+"（带有在零处的钳位）是更诚实的选择。凡是当前帧比参考帧更暗的地方（这往往是未点亮值附近的传感器噪声）都会被钳位为零，而不会报告一个虚假的\"灯亮了\"信号。"

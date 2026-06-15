@@ -1,0 +1,236 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:2
+msgid "Memory pools"
+msgstr "内存池"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:4
+msgid ""
+"A camera that holds three full-resolution frames in a framebuffer pool, runs"
+" a separate preview buffer alongside, and still has room for a Python script"
+" and its objects is juggling more memory than a single block of RAM on the "
+"MCU could provide. MicroPython fits everything in by spreading it across the"
+" **several distinct kinds of memory** the MCU provides, and by routing each "
+"kind of allocation to the kind of memory it actually needs."
+msgstr ""
+"一台摄像头要在帧缓冲区池中保存三帧全分辨率图像、同时运行一个独立的预览缓冲区，还要为 Python 脚本及其对象留出空间，它所要调度的内存量超过了 "
+"MCU 上单块 RAM 所能提供的容量。MicroPython 之所以能把这一切装下，靠的是将它们分散到 MCU 提供的 **几种不同类型的内存** "
+"上，并把每一类分配请求路由到它实际所需的那种内存上。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:14
+msgid "Kinds of memory"
+msgstr "内存的种类"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:16
+msgid ""
+"A modern OpenMV Cam MCU exposes four distinct kinds of memory. The first is "
+"invisible to the application; the other three are pools that allocations can"
+" come from."
+msgstr "现代 OpenMV Cam 的 MCU 提供四种不同类型的内存。第一种对应用程序是不可见的；其余三种是分配请求可以从中取用的内存池。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:20
+msgid ""
+"**The CPU's data cache** -- a small, very fast region of memory that sits "
+"between the CPU and the rest of RAM. When the CPU reads or writes a value "
+"from main memory the cache automatically keeps a copy, so repeated accesses "
+"to the same data stay in the cache and never pay the cost of going out to "
+"slower memory. The cache is *not* a pool allocations come from. It is "
+"transparent to the application -- it just makes the rest of RAM feel faster "
+"in practice than its raw latency would suggest, up to the point where a "
+"working set stops fitting in it."
+msgstr ""
+"**CPU 的数据缓存** —— 位于 CPU 与其余 RAM 之间的一小块极快内存区域。当 CPU "
+"从主存读取或写入某个值时，缓存会自动保留一份副本，因此对同一数据的重复访问会停留在缓存中，永远不必付出访问较慢内存的代价。该缓存 *并不是* "
+"分配请求可以从中取用的内存池。它对应用程序是透明的 —— 它只是让其余 RAM "
+"在实际使用中感觉比其原始延迟所暗示的更快，直到工作集大到无法再装进缓存为止。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:30
+msgid ""
+"**Tightly-coupled processor memory** -- a small block of RAM wired directly "
+"to the CPU with no bus in between. Single-cycle access, never misses, never "
+"waits. Allocations that genuinely need the fastest possible memory -- where "
+"every cycle of latency matters -- come out of this pool."
+msgstr ""
+"**紧耦合处理器内存** —— 一小块直接连到 CPU、中间没有总线的 RAM。单周期访问，从不未命中，从不等待。那些确实需要尽可能最快内存的分配 ——"
+" 即每一个延迟周期都至关重要的场合 —— 都从这个内存池中取用。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:36
+msgid ""
+"**Fast on-chip memory** -- a few hundred kilobytes up to about a megabyte of"
+" RAM, built into the MCU package. Low latency, high bandwidth, but limited "
+"in size. The MicroPython heap lives here so Python object accesses stay "
+"quick; smaller working buffers that the CPU touches a lot share the pool."
+msgstr ""
+"**片上快速内存** —— 内建于 MCU 封装中、从几百千字节到约一兆字节的 RAM。低延迟、高带宽，但容量有限。MicroPython "
+"堆就驻留在这里，以便 Python 对象访问保持快速；CPU 频繁触碰的较小工作缓冲区也共用这个内存池。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:42
+msgid ""
+"**Slower bulk memory** -- on boards that pair the MCU with an external "
+"memory die, tens of megabytes of off-chip RAM reached over the external bus."
+" Much larger, but each access takes longer than on-chip memory; the data "
+"cache hides much of that cost for working sets it can hold, and the gap "
+"shows up on operations that sweep across data too big to cache. Used for "
+"allocations that have to be large and that the CPU can tolerate at slower "
+"speed -- most importantly, the framebuffer pool."
+msgstr ""
+"**较慢的大容量内存** —— 在那些为 MCU 配上外部存储芯片的开发板上，是通过外部总线访问的、数十兆字节的片外 "
+"RAM。容量大得多，但每次访问都比片上内存耗时更长；对于数据缓存能够容纳的工作集，缓存隐藏了其中大部分开销，而当操作扫过大到无法缓存的数据时，差距便会显现。它用于那些必须很大、且"
+" CPU 能够容忍较慢速度的分配 —— 其中最重要的就是帧缓冲区池。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:52
+msgid ""
+"Boards in the family fall on a spectrum: some have only on-chip RAM; some "
+"pair on-chip RAM with a much larger external block. Each of the three "
+"allocatable kinds is treated as a **memory pool** -- a chunk that "
+"allocations come out of -- and labelled so each request can ask for the kind"
+" of memory it actually needs."
+msgstr ""
+"本系列开发板分布在一个区间上：有些只有片上 RAM；有些则在片上 RAM 之外再配一块大得多的外部内存。这三种可分配的内存类型中的每一种都被视作一个 "
+"**内存池** —— 即分配请求从中取用的一块内存 —— 并加以标记，使每个请求都能申请它实际所需的那种内存。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:60
+msgid "The primary framebuffer"
+msgstr "主帧缓冲区"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:62
+msgid ""
+"The framebuffer that backs :meth:`~csi.CSI.snapshot` does not ask for fast "
+"memory. It asks for *enough* memory -- nothing more. That puts it in "
+"whichever pool is largest, so on a board with both on-chip and external "
+"memory the framebuffer lands in the external block."
+msgstr ""
+"支撑 :meth:`~csi.CSI.snapshot` 的帧缓冲区并不申请快速内存。它只申请 *足够* 的内存 —— "
+"仅此而已。这使它落在容量最大的那个内存池里，因此在同时具备片上和外部内存的开发板上，帧缓冲区会落在外部内存块中。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:68
+msgid ""
+"A full-resolution, triple-buffered framebuffer is far too big to fit in the "
+"fast on-chip pool on most parts; the larger pool is the only one that can "
+"hold it at all. The CPU's data cache hides much of the per-access cost when "
+"the application processes the image, and the DMA engine that fills the "
+"framebuffer from the sensor keeps up with the sensor's data rate either way."
+msgstr ""
+"在大多数器件上，一个全分辨率、三重缓冲的帧缓冲区实在太大，无法装进片上快速内存池；只有较大的那个池才有可能完全容纳它。当应用程序处理图像时，CPU "
+"的数据缓存隐藏了其中大部分的每次访问开销，而无论如何，将传感器数据填入帧缓冲区的 DMA 引擎都能跟上传感器的数据速率。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:76
+msgid ""
+"The exact size the framebuffer takes is picked from the current "
+":meth:`~csi.CSI.pixformat`, :meth:`~csi.CSI.framesize`, and "
+":meth:`~csi.CSI.framebuffers` count; it grows or shrinks each time any of "
+"those changes."
+msgstr ""
+"帧缓冲区所占用的确切大小，取决于当前的 :meth:`~csi.CSI.pixformat`\\ 、\\ "
+":meth:`~csi.CSI.framesize` 以及 :meth:`~csi.CSI.framebuffers` "
+"数量；每当其中任何一项发生变化时，它都会随之增大或缩小。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:83
+msgid "Secondary sensor framebuffers"
+msgstr "次级传感器帧缓冲区"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:85
+msgid ""
+"A second :class:`~csi.CSI` instance gets its own framebuffer, allocated from"
+" the same pool the primary uses. The pool is shared; the buffers are "
+"independent. The secondary's footprint is normally much smaller than the "
+"primary's, because secondary sensors run at lower resolutions, so the extra "
+"memory the second framebuffer takes is a small fraction of the primary's."
+msgstr ""
+"第二个 :class:`~csi.CSI` "
+"实例会获得它自己的帧缓冲区，从主传感器所用的同一个池中分配。该池是共享的；而缓冲区是相互独立的。次级传感器的内存占用通常远小于主传感器，因为次级传感器运行在较低的分辨率下，所以第二个帧缓冲区额外占用的内存只是主帧缓冲区的一小部分。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:94
+msgid "The stream framebuffer"
+msgstr "流帧缓冲区"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:96
+msgid ""
+"The :doc:`image preview <../csi/ide-preview>` buffer is the exception. It is"
+" not allocated from any of the pools at runtime; it is a *fixed region* "
+"reserved at build time, with a known address and a known size. That keeps "
+"the preview path out of the way of every other allocation -- the region "
+"exists from boot and never moves."
+msgstr ""
+":doc:`图像预览 <../csi/ide-preview>` 缓冲区是个例外。它不是在运行时从任何内存池中分配的；它是一块在构建时预留的 "
+"*固定区域*\\ ，具有已知的地址和已知的大小。这使预览通路不会妨碍其他所有分配 —— 该区域从启动起就存在，并且永不移动。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:104
+msgid "The MicroPython heap"
+msgstr "MicroPython 堆"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:106
+msgid ""
+"Python objects -- variables, lists, dictionaries, class instances, the "
+":class:`~image.Image` wrapper an :meth:`~csi.CSI.snapshot` call returns, "
+"every string and tuple the application creates -- live on the **MicroPython "
+"garbage-collected heap**, which is *separate* from the camera's memory "
+"pools. The garbage-collected (GC) heap is a region of memory MicroPython "
+"manages itself: Python code allocates from it implicitly every time an "
+"object is created, and MicroPython periodically scans the heap and reclaims "
+"the space taken by objects the application is no longer referencing, so the "
+"application never has to free anything by hand."
+msgstr ""
+"Python 对象 —— 变量、列表、字典、类实例、\\ :meth:`~csi.CSI.snapshot` 调用所返回的 "
+":class:`~image.Image` 包装对象，以及应用程序创建的每一个字符串和元组 —— 都驻留在 **MicroPython 垃圾回收堆** "
+"上，该堆 *独立* 于摄像头的内存池。这个垃圾回收（GC）堆是 MicroPython 自行管理的一块内存区域：每当创建一个对象时，Python "
+"代码都会隐式地从中分配，而 MicroPython "
+"会周期性地扫描该堆，回收那些应用程序不再引用的对象所占用的空间，因此应用程序从不需要手动释放任何东西。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:119
+msgid ""
+"A dedicated region is set aside for the GC heap at boot, typically placed in"
+" fast on-chip memory so Python access stays quick, with an optional overflow"
+" into the larger external block on boards that need more headroom for big "
+"data structures."
+msgstr ""
+"启动时会为 GC 堆划出一块专用区域，通常放置在片上快速内存中以保持 Python "
+"访问的快速性；在那些需要为大型数据结构留出更多余量的开发板上，还可以选择溢出到较大的外部内存块中。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:125
+msgid ""
+"The :class:`~image.Image` returned by :meth:`~csi.CSI.snapshot` is a small "
+"wrapper object on the GC heap; the underlying pixel data lives in the "
+"framebuffer in one of the camera's pools. The two never compete for the same"
+" memory."
+msgstr ""
+":meth:`~csi.CSI.snapshot` 返回的 :class:`~image.Image` 是 GC "
+"堆上的一个小型包装对象；其底层的像素数据则存放在摄像头某个内存池中的帧缓冲区里。二者从不争用同一块内存。"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:132
+msgid "Putting it together"
+msgstr "把它们组合起来"
+
+#: ../../openmvcam/tutorial/vision/advanced/memory-pools.rst:134
+msgid ""
+"Steering each kind of allocation to the right pool -- big buffers to the "
+"larger pool where they fit, latency-sensitive data to the faster pools, the "
+"Python heap to its own region, the preview to its reserved slot -- is what "
+"makes it possible to run a full-resolution capture pipeline, a preview "
+"channel, and a non-trivial Python script alongside each other on parts that "
+"have only a few megabytes of fast memory total."
+msgstr ""
+"把每一类分配引导到正确的内存池 —— 大缓冲区放到能容纳它们的较大池中，对延迟敏感的数据放到较快的池中，Python "
+"堆放到它自己的区域，预览放到它预留的槽位 —— 正是这一点，使得在总共只有几兆字节快速内存的器件上，能够让全分辨率采集流水线、预览通道和一个相当复杂的 "
+"Python 脚本彼此并行运行成为可能。"

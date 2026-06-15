@@ -1,0 +1,331 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:2
+msgid "Debouncing"
+msgstr "消抖"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:4
+msgid ""
+"A switch is drawn as a perfect open-or-closed contact, but a real switch's "
+"contacts do not snap cleanly between the two states. They *chatter* -- make "
+"and break electrical contact many times within a few milliseconds before "
+"settling. A GPIO input reading the pin sees that as a burst of edges; a "
+"careless polling loop counts several \"presses\" for one real press, and an "
+"interrupt handler runs several times per actual press."
+msgstr ""
+"开关在原理图上被画成一个理想的断开或闭合触点，但真实开关的触点并不会在两种状态之间干净利落地切换。它们会\\ *抖动*\\ "
+"——在稳定下来之前的几毫秒内多次接通和断开电气连接。读取该引脚的 GPIO "
+"输入会把这看作一连串边沿；草率的轮询循环会把一次真实的按下计成多次“按压”，而中断处理函数也会在每次实际按下时运行好几遍。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:12
+msgid ""
+"An idealised scope trace showing a switch input\n"
+"signal. The signal starts high (open switch), drops\n"
+"low, bounces back and forth several times within a\n"
+"few milliseconds, then settles low (closed switch)."
+msgstr ""
+"一个理想化的示波器波形，展示了开关输入\n"
+"信号。信号开始为高电平（开关断开），随后\n"
+"跌至低电平，在几毫秒内来回跳动数次，\n"
+"最终稳定在低电平（开关闭合）。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:18
+msgid ""
+"A bouncing switch produces a burst of fast transitions before settling."
+msgstr "抖动的开关在稳定之前会产生一连串快速跳变。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:21
+msgid ""
+"*Debouncing* is the practice of filtering the chatter so that each physical "
+"press registers as a single event. Two approaches solve this -- software (a "
+"timing rule in firmware) or hardware (a small filter on the wire). They are "
+"not mutually exclusive."
+msgstr ""
+"*消抖*\\ "
+"就是过滤掉这种抖动，使每一次物理按压只登记为一个事件的做法。有两种方法可以解决这个问题——软件（固件中的一条计时规则）或硬件（导线上的一个小型滤波器）。两者并不互斥。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:27
+msgid "Software debouncing"
+msgstr "软件消抖"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:29
+msgid ""
+"The idea is to remember when the input last changed and reject further "
+"changes within a short window of that timestamp. Contact bounce typically "
+"lasts under 10 ms; a real press takes 50 -- 100 ms; a 30 -- 50 ms window "
+"catches all bounces without blocking real presses."
+msgstr ""
+"其思路是记住输入上次变化的时刻，并拒绝在该时间戳之后的一小段时间窗口内发生的进一步变化。触点抖动通常持续不到 10 ms；一次真实的按压需要 50 --"
+" 100 ms；一个 30 -- 50 ms 的窗口既能捕获所有抖动，又不会屏蔽真实的按压。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:35
+msgid ""
+"In a polling loop, read the pin, compare to the last stable value, and only "
+"accept a change after the debounce window has elapsed:"
+msgstr "在轮询循环中，读取引脚，与上一次的稳定值比较，仅在消抖窗口过去之后才接受变化："
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:59
+msgid ""
+"For interrupt-driven reads, apply the same timing rule inside the handler, "
+"then hand the real press off to main context via "
+":func:`micropython.schedule` (see :doc:`gpio-input`):"
+msgstr ""
+"对于中断驱动的读取，在处理函数内部应用同样的计时规则，然后通过 :func:`micropython.schedule` 把真实的按压交回主上下文（参见"
+" :doc:`gpio-input`\\ ）："
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:86
+msgid ""
+"The ISR filters bounces by timestamp and queues the callback; "
+"``handle_press`` runs back in main context, where allocation and slow I/O "
+"are safe."
+msgstr "ISR 按时间戳过滤抖动并将回调入队；\\ ``handle_press`` 在主上下文中运行，那里进行内存分配和慢速 I/O 都是安全的。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:91
+msgid "Hardware debouncing"
+msgstr "硬件消抖"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:93
+msgid ""
+"Hardware debouncing filters the chatter electrically, before it ever reaches"
+" the pin. The standard tool is a capacitor."
+msgstr "硬件消抖在电气层面过滤抖动，在它到达引脚之前就将其滤除。标准的工具是一个电容。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:96
+msgid ""
+"A capacitor is a two-terminal component that stores electric charge. "
+"Physically, it is two conductive plates held a short distance apart, "
+"separated by an insulator (the *dielectric*)."
+msgstr "电容是一种双端元件，用于储存电荷。从物理结构上看，它是两块相隔很近的导电极板，中间由一层绝缘体（\\ *电介质*\\ ）隔开。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:100
+msgid ""
+"A capacitor drawn as two parallel horizontal plates\n"
+"with a dielectric (insulator) between them. A lead\n"
+"connects each plate to an external terminal -- A on\n"
+"top, B on bottom. Equal and opposite charges +Q and\n"
+"-Q accumulate on the two plates when a voltage V is\n"
+"applied across the terminals."
+msgstr ""
+"一个电容被画成两块水平平行的极板，\n"
+"中间夹着电介质（绝缘体）。每块极板都有\n"
+"一条引线连接到外部端子——A 在\n"
+"顶部，B 在底部。当端子两端施加电压 V 时，\n"
+"两块极板上会积累等量且符号相反的电荷 +Q 和\n"
+"-Q。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:108
+msgid ""
+"A parallel-plate capacitor: two conductors separated by an insulating layer."
+msgstr "一个平行板电容：两个导体由一层绝缘层隔开。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:111
+msgid ""
+"Applying a voltage across its terminals drives equal and opposite charges "
+"onto the two plates; the relationship is"
+msgstr "在端子两端施加电压会把等量且符号相反的电荷驱动到两块极板上；其关系为"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:118
+msgid ""
+"where ``Q`` is the stored charge (coulombs), ``V`` is the voltage across the"
+" capacitor, and ``C`` is its *capacitance* (farads). Capacitance is fixed by"
+" the device's construction; more capacitance means more charge stored at the"
+" same voltage."
+msgstr ""
+"其中 ``Q`` 是储存的电荷（库仑），\\ ``V`` 是电容两端的电压，\\ ``C`` 是它的\\ *电容量*\\ "
+"（法拉）。电容量由器件的构造决定；电容量越大，意味着在相同电压下储存的电荷越多。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:123
+msgid ""
+"The consequence: a capacitor cannot change its voltage instantly. Charge "
+"flowing in or out has to pass through whatever resistance is in the path, "
+"and that resistance sets how fast the voltage can change."
+msgstr "由此带来的结果是：电容无法瞬间改变它的电压。流入或流出的电荷必须经过路径中的电阻，而该电阻决定了电压变化的快慢。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:129
+msgid "RC time constant"
+msgstr "RC 时间常数"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:131
+msgid ""
+"Charging a capacitor through a resistor produces a smooth exponential rise "
+"toward the supply voltage, not a step. The characteristic time of that rise "
+"is the RC time constant:"
+msgstr "通过电阻给电容充电会产生一条朝向电源电压平滑上升的指数曲线，而不是一个阶跃。这条上升曲线的特征时间就是 RC 时间常数："
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:139
+#, python-format
+msgid ""
+"After one ``τ``, the capacitor has reached about 63 % of the supply voltage."
+" After 5 ``τ``, it is over 99 % -- \"fully charged\" for practical purposes."
+msgstr "经过一个 ``τ`` 之后，电容达到电源电压的约 63 %。经过 5 个 ``τ`` 之后，它超过 99 %——实际意义上的“充满电”。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:143
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage rising along\n"
+"an exponential curve from 0 V toward the supply rail.\n"
+"The time τ = RC is marked on the x-axis where the\n"
+"curve reaches 63 % of the supply voltage."
+msgstr ""
+"一张图，展示电容的电压沿着\n"
+"指数曲线从 0 V 朝着电源轨上升。\n"
+"时间 τ = RC 标注在 x 轴上，即\n"
+"曲线达到电源电压 63 % 的位置。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:149
+#, python-format
+msgid ""
+"A capacitor charges along an exponential curve. ``τ = RC`` is the time to "
+"reach 63 % of the final voltage."
+msgstr "电容沿着指数曲线充电。\\ ``τ = RC`` 是达到最终电压 63 % 所需的时间。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:152
+#, python-format
+msgid ""
+"Discharging through a resistor follows the mirror image: the voltage falls "
+"exponentially from its initial value toward zero, dropping to 37 % of the "
+"starting voltage after one ``τ``, and to under 1 % after 5 ``τ``."
+msgstr ""
+"通过电阻放电则遵循镜像过程：电压从初始值朝零指数下降，经过一个 ``τ`` 后降至起始电压的 37 %，经过 5 个 ``τ`` 后降至 1 % 以下。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:157
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage falling along\n"
+"an exponential curve from Vmax toward 0 V. The time\n"
+"τ = RC is marked on the x-axis where the curve drops\n"
+"to 37 % of the starting voltage."
+msgstr ""
+"一张图，展示电容的电压沿着\n"
+"指数曲线从 Vmax 朝 0 V 下降。时间\n"
+"τ = RC 标注在 x 轴上，即曲线降至\n"
+"起始电压 37 % 的位置。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:163
+#, python-format
+msgid ""
+"A capacitor discharges along an exponential decay. ``τ = RC`` is the time to"
+" fall to 37 % of the starting voltage."
+msgstr "电容沿着指数衰减曲线放电。\\ ``τ = RC`` 是降至起始电压 37 % 所需的时间。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:168
+msgid "The debounce circuit"
+msgstr "消抖电路"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:170
+msgid ""
+"A capacitor between an input pin and ground, fed through a series resistor, "
+"forms a *low-pass filter*. Fast spikes do not have time to charge or "
+"discharge the capacitor through that resistor; the pin stays close to "
+"whatever voltage it was at before the spike. Slow changes -- a deliberate "
+"press -- charge or discharge the capacitor and the reading follows."
+msgstr ""
+"在输入引脚和地之间接一个电容，并通过一个串联电阻为其供电，就构成了一个\\ *低通滤波器*\\ "
+"。快速的尖峰来不及通过该电阻给电容充电或放电；引脚保持在尖峰出现之前所处的电压附近。缓慢的变化——一次有意的按压——会给电容充电或放电，于是读数随之变化。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:177
+msgid ""
+"``R1`` pulls the switch's high side up to Vcc, producing a raw switch signal"
+" that bounces. ``R2`` and ``C`` then low-pass-filter that signal into the "
+"pin:"
+msgstr "``R1`` 把开关的高端上拉至 Vcc，产生一个会抖动的原始开关信号。\\ ``R2`` 和 ``C`` 随后把该信号低通滤波后送入引脚："
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:181
+msgid ""
+"A switch input with hardware debouncing. Vcc connects\n"
+"through a 10 kΩ pull-up resistor down to a junction.\n"
+"That junction connects to ground through the switch\n"
+"on one branch, and through a 10 kΩ series resistor to\n"
+"the Pin on the other branch. A 100 nF capacitor\n"
+"between Pin and ground completes the low-pass filter."
+msgstr ""
+"一个带硬件消抖的开关输入。Vcc 经过\n"
+"一个 10 kΩ 上拉电阻向下连到一个节点。\n"
+"该节点一路通过开关连到地，\n"
+"另一路通过一个 10 kΩ 串联电阻连到\n"
+"引脚。引脚与地之间的一个 100 nF 电容\n"
+"构成了低通滤波器。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:189
+msgid ""
+"Hardware debouncing: ``R2`` and ``C`` low-pass-filter the raw switch signal "
+"before it reaches the pin."
+msgstr "硬件消抖：\\ ``R2`` 和 ``C`` 在原始开关信号到达引脚之前对其进行低通滤波。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:192
+msgid ""
+"Typical values: ``R1 = 10 kΩ`` (pull-up), ``R2 = 10 kΩ`` (series), ``C = 100"
+" nF``."
+msgstr "典型取值：\\ ``R1 = 10 kΩ``\\ （上拉），\\ ``R2 = 10 kΩ``\\ （串联），\\ ``C = 100 nF``\\ 。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:195
+msgid ""
+"When the switch is open, current flows Vcc → ``R1`` → ``R2`` → cap (in "
+"series), charging the cap to Vcc with ``τ_charge = (R1 + R2) × C = 2 ms``."
+msgstr ""
+"当开关断开时，电流流经 Vcc → ``R1`` → ``R2`` → 电容（串联），以 ``τ_charge = (R1 + R2) × C = 2 "
+"ms`` 的时间常数把电容充电到 Vcc。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:199
+msgid ""
+"When the switch closes, the switch node clamps to ground and the cap drains "
+"through ``R2`` alone to that ground with ``τ_discharge = R2 × C = 1 ms``."
+msgstr ""
+"当开关闭合时，开关节点被钳位到地，电容仅通过 ``R2`` 向该地放电，时间常数为 ``τ_discharge = R2 × C = 1 ms``\\ "
+"。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:203
+msgid ""
+"Both edges are RC-filtered. Because the cap sits on its own node, downstream"
+" of ``R2`` from the switch, it swings cleanly between Vcc (open) and 0 V "
+"(closed) -- no current has to flow through ``R1`` at steady state in either "
+"case."
+msgstr ""
+"两个边沿都经过了 RC 滤波。由于电容位于它自己的节点上，处于开关与 ``R2`` 之后的下游，它能在 Vcc（断开）和 0 "
+"V（闭合）之间干净地摆动——在两种稳态情况下都没有电流需要流经 ``R1``\\ 。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:209
+msgid "Choosing between them"
+msgstr "如何在两者之间取舍"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:211
+msgid ""
+"**Software** is the default. It costs nothing in components, the threshold "
+"is easy to tune, and it works on any pin that the CPU reads."
+msgstr "**软件**\\ 是默认选择。它不需要任何元器件成本，阈值容易调节，并且适用于 CPU 能读取的任何引脚。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:214
+msgid ""
+"**Hardware** is worth the parts when the bounce reaches something other than"
+" the CPU's polling code -- an interrupt that must not double-fire, a "
+"hardware counter, a peripheral with no filter of its own."
+msgstr ""
+"**硬件**\\ 在抖动会到达 CPU 轮询代码以外的某处时才值得增加这些元件——比如绝不能重复触发的中断、硬件计数器，或本身没有滤波功能的外设。"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:219
+msgid ""
+"Software and hardware debouncing also coexist peacefully: a small RC filter "
+"suppresses the worst spikes, and a software debounce window covers what is "
+"left."
+msgstr "软件消抖和硬件消抖也能和平共存：一个小型 RC 滤波器抑制最严重的尖峰，而一个软件消抖窗口处理剩下的部分。"

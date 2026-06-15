@@ -1,0 +1,552 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "日志记录"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"已经出货的产品无法通过 :func:`print` 向开发者回传信息。\\ ``print()`` 写入的是 USB "
+"标准输出，而它只在摄像头还在开发者工位上、终端处于打开状态时才存在。在现场环境中没有任何东西会去读取它；每一行输出都被直接丢弃。\\ "
+":mod:`logging` 库正是它的替代品——提供级别过滤、由应用自行选择的输出目标，以及一种能说明发生了什么、何时发生的格式。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"摄像头上的 :mod:`logging` 模块是 CPython 版本的精简移植——心智模型相同，接口更小，并有几处在生产环境配置中至关重要的差异。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "心智模型"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr ""
+"日志记录由四个部分构成。每个部分各司其职；正是这种职责分离，才使得一个日志记录器（logger）能够分发到多个输出目标，每个目标都有各自的格式和级别："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+"**Logger**\\ （日志记录器）是应用调用的对象。代码写 ``log.info(\"frame %d\", n)`` "
+"时，这个调用就落在该日志记录器上。日志记录器通过 :func:`logging.getLogger` 按名称查找。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+"**Handler**\\ （处理器）决定一条记录去\\ *哪里*\\ 。\\ :class:`~logging.StreamHandler` "
+"写入一个流（默认是 :data:`sys.stderr`\\ ）；\\ :class:`~logging.FileHandler` "
+"则追加到磁盘上的文件。一个日志记录器可以拥有任意数量的处理器。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"在摄像头上，\\ ``sys.stdout`` 和 ``sys.stderr`` 都连到同一条 USB CDC "
+"管道——写入二者中的任何一个，都会显示在开发者通过 USB 打开的同一个终端上。因此，一个写入 ``sys.stderr`` "
+"的处理器，实际上就是一个写入 ``print()`` "
+"所写位置的处理器。处理器这层抽象仍然为你提供了按目标进行的过滤和格式化能力；只是它并不能提供一条物理上独立的通道。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+"**Formatter**\\ （格式化器）决定一条记录\\ *如何*\\ "
+"渲染成文本。它接收一条记录，返回最终写出的那一行。每个格式化器一个格式字符串；每个处理器一个格式化器。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"**级别过滤器**\\ 位于每一个日志记录器和每一个处理器上。记录携带一个级别（\\ ``DEBUG`` / ``INFO`` / "
+"``WARNING`` / ``ERROR`` / ``CRITICAL``\\ ）。只有级别等于或高于过滤器级别的记录才能通过。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"这种分离之所以重要，是因为典型的生产环境配置往往不止一个输出目标：一个写到 SD 卡上的文件，保存一直到 ``DEBUG`` "
+"的全部内容以供事后分析；以及一个通往 USB 的流，只呈现 ``WARNING`` "
+"及更严重的记录，让连接到摄像头的开发者既能看到要点，又不会被细节淹没。同样的代码，两个目标，两个过滤器。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "各个级别的含义"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr "这五个级别构成一个有序的等级体系。记录携带级别，使得每个处理器上的过滤器能够丢弃它不关心的那些记录。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr "``DEBUG``\\ ——跟踪、逐帧计数、内部状态转储。最低级别；数量很大。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr "``INFO``\\ ——正常的运行事件。Wi-Fi 已连接、模型已加载、看门狗已启动、轮换出了一个新的日志文件。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr "``WARNING``\\ ——发生了意料之外的情况，但应用已经处理了。丢失一帧、重试了一次网络请求。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr "``ERROR``\\ ——某个操作失败了，应用无法完成它。模型文件缺失、SD 卡写入被拒绝。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr "``CRITICAL``\\ ——应用完全无法继续运行。内存耗尽、必需挂载的存储缺失。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"有一个重要的默认值需要牢记：摄像头的 :mod:`logging` 模块会把每个日志记录器都初始化为 ``WARNING`` 级别。除非调用 "
+":meth:`Logger.setLevel`\\ ——通常作为下文 :func:`basicConfig` 调用的一部分——否则 ``DEBUG`` "
+"和 ``INFO`` 级别的记录会被悄无声息地丢弃。日志配置“不起作用”的一个常见首发症状，就是应用以 ``INFO`` "
+"级别输出，而默认过滤器把这条记录吃掉了。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"级别是摄像头的 :mod:`logging` 所提供的唯一过滤器。它没有 :class:`Filter` "
+"对象来实现更丰富的逐记录规则；只要一条记录的级别通过了，它就会被输出。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig：快速上手"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ":func:`logging.basicConfig` 在一次调用中配置根日志记录器。最常见的有两种形态："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr "开发环境配置，所有内容以 ``INFO`` 级别输出到 USB stderr::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr "生产环境配置，所有内容以带时间戳的格式写入 SD 卡上的文件::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+"传入 ``filename=`` 以使用 :class:`FileHandler`\\ ，或传入 ``stream=`` 以使用 "
+":class:`StreamHandler`\\ ；在 :func:`basicConfig` 中这两者互斥。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr "格式字符串是一个 ``%(field)s`` 风格的模板。摄像头的格式化器支持以下字段："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s``\\ ——由 :func:`time.localtime` 格式化的时间戳。默认格式为 ``%Y-%m-%d "
+"%H:%M:%S``\\ ；传入 ``datefmt=`` 可覆盖。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s``\\ ——\\ ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ 。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s``\\ ——日志记录器的名称（见下一节）。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s``\\ ——记录格式化后的消息。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d``\\ ——记录时间戳的毫秒部分。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"若未给定格式，则默认格式为 ``%(levelname)s:%(name)s:%(message)s``\\ "
+"——这对开发环境配置足够用，但对现场日志而言并不够，因为正是时间戳才让该文件在数周之后依然有用。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+":func:`basicConfig` 在后续调用中是空操作，除非传入 ``force=True``\\ "
+"。请在启动时配置一次；不要在运行中再次调用它来“切换输出目标”。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"摄像头的 :mod:`logging` 没有 :func:`dictConfig` 或 :func:`fileConfig`\\ "
+"。配置始终通过编程方式完成——惯例是用一个 ``setup_logging()`` 辅助函数，从 ``main.py`` 中调用一次。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "每个模块使用具名日志记录器"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"应用代码不应调用模块级别的快捷方式（\\ :func:`logging.info`\\ 、\\ :func:`logging.warning` "
+"等）。它们全都汇入根日志记录器，由此产生的日志记录都带着名称 ``root``\\ ——对于判断记录\\ *来自何处*\\ 毫无用处。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "惯例是每个模块一个日志记录器，并以该模块命名::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr "这样每条记录都会在 ``%(name)s`` 中携带 ``app.detector``\\ ，日志行也就说明了是谁输出的。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"摄像头的 :mod:`logging` 与 CPython 在一个重要方面有所不同：日志记录器的命名空间是\\ **扁平的**\\ 。\\ "
+"``getLogger('app')`` 和 ``getLogger('app.detector')`` "
+"是相互独立的日志记录器，彼此之间没有父子关系——在 ``app`` 上设置级别\\ *不会*\\ 传播到 ``app.detector``\\ "
+"。能起作用的机制是：一个本身没有处理器的具名日志记录器，会借用根日志记录器的处理器和级别。这正是为什么在根上调用一次 "
+":func:`basicConfig` 就能为应用中其他各处的每一次 :func:`getLogger` 调用完成配置。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "惰性 %-参数格式化"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "应这样写::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "而非::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"``%``-参数形式让日志记录器在级别过滤器决定是否输出该记录\\ *之后*\\ 才插值参数。在热循环中一次被过滤掉的 ``DEBUG`` "
+"调用，不会为其格式字符串付出任何代价。而 f-string 每次都会先求值，甚至在调用尚未到达日志记录器之前就已完成。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr "CPython 用于结构化字段的 ``extra=`` 关键字在摄像头上不受支持；请改为将这些值作为消息参数传入。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "记录异常"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+"在 :keyword:`except` 块内，\\ :meth:`Logger.exception` 会以 ``ERROR`` 级别记录消息，\\ "
+"*并*\\ 将当前异常的回溯追加到该记录中::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"回溯是通过 :func:`sys.print_exception` 捕获的，正是它为异常日志带来了多行的 ``Traceback (most "
+"recent call last):`` 块。这是顶层异常处理的恰当工具——捕获、记录，然后继续运行。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "多个处理器"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"开头提到的生产环境拆分——所有内容以 ``DEBUG`` 写入文件，要点以 ``WARNING`` 输出到 "
+"stderr——就是把两个处理器附加到同一个日志记录器上，每个处理器各有自己的级别和格式化器::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"根日志记录器的级别是每条记录遇到的\\ *第一道*\\ 过滤器。把它设为任意处理器想看到的最低级别——这里是 ``DEBUG``\\ "
+"——这样就不会有处理器被日志记录器本身饿着。然后由各处理器自身的级别决定哪些记录实际被输出到哪个目标。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "轮换日志文件"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"摄像头的 :mod:`logging` 没有 :class:`RotatingFileHandler` 或 "
+":class:`TimedRotatingFileHandler`\\ 。轮换是应用自己的工作。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"其模式是：把当前的 :class:`FileHandler` "
+"保存在一个已知位置，在触发轮换条件时把它换成一个新的，并让带日期的路径提供天然的文件分界。要实现每小时轮换到 "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"每次主循环迭代调用一次 ``rotate_if_needed()``\\ ；路径检查开销很小，而切换只在整点边界发生。在 "
+":class:`FileHandler` 能打开文件之前，目录树必须已经存在。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "在对掉电敏感的部署中进行刷新"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+":class:`FileHandler` 的写入要经过底层文件对象的 Python "
+"缓冲。在一次写入与一次刷新之间发生掉电会丢失尾部的那些记录。对于电池供电或随时可能被拔电的部署，请在关键记录之后、或者按定时器，在处理器的流上调用 "
+"``flush()``\\ 。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr "一个刷新附加到根日志记录器上每个处理器的小辅助函数::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr "在一条应用无法承受丢失的记录之后立即调用 ``flush_handlers()``::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"为了后台安全，可从主循环中按某种在日志新鲜度与闪存磨损之间取得平衡的节奏来调用它——通常每秒一次就足够了。\\ "
+":meth:`Logger.critical` 本身\\ *不会*\\ 触发刷新。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "启动时诊断"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"没有上下文的现场日志几乎毫无用处。每次冷启动时的最初几条记录，应当标明是\\ *哪一台*\\ 摄像头、运行的是\\ *什么版本*\\ ，以及摄像头是\\"
+" *如何*\\ 走到这次启动的。设备上的三个来源加在一起就能涵盖所有这些信息："
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv`\\ ——OpenMV 固件版本。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ":func:`os.uname`\\ ——MicroPython 版本、板名加 MCU，以及构建该固件所用源代码的 git 标签和构建日期。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ":mod:`machine`\\ ——MCU 的唯一硅片 ID，以及触发本次启动的复位原因。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr "对每个挂载点调用 :func:`os.listdir`\\ ——实际成功挂载起来的那些文件系统。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr "一个把上述每一项都拉进日志最初几条记录的辅助函数::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "一份典型的日志开头大致是这样的::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"在每个日志文件最初的八行里，操作员就能知道物理设备、固件谱系、摄像头为何启动，以及哪些存储成功挂载。\\ ``unique id`` 是 MCU "
+"出厂时烧录的硅片序列号；它在多次重新刷写之间、以及更换 SD 卡之间都保持不变。\\ ``build`` 是构建该镜像所用固件树的 git "
+"标签和日期——这个字段单凭一己之力就说明了“这正是在此时此刻出货给该设备的那个二进制文件”。"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "整合到一起"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr "一套完整的生产环境日志配置，提炼为一个由 ``main.py`` 在启动时调用一次的辅助函数::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "然后在 ``main.py`` 的顶部::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "应用中其他各处的每个模块只需这样做::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr "便可免费获得已配置好的输出——文件中含完整细节、流中含警告、具名记录、带时间戳的格式化器，以及每次冷启动都有一份有据可查的启动记录。"

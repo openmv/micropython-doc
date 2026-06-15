@@ -1,0 +1,477 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "串行协议、分帧与 CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` 实现了在两端之间传输字节。但仅凭这一点还不足以构建可靠的链路。一旦线路另一端连接的是真实设备，就会立刻出现三个问题："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**一条消息从哪里开始、到哪里结束？** "
+"字节是以流的形式到达的，没有内置的分隔符。如果接收方漏掉了第一个字节（例如在发送方上电之后才上电，或线路上出现短暂的电气干扰），那么此后的每个字节都会错位一个，直到接收方找到新的重新同步点为止。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**每条消息有多长？** 一段 32 字节的传感器读数和一条 4 "
+"字节的状态回复，在字节层面看起来完全一样。接收方需要某种方法来知道当前消息包含多少字节。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr "**字节是否完好无损地到达？** 噪声可能翻转个别比特位。如果没有校验，接收方就会照单全收地处理被破坏的数据。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"针对这三个问题的标准答案，是把数据包装进一个数据包帧（packet "
+"frame）中：开头是一段已知的字节序列，接着是长度字段、有效载荷本身，末尾是校验和。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "数据包分帧"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "一种典型的分帧格式："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"依次绘制的六个字段：两字节的 HEADER\n"
+"标记为 0xAA 0x55；一字节的 CMD 字段，用于选择\n"
+"该数据包承载的是哪条命令；两字节的 LEN\n"
+"字段，给出有效载荷的大小；一字节的 HCRC 字段，\n"
+"覆盖 HEADER 加 CMD 加 LEN；长度可变的\n"
+"PAYLOAD，共 LEN 字节，其格式取决于 CMD；\n"
+"以及一个四字节的 DCRC 字段，覆盖有效载荷。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr "一个带有独立头部 CRC 与数据 CRC 的分帧数据包：头部（魔数字节）、命令、长度、头部 CRC、有效载荷、数据 CRC。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "每个字段各司其职："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**头部（魔数字节）。** 一段固定且不寻常的字节序列——通常是像 ``0xAA 0x55`` "
+"这样的两个字节——接收方会在传入流中扫描它。一旦找到该序列，它就知道一个新数据包正在开始，并可以丢弃此前到达的任何垃圾数据。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**命令。** 一个字节，说明该数据包\\ *是什么*\\ "
+"。不同的命令值使用不同的有效载荷格式——某个命令可能表示“设置舵机角度”，带两个有效载荷字节；另一个可能表示“读取传感器”，没有有效载荷；还有一个可能是“日志消息”，带一个字符串。接收方根据命令字节进行分派，以便知道如何解释数据包的其余部分。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**长度。** 两个字节，给出有效载荷的字节大小（这里采用小端序），允许有效载荷最大约为 64 KiB。一旦头部 CRC "
+"验证通过，接收方就精确读取这么多字节。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**头部 CRC。** 一个字节的校验和，覆盖 HEADER、CMD 和 LEN 字段。接收方在读取任何有效载荷之前先检查它，因此被破坏的 LEN "
+"仅需几个字节就能被发现（关于这一点为何重要，请参见下文的 CRC 一节）。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**有效载荷。** 与命令相关的应用数据，长度恰好为 LEN 字节。其格式由命令字节决定：可以是一条 :mod:`struct` "
+"打包的定宽字段记录、一个字符串、原始内存——只要双方对该命令达成一致即可。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr "**数据 CRC。** 覆盖有效载荷字节的四字节 CRC。接收方根据刚读取的字节重新计算它，如果不匹配就丢弃该数据包。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"最简单的“校验和”就是所有字节之和，对 256 或 65536 取模。它能捕捉大多数单比特翻转，但会漏掉很多多比特错误，并且忽略了字节顺序。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"*循环冗余校验*\\ （CRC）是标准的升级方案。它把输入当作一个长长的二进制数，并（以一种特殊的方式）将其除以一个固定的\\ *多项式*\\ "
+"；除法的余数就是 CRC。不同的多项式能捕捉不同类别的错误；常见的 8 位、16 位和 32 "
+"位多项式各自都能捕捉到所有短于其位宽的突发错误，以及很大一部分更长的突发错误。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "为什么要用两个 CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"上面的数据包示意图带有\\ *两个*\\ 独立的 "
+"CRC——一个覆盖头部（HEADER、CMD、LEN），另一个覆盖有效载荷。这正是一个健壮的分帧方案真正需要的，原因在于：当 LEN "
+"字段本身在传输途中被破坏时，单个置于末尾的 CRC 会如何失效："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr "接收方按照被破坏的 LEN 行事，从线路上读取那么多字节——很可能远多于发送方的本意。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr "只有末尾的 CRC 最终才会告诉接收方出了问题，而且要等到所有这些字节都被消耗完之后。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"在解析器卡住、等待错误数量的字节期间，紧随被破坏数据包之后到达的真实数据包会被当作有效载荷吞掉，于是接收方丢失的是好几个数据包，而不仅仅是那一个。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "把 CRC 拆开就能解决这个问题："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**头部 CRC** 覆盖 HEADER、CMD 和 LEN。接收方在读取任何有效载荷之前先检查它，因此被破坏的 LEN "
+"仅需几个字节就能被发现，解析器立即重新同步，只损失那一个坏数据包。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**数据 CRC** 覆盖有效载荷。一旦头部 CRC 通过，接收方就知道可以信任 LEN，于是精确读取那么多有效载荷字节，并用数据 CRC "
+"对它们进行校验。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"一种常见的尺寸搭配——也是本页所采用的——是头部 CRC 用一个字节（对于五字节的头部，CRC-8 已绰绰有余），数据 CRC 用四个字节（CRC-32"
+" 能以极低的碰撞率覆盖数千字节的有效载荷）。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "辅助函数"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython 直接提供了 :func:`binascii.crc32` 用于四字节 CRC。对于一字节的头部 CRC，使用 Maxim 的 "
+"1-wire 设备所用多项式（反射形式为 ``0x8C``\\ ）编写的一个小辅助函数足够简短，可以内联写出："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "一个完整的编码器把这两个 CRC 组合到一个函数中："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr "其逆函数从一个完整的数据包中恢复出命令和有效载荷，如果任一 CRC 校验失败则返回 ``None``\\ ："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"实际上接收方不会一次性拿到整个数据包——字节是通过 UART "
+"一个接一个地到达的，而一个在数据包中途暂停的发送方（或一条丢失了字节的嘈杂线路）无法被简单地 ``read()`` "
+"进一个大小正好合适的缓冲区。下一节将以状态机的形式，逐字节地运行同样的解码逻辑。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "状态机接收方"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"接收方不能简单地用某个固定的 ``N`` 去调用 ``uart.read(N)``\\ "
+"——它并不知道下一个数据包会有多少字节，而且线路上的任何垃圾数据都会打乱对齐。解决办法是一个小型状态机，它一次消耗一个字节，并根据自己在数据包中所处的位置做出反应。主循环轮询"
+" :meth:`~machine.UART.any` 以查看缓冲了多少字节，用一次 :meth:`~machine.UART.read` "
+"调用把它们全部取出，然后让每个字节通过状态机："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"每个字节让状态机前进一步，或者在一个完整数据包之后、头部 CRC 错误之后、或数据 CRC 错误之后回退到 ``HUNT_FOR_HEADER``\\ "
+"。线路上与头部不匹配的垃圾数据会被静默丢弃；下一个有效的头部会让接收方重新同步。关键的安全特性来自头部 CRC：如果 LEN 字段被破坏，解析器会在头部"
+" CRC 检查之后（仅几个字节）就抓到它，而不是在已经决定去读取一个荒谬错误数量的有效载荷字节之后才发现。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "超越基础方案"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"上面的分帧方案是一条串行链路从线路噪声中恢复所需的\\ *最低限度*\\ ：头部魔数、长度、命令以及两个 "
+"CRC。它能检测损坏并在字节出错后重新同步，但它对受损的数据包是直接放弃，而不是设法让它们通过；而且它让发送方完全不知道接收方究竟收到了什么。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr "现实世界中的串行协议会在这个基础之上叠加各种功能。并非每条嵌入式链路都需要全部这些功能——挑选应用真正需要的即可："
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**序列号。** "
+"一个小计数器，每次发送时递增。接收方据此检测出间隙（有数据包丢失）、重复（发送方重传了，但接收方已经接受了第一份副本），以及——在信道可能重排顺序的情况下——乱序到达。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**确认（ACK）。** 一个专门的 ACK 数据包（或回复中搭载的一个比特位），接收方将其发回以确认每个数据包。如果没有 "
+"ACK，发送方就无从知晓它的数据是否到达。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**否定确认（NACK）。** 当接收方发现 CRC 失败或序列号间隙时发送的一个 NACK。发送方据此立即重传，而不必等待 ACK 超时触发。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**重传。** 发送方把每个未确认的数据包保存在一个小队列中，并在超时后（或收到 NACK "
+"时）重新发送。重试次数上限以及重试之间的某种退避机制，可以避免一条永久故障的链路无休止地循环下去。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**滑动窗口。** 允许在要求 ACK "
+"之前有若干个数据包处于在途状态，可以在往返时间相对于每个数据包的发送时间较长的链路上维持吞吐量。其代价是发送方需要更多状态——每个在途数据包占用一个槽位。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**流量控制。** 接收方发出的一种信号，当其缓冲区即将填满时告诉发送方放慢或暂停。具体实现各不相同——显式的 XON / XOFF "
+"字节、基于信用额度的授予（接收方每次许可 N 个数据包），或者线路本身上的 RTS / CTS "
+"硬件信号线。如果没有流量控制，一个快速的发送方最终会压垮一个缓慢的接收方，从而导致数据包被丢弃。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**协议版本。** 在数据包靠前位置放置一个版本字段，可以让格式不断演进。双方可以在启动时协商出二者都支持的最高版本，或者拒绝来自不兼容对端的数据包。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**分片与重组。** 两字节的 LEN 把数据包上限限制在 64 "
+"KiB；大于此值的消息会被拆分成多个数据包，并在另一端重新组装。分片元数据（分片索引、总片数，或一个“还有更多分片”的标志）保存在有效载荷内部。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr "**心跳。** 一个小型的周期性数据包，表示“我还在线”。当心跳停止时，另一端会注意到并重新连接（或大声报错），而不是悄无声息地挂起。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**信道。** 在头部中放置一个信道或流 ID，使一条物理链路可以承载多条逻辑流——一条控制信道、一条遥测信道、一条日志信道——它们仅靠该字段加以区分。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**认证。** "
+"一个由有效载荷和一个秘密值计算得出的短标签，只有合法的发送方和接收方才知道该秘密值。接收方根据收到的字节再次计算该标签，如果两者不匹配就拒绝该数据包。这既能抓出篡改（攻击者修改了字节），也能——如果序列号或时间戳是该标签所覆盖内容的一部分——抓出重放攻击，即攻击者从线路上记录下一个真实的数据包，稍后再重新发送它，以使接收方对其重复处理两次。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**加密。** "
+"用一个共享密钥打乱有效载荷字节，使任何没有该密钥而读取线路的人只会看到噪声。通常与上面的认证标签结合使用——如果没有它，攻击者就可以喂入恰好能通过 "
+"CRC 的垃圾数据，让接收方白白浪费时间去尝试解密无意义的内容。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"一个面向工业设备的典型“优秀”协议，最终会具备分帧、双 CRC、序列号、带重传的 ACK / NACK 以及心跳。一些值得一看的现实世界例子：\\ "
+"*MAVLink*\\ （无人机遥测，带有序列号、系统 / 组件 ID 以及可选的数据包签名）、\\ *Modbus*\\ （工业 PLC，带有功能码和"
+" CRC），以及 *NMEA 0183*\\ （每台消费级 GPS 接收机都使用的 ASCII 协议——基于行的消息，在星号分隔符之后带一个校验和）。"
