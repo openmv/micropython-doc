@@ -1,0 +1,334 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pl <LL@li.org>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:2
+msgid "CAN bus in code"
+msgstr "Magistrala CAN w kodzie"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:4
+msgid ""
+":class:`machine.CAN` wraps a hardware CAN controller. Bring it up with the "
+"bus id and a bit rate:"
+msgstr ""
+":class:`machine.CAN` opakowuje sprzętowy kontroler CAN. Uruchom go, podając "
+"identyfikator magistrali oraz szybkość transmisji bitów:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:14
+msgid ""
+"The bit rate must match every other node on the bus exactly -- ``125_000``, "
+"``250_000``, ``500_000`` and ``1_000_000`` are the common values. "
+":meth:`~machine.CAN.set_filters` configures which IDs the controller will "
+"pass through; ``None`` means accept everything (useful while bringing up a "
+"link, less useful once the bus is busy)."
+msgstr ""
+"Szybkość transmisji bitów musi dokładnie odpowiadać każdemu innemu węzłowi "
+"na magistrali -- ``125_000``\\ , ``250_000``\\ , ``500_000`` i ``1_000_000``"
+" to typowe wartości. :meth:`~machine.CAN.set_filters` konfiguruje, które "
+"identyfikatory kontroler przepuści; ``None`` oznacza akceptowanie "
+"wszystkiego (przydatne podczas uruchamiania łącza, mniej przydatne, gdy "
+"magistrala jest już zajęta)."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:22
+msgid "Inside the controller"
+msgstr "Wewnątrz kontrolera"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:24
+msgid ""
+"Three pieces of hardware sit between the camera's Python code and the bus --"
+" the *TX mailboxes*, an *acceptance filter*, and the *RX FIFO*. Each one "
+"maps to a piece of the :class:`~machine.CAN` API used below."
+msgstr ""
+"Pomiędzy kodem Pythona kamery a magistralą znajdują się trzy elementy "
+"sprzętowe -- *skrzynki nadawcze TX*\\ , *filtr akceptacji* oraz *kolejka "
+"FIFO odbioru RX*\\ . Każdy z nich odpowiada fragmentowi API "
+":class:`~machine.CAN` używanego poniżej."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:29
+msgid ""
+"Block diagram of the CAN controller. On the TX side\n"
+"(top), can.send() drops frames into one of three TX\n"
+"mailboxes, and an arbitrate block picks which mailbox\n"
+"goes to the bus next. On the RX side (bottom),\n"
+"incoming frames pass through an acceptance filter;\n"
+"accepted frames land in the RX FIFO and can.recv()\n"
+"reads the FIFO from its oldest end."
+msgstr ""
+"Schemat blokowy kontrolera CAN. Po stronie TX\n"
+"(u góry) can.send() umieszcza ramki w jednej z trzech\n"
+"skrzynek nadawczych TX, a blok arbitrażu wybiera, która skrzynka\n"
+"trafia na magistralę jako następna. Po stronie RX (u dołu)\n"
+"przychodzące ramki przechodzą przez filtr akceptacji;\n"
+"zaakceptowane ramki lądują w kolejce FIFO odbioru RX, a can.recv()\n"
+"odczytuje FIFO od jego najstarszego końca."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:38
+msgid ""
+"The controller's TX mailboxes, acceptance filter, and RX FIFO between the "
+"software and the bus."
+msgstr ""
+"Skrzynki nadawcze TX, filtr akceptacji i kolejka FIFO odbioru RX kontrolera "
+"pomiędzy oprogramowaniem a magistralą."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:41
+msgid ""
+"**TX mailboxes.** A small set of hardware slots (typically three) that hold "
+"outgoing frames the camera has handed off via :meth:`~machine.CAN.send` but "
+"that have not yet reached the bus. When the bus is idle, the controller "
+"picks the mailbox with the lowest-numbered ID (highest priority) and "
+"arbitrates for the bus on its behalf. The camera does not pick the mailbox; "
+"the controller assigns one and returns its index from "
+":meth:`~machine.CAN.send`."
+msgstr ""
+"**Skrzynki nadawcze TX.** Niewielki zestaw sprzętowych szczelin (zwykle "
+"trzech), które przechowują wychodzące ramki przekazane przez kamerę za "
+"pomocą :meth:`~machine.CAN.send`\\ , ale które jeszcze nie dotarły na "
+"magistralę. Gdy magistrala jest bezczynna, kontroler wybiera skrzynkę o "
+"identyfikatorze o najniższym numerze (najwyższym priorytecie) i przeprowadza"
+" arbitraż o magistralę w jej imieniu. Kamera nie wybiera skrzynki; kontroler"
+" przydziela jedną i zwraca jej indeks z :meth:`~machine.CAN.send`\\ ."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:50
+msgid ""
+"**Acceptance filter.** Configurable hardware that compares each incoming "
+"frame's ID against a list of patterns and discards anything that does not "
+"match. Frames that pass continue into the RX FIFO; rejected frames are "
+"thrown away by the controller without ever reaching Python. "
+":meth:`~machine.CAN.set_filters` configures these patterns."
+msgstr ""
+"**Filtr akceptacji.** Konfigurowalny sprzęt, który porównuje identyfikator "
+"każdej przychodzącej ramki z listą wzorców i odrzuca wszystko, co nie "
+"pasuje. Ramki, które przejdą, trafiają dalej do kolejki FIFO odbioru RX; "
+"odrzucone ramki są wyrzucane przez kontroler, nigdy nie docierając do "
+"Pythona. :meth:`~machine.CAN.set_filters` konfiguruje te wzorce."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:57
+msgid ""
+"**RX FIFO.** A *first-in, first-out* queue -- the first frame in is also the"
+" first frame out, like a line at a ticket counter. The controller appends "
+"received frames to the back of the queue as they arrive, and "
+":meth:`~machine.CAN.recv` pulls them off the front in the same order. The "
+"queue matters because the bus catches frames in the background while Python "
+"is busy elsewhere; the camera then drains them one at a time without losing "
+"any, as long as the FIFO has not overflowed."
+msgstr ""
+"**Kolejka FIFO odbioru RX.** Kolejka *first-in, first-out* -- pierwsza "
+"ramka, która weszła, jest też pierwszą, która wychodzi, niczym kolejka przy "
+"okienku z biletami. Kontroler dołącza odebrane ramki na koniec kolejki w "
+"miarę ich nadchodzenia, a :meth:`~machine.CAN.recv` pobiera je z przodu w "
+"tej samej kolejności. Kolejka ma znaczenie, ponieważ magistrala wychwytuje "
+"ramki w tle, gdy Python jest zajęty czymś innym; kamera następnie opróżnia "
+"je pojedynczo, nie tracąc żadnej, dopóki kolejka FIFO się nie przepełni."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:68
+msgid "Sending a frame"
+msgstr "Wysyłanie ramki"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:70
+msgid ":meth:`~machine.CAN.send` queues a frame for transmission:"
+msgstr ":meth:`~machine.CAN.send` umieszcza ramkę w kolejce do transmisji:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:76
+msgid ""
+"The first argument is the ID (an 11-bit integer for a standard frame); the "
+"second is the payload (0 to 8 bytes for CAN Classic). The call returns a "
+"small integer index identifying the hardware mailbox the frame went into. "
+"The controller arbitrates with any other transmitters on the bus and re-"
+"transmits as needed without further help from software."
+msgstr ""
+"Pierwszym argumentem jest identyfikator (11-bitowa liczba całkowita dla "
+"ramki standardowej); drugim jest ładunek użyteczny (od 0 do 8 bajtów dla CAN"
+" Classic). Wywołanie zwraca małą liczbę całkowitą będącą indeksem "
+"identyfikującym sprzętową skrzynkę, do której trafiła ramka. Kontroler "
+"przeprowadza arbitraż z innymi nadajnikami na magistrali i ponawia "
+"transmisję w razie potrzeby bez dalszej pomocy ze strony oprogramowania."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:83
+msgid ""
+"For extended (29-bit) IDs, OR the :data:`CAN.FLAG_EXT_ID` flag into the "
+"third argument:"
+msgstr ""
+"Dla identyfikatorów rozszerzonych (29-bitowych) wykonaj operację OR z flagą "
+":data:`CAN.FLAG_EXT_ID` na trzecim argumencie:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:91
+msgid "Receiving frames"
+msgstr "Odbieranie ramek"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:93
+msgid ""
+"The controller starts up with no filter installed and drops every incoming "
+"frame. Before :meth:`~machine.CAN.recv` will return anything, call "
+":meth:`~machine.CAN.set_filters` once -- the simplest form is ``None``, "
+"which accepts every ID:"
+msgstr ""
+"Kontroler uruchamia się bez zainstalowanego filtra i odrzuca każdą "
+"przychodzącą ramkę. Zanim :meth:`~machine.CAN.recv` cokolwiek zwróci, "
+"wywołaj raz :meth:`~machine.CAN.set_filters` -- najprostszą postacią jest "
+"``None``\\ , która akceptuje każdy identyfikator:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:102
+msgid ""
+":meth:`~machine.CAN.recv` then returns the next frame in the receive FIFO, "
+"or ``None`` if nothing is waiting:"
+msgstr ""
+":meth:`~machine.CAN.recv` zwraca wówczas następną ramkę w kolejce FIFO "
+"odbioru lub ``None``\\ , jeśli nic nie oczekuje:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:112
+msgid ""
+"The bus fills the RX FIFO in the background, so the main loop just drains it"
+" as fast as it iterates. As long as the FIFO is deeper than the longest gap "
+"between drains, no frames are lost."
+msgstr ""
+"Magistrala wypełnia kolejkę FIFO odbioru RX w tle, więc główna pętla po "
+"prostu opróżnia ją tak szybko, jak się wykonuje. Dopóki FIFO jest głębsza "
+"niż najdłuższa przerwa między opróżnieniami, żadne ramki nie są tracone."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:118
+msgid "Filters"
+msgstr "Filtry"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:120
+msgid ""
+"A real bus is usually busy with frames the camera does not care about. "
+"Hardware filters let the controller drop unwanted IDs before they reach the "
+"FIFO. :meth:`~machine.CAN.set_filters` takes a list of ``(id, mask, flags)``"
+" tuples; a frame passes the filter if its ID, masked by ``mask``, matches "
+"the configured ``id``:"
+msgstr ""
+"Prawdziwa magistrala jest zwykle zajęta ramkami, na których kamerze nie "
+"zależy. Filtry sprzętowe pozwalają kontrolerowi odrzucić niechciane "
+"identyfikatory, zanim dotrą one do FIFO. :meth:`~machine.CAN.set_filters` "
+"przyjmuje listę krotek ``(id, mask, flags)``\\ ; ramka przechodzi przez "
+"filtr, jeśli jej identyfikator zamaskowany przez ``mask`` pasuje do "
+"skonfigurowanego ``id``\\ :"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:136
+msgid ""
+"Unmatched frames are discarded by the controller and never appear at "
+":meth:`~machine.CAN.recv`, which saves both buffer space and CPU time."
+msgstr ""
+"Niepasujące ramki są odrzucane przez kontroler i nigdy nie pojawiają się w "
+":meth:`~machine.CAN.recv`\\ , co oszczędza zarówno miejsce w buforze, jak i "
+"czas procesora."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:141
+msgid "Error states and recovery"
+msgstr "Stany błędu i odzyskiwanie"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:143
+msgid ""
+"A real CAN bus picks up transmission errors -- shorts to ground, missing "
+"nodes, electrical noise corrupting bits. The controller keeps two counters "
+"that track this behaviour: a Transmit Error Counter (TEC) and a Receive "
+"Error Counter (REC), each incremented when the controller detects an error "
+"and decremented after a successful transfer. The counter values put the "
+"controller into one of four states:"
+msgstr ""
+"Prawdziwa magistrala CAN wychwytuje błędy transmisji -- zwarcia do masy, "
+"brakujące węzły, zakłócenia elektryczne uszkadzające bity. Kontroler "
+"prowadzi dwa liczniki śledzące to zachowanie: Transmit Error Counter (TEC) i"
+" Receive Error Counter (REC), każdy zwiększany, gdy kontroler wykryje błąd, "
+"i zmniejszany po udanym przesłaniu. Wartości liczników wprowadzają kontroler"
+" w jeden z czterech stanów:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:151
+msgid ""
+"**Error Active** (TEC and REC both below 96). Normal operation. When the "
+"node detects a bus error it transmits a dominant *active error frame*, which"
+" forces every other node to discard the in-progress frame so the sender can "
+"retry."
+msgstr ""
+"**Error Active** (TEC i REC oba poniżej 96). Normalne działanie. Gdy węzeł "
+"wykryje błąd magistrali, nadaje dominującą *aktywną ramkę błędu*\\ , która "
+"zmusza każdy inny węzeł do odrzucenia trwającej ramki, aby nadawca mógł "
+"ponowić próbę."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:157
+msgid ""
+"**Error Warning** (either counter reaches 96). Still fully active on the bus"
+" -- the warning state is a software signal that errors are accumulating, not"
+" a behaviour change."
+msgstr ""
+"**Error Warning** (którykolwiek licznik osiąga 96). Wciąż w pełni aktywny na"
+" magistrali -- stan ostrzeżenia jest programowym sygnałem, że błędy się "
+"kumulują, a nie zmianą zachowania."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:162
+msgid ""
+"**Error Passive** (either counter reaches 128). The node is still on the bus"
+" but stops sending dominant error frames; errors are now signalled with "
+"*passive* (recessive) error frames so a faulty node cannot keep tearing up "
+"the bus for everyone else."
+msgstr ""
+"**Error Passive** (którykolwiek licznik osiąga 128). Węzeł jest nadal na "
+"magistrali, ale przestaje wysyłać dominujące ramki błędu; błędy są teraz "
+"sygnalizowane *pasywnymi* (recesywnymi) ramkami błędu, dzięki czemu wadliwy "
+"węzeł nie może w nieskończoność rozrywać magistrali dla wszystkich "
+"pozostałych."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:168
+msgid ""
+"**Bus Off** (TEC reaches 256). The controller has decided this node is too "
+"unreliable to participate. It disconnects from the bus, stops transmitting "
+"and acknowledging, and stays out until software explicitly restarts it."
+msgstr ""
+"**Bus Off** (TEC osiąga 256). Kontroler uznał, że ten węzeł jest zbyt "
+"niepewny, aby uczestniczyć w komunikacji. Odłącza się od magistrali, "
+"przestaje nadawać i potwierdzać oraz pozostaje wyłączony, dopóki "
+"oprogramowanie go jawnie nie zrestartuje."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:173
+msgid ""
+"The first three transitions are entirely automatic -- as the counters "
+"decrement after successful frames, the controller moves itself back toward "
+"Error Active without intervention."
+msgstr ""
+"Pierwsze trzy przejścia są całkowicie automatyczne -- w miarę jak liczniki "
+"zmniejszają się po udanych ramkach, kontroler sam wraca w kierunku stanu "
+"Error Active bez interwencji."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:177
+msgid ""
+"Bus Off is the one state that requires software action. "
+":meth:`~machine.CAN.restart` resets the controller and returns it to Error "
+"Active. A typical pattern is to check the state from the main loop and "
+"restart after a short delay to give the bus time to settle:"
+msgstr ""
+"Bus Off jest jedynym stanem, który wymaga działania oprogramowania. "
+":meth:`~machine.CAN.restart` resetuje kontroler i przywraca go do stanu "
+"Error Active. Typowy wzorzec polega na sprawdzaniu stanu z głównej pętli i "
+"restarcie po krótkim opóźnieniu, aby dać magistrali czas na ustabilizowanie "
+"się:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:197
+msgid ""
+"The current counter values are available from "
+":meth:`~machine.CAN.get_counters` for diagnostics -- a TEC that climbs "
+"steadily on an otherwise-quiet bus usually points at wiring, termination, or"
+" a misconfigured bit rate."
+msgstr ""
+"Bieżące wartości liczników są dostępne z :meth:`~machine.CAN.get_counters` "
+"do celów diagnostycznych -- TEC, który stale rośnie na skądinąd cichej "
+"magistrali, zwykle wskazuje na okablowanie, terminację lub błędnie "
+"skonfigurowaną szybkość transmisji bitów."

@@ -1,0 +1,304 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pl <LL@li.org>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:2
+msgid "Performance"
+msgstr "Wydajność"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:4
+msgid ""
+"The same design decisions that make :mod:`numpy` fast on the camera -- "
+"whole-array library calls, packed typed buffers, views that share data with "
+"their source -- also expose a set of habits that are worth knowing about. "
+"The :doc:`shape/shape-and-strides` page already covered the last-axis layout"
+" rule; this page catalogues the allocation and dtype habits that matter most"
+" in a streaming loop."
+msgstr ""
+"Te same decyzje projektowe, które sprawiają, że :mod:`numpy` jest szybki na "
+"kamerze -- wywołania biblioteczne operujące na całych tablicach, upakowane "
+"bufory typowane, widoki współdzielące dane ze swoim źródłem -- ujawniają "
+"również zestaw nawyków, o których warto wiedzieć. Strona :doc:`shape/shape-"
+"and-strides` omówiła już regułę układu ostatniej osi; ta strona kataloguje "
+"nawyki dotyczące alokacji i dtype, które mają największe znaczenie w pętli "
+"strumieniowej."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:14
+msgid "Pick a reasonable dtype"
+msgstr "Wybierz rozsądny dtype"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:16
+msgid ""
+"The default dtype of every constructor is ``float``. For data that is "
+"naturally 8-bit or 16-bit -- ADC samples, image pixels, sensor readings -- "
+"pass ``dtype=`` explicitly to one of the integer types::"
+msgstr ""
+"Domyślnym dtype każdego konstruktora jest ``float``\\ . W przypadku danych, "
+"które są z natury 8-bitowe lub 16-bitowe -- próbki ADC, piksele obrazu, "
+"odczyty sensora -- przekaż jawnie ``dtype=`` z jednym z typów całkowitych::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:23
+msgid ""
+"The RAM saving is 2x for ``uint16`` and 4x for ``uint8`` against the 4-byte "
+"``float`` default. The math also runs faster because the integer code paths "
+"inside :mod:`numpy` are tighter than the generic float ones. The integer "
+"overflow rule covered on :doc:`basics/dtypes` applies -- cast to a wider "
+"type before arithmetic that might overflow."
+msgstr ""
+"Oszczędność RAM wynosi 2x dla ``uint16`` i 4x dla ``uint8`` w porównaniu z "
+"domyślnym 4-bajtowym ``float``\\ . Obliczenia działają również szybciej, "
+"ponieważ ścieżki kodu dla liczb całkowitych wewnątrz :mod:`numpy` są "
+"bardziej zwięzłe niż ogólne ścieżki dla liczb zmiennoprzecinkowych. "
+"Obowiązuje reguła przepełnienia liczb całkowitych omówiona na "
+":doc:`basics/dtypes` -- rzutuj na szerszy typ przed wykonaniem działań "
+"arytmetycznych, które mogą się przepełnić."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:32
+msgid "Prefer an ndarray to an iterable"
+msgstr "Preferuj ndarray zamiast iterowalnego obiektu"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:34
+msgid ""
+"Most reductions and universal functions accept either an iterable or an "
+":class:`~numpy.ndarray`::"
+msgstr ""
+"Większość redukcji i funkcji uniwersalnych akceptuje zarówno obiekt "
+"iterowalny, jak i :class:`~numpy.ndarray`\\ ::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:40
+msgid ""
+"The iterable form forces :mod:`numpy` to step through the input one Python "
+"object at a time, converting each to a number before it can use it. Against "
+"an :class:`~numpy.ndarray` the conversion is already done and the call runs "
+"straight through the packed buffer."
+msgstr ""
+"Forma iterowalna zmusza :mod:`numpy` do przechodzenia przez wejście "
+"pojedynczo, obiekt Python po obiekcie, konwertując każdy z nich na liczbę, "
+"zanim będzie go można użyć. W przypadku :class:`~numpy.ndarray` konwersja "
+"jest już wykonana, a wywołanie przebiega bezpośrednio przez upakowany bufor."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:47
+msgid ""
+"When the same data is used more than once, build the :class:`~numpy.ndarray`"
+" once and pass it around. When the data exists only as a Python list and is "
+"consumed once, the conversion cost can outweigh the speedup -- the "
+":func:`~numpy.array` constructor itself has to walk the list and allocate."
+msgstr ""
+"Gdy te same dane są używane więcej niż raz, zbuduj :class:`~numpy.ndarray` "
+"jeden raz i przekazuj go dalej. Gdy dane istnieją tylko jako lista Pythona i"
+" są wykorzystywane jednokrotnie, koszt konwersji może przewyższyć "
+"przyspieszenie -- sam konstruktor :func:`~numpy.array` musi przejść przez "
+"listę i dokonać alokacji."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:55
+msgid "Prefer views to copies"
+msgstr "Preferuj widoki zamiast kopii"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:57
+msgid ""
+"Slicing, single-axis indexing of a higher-rank array, "
+":meth:`~numpy.ndarray.reshape`, :meth:`~numpy.ndarray.transpose`, and "
+":func:`~numpy.frombuffer` all return *views* that share data with the "
+"source. They are essentially free."
+msgstr ""
+"Wycinanie, indeksowanie pojedynczej osi tablicy o wyższym rzędzie, "
+":meth:`~numpy.ndarray.reshape`\\ , :meth:`~numpy.ndarray.transpose` oraz "
+":func:`~numpy.frombuffer` -- wszystkie zwracają *widoki*\\ , które "
+"współdzielą dane ze źródłem. Są one praktycznie darmowe."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:63
+msgid ""
+":meth:`~numpy.ndarray.copy`, :meth:`~numpy.ndarray.flatten`, boolean "
+"indexing (``a[mask]``), and any arithmetic expression allocate a *copy*. "
+"Reach for them only when an independent buffer is genuinely needed."
+msgstr ""
+":meth:`~numpy.ndarray.copy`\\ , :meth:`~numpy.ndarray.flatten`\\ , "
+"indeksowanie logiczne (\\ ``a[mask]``\\ ) oraz każde wyrażenie arytmetyczne "
+"alokują *kopię*\\ . Sięgaj po nie tylko wtedy, gdy faktycznie potrzebny jest"
+" niezależny bufor."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:69
+msgid ""
+"When in doubt, :func:`~numpy.ndinfo` prints the location of the underlying "
+"buffer; two arrays that report the same address share their data. The "
+"complete view-vs-copy table is on :doc:`shape/views-and-copies`."
+msgstr ""
+"W razie wątpliwości :func:`~numpy.ndinfo` wypisuje lokalizację bazowego "
+"bufora; dwie tablice, które raportują ten sam adres, współdzielą swoje dane."
+" Pełna tabela widok-kontra-kopia znajduje się na :doc:`shape/views-and-"
+"copies`\\ ."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:76
+msgid "Allocate once, then write"
+msgstr "Alokuj raz, potem zapisuj"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:78
+msgid ""
+"The single biggest performance pitfall on the camera is allocating fresh "
+"arrays inside a loop that runs many times a second. Each new "
+":class:`~numpy.ndarray` asks the cam for RAM, and frequent fresh allocations"
+" waste it."
+msgstr ""
+"Największą pojedynczą pułapką wydajnościową na kamerze jest alokowanie "
+"świeżych tablic wewnątrz pętli wykonywanej wiele razy na sekundę. Każdy nowy"
+" :class:`~numpy.ndarray` prosi kamerę o RAM, a częste świeże alokacje "
+"marnują go."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:84
+msgid ""
+"Most universal functions accept ``out=`` so the result can be written into "
+"an array that already exists::"
+msgstr ""
+"Większość funkcji uniwersalnych akceptuje ``out=``\\ , dzięki czemu wynik "
+"można zapisać do już istniejącej tablicy::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:94
+msgid ""
+":meth:`image.Image.to_ndarray` accepts ``buffer=`` for the same reason; "
+":func:`~ulab.utils.spectrogram` and the "
+":func:`~ulab.utils.from_int32_buffer`-style converters accept both ``out=`` "
+"and ``scratchpad=``. Allocate everything once and reuse it."
+msgstr ""
+":meth:`image.Image.to_ndarray` akceptuje ``buffer=`` z tego samego powodu; "
+":func:`~ulab.utils.spectrogram` oraz konwertery w stylu "
+":func:`~ulab.utils.from_int32_buffer` akceptują zarówno ``out=``\\ , jak i "
+"``scratchpad=``\\ . Zaalokuj wszystko raz i wykorzystuj ponownie."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:101
+msgid "Use in-place operators"
+msgstr "Używaj operatorów działających w miejscu"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:103
+msgid ""
+"``b = b + 1`` allocates a temporary the size of ``b``, copies, and re-"
+"assigns. ``b += 1`` modifies ``b`` directly::"
+msgstr ""
+"``b = b + 1`` alokuje tymczasową tablicę wielkości ``b``\\ , kopiuje i "
+"przypisuje ponownie. ``b += 1`` modyfikuje ``b`` bezpośrednio::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:113
+msgid ""
+"The same idea applies to compound expressions. ``a + b * c`` allocates a "
+"temporary for ``b * c``. Splitting the expression into simple sub-"
+"assignments writing into a pre-allocated buffer eliminates the temporaries::"
+msgstr ""
+"Ta sama idea dotyczy wyrażeń złożonych. ``a + b * c`` alokuje tablicę "
+"tymczasową dla ``b * c``\\ . Rozbicie wyrażenia na proste pod-przypisania "
+"zapisujące do wstępnie zaalokowanego bufora eliminuje tablice tymczasowe::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:128
+msgid "Build the result, do not append to it"
+msgstr "Buduj wynik, nie dołączaj do niego"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:130
+msgid ""
+":class:`~numpy.ndarray` has no ``append`` -- on purpose. Growing an array "
+"would mean allocating a fresh, larger buffer and copying the old contents "
+"into it. On a microcontroller, pre-allocate the final size and *fill* it::"
+msgstr ""
+":class:`~numpy.ndarray` nie ma metody ``append`` -- celowo. Powiększanie "
+"tablicy oznaczałoby alokowanie świeżego, większego bufora i kopiowanie do "
+"niego starej zawartości. Na mikrokontrolerze wstępnie zaalokuj końcowy "
+"rozmiar i *wypełnij* go::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:140
+msgid ""
+"When ``N`` genuinely is not known in advance, write to a Python "
+":class:`list` and convert once at the end with :func:`~numpy.array`."
+msgstr ""
+"Gdy ``N`` faktycznie nie jest znane z góry, zapisuj do listy Pythona "
+":class:`list` i przekonwertuj raz na końcu za pomocą :func:`~numpy.array`\\ "
+"."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:145
+msgid "Slice assignment instead of new arrays"
+msgstr "Przypisanie do wycinka zamiast nowych tablic"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:147
+msgid ""
+"Many \"build a new array from pieces of others\" patterns can be expressed "
+"as slice assignments into a pre-allocated buffer instead of a fresh "
+"allocation each call."
+msgstr ""
+"Wiele wzorców typu „zbuduj nową tablicę z fragmentów innych” można wyrazić "
+"jako przypisania do wycinków wstępnie zaalokowanego bufora zamiast świeżej "
+"alokacji przy każdym wywołaniu."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:152
+msgid ""
+"A rolling window over a stream of samples -- the foundation of a moving-"
+"average filter -- is the canonical case. The buffer holds the last ``N`` "
+"samples; every iteration drops the oldest and appends the newest. The "
+"obvious form rebuilds the buffer each iteration::"
+msgstr ""
+"Przesuwne okno nad strumieniem próbek -- podstawa filtra średniej ruchomej "
+"-- jest kanonicznym przykładem. Bufor przechowuje ostatnie ``N`` próbek; "
+"każda iteracja usuwa najstarszą i dołącza najnowszą. Oczywista forma "
+"przebudowuje bufor w każdej iteracji::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:165
+msgid ""
+"That is a fresh allocation -- and a copy of ``N - 1`` elements -- per "
+"sample. The slice-assignment form shifts in place::"
+msgstr ""
+"To świeża alokacja -- i kopia ``N - 1`` elementów -- na każdą próbkę. Forma "
+"z przypisaniem do wycinka przesuwa w miejscu::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:178
+msgid ""
+"``buf[:-1] = buf[1:]`` is the interesting line: two overlapping views into "
+"the same buffer, the right-hand slice read from one end and written to the "
+"other. :mod:`numpy` walks the underlying memory in the order that makes the "
+"in-place shift safe. No new array is ever allocated inside the loop."
+msgstr ""
+"``buf[:-1] = buf[1:]`` to interesujący wiersz: dwa nakładające się widoki na"
+" ten sam bufor, przy czym wycinek po prawej stronie jest czytany z jednego "
+"końca i zapisywany na drugim. :mod:`numpy` przechodzi przez bazową pamięć w "
+"kolejności, która zapewnia bezpieczeństwo przesunięcia w miejscu. Wewnątrz "
+"pętli nie jest nigdy alokowana żadna nowa tablica."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:186
+msgid "Watch out for boolean masks in streaming loops"
+msgstr "Uważaj na maski logiczne w pętlach strumieniowych"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:188
+msgid ""
+"Boolean indexing and :func:`~numpy.where` produce a new array on each call "
+"-- the size of the result depends on the data, so no pre-allocated buffer "
+"can absorb the allocation. Repeated mask building in a streaming loop fills "
+"RAM with throwaway arrays. A periodic ``gc.collect()`` reclaims the space::"
+msgstr ""
+"Indeksowanie logiczne oraz :func:`~numpy.where` tworzą nową tablicę przy "
+"każdym wywołaniu -- rozmiar wyniku zależy od danych, więc żaden wstępnie "
+"zaalokowany bufor nie może wchłonąć tej alokacji. Powtarzane budowanie masek"
+" w pętli strumieniowej zapełnia RAM tablicami jednorazowego użytku. Okresowe"
+" ``gc.collect()`` odzyskuje miejsce::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:203
+msgid ""
+"The same caveat applies to compound boolean expressions like ``(a > lo) & (a"
+" < hi)`` -- each operator allocates a new bool array. When a mask is reused,"
+" build it once and keep it::"
+msgstr ""
+"To samo zastrzeżenie dotyczy złożonych wyrażeń logicznych takich jak ``(a > "
+"lo) & (a < hi)`` -- każdy operator alokuje nową tablicę typu bool. Gdy maska"
+" jest używana ponownie, zbuduj ją raz i zachowaj::"

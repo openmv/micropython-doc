@@ -1,0 +1,320 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pl <LL@li.org>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:2
+msgid "Streaming frames"
+msgstr "Strumieniowanie ramek"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:4
+msgid ""
+"The most common real use of a custom channel is streaming image frames from "
+"the cam to a host program at the cam's frame rate. The mechanics are subtler"
+" than they look: a JPEG can run to 25 KB or more, so the host reads it as "
+"several fragments, and the cam's capture loop must be prevented from "
+"overwriting the buffer mid-read. The right pattern -- shown here and used by"
+" the tools in ``openmv-projects/tools/`` -- *latches* the buffer until the "
+"host finishes pulling the last byte."
+msgstr ""
+"Najczęstszym rzeczywistym zastosowaniem niestandardowego kanału jest "
+"strumieniowanie ramek obrazu z kamery do programu hosta z szybkością klatek "
+"kamery. Mechanika jest subtelniejsza, niż się wydaje: plik JPEG może osiągać"
+" 25 KB lub więcej, więc host odczytuje go jako kilka fragmentów, a pętla "
+"przechwytywania kamery musi mieć uniemożliwione nadpisanie bufora w trakcie "
+"odczytu. Właściwy wzorzec -- pokazany tutaj i używany przez narzędzia w "
+"``openmv-projects/tools/`` -- *blokuje* (latch) bufor, dopóki host nie "
+"pobierze ostatniego bajtu."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:14
+msgid "The cam side"
+msgstr "Strona kamery"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:16
+msgid ""
+"A frame channel that captures into a single framebuffer, latches it on the "
+"host's first read, and only takes the next snapshot once the host has "
+"consumed the full image::"
+msgstr ""
+"Kanał ramek, który przechwytuje do pojedynczego framebuffera, blokuje go "
+"przy pierwszym odczycie hosta i wykonuje kolejny zrzut obrazu dopiero wtedy,"
+" gdy host pobierze cały obraz::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:65
+msgid "Four pieces are doing real work here:"
+msgstr "Cztery elementy wykonują tutaj rzeczywistą pracę:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:67
+msgid ""
+"``frame_available`` is the *latch*. The capture loop only takes a new "
+"snapshot when it is :data:`False` -- meaning the host has pulled the last "
+"byte of the previous frame. The host's read sets it back to :data:`False` "
+"from inside ``readp`` once the final offset has been served. Without this "
+"guard, the next ``csi0.snapshot()`` would overwrite the buffer mid-read and "
+"the host would receive a frame stitched together from two captures."
+msgstr ""
+"``frame_available`` to *blokada* (latch). Pętla przechwytywania wykonuje "
+"nowy zrzut obrazu tylko wtedy, gdy ma wartość :data:`False` -- co oznacza, "
+"że host pobrał ostatni bajt poprzedniej ramki. Odczyt hosta ustawia ją z "
+"powrotem na :data:`False` z wnętrza ``readp``\\ , gdy obsłużone zostanie "
+"końcowe przesunięcie. Bez tego zabezpieczenia następne wywołanie "
+"``csi0.snapshot()`` nadpisałoby bufor w trakcie odczytu, a host otrzymałby "
+"ramkę zszytą z dwóch przechwyceń."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:74
+msgid ""
+"``readp`` rather than ``read`` is what the backend implements. The protocol "
+"library treats the returned buffer as authoritative and reads its bytes "
+"directly into the outgoing packet -- no copy. For frame-sized payloads "
+"``readp`` is noticeably faster than ``read``, which forces an intermediate "
+"copy."
+msgstr ""
+"To ``readp``\\ , a nie ``read``\\ , jest tym, co implementuje backend. "
+"Biblioteka protokołu traktuje zwrócony bufor jako miarodajny i odczytuje "
+"jego bajty bezpośrednio do wychodzącego pakietu -- bez kopiowania. Dla "
+"ładunków wielkości ramki ``readp`` jest zauważalnie szybsze niż ``read``\\ ,"
+" które wymusza pośrednią kopię."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:79
+msgid ""
+"``size`` returns the cached JPEG length without recomputing anything; the "
+"capture loop maintains it whenever it refreshes the buffer. The host calls "
+"``size`` between ``poll`` and ``readp`` to know how many bytes to pull."
+msgstr ""
+"``size`` zwraca buforowaną długość JPEG bez ponownego przeliczania "
+"czegokolwiek; pętla przechwytywania utrzymuje ją za każdym razem, gdy "
+"odświeża bufor. Host wywołuje ``size`` pomiędzy ``poll`` a ``readp``\\ , aby"
+" wiedzieć, ile bajtów pobrać."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:83
+msgid ""
+":meth:`~protocol.ProtocolChannel.send_event` notifies the host the instant a"
+" new frame lands so it can begin pulling without polling. The event ID "
+"``0x01`` is application-defined (\"frame ready\" in this case); use a "
+"different small integer for each kind of notification."
+msgstr ""
+":meth:`~protocol.ProtocolChannel.send_event` powiadamia host w momencie "
+"pojawienia się nowej ramki, dzięki czemu może on rozpocząć pobieranie bez "
+"odpytywania. Identyfikator zdarzenia ``0x01`` jest definiowany przez "
+"aplikację (\"ramka gotowa\" w tym przypadku); dla każdego rodzaju "
+"powiadomienia użyj innej małej liczby całkowitej."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:90
+msgid "Fragmentation"
+msgstr "Fragmentacja"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:92
+msgid ""
+"QVGA RGB565 at JPEG quality 85 compresses to roughly 10-25 KB, depending on "
+"the scene -- much bigger than the negotiated max payload on any cam (see the"
+" per-board table in :func:`protocol.init`). One JPEG read won't fit in one "
+"packet, and that's fine, because the protocol library fragments it "
+"transparently."
+msgstr ""
+"QVGA RGB565 przy jakości JPEG 85 kompresuje się do mniej więcej 10-25 KB, w "
+"zależności od sceny -- znacznie więcej niż wynegocjowany maksymalny ładunek "
+"na dowolnej kamerze (zobacz tabelę dla poszczególnych płytek w "
+":func:`protocol.init`\\ ). Jeden odczyt JPEG nie zmieści się w jednym "
+"pakiecie, i to jest w porządku, ponieważ biblioteka protokołu fragmentuje go"
+" w sposób przezroczysty."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:99
+msgid "When the host asks for ``channel_read('frame', 12000)``:"
+msgstr "Gdy host żąda ``channel_read('frame', 12000)``\\ :"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:101
+msgid ""
+"The cam's ``readp`` is called *once* with ``offset=0`` and the full "
+"12000-byte request. It returns one memoryview covering the whole range."
+msgstr ""
+"``readp`` kamery jest wywoływane *raz* z ``offset=0`` i pełnym żądaniem o "
+"rozmiarze 12000 bajtów. Zwraca jeden memoryview obejmujący cały zakres."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:104
+msgid ""
+"The protocol library breaks that memoryview into max-payload- sized "
+"fragments on the wire, one ``CHANNEL_READ`` reply packet per fragment, each "
+"with its own header and CRC. The bytes are streamed out of the backend's "
+"buffer directly -- no copy."
+msgstr ""
+"Biblioteka protokołu dzieli ten memoryview na fragmenty o rozmiarze "
+"maksymalnego ładunku w transmisji, po jednym pakiecie odpowiedzi "
+"``CHANNEL_READ`` na fragment, każdy z własnym nagłówkiem i CRC. Bajty są "
+"strumieniowane bezpośrednio z bufora backendu -- bez kopiowania."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:108
+msgid ""
+"The host receives the fragments in order, the reliability layer retransmits "
+"any one chunk that fails its CRC, and the host SDK glues the chunks into the"
+" 12000-byte result returned to the caller."
+msgstr ""
+"Host odbiera fragmenty w kolejności, warstwa niezawodności retransmituje "
+"każdy fragment, który nie przejdzie weryfikacji CRC, a SDK hosta skleja "
+"fragmenty w wynik o rozmiarze 12000 bajtów zwracany do wywołującego."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:115
+msgid ""
+"This is the key practical difference between ``readp`` and ``read``. "
+"``readp`` is called *once per host request*; the protocol layer fragments "
+"and transmits out of the single returned buffer. ``read`` is called *once "
+"per fragment*, and the library copies each returned chunk into its own "
+"packet buffer. For frame-sized payloads ``readp`` saves both the per-"
+"fragment Python-level call overhead and the copy."
+msgstr ""
+"To kluczowa praktyczna różnica między ``readp`` a ``read``\\ . ``readp`` "
+"jest wywoływane *raz na żądanie hosta*\\ ; warstwa protokołu fragmentuje i "
+"transmituje z pojedynczego zwróconego bufora. ``read`` jest wywoływane *raz "
+"na fragment*\\ , a biblioteka kopiuje każdy zwrócony fragment do własnego "
+"bufora pakietu. Dla ładunków wielkości ramki ``readp`` oszczędza zarówno "
+"narzut wywołań na poziomie Pythona przypadający na fragment, jak i "
+"kopiowanie."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:125
+msgid ""
+"Want to see the gap for yourself? Rename the backend's ``readp`` method to "
+"``read`` -- nothing else changes; the library will pick up the ``read`` "
+"capability instead -- and compare the host's frame-rate counter before and "
+"after. The slower number is the per-fragment copy and Python-call cost you "
+"avoid by using ``readp``."
+msgstr ""
+"Chcesz zobaczyć tę różnicę na własne oczy? Zmień nazwę metody ``readp`` "
+"backendu na ``read`` -- nic więcej się nie zmienia; biblioteka wykryje wtedy"
+" zdolność ``read`` -- i porównaj licznik szybkości klatek hosta przed i po. "
+"Wolniejsza wartość to koszt kopiowania na fragment i wywołań Pythona, "
+"którego unikasz, używając ``readp``\\ ."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:132
+msgid ""
+"The latch in ``FrameChannel.readp`` releases the buffer when ``offset + size"
+" == img_size`` -- the moment the host has pulled the last byte. Until then, "
+"the buffer must stay valid, which is why the capture loop only takes the "
+"next snapshot once ``frame_available`` flips back to :data:`False`."
+msgstr ""
+"Blokada w ``FrameChannel.readp`` zwalnia bufor, gdy ``offset + size == "
+"img_size`` -- w momencie, gdy host pobrał ostatni bajt. Do tego czasu bufor "
+"musi pozostać prawidłowy, dlatego pętla przechwytywania wykonuje następny "
+"zrzut obrazu dopiero wtedy, gdy ``frame_available`` wróci do :data:`False`\\"
+" ."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:139
+msgid "The host side"
+msgstr "Strona hosta"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:141
+msgid "The host pulls frames in a tight loop::"
+msgstr "Host pobiera ramki w ciasnej pętli::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:158
+msgid ""
+"The :meth:`~openmv.camera.Camera.channel_size` call doubles as a \"is "
+"anything ready\" check -- zero means the cam hasn't captured yet -- so the "
+"loop skips read attempts on an empty buffer. For GUI applications that "
+"already poll on a timer, this is the natural pattern."
+msgstr ""
+"Wywołanie :meth:`~openmv.camera.Camera.channel_size` pełni jednocześnie "
+"funkcję sprawdzenia \"czy cokolwiek jest gotowe\" -- zero oznacza, że kamera"
+" jeszcze niczego nie przechwyciła -- więc pętla pomija próby odczytu na "
+"pustym buforze. Dla aplikacji GUI, które już odpytują za pomocą licznika "
+"czasu (timera), jest to naturalny wzorzec."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:164
+msgid ""
+"Pillow's ``Image.open`` decodes the JPEG; the cam already JPEG-compressed it"
+" so the host doesn't have to redo expensive bit-packing on RGB565. The host "
+"script could just as easily save the bytes to disk, hand them to OpenCV, or "
+"push them through a web view."
+msgstr ""
+"``Image.open`` z biblioteki Pillow dekoduje JPEG; kamera już skompresowała "
+"go do JPEG, więc host nie musi ponownie wykonywać kosztownego upakowywania "
+"bitów na RGB565. Skrypt hosta mógłby równie łatwo zapisać bajty na dysk, "
+"przekazać je do OpenCV lub wypchnąć przez widok internetowy."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:171
+msgid "Throughput thinking"
+msgstr "Myślenie o przepustowości"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:173
+msgid "Three things bound the achievable frame rate:"
+msgstr "Trzy rzeczy ograniczają osiągalną szybkość klatek:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:175
+msgid ""
+"The cam's capture rate. The protocol can't deliver frames faster than the "
+"sensor produces them; whatever cap the chosen pixel format and frame size "
+"impose on capture is the ceiling."
+msgstr ""
+"Szybkość przechwytywania kamery. Protokół nie może dostarczać ramek "
+"szybciej, niż produkuje je sensor; jakikolwiek limit narzucony na "
+"przechwytywanie przez wybrany format pikseli i rozmiar ramki stanowi pułap."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:178
+msgid ""
+"The negotiated max payload. Bigger payloads mean fewer fragments per frame "
+"and less framing overhead, so cams with larger protocol buffers move bytes "
+"faster than smaller ones."
+msgstr ""
+"Wynegocjowany maksymalny ładunek. Większe ładunki oznaczają mniej fragmentów"
+" na ramkę i mniejszy narzut ramkowania, więc kamery z większymi buforami "
+"protokołu przesyłają bajty szybciej niż te z mniejszymi."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:181
+msgid ""
+"CRC and ACK overhead. Each packet costs 14 bytes of framing plus one ACK "
+"round-trip. For long fragments the per-payload overhead is small; for tiny "
+"payloads it dominates."
+msgstr ""
+"Narzut CRC i ACK. Każdy pakiet kosztuje 14 bajtów ramkowania plus jedną "
+"rundę ACK. Dla długich fragmentów narzut przypadający na ładunek jest mały; "
+"dla maleńkich ładunków dominuje."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:185
+msgid ""
+"For most cam-to-laptop GUI work the limiting factor is the cam's capture and"
+" JPEG compression time, not the protocol stack. Where the protocol does "
+"become the bottleneck -- streaming uncompressed raw frames at high frame "
+"rates, for example -- the levers are turning off ACKs "
+"(``protocol.init(ack=False)``), increasing the protocol buffer if the cam "
+"supports it, or capturing in GRAYSCALE so each compressed JPEG carries one "
+"channel instead of three and the encoded frame ends up noticeably smaller on"
+" the wire."
+msgstr ""
+"W większości prac GUI typu kamera-laptop czynnikiem ograniczającym jest czas"
+" przechwytywania i kompresji JPEG kamery, a nie stos protokołu. Tam, gdzie "
+"protokół faktycznie staje się wąskim gardłem -- na przykład przy "
+"strumieniowaniu nieskompresowanych surowych ramek z wysoką szybkością klatek"
+" -- dźwigniami są wyłączenie ACK (\\ ``protocol.init(ack=False)``\\ ), "
+"zwiększenie bufora protokołu, jeśli kamera to obsługuje, lub przechwytywanie"
+" w trybie GRAYSCALE, tak aby każdy skompresowany JPEG niósł jeden kanał "
+"zamiast trzech, a zakodowana ramka okazała się zauważalnie mniejsza w "
+"transmisji."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:194
+msgid ""
+"The frame channel is the canonical cam-to-host data flow. The same backend "
+"interface, with a ``write`` method added, lets the host push data the other "
+"way too -- which is what an interactive cam tool needs as soon as the "
+"operator wants to *change* something rather than just watch."
+msgstr ""
+"Kanał ramek to kanoniczny przepływ danych z kamery do hosta. Ten sam "
+"interfejs backendu, z dodaną metodą ``write``\\ , pozwala hostowi wypychać "
+"dane także w drugą stronę -- co jest tym, czego potrzebuje interaktywne "
+"narzędzie kamery w momencie, gdy operator chce coś *zmienić*\\ , a nie tylko"
+" obserwować."

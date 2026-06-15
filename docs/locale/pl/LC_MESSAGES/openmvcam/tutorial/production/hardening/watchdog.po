@@ -1,0 +1,258 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pl <LL@li.org>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:2
+msgid "The watchdog"
+msgstr "Watchdog"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:4
+msgid ""
+"The hardware watchdog is the floor every other hardening choice sits on. It "
+"is a tiny independent timer that resets the processor when it has not been "
+"told otherwise for too long. A script that wedges on a flaky sensor, a "
+"network call that blocks past its timeout, a memory allocator stuck in a "
+"corner of the heap, an exception that escaped the loop -- none of them stop "
+"the watchdog. The timer counts down regardless, and the cam reboots."
+msgstr ""
+"Sprzętowy watchdog to fundament, na którym opiera się każdy inny wybór "
+"dotyczący wzmacniania odporności. To niewielki niezależny licznik czasu "
+"(timer), który resetuje procesor, gdy zbyt długo nie otrzymuje innych "
+"poleceń. Skrypt zacinający się na niestabilnym sensorze, wywołanie sieciowe "
+"blokujące się poza swoim limitem czasu, alokator pamięci utknięty w "
+"zakamarku sterty, wyjątek, który wymknął się z pętli -- żaden z nich nie "
+"zatrzyma watchdoga. Licznik odlicza niezależnie od tego, a kamera ponownie "
+"się uruchamia."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:13
+msgid ""
+"For a shipped product, a watchdog is not optional. Without it, any of the "
+"failure modes above leaves the cam dead until someone notices and power-"
+"cycles it. With it, the cam comes back up by itself and the only evidence of"
+" the failure is one line in the log."
+msgstr ""
+"Dla dostarczanego produktu watchdog nie jest opcjonalny. Bez niego "
+"którykolwiek z powyższych trybów awarii pozostawia kamerę martwą, dopóki "
+"ktoś tego nie zauważy i nie wyłączy oraz nie włączy zasilania. Z nim kamera "
+"uruchamia się ponownie sama, a jedynym dowodem awarii jest jedna linia w "
+"dzienniku."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:21
+msgid ""
+"The hardware chapter's :doc:`watchdog timer "
+"</openmvcam/tutorial/hardware/production/watchdog>` page covers what a "
+"watchdog is at the hardware level and the basics of the :class:`machine.WDT`"
+" API. This page covers what changes for a production deployment."
+msgstr ""
+"Strona :doc:`licznik czasu watchdog "
+"</openmvcam/tutorial/hardware/production/watchdog>` w rozdziale o sprzęcie "
+"omawia, czym jest watchdog na poziomie sprzętowym, oraz podstawy API "
+":class:`machine.WDT`\\ . Ta strona omawia, co zmienia się w przypadku "
+"wdrożenia produkcyjnego."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:28
+msgid "Starting the watchdog"
+msgstr "Uruchamianie watchdoga"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:30
+msgid ""
+":class:`machine.WDT` is the API. It is hardware-backed: once constructed, "
+"the timer runs until the next reset. There is no ``stop()``, no "
+"``deinit()``, no Ctrl-C escape. That is the point."
+msgstr ""
+":class:`machine.WDT` to API. Jest oparte na sprzęcie: po utworzeniu licznik "
+"działa aż do następnego resetu. Nie ma ``stop()``\\ , nie ma ``deinit()``\\ "
+", nie ma ucieczki przez Ctrl-C. O to właśnie chodzi."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:35
+msgid ""
+"A typical setup at the top of ``main.py``, immediately before the loop it "
+"protects::"
+msgstr ""
+"Typowa konfiguracja na początku ``main.py``\\ , bezpośrednio przed pętlą, "
+"którą chroni::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:42
+msgid ""
+"``main.py`` is the right home for the watchdog because that is where the "
+"loop lives. A watchdog reset is a hardware reset, so the cold-boot path re-"
+"runs and ``main.py`` re-enters the loop on its own -- recovery works without"
+" any wiring in ``boot.py``. Starting the watchdog in ``boot.py`` instead "
+"means every soft reset (a developer's Ctrl-D, for instance) hands the "
+"application a hardware timer it has no way to stop, which is an annoyance at"
+" the bench and a trap in production setup code that runs before the loop is "
+"ready."
+msgstr ""
+"``main.py`` jest właściwym miejscem dla watchdoga, ponieważ to tam mieszka "
+"pętla. Reset watchdoga to reset sprzętowy, więc ścieżka zimnego rozruchu "
+"uruchamia się ponownie, a ``main.py`` samodzielnie ponownie wchodzi w pętlę "
+"-- odzyskiwanie działa bez żadnego oprogramowania w ``boot.py``\\ . "
+"Uruchamianie watchdoga w ``boot.py`` oznacza natomiast, że każdy miękki "
+"reset (na przykład programistyczne Ctrl-D) przekazuje aplikacji sprzętowy "
+"licznik czasu, którego nie ma ona jak zatrzymać, co jest uciążliwością na "
+"stanowisku roboczym i pułapką w produkcyjnym kodzie konfiguracyjnym, który "
+"działa przed gotowością pętli."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:52
+msgid ""
+"Pick the timeout to be 2 to 3 times longer than the worst observed iteration"
+" time of the main loop. Frame-rate jitter, a slow sensor read on a cold "
+"sensor, a brief Wi-Fi hiccup -- none of those should trip the watchdog. A "
+"real hang (an infinite loop, a blocked I/O call) should. Too-short timeouts "
+"turn the watchdog into a source of false resets; too-long timeouts let the "
+"cam sit unresponsive for minutes before recovery fires."
+msgstr ""
+"Dobierz limit czasu tak, aby był od 2 do 3 razy dłuższy niż najgorszy "
+"zaobserwowany czas iteracji głównej pętli. Drgania częstotliwości ramek, "
+"powolny odczyt z zimnego sensora, krótka czkawka Wi-Fi -- żadne z nich nie "
+"powinno wyzwolić watchdoga. Prawdziwe zawieszenie (nieskończona pętla, "
+"zablokowane wywołanie I/O) powinno. Zbyt krótkie limity czasu zamieniają "
+"watchdoga w źródło fałszywych resetów; zbyt długie limity pozwalają kamerze "
+"pozostawać nieczułą na reakcje przez wiele minut, zanim uruchomi się "
+"odzyskiwanie."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:62
+msgid "Feeding it"
+msgstr "Karmienie watchdoga"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:64
+msgid ""
+"``wdt.feed()`` resets the countdown. Call it once per iteration of the main "
+"loop, at the **top** of the loop body so the feed happens unconditionally "
+"before any work that might hang::"
+msgstr ""
+"``wdt.feed()`` resetuje odliczanie. Wywołuj je raz na iterację głównej "
+"pętli, na **początku** ciała pętli, aby karmienie następowało bezwarunkowo "
+"przed jakąkolwiek pracą, która mogłaby się zawiesić::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:75
+msgid "Surviving exceptions"
+msgstr "Przetrwanie wyjątków"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:77
+msgid ""
+"The watchdog handles hangs. Exceptions are a different failure mode. An "
+"unhandled exception bubbles up to the script's top level, ``main.py`` exits,"
+" and the cam drops to the REPL. The watchdog then trips after its timeout "
+"because nothing is feeding it from the REPL, the cam resets, and ``main.py``"
+" runs again -- so recovery does work, but the field pays a full timeout-"
+"plus-reboot for every crash, the traceback goes to USB stdout that nothing "
+"reads, and any in-memory state the application was keeping is gone."
+msgstr ""
+"Watchdog obsługuje zawieszenia. Wyjątki to inny tryb awarii. Nieobsłużony "
+"wyjątek przechodzi na najwyższy poziom skryptu, ``main.py`` kończy "
+"działanie, a kamera przechodzi do REPL. Watchdog następnie uruchamia się po "
+"upłynięciu swojego limitu czasu, ponieważ nic nie karmi go z REPL, kamera "
+"się resetuje, a ``main.py`` uruchamia się ponownie -- więc odzyskiwanie "
+"faktycznie działa, ale w terenie za każdą awarię płaci się pełnym limitem "
+"czasu plus ponownym uruchomieniem, ślad stosu trafia na wyjście standardowe "
+"USB, którego nikt nie czyta, a cały stan w pamięci, który aplikacja "
+"utrzymywała, jest tracony."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:87
+msgid ""
+"Wrapping the main loop in a top-level ``try`` / ``except`` turns a crash "
+"into a logged event the application continues through, without paying for a "
+"reset::"
+msgstr ""
+"Owinięcie głównej pętli w ``try`` / ``except`` najwyższego poziomu zamienia "
+"awarię w zarejestrowane zdarzenie, przez które aplikacja kontynuuje "
+"działanie, bez płacenia za reset::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:103
+msgid ""
+"Catching ``Exception`` (not ``BaseException``) keeps ``KeyboardInterrupt`` "
+"and :class:`SystemExit` working, which is what a developer attached over USB"
+" wants."
+msgstr ""
+"Przechwytywanie ``Exception`` (a nie ``BaseException``\\ ) utrzymuje "
+"działanie ``KeyboardInterrupt`` i :class:`SystemExit`\\ , czego oczekuje "
+"programista podłączony przez USB."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:107
+msgid ""
+"This pattern is the software half of liveness: the watchdog catches the "
+"hangs, the wrapper catches the crashes, and the log records what either of "
+"them caught."
+msgstr ""
+"Ten wzorzec to programowa połowa żywotności: watchdog przechwytuje "
+"zawieszenia, owijka przechwytuje awarie, a dziennik rejestruje to, co "
+"przechwyciło którekolwiek z nich."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:112
+msgid "Knowing why a boot happened"
+msgstr "Wiedza o tym, dlaczego nastąpił rozruch"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:114
+msgid ""
+"Every soft reset and every watchdog reset eventually shows up as a fresh "
+"boot. The boot-time diagnostics helper logs :func:`machine.reset_cause` on "
+"every cold start; the ``reset cause`` line is what tells the field whether "
+"recovery actually fired versus the cam just power-cycling normally."
+msgstr ""
+"Każdy miękki reset i każdy reset watchdoga ostatecznie pojawia się jako "
+"świeży rozruch. Pomocnik diagnostyki czasu rozruchu rejestruje "
+":func:`machine.reset_cause` przy każdym zimnym starcie; linia ``reset "
+"cause`` mówi w terenie, czy odzyskiwanie rzeczywiście się uruchomiło, czy "
+"też kamera po prostu normalnie wyłączyła i włączyła zasilanie."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:120
+msgid ""
+"The reset-cause line is what makes the watchdog's work visible in the log. A"
+" log full of ``watchdog timeout`` resets says the application has been "
+"hanging and the watchdog has been recovering it. A log without them says the"
+" watchdog has not had to fire -- which usually means the application is "
+"healthy, but can also mean the timeout is set too long to catch the hangs "
+"that are actually happening."
+msgstr ""
+"Linia z przyczyną resetu sprawia, że praca watchdoga jest widoczna w "
+"dzienniku. Dziennik pełen resetów ``watchdog timeout`` mówi, że aplikacja "
+"się zawieszała, a watchdog ją odzyskiwał. Dziennik bez nich mówi, że "
+"watchdog nie musiał się uruchamiać -- co zwykle oznacza, że aplikacja jest "
+"zdrowa, ale może też oznaczać, że limit czasu jest ustawiony zbyt długo, aby"
+" wychwycić zawieszenia, które faktycznie się zdarzają."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:129
+msgid "A complete starter"
+msgstr "Kompletny szablon startowy"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:131
+msgid ""
+"A ``main.py`` that pulls watchdog, logging setup, boot-time diagnostics, and"
+" the wrapper together looks like::"
+msgstr ""
+"``main.py`` łączący watchdoga, konfigurację logowania, diagnostykę czasu "
+"rozruchu i owijkę wygląda następująco::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:153
+msgid ""
+"``step()`` is the application's per-iteration work; the rest of this "
+"scaffold does not change between products. Hardening is one watchdog, one "
+"wrapper, and a logged boot every cold start -- not much code, and the "
+"difference between a cam that recovers on its own and one that needs a "
+"service call."
+msgstr ""
+"``step()`` to praca aplikacji wykonywana w każdej iteracji; reszta tego "
+"rusztowania nie zmienia się między produktami. Wzmacnianie odporności to "
+"jeden watchdog, jedna owijka i zarejestrowany rozruch przy każdym zimnym "
+"starcie -- niewiele kodu, a różnica między kamerą, która sama się odzyskuje,"
+" a taką, która wymaga wizyty serwisowej."
