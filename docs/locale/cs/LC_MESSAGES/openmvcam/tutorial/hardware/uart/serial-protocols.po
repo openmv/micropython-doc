@@ -1,0 +1,566 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: cs <LL@li.org>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Sériové protokoly, rámcování a kontrolní součty CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` přesouvalo bajty mezi dvěma konci. Samo o sobě to ale "
+"nestačí k vytvoření spolehlivého spojení. Jakmile se na druhém konci vodiče "
+"objeví reálné zařízení, vyvstanou tři problémy:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Kde zpráva začíná a kde končí?** Bajty přicházejí v proudu bez vestavěného"
+" oddělovače. Pokud přijímač zmešká první bajt (zapne se až po odesílateli; "
+"krátký elektrický zákmit na lince), je každý následující bajt posunutý o "
+"jedničku, dokud přijímač nenajde nový bod resynchronizace."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Jak dlouhá je každá zpráva?** 32bajtové čtení ze senzoru a 4bajtová "
+"stavová odpověď vypadají na úrovni bajtů identicky. Přijímač potřebuje "
+"způsob, jak zjistit, kolik bajtů patří k aktuální zprávě."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Dorazily bajty neporušené?** Šum může převrátit jednotlivé bity. Bez "
+"kontroly přijímač vesele zpracuje poškozená data."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Standardní odpovědí na všechny tři problémy je zabalit data do rámce paketu:"
+" známá posloupnost bajtů na začátku, pole délky, samotná užitečná data "
+"(payload) a kontrolní součet na konci."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Rámcování paketů"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Typický formát rámcování:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Šest polí vykreslených v posloupnosti: dvoubajtová HLAVIČKA\n"
+"označená 0xAA 0x55, jednobajtové pole CMD, které vybírá,\n"
+"jaký příkaz tento paket nese, dvoubajtové pole LEN\n"
+"udávající velikost payloadu, jednobajtové pole HCRC\n"
+"pokrývající HLAVIČKU, CMD a LEN, PAYLOAD s proměnnou\n"
+"délkou o LEN bajtech, jehož formát závisí na CMD,\n"
+"a čtyřbajtové pole DCRC pokrývající payload."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Rámcovaný paket se samostatnými CRC pro hlavičku a data: hlavička (magické "
+"bajty), příkaz, délka, CRC hlavičky, payload, CRC dat."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Každé pole plní jeden úkol:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Hlavička (magické bajty).** Pevná, neobvyklá posloupnost bajtů -- často "
+"dva bajty jako ``0xAA 0x55`` -- kterou přijímač vyhledává v příchozím "
+"proudu. Když posloupnost najde, ví, že začíná nový paket, a může zahodit "
+"jakýkoli nepořádek, který přišel předtím."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Příkaz.** Jediný bajt, který říká, *co* paket je. Různé hodnoty příkazu "
+"používají různé formáty payloadu -- jeden příkaz může znamenat \"nastav úhel"
+" serva\" se dvěma bajty payloadu, jiný může znamenat \"přečti senzor\" bez "
+"payloadu, další může být \"zaloguj zprávu\" s řetězcem. Přijímač podle "
+"příkazového bajtu rozhodne, jak interpretovat zbytek paketu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Délka.** Dva bajty udávající velikost payloadu v bajtech (zde little-"
+"endian), což umožňuje payloady až přibližně 64 KiB. Přijímač přečte přesně "
+"tolik bajtů, jakmile je ověřeno CRC hlavičky."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**CRC hlavičky.** Jednobajtový kontrolní součet přes pole HEADER, CMD a LEN."
+" Přijímač jej zkontroluje předtím, než přečte jakýkoli payload, takže "
+"poškozené LEN je odhaleno už po hrstce bajtů (proč na tom záleží, viz sekce "
+"o CRC níže)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Payload.** Aplikační data specifická pro daný příkaz, dlouhá přesně LEN "
+"bajtů. Formát je určen příkazovým bajtem: záznam zabalený pomocí "
+":mod:`struct` s poli pevné šířky, řetězec, surová paměť -- cokoli, na čem se"
+" obě strany pro daný příkaz dohodnou."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**CRC dat.** Čtyřbajtové CRC přes bajty payloadu. Přijímač jej znovu "
+"vypočítá z právě přečtených bajtů a paket zahodí, pokud se neshoduje."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "Kontrolní součty CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"Nejjednodušší \"kontrolní součet\" je součet všech bajtů modulo 256 nebo "
+"65536. Zachytí většinu převrácení jednoho bitu, ale spoustu vícebitových "
+"chyb mine a ignoruje pořadí bajtů."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"*Cyklický redundantní součet* (CRC) je standardním vylepšením. Vstup "
+"zpracuje jako jedno dlouhé binární číslo a vydělí jej (zvláštním způsobem) "
+"pevným *polynomem*\\ ; zbytek po dělení je CRC. Různé polynomy zachycují "
+"různé třídy chyb; běžné 8-, 16- a 32bitové polynomy každý zachytí každou "
+"dávku chyb kratší než jejich šířka plus velkou část delších dávek."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Proč dvě CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"Diagram paketu výše nese *dvě* samostatná CRC -- jedno přes hlavičku "
+"(HEADER, CMD, LEN) a jedno přes payload. Přesně to robustní rámcování ve "
+"skutečnosti potřebuje, kvůli tomu, jak jediné koncové CRC selhává, když se "
+"při přenosu poškodí samotné pole LEN:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Přijímač zareaguje na poškozené LEN a přečte z linky tolik bajtů -- možná "
+"mnohem více, než odesílatel zamýšlel."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Až nakonec teprve koncové CRC řekne přijímači, že se něco pokazilo, a to až "
+"poté, co byly všechny tyto bajty spotřebovány."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Zatímco parser uvízne v čekání na nesprávný počet bajtů, skutečné pakety "
+"přicházející za tím poškozeným jsou pohlceny jako payload a přijímač přijde "
+"o několik paketů místo jen o jeden."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "Rozdělení CRC to řeší:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**CRC hlavičky** pokrývá HEADER, CMD a LEN. Přijímač jej zkontroluje "
+"předtím, než přečte jakýkoli payload, takže poškozené LEN je odhaleno po "
+"hrstce bajtů a parser se okamžitě resynchronizuje, čímž ztratí jen ten jeden"
+" vadný paket."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**CRC dat** pokrývá payload. Jakmile CRC hlavičky projde, přijímač ví, že "
+"může LEN důvěřovat, přečte přesně tolik bajtů payloadu a ověří je proti CRC "
+"dat."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"Běžné rozměry -- a to, co používá tato stránka -- je jeden bajt pro CRC "
+"hlavičky (CRC-8 na pětibajtovou hlavičku bohatě stačí) a čtyři bajty pro CRC"
+" dat (CRC-32 pokryje mnoho kilobajtů payloadu s mizivě nízkou "
+"pravděpodobností kolize)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Pomocné funkce"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython dodává :func:`binascii.crc32` přímo pro čtyřbajtové CRC. Pro "
+"jednobajtové CRC hlavičky je malá pomocná funkce používající polynom, který "
+"používají 1-wire zařízení od firmy Maxim (\\ ``0x8C`` v reflektované "
+"podobě), dostatečně krátká na to, aby se napsala přímo na místě:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "Kompletní enkodér kombinuje obě CRC v jedné funkci:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Inverzní funkce z kompletního paketu obnoví příkaz a payload, nebo vrátí "
+"``None``\\ , pokud selže některá z kontrol CRC:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"V praxi přijímač nedostane celý paket najednou -- bajty přicházejí po jednom"
+" přes UART a odesílatel, který se zastaví uprostřed paketu (nebo zašuměná "
+"linka, která ztratí bajt), nelze prostě ``read()`` načíst do bufferu správné"
+" velikosti. Následující sekce spouští stejnou dekódovací logiku bajt po "
+"bajtu jako stavový automat."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "Přijímač jako stavový automat"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Přijímač nemůže prostě zavolat ``uart.read(N)`` pro nějaké pevné ``N`` -- "
+"neví, kolik bajtů bude mít následující paket, a jakýkoli nepořádek na lince "
+"naruší zarovnání. Řešením je malý stavový automat, který bajty spotřebovává "
+"po jednom a reaguje podle toho, kde se v paketu nachází. Hlavní smyčka se "
+"pomocí :meth:`~machine.UART.any` ptá, kolik bajtů je v bufferu, vyprázdní je"
+" jediným voláním :meth:`~machine.UART.read` a každý bajt protáhne stavovým "
+"automatem:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Každý bajt posune stavový automat o jeden krok vpřed, nebo se vrátí do "
+"``HUNT_FOR_HEADER`` po kompletním paketu, špatném CRC hlavičky nebo špatném "
+"CRC dat. Nepořádek na lince, který neodpovídá hlavičce, je tiše zahozen; "
+"další platná hlavička přijímač znovu synchronizuje. Klíčová bezpečnostní "
+"vlastnost pochází z CRC hlavičky: pokud je pole LEN poškozeno, parser to "
+"zachytí po kontrole CRC hlavičky (hrstka bajtů), nikoli až poté, co se "
+"zavázal přečíst naprosto nesprávný počet bajtů payloadu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Nad rámec základu"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Výše uvedené rámcování je *minimem*\\ , které sériové spojení potřebuje k "
+"zotavení ze šumu na lince: magická hlavička, délka, příkaz a dvě CRC. "
+"Detekuje poškození a po pokažených bajtech se resynchronizuje, ale poškozené"
+" pakety vzdává místo toho, aby je propustil, a odesílatele ponechává bez "
+"tušení, co přijímač vlastně slyšel."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Reálné sériové protokoly nad tímto základem vrství další funkce. Ne každé "
+"vestavěné spojení potřebuje všechny z nich -- vyberte si to, co aplikace "
+"skutečně vyžaduje:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Pořadová čísla.** Malý čítač, který se zvyšuje při každém odeslání. "
+"Přijímač detekuje mezery (paket byl ztracen), duplikáty (odesílatel paket "
+"znovu odeslal, ale přijímač již první kopii přijal) a -- tam, kde kanál může"
+" měnit pořadí -- příchody mimo pořadí."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Potvrzení (ACK).** Vyhrazený paket ACK (nebo přiložený bit v odpovědi), "
+"který přijímač posílá zpět k potvrzení každého paketu. Bez ACK nemá "
+"odesílatel jak zjistit, že jeho data dorazila."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Záporná potvrzení (NACK).** NACK odeslané, když přijímač zaznamená selhání"
+" CRC nebo mezeru v pořadí. Odesílatel okamžitě paket znovu odešle, místo aby"
+" čekal na vypršení časového limitu ACK."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Opětovné odesílání.** Odesílatel uchovává každý nepotvrzený paket v malé "
+"frontě a po vypršení časového limitu (nebo při NACK) jej znovu odešle. Limit"
+" počtu pokusů a určité zpoždění (backoff) mezi pokusy zabrání tomu, aby se "
+"trvale rozbité spojení donekonečna zacyklilo."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Posuvná okna.** Povolení několika paketů \"v letu\" před vyžádáním ACK "
+"udržuje propustnost na spojeních, kde je doba obrátky (round-trip) dlouhá ve"
+" srovnání s dobou odeslání jednoho paketu. Cenou je více stavu na straně "
+"odesílatele -- jeden slot na každý paket v letu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Řízení toku.** Signál od přijímače, který říká odesílateli, aby zpomalil "
+"nebo se pozastavil, když se jeho buffer plní. Implementace se liší -- "
+"explicitní bajty XON / XOFF, kreditní udělování, kdy přijímač povoluje vždy "
+"N dalších paketů, nebo hardwarové linky RTS / CTS přímo na vodiči. Bez "
+"řízení toku rychlý odesílatel nakonec zahltí pomalý přijímač a pakety se "
+"zahodí."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Verze protokolu.** Pole verze na začátku paketu umožňuje formátu vyvíjet "
+"se. Každá strana může při startu vyjednat nejvyšší verzi, kterou obě "
+"podporují, nebo odmítnout pakety od nekompatibilních protějšků."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Fragmentace a opětovné sestavení.** Dvoubajtové LEN omezuje paket na 64 "
+"KiB; zprávy větší než to se rozdělí do více paketů a na druhé straně se "
+"znovu sestaví. Metadata fragmentace (index fragmentu, celkový počet nebo "
+"příznak \"další fragmenty\") žijí uvnitř payloadu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Heartbeaty.** Malý periodický paket, který říká \"jsem stále tady\". Druhá"
+" strana si všimne, když heartbeaty ustanou, a znovu se připojí (nebo hlasitě"
+" selže) místo toho, aby tiše visela."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Kanály.** ID kanálu nebo proudu v hlavičce, takže jedno fyzické spojení "
+"nese několik logických proudů -- řídicí kanál, telemetrický kanál, logovací "
+"kanál -- rozlišených pouze tímto polem."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Autentizace.** Krátká značka vypočtená z payloadu a tajné hodnoty, kterou "
+"znají jen legitimní odesílatel a přijímač. Přijímač značku znovu vypočítá z "
+"přijatých bajtů a paket odmítne, pokud se obě neshodují. To zachytí jak "
+"manipulaci (útočník upravil bajty), tak -- pokud je pořadové číslo nebo "
+"časové razítko součástí toho, co značka pokrývá -- přehrání (replay), kdy "
+"útočník zaznamená skutečný paket z linky a později jej znovu odešle, aby "
+"přiměl přijímač jednat podle něj dvakrát."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Šifrování.** Zamíchání bajtů payloadu sdíleným tajným klíčem, takže každý,"
+" kdo čte linku bez tohoto klíče, vidí jen šum. Obvykle se kombinuje s výše "
+"uvedenou autentizační značkou -- bez ní může útočník podstrčit nesmysly, "
+"které náhodou projdou CRC, a přijímač plýtvá cykly pokusy o dešifrování "
+"nesmyslů."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Typický \"dobrý\" protokol pro průmyslová zařízení nakonec obsahuje "
+"rámcování, duální CRC, pořadová čísla, ACK / NACK s opětovným odesíláním a "
+"heartbeaty. Reálné příklady, na které stojí za to se podívat: *MAVLink* "
+"(telemetrie dronů, s pořadovými čísly, ID systému / komponenty a volitelnými"
+" podpisy paketů), *Modbus* (průmyslové PLC, s funkčními kódy a CRC) a *NMEA "
+"0183* (ASCII protokol, kterým mluví každý spotřebitelský GPS přijímač -- "
+"zprávy po řádcích s kontrolním součtem za oddělovačem hvězdičky)."

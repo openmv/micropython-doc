@@ -1,0 +1,193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: cs <LL@li.org>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:2
+msgid "Custom channels"
+msgstr "Vlastní kanály"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:4
+msgid ""
+"A *channel* is a named, bidirectional byte stream between a cam-side script "
+"and the host. The cam registers a channel and provides callbacks that "
+"produce or consume data; the host reads from and writes to that channel by "
+"name. The same mechanism the package uses internally for the ``stream`` "
+"channel that carries frames, the ``stdout`` channel that carries script "
+"output, and the ``stdin`` channel that carries script upload is exposed to "
+"user scripts, so any application-specific data the host needs can ride the "
+"same USB connection without inventing a second protocol."
+msgstr ""
+"*Kanál* je pojmenovaný obousměrný bajtový stream mezi skriptem na straně "
+"kamery a hostitelem. Kamera kanál registruje a poskytuje callbacky, které "
+"data produkují nebo spotřebovávají; hostitel z tohoto kanálu čte a do něj "
+"zapisuje podle jména. Tentýž mechanismus, který balíček interně používá pro "
+"kanál ``stream`` přenášející snímky, kanál ``stdout`` přenášející výstup "
+"skriptu a kanál ``stdin`` přenášející nahrávání skriptu, je vystaven i "
+"uživatelským skriptům, takže jakákoli data specifická pro aplikaci, která "
+"hostitel potřebuje, mohou jezdit po témže USB připojení bez vymýšlení "
+"druhého protokolu."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:17
+msgid ""
+"This is the most useful feature of the package and the one the standard "
+"documentation covers least well, so this page works through it end to end."
+msgstr ""
+"Je to nejužitečnější funkce balíčku a zároveň ta, kterou standardní "
+"dokumentace pokrývá nejhůře, takže tato stránka ji prochází od začátku do "
+"konce."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:22
+msgid "The two halves"
+msgstr "Dvě poloviny"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:24
+msgid ""
+"A custom channel needs cooperating code on both sides. The **cam-side "
+"script** imports :mod:`protocol`, defines a class with three methods "
+"(:meth:`size`, :meth:`read`, :meth:`poll`) plus an optional :meth:`write`, "
+"and calls ``protocol.register(name=..., backend=...)`` to publish the "
+"channel under a chosen name::"
+msgstr ""
+"Vlastní kanál potřebuje spolupracující kód na obou stranách. **Skript na "
+"straně kamery** importuje :mod:`protocol`\\ , definuje třídu se třemi "
+"metodami (\\ :meth:`size`\\ , :meth:`read`\\ , :meth:`poll`\\ ) a volitelnou"
+" :meth:`write` a volá ``protocol.register(name=..., backend=...)`` pro "
+"publikování kanálu pod zvoleným jménem::"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:47
+msgid ""
+"The :meth:`size` method returns how many bytes the channel currently has "
+"available. :meth:`read` is the producer: given an ``offset`` and ``size`` "
+"requested by the host, it returns the bytes (or a string the protocol layer "
+"encodes). :meth:`poll` returns :data:`True` when there is something to read "
+"-- the protocol layer uses this to flag the channel as ready in "
+":meth:`~openmv.Camera.read_status`."
+msgstr ""
+"Metoda :meth:`size` vrací, kolik bajtů má kanál aktuálně k dispozici. "
+":meth:`read` je producent: dostane ``offset`` a ``size`` požadované "
+"hostitelem a vrátí bajty (nebo řetězec, který protokolová vrstva zakóduje). "
+":meth:`poll` vrací :data:`True`\\ , když je k dispozici něco ke čtení -- "
+"protokolová vrstva to používá k označení kanálu jako připraveného v "
+":meth:`~openmv.Camera.read_status`\\ ."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:56
+msgid ""
+"The **host-side program** uses four :class:`openmv.Camera` methods: "
+":meth:`~openmv.Camera.has_channel` to check the channel exists, "
+":meth:`~openmv.Camera.channel_size` to ask how much data is waiting, "
+":meth:`~openmv.Camera.channel_read` to pull bytes out, and "
+":meth:`~openmv.Camera.channel_write` to push bytes in. "
+":meth:`~openmv.Camera.read_status` polls every channel at once::"
+msgstr ""
+"**Program na straně hostitele** používá čtyři metody třídy "
+":class:`openmv.Camera`\\ : :meth:`~openmv.Camera.has_channel` pro kontrolu "
+"existence kanálu, :meth:`~openmv.Camera.channel_size` pro dotaz, kolik dat "
+"čeká, :meth:`~openmv.Camera.channel_read` pro vytažení bajtů ven a "
+":meth:`~openmv.Camera.channel_write` pro vložení bajtů dovnitř. "
+":meth:`~openmv.Camera.read_status` dotazuje všechny kanály najednou::"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:79
+msgid ""
+"The host loop polls :meth:`~openmv.Camera.read_status`; when the ``ticks`` "
+"channel is ready it calls :meth:`~openmv.Camera.channel_read` with no "
+"``size`` to pull whatever is available. The cam's :meth:`TicksChannel.poll` "
+"returns :data:`True` on every check, so the channel is always \"ready\" and "
+"the host gets a fresh tick value every poll."
+msgstr ""
+"Hostitelská smyčka dotazuje :meth:`~openmv.Camera.read_status`\\ ; když je "
+"kanál ``ticks`` připraven, zavolá :meth:`~openmv.Camera.channel_read` bez "
+"``size``\\ , aby vytáhla cokoli je k dispozici. Metoda "
+":meth:`TicksChannel.poll` kamery vrací :data:`True` při každé kontrole, "
+"takže kanál je vždy „připraven“ a hostitel získá čerstvou hodnotu ticku při "
+"každém dotazu."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:88
+msgid "A bidirectional channel"
+msgstr "Obousměrný kanál"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:90
+msgid ""
+"For a host that needs to push data back, the cam-side class adds a "
+":meth:`write` method that accepts the incoming bytes::"
+msgstr ""
+"Pro hostitele, který potřebuje posílat data zpět, přidá třída na straně "
+"kamery metodu :meth:`write`\\ , která přijímá příchozí bajty::"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:117
+msgid ""
+"The host writes to the channel with :meth:`~openmv.Camera.channel_write` and"
+" reads the reply back through the usual :meth:`~openmv.Camera.read_status` /"
+" :meth:`~openmv.Camera.channel_read` pattern::"
+msgstr ""
+"Hostitel zapisuje do kanálu pomocí :meth:`~openmv.Camera.channel_write` a "
+"čte odpověď zpět obvyklým vzorem :meth:`~openmv.Camera.read_status` / "
+":meth:`~openmv.Camera.channel_read`\\ ::"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:135
+msgid "What this gets the application"
+msgstr "Co tím aplikace získá"
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:137
+msgid ""
+"Custom channels are the right tool whenever an application wants to ride the"
+" existing USB connection for non-frame, non-print data: telemetry counters, "
+"configuration knobs streamed live from a UI on the host, control commands "
+"sent the other way, results of a measurement the cam computed that does not "
+"fit the \"image\" framing the stream channel assumes. The protocol layer "
+"handles the framing, fragmentation, acknowledgement, and retry; the script "
+"only needs to implement the four-method backend, and the host only needs to "
+"know the channel name and the data shape."
+msgstr ""
+"Vlastní kanály jsou ten správný nástroj, kdykoli chce aplikace využít "
+"stávající USB připojení pro data, která nejsou snímky ani výpisy: "
+"telemetrické čítače, konfigurační nastavení streamovaná živě z uživatelského"
+" rozhraní na hostiteli, řídicí příkazy posílané opačným směrem, výsledky "
+"měření, které kamera vypočítala a které se nehodí do „obrazového“ rámcování "
+"předpokládaného kanálem stream. Protokolová vrstva se stará o rámcování, "
+"fragmentaci, potvrzování a opakování; skript musí pouze implementovat "
+"backend se čtyřmi metodami a hostitel potřebuje znát jen jméno kanálu a tvar"
+" dat."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:149
+msgid ""
+"The CLI's ``--channel NAME`` flag is a quick way to verify a custom channel "
+"from the terminal without writing a host-side program: the CLI polls the "
+"named channel and prints the first ten bytes of each update."
+msgstr ""
+"Příznak ``--channel NAME`` v CLI je rychlý způsob, jak ověřit vlastní kanál "
+"z terminálu bez psaní programu na straně hostitele: CLI dotazuje pojmenovaný"
+" kanál a vypisuje prvních deset bajtů každé aktualizace."
+
+#: ../../openmvcam/tutorial/tools/openmv-py/custom-channels.rst:154
+msgid ""
+"The size limit on a single :meth:`~openmv.Camera.channel_read` or "
+":meth:`~openmv.Camera.channel_write` call is the protocol's negotiated "
+"``max_payload`` -- 4096 bytes by default. The host-side methods "
+"automatically split larger writes into the right number of packets, so the "
+"application can pass arbitrarily large buffers; the fragmentation is "
+"invisible."
+msgstr ""
+"Limit velikosti jednoho volání :meth:`~openmv.Camera.channel_read` nebo "
+":meth:`~openmv.Camera.channel_write` je protokolem vyjednaná hodnota "
+"``max_payload`` -- výchozí 4096 bajtů. Metody na straně hostitele "
+"automaticky rozdělí větší zápisy na správný počet paketů, takže aplikace "
+"může předávat libovolně velké buffery; fragmentace je neviditelná."
