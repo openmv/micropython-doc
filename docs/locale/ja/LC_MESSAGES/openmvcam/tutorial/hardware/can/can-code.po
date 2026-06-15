@@ -1,0 +1,290 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:2
+msgid "CAN bus in code"
+msgstr "コードでのCANバス"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:4
+msgid ""
+":class:`machine.CAN` wraps a hardware CAN controller. Bring it up with the "
+"bus id and a bit rate:"
+msgstr ":class:`machine.CAN` はハードウェアCANコントローラをラップします。バスIDとビットレートを指定して起動します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:14
+msgid ""
+"The bit rate must match every other node on the bus exactly -- ``125_000``, "
+"``250_000``, ``500_000`` and ``1_000_000`` are the common values. "
+":meth:`~machine.CAN.set_filters` configures which IDs the controller will "
+"pass through; ``None`` means accept everything (useful while bringing up a "
+"link, less useful once the bus is busy)."
+msgstr ""
+"ビットレートはバス上の他のすべてのノードと正確に一致している必要があります。一般的な値は ``125_000``\\ 、\\ ``250_000``\\"
+" 、\\ ``500_000``\\ 、\\ ``1_000_000`` です。\\ :meth:`~machine.CAN.set_filters` "
+"は、コントローラがどのIDを通過させるかを設定します。\\ ``None`` "
+"はすべてを受け入れることを意味します（リンクの立ち上げ時には便利ですが、バスが混雑するとあまり役に立ちません）。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:22
+msgid "Inside the controller"
+msgstr "コントローラの内部"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:24
+msgid ""
+"Three pieces of hardware sit between the camera's Python code and the bus --"
+" the *TX mailboxes*, an *acceptance filter*, and the *RX FIFO*. Each one "
+"maps to a piece of the :class:`~machine.CAN` API used below."
+msgstr ""
+"カメラのPythonコードとバスの間には、3つのハードウェアが存在します。\\ *TXメールボックス*\\ 、\\ *受信フィルタ*\\ 、そして\\ "
+"*RX FIFO*\\ です。これらはそれぞれ、以下で使用する :class:`~machine.CAN` APIの一部に対応します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:29
+msgid ""
+"Block diagram of the CAN controller. On the TX side\n"
+"(top), can.send() drops frames into one of three TX\n"
+"mailboxes, and an arbitrate block picks which mailbox\n"
+"goes to the bus next. On the RX side (bottom),\n"
+"incoming frames pass through an acceptance filter;\n"
+"accepted frames land in the RX FIFO and can.recv()\n"
+"reads the FIFO from its oldest end."
+msgstr ""
+"CANコントローラのブロック図。TX側（上部）では\n"
+"can.send()がフレームを3つのTXメールボックスの\n"
+"1つに投入し、アービトレーションブロックがどの\n"
+"メールボックスを次にバスへ送るかを選びます。RX側\n"
+"（下部）では、入ってくるフレームが受信フィルタを\n"
+"通過します。受け入れられたフレームはRX FIFOに\n"
+"入り、can.recv()がFIFOを最も古い端から読み出します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:38
+msgid ""
+"The controller's TX mailboxes, acceptance filter, and RX FIFO between the "
+"software and the bus."
+msgstr "ソフトウェアとバスの間にあるコントローラのTXメールボックス、受信フィルタ、RX FIFO。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:41
+msgid ""
+"**TX mailboxes.** A small set of hardware slots (typically three) that hold "
+"outgoing frames the camera has handed off via :meth:`~machine.CAN.send` but "
+"that have not yet reached the bus. When the bus is idle, the controller "
+"picks the mailbox with the lowest-numbered ID (highest priority) and "
+"arbitrates for the bus on its behalf. The camera does not pick the mailbox; "
+"the controller assigns one and returns its index from "
+":meth:`~machine.CAN.send`."
+msgstr ""
+"**TXメールボックス。** カメラが :meth:`~machine.CAN.send` "
+"を介して渡したものの、まだバスに到達していない送信フレームを保持する、少数のハードウェアスロット（通常は3つ）です。バスがアイドル状態のとき、コントローラは最も番号の小さいID（最も高い優先度）を持つメールボックスを選び、それに代わってバスのアービトレーションを行います。カメラがメールボックスを選ぶのではなく、コントローラが1つを割り当て、そのインデックスを"
+" :meth:`~machine.CAN.send` から返します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:50
+msgid ""
+"**Acceptance filter.** Configurable hardware that compares each incoming "
+"frame's ID against a list of patterns and discards anything that does not "
+"match. Frames that pass continue into the RX FIFO; rejected frames are "
+"thrown away by the controller without ever reaching Python. "
+":meth:`~machine.CAN.set_filters` configures these patterns."
+msgstr ""
+"**受信フィルタ。** "
+"入ってくる各フレームのIDをパターンのリストと照合し、一致しないものを破棄する、構成可能なハードウェアです。通過したフレームはRX "
+"FIFOへ進み、拒否されたフレームはPythonに届くことなくコントローラによって捨てられます。\\ "
+":meth:`~machine.CAN.set_filters` がこれらのパターンを設定します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:57
+msgid ""
+"**RX FIFO.** A *first-in, first-out* queue -- the first frame in is also the"
+" first frame out, like a line at a ticket counter. The controller appends "
+"received frames to the back of the queue as they arrive, and "
+":meth:`~machine.CAN.recv` pulls them off the front in the same order. The "
+"queue matters because the bus catches frames in the background while Python "
+"is busy elsewhere; the camera then drains them one at a time without losing "
+"any, as long as the FIFO has not overflowed."
+msgstr ""
+"**RX FIFO。** *先入れ先出し*\\ （first-in, first-"
+"out）のキューです。チケットカウンターの行列のように、最初に入ったフレームが最初に出ます。コントローラは受信したフレームを到着順にキューの末尾に追加し、\\"
+" :meth:`~machine.CAN.recv` "
+"がそれらを同じ順序で先頭から取り出します。このキューが重要なのは、Pythonが他の処理で忙しい間もバスがバックグラウンドでフレームを捕捉するからです。カメラはその後、FIFOがオーバーフローしていない限り、1つずつ失うことなくそれらを取り出していきます。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:68
+msgid "Sending a frame"
+msgstr "フレームの送信"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:70
+msgid ":meth:`~machine.CAN.send` queues a frame for transmission:"
+msgstr ":meth:`~machine.CAN.send` はフレームを送信用にキューに入れます。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:76
+msgid ""
+"The first argument is the ID (an 11-bit integer for a standard frame); the "
+"second is the payload (0 to 8 bytes for CAN Classic). The call returns a "
+"small integer index identifying the hardware mailbox the frame went into. "
+"The controller arbitrates with any other transmitters on the bus and re-"
+"transmits as needed without further help from software."
+msgstr ""
+"第1引数はID（標準フレームでは11ビットの整数）、第2引数はペイロード（CAN "
+"Classicでは0～8バイト）です。この呼び出しは、フレームが入ったハードウェアメールボックスを識別する小さな整数のインデックスを返します。コントローラはバス上の他の送信側とアービトレーションを行い、ソフトウェアからのさらなる介入なしに必要に応じて再送します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:83
+msgid ""
+"For extended (29-bit) IDs, OR the :data:`CAN.FLAG_EXT_ID` flag into the "
+"third argument:"
+msgstr "拡張（29ビット）IDの場合は、\\ :data:`CAN.FLAG_EXT_ID` フラグを第3引数にORで指定します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:91
+msgid "Receiving frames"
+msgstr "フレームの受信"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:93
+msgid ""
+"The controller starts up with no filter installed and drops every incoming "
+"frame. Before :meth:`~machine.CAN.recv` will return anything, call "
+":meth:`~machine.CAN.set_filters` once -- the simplest form is ``None``, "
+"which accepts every ID:"
+msgstr ""
+"コントローラは、フィルタが何もインストールされていない状態で起動し、入ってくるすべてのフレームを破棄します。\\ "
+":meth:`~machine.CAN.recv` が何かを返すようにするには、まず :meth:`~machine.CAN.set_filters` "
+"を一度呼び出します。最も単純な形は ``None`` で、これはすべてのIDを受け入れます。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:102
+msgid ""
+":meth:`~machine.CAN.recv` then returns the next frame in the receive FIFO, "
+"or ``None`` if nothing is waiting:"
+msgstr ""
+"その後 :meth:`~machine.CAN.recv` は受信FIFO内の次のフレームを返します。待機中のものが何もなければ ``None`` "
+"を返します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:112
+msgid ""
+"The bus fills the RX FIFO in the background, so the main loop just drains it"
+" as fast as it iterates. As long as the FIFO is deeper than the longest gap "
+"between drains, no frames are lost."
+msgstr ""
+"バスはバックグラウンドでRX "
+"FIFOを満たすため、メインループはそれを反復処理する速度で取り出すだけで済みます。FIFOが取り出しの間の最も長い間隔よりも深い限り、フレームは失われません。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:118
+msgid "Filters"
+msgstr "フィルタ"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:120
+msgid ""
+"A real bus is usually busy with frames the camera does not care about. "
+"Hardware filters let the controller drop unwanted IDs before they reach the "
+"FIFO. :meth:`~machine.CAN.set_filters` takes a list of ``(id, mask, flags)``"
+" tuples; a frame passes the filter if its ID, masked by ``mask``, matches "
+"the configured ``id``:"
+msgstr ""
+"実際のバスは通常、カメラが関心を持たないフレームで混雑しています。ハードウェアフィルタを使えば、不要なIDがFIFOに到達する前にコントローラがそれらを破棄できます。\\"
+" :meth:`~machine.CAN.set_filters` は ``(id, mask, flags)`` "
+"のタプルのリストを受け取ります。フレームのIDを ``mask`` でマスクした結果が、設定された ``id`` "
+"と一致する場合、そのフレームはフィルタを通過します。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:136
+msgid ""
+"Unmatched frames are discarded by the controller and never appear at "
+":meth:`~machine.CAN.recv`, which saves both buffer space and CPU time."
+msgstr ""
+"一致しないフレームはコントローラによって破棄され、\\ :meth:`~machine.CAN.recv` "
+"には決して現れません。これによりバッファ領域とCPU時間の両方が節約されます。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:141
+msgid "Error states and recovery"
+msgstr "エラー状態と復旧"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:143
+msgid ""
+"A real CAN bus picks up transmission errors -- shorts to ground, missing "
+"nodes, electrical noise corrupting bits. The controller keeps two counters "
+"that track this behaviour: a Transmit Error Counter (TEC) and a Receive "
+"Error Counter (REC), each incremented when the controller detects an error "
+"and decremented after a successful transfer. The counter values put the "
+"controller into one of four states:"
+msgstr ""
+"実際のCANバスは送信エラーを拾います。グランドへのショート、欠落したノード、ビットを破損させる電気的ノイズなどです。コントローラはこの挙動を追跡する2つのカウンタを保持します。送信エラーカウンタ（TEC）と受信エラーカウンタ（REC）で、コントローラがエラーを検出するたびに増加し、転送が成功するたびに減少します。カウンタの値により、コントローラは4つの状態のいずれかになります。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:151
+msgid ""
+"**Error Active** (TEC and REC both below 96). Normal operation. When the "
+"node detects a bus error it transmits a dominant *active error frame*, which"
+" forces every other node to discard the in-progress frame so the sender can "
+"retry."
+msgstr ""
+"**Error Active**\\ （TECとRECが両方とも96未満）。通常動作です。ノードがバスエラーを検出すると、ドミナントの\\ "
+"*アクティブエラーフレーム*\\ を送信し、これによって他のすべてのノードに進行中のフレームを破棄させ、送信側が再試行できるようにします。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:157
+msgid ""
+"**Error Warning** (either counter reaches 96). Still fully active on the bus"
+" -- the warning state is a software signal that errors are accumulating, not"
+" a behaviour change."
+msgstr ""
+"**Error Warning**\\ "
+"（いずれかのカウンタが96に達する）。バス上では依然として完全にアクティブです。Warning状態は、エラーが蓄積していることを示すソフトウェア向けの信号であって、挙動の変化ではありません。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:162
+msgid ""
+"**Error Passive** (either counter reaches 128). The node is still on the bus"
+" but stops sending dominant error frames; errors are now signalled with "
+"*passive* (recessive) error frames so a faulty node cannot keep tearing up "
+"the bus for everyone else."
+msgstr ""
+"**Error Passive**\\ "
+"（いずれかのカウンタが128に達する）。ノードは依然としてバス上にありますが、ドミナントエラーフレームの送信を停止します。エラーは\\ *パッシブ*\\"
+" （リセッシブ）エラーフレームで通知されるようになり、故障したノードが他のすべてのノードのためにバスを乱し続けることがないようにします。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:168
+msgid ""
+"**Bus Off** (TEC reaches 256). The controller has decided this node is too "
+"unreliable to participate. It disconnects from the bus, stops transmitting "
+"and acknowledging, and stays out until software explicitly restarts it."
+msgstr ""
+"**Bus Off**\\ "
+"（TECが256に達する）。コントローラは、このノードが参加するには信頼性が低すぎると判断しました。バスから切断し、送信とアクノリッジを停止し、ソフトウェアが明示的に再起動するまでバスの外にとどまります。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:173
+msgid ""
+"The first three transitions are entirely automatic -- as the counters "
+"decrement after successful frames, the controller moves itself back toward "
+"Error Active without intervention."
+msgstr ""
+"最初の3つの遷移は完全に自動です。フレームが成功するにつれてカウンタが減少していくと、コントローラは介入なしにError "
+"Activeへと自身を戻していきます。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:177
+msgid ""
+"Bus Off is the one state that requires software action. "
+":meth:`~machine.CAN.restart` resets the controller and returns it to Error "
+"Active. A typical pattern is to check the state from the main loop and "
+"restart after a short delay to give the bus time to settle:"
+msgstr ""
+"Bus Offは、ソフトウェアによる対処を必要とする唯一の状態です。\\ :meth:`~machine.CAN.restart` "
+"はコントローラをリセットし、Error "
+"Activeへ戻します。典型的なパターンは、メインループから状態を確認し、バスが落ち着く時間を与えるために短い遅延の後で再起動するというものです。"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:197
+msgid ""
+"The current counter values are available from "
+":meth:`~machine.CAN.get_counters` for diagnostics -- a TEC that climbs "
+"steadily on an otherwise-quiet bus usually points at wiring, termination, or"
+" a misconfigured bit rate."
+msgstr ""
+"現在のカウンタの値は、診断のために :meth:`~machine.CAN.get_counters` "
+"から取得できます。他の点では静かなバスでTECが着実に上昇する場合、通常は配線、終端、または誤って設定されたビットレートが原因です。"

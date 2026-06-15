@@ -1,0 +1,283 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:2
+msgid "Custom convolution kernels"
+msgstr "カスタム畳み込みカーネル"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:4
+msgid ""
+"The neighbourhood filters covered so far each had a *built-in* statistic the"
+" filter applied to the window at every position -- the mean, the Gaussian-"
+"weighted average, the median. :meth:`~image.Image.morph` is the one filter "
+"that lets the application supply the statistic itself, in the form of a "
+"kernel: a small matrix of weights that describes how the filter should "
+"combine the neighbourhood pixels into a single output value."
+msgstr ""
+"ここまでに取り上げた近傍フィルタは、それぞれが各位置のウィンドウに適用する\\ *組み込みの*\\ "
+"統計量（平均、ガウス重み付き平均、メディアン）を持っていました。\\ :meth:`~image.Image.morph` "
+"は、その統計量自体をアプリケーション側がカーネルという形で与えられる唯一のフィルタです。カーネルとは、近傍のピクセルを単一の出力値にどのように合成するかを記述する、小さな重みの行列です。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:15
+msgid ""
+"The mechanism is the classical *convolution* operation. At every output "
+"position, every neighbourhood pixel is multiplied by the matching weight in "
+"the kernel, the products are summed, the result is optionally scaled and "
+"offset, and the value is written to the output pixel. Different kernels "
+"produce different results from the same input. A kernel with all equal "
+"positive weights reproduces the :meth:`~image.Image.mean` filter; a bell-"
+"shaped one reproduces :meth:`~image.Image.gaussian`. Patterns beyond those "
+"produce edge responses, embosses, gradients, sharpening, motion blur, and a "
+"long catalogue of other effects -- everything classical image processing has"
+" ever wanted to do with a single linear pass."
+msgstr ""
+"その仕組みは古典的な\\ *畳み込み*\\ "
+"演算です。各出力位置で、近傍の各ピクセルがカーネル内の対応する重みと掛け合わされ、その積が合計され、結果は必要に応じてスケーリングおよびオフセットされて、出力ピクセルに書き込まれます。同じ入力でも、カーネルが異なれば異なる結果が得られます。すべて等しい正の重みを持つカーネルは"
+" :meth:`~image.Image.mean` フィルタを再現し、ベル型のカーネルは :meth:`~image.Image.gaussian` "
+"を再現します。それを超えるパターンは、エッジ応答、エンボス、勾配、シャープ化、モーションブラー、そして他にも数多くの効果を生み出します。これは古典的な画像処理が単一の線形パスで行おうとしてきたすべてです。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:34
+msgid "The morph method"
+msgstr "morph メソッド"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:36
+msgid ""
+"The signature looks like the other neighbourhood filters with one extra "
+"argument:"
+msgstr "シグネチャは他の近傍フィルタとよく似ていますが、引数が1つ追加されています。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:43
+msgid ""
+"``size`` is the radius the same way as everywhere else, so the kernel must "
+"be exactly ``(2 * size + 1)`` rows by ``(2 * size + 1)`` columns. The kernel"
+" itself is a flat Python list of those many numbers, in *row-major* order --"
+" the first ``(2 * size + 1)`` entries are the top row, the next ``(2 * size "
+"+ 1)`` are the second row, and so on, down to the bottom row. ``mul`` scales"
+" the sum-of-products before it is written into the output pixel, and ``add``"
+" adds a constant. The default ``mul=1.0`` and ``add=0.0`` leave the "
+"convolution output unchanged."
+msgstr ""
+"``size`` は他の箇所と同じく半径であり、したがってカーネルは正確に ``(2 * size + 1)`` 行 × ``(2 * size + "
+"1)`` 列でなければなりません。カーネルそのものは、これらの個数の数値を\\ *行優先*\\ 順に並べたフラットなPythonのリストです。最初の "
+"``(2 * size + 1)`` 個のエントリが先頭行、次の ``(2 * size + 1)`` "
+"個が2番目の行、というように最下行まで続きます。\\ ``mul`` は積の総和を出力ピクセルに書き込む前にスケーリングし、\\ ``add`` "
+"は定数を加算します。デフォルトの ``mul=1.0`` と ``add=0.0`` では、畳み込みの出力は変更されません。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:57
+msgid ""
+"One detail worth being explicit about: the method automatically divides the "
+"sum-of-products by the *sum of the kernel entries* before writing the "
+"output. That auto-division means an averaging kernel whose entries sum to "
+"nine -- a 3-by-3 box blur, for example -- comes out at one-ninth scale with "
+"no extra effort, and a Gaussian-approximation kernel that sums to sixteen "
+"comes out at one-sixteenth scale, both without the application having to "
+"compute the division itself. The application sets ``mul`` only when it wants"
+" a *further* scale on top of the auto-normalisation -- or, more commonly, "
+"when the kernel sums to zero (an edge-response kernel) and the auto-division"
+" would be a division by nothing. The framework treats the sum as one in that"
+" case, and ``mul`` becomes the only knob for keeping the unscaled sum-of-"
+"products in range."
+msgstr ""
+"明示しておく価値のある詳細が1つあります。このメソッドは、出力を書き込む前に、積の総和を\\ *カーネルの各エントリの合計*\\ "
+"で自動的に除算します。この自動除算により、エントリの合計が9になる平均化カーネル（例えば3×3のボックスブラー）は、追加の手間なしに9分の1のスケールで出力され、合計が16になるガウス近似カーネルは16分の1のスケールで出力されます。いずれもアプリケーション側で除算を計算する必要はありません。アプリケーションが"
+" ``mul`` を設定するのは、自動正規化の上に\\ *さらなる*\\ "
+"スケールをかけたい場合だけです。あるいは、より一般的には、カーネルの合計がゼロになる（エッジ応答カーネル）ため、自動除算がゼロでない何かでの除算にならない場合です。その場合フレームワークは合計を1として扱い、\\"
+" ``mul`` がスケーリングされていない積の総和を範囲内に収めるための唯一のつまみになります。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:78
+msgid ""
+"The ``threshold=True`` / ``offset=N`` pair from the adaptive-threshold "
+"section also works on :meth:`~image.Image.morph`, so the same custom-kernel "
+"framework can produce a binary threshold whose cutoff is computed by a "
+"custom statistic."
+msgstr ""
+"適応的しきい値処理のセクションで説明した ``threshold=True`` / ``offset=N`` のペアは "
+":meth:`~image.Image.morph` "
+"でも機能します。したがって同じカスタムカーネルのフレームワークで、カットオフがカスタム統計量によって計算される2値しきい値処理を生成できます。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:86
+msgid "The kernel layout"
+msgstr "カーネルのレイアウト"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:88
+msgid ""
+"A 3-by-3 kernel (``size=1``) is a flat list of nine numbers laid out left to"
+" right, top to bottom. The convention reads naturally if the list is broken "
+"across three Python lines:"
+msgstr ""
+"3×3のカーネル（\\ ``size=1``\\ "
+"）は、左から右、上から下へと並べた9個の数値のフラットなリストです。この規約は、リストをPythonの3行に分けて書くと自然に読めます。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:99
+msgid ""
+"This is the *Sobel-x* gradient operator -- the first standard kernel any "
+"application is going to want and a useful one to walk through end to end. "
+"The pattern is straightforward: negative weights on the left column, "
+"positive weights on the right column, with the centre column zero. The row "
+"weights ``-1, -2, -1`` (or ``1, 2, 1`` on the right) are higher in the "
+"middle than at the corners, which gives the centre row more influence over "
+"the result than the corner rows."
+msgstr ""
+"これは\\ *Sobel-x*\\ "
+"勾配演算子です。どんなアプリケーションでも最初に欲しくなる標準的なカーネルであり、最初から最後まで通して見ておくのに役立つものです。パターンは単純で、左の列に負の重み、右の列に正の重みを置き、中央の列はゼロです。行の重み"
+" ``-1, -2, -1``\\ （右側では ``1, 2, 1``\\ "
+"）は、隅よりも中央のほうが大きく、これにより中央の行が隅の行よりも結果に大きな影響を与えます。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:111
+msgid ""
+"When the kernel sweeps across a vertical edge -- a column of pixels that "
+"goes from dark on the left to bright on the right -- the negative weights "
+"pick up the dark side and the positive weights pick up the bright side. The "
+"sum of products is a large positive number, which the filter writes as a "
+"bright output pixel. A horizontal patch of uniform brightness produces zero,"
+" because every positive weight is matched by a negative weight of the same "
+"magnitude on a pixel with the same value."
+msgstr ""
+"カーネルが垂直なエッジ（左が暗く右が明るくなっていくピクセルの列）を走査するとき、負の重みは暗い側を、正の重みは明るい側を拾います。積の総和は大きな正の数となり、フィルタはそれを明るい出力ピクセルとして書き込みます。一様な明るさの水平なパッチではゼロになります。なぜなら、すべての正の重みは、同じ値のピクセル上にある同じ大きさの負の重みと釣り合うからです。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:124
+msgid "Running the kernel:"
+msgstr "カーネルの実行："
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:130
+msgid ""
+"The Sobel kernel sums to zero -- every negative weight on the left side is "
+"matched by an equal positive weight on the right -- so the auto-division "
+"does not divide by anything, and ``mul`` is the only scale on the sum-of-"
+"products. ``mul=0.25`` keeps the response in range: the largest absolute sum"
+" the Sobel-x can produce from a 3-by-3 patch is roughly ``4 * 255 = 1020`` "
+"(eight bright pixels weighted up to ``2``), and dividing that down by four "
+"lands the extreme cases at ``255``, where the format clips them cleanly."
+msgstr ""
+"Sobelカーネルの合計はゼロです。左側のすべての負の重みは右側の等しい正の重みと釣り合うため、自動除算は何かで除算することはなく、\\ ``mul``"
+" が積の総和に対する唯一のスケールになります。\\ ``mul=0.25`` は応答を範囲内に保ちます。Sobel-"
+"xが3×3のパッチから生成できる絶対値の最大の総和はおよそ ``4 * 255 = 1020``\\ （8個の明るいピクセルが最大 ``2`` "
+"まで重み付けされる）であり、それを4で割り下げると、極端なケースは ``255`` に着地し、そこでフォーマットがきれいにクリップします。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:143
+msgid ""
+"The matching Sobel-y kernel detects horizontal edges by rotating the same "
+"weight pattern 90 degrees:"
+msgstr "対応するSobel-yカーネルは、同じ重みパターンを90度回転させることで水平なエッジを検出します。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:153
+msgid ""
+"Applications that want to detect *any* edge, regardless of direction, "
+"typically run both Sobels and combine the responses."
+msgstr "方向に関係なく\\ *あらゆる*\\ エッジを検出したいアプリケーションは、通常、両方のSobelを実行してその応答を組み合わせます。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:158
+msgid "Offsetting the output"
+msgstr "出力のオフセット"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:160
+msgid ""
+"``add`` is the other half of the scaling story. A zero-sum kernel's response"
+" is *signed* -- positive on one side of an edge, negative on the other -- "
+"and the negative half clips to zero when written into an unsigned pixel. "
+"``add=128`` shifts the response to be centred at mid-grey, so negative "
+"responses survive as values below ``128`` and positive ones land above it: "
+"an edge response or an emboss becomes visible in both directions, at the "
+"cost of half the range in each."
+msgstr ""
+"``add`` はスケーリングのもう半分の話です。合計がゼロのカーネルの応答は\\ *符号付き*\\ "
+"です。エッジの一方の側では正、もう一方の側では負になり、その負の半分は符号なしピクセルに書き込まれるとゼロにクリップされます。\\ "
+"``add=128`` は応答を中間グレーを中心とするようにシフトし、負の応答は ``128`` "
+"未満の値として、正の応答はそれより上として残ります。つまりエッジ応答やエンボスが両方向で見えるようになりますが、その代償として各方向で範囲が半分になります。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:172
+msgid ""
+"Which combination of ``mul`` and ``add`` a kernel expects is part of the "
+"kernel's design; the :doc:`standard kernel catalogue <standard-kernels>` "
+"lists the right settings for each common kernel."
+msgstr ""
+"カーネルがどの ``mul`` と ``add`` の組み合わせを想定しているかは、そのカーネルの設計の一部です。\\ :doc:`標準カーネルカタログ"
+" <standard-kernels>` には、各一般的なカーネルに適した設定が記載されています。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:179
+msgid "Larger kernels"
+msgstr "より大きなカーネル"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:181
+msgid ""
+"Everything on this page has been described with 3-by-3 kernels (``size=1``),"
+" because that is the size the standard catalogue uses and because the row-"
+"major layout is easy to write out by hand at that size. Nothing in the "
+"mechanism restricts the kernel to 3-by-3, though. ``size=2`` runs a 5-by-5 "
+"kernel, with twenty-five entries in the flat list; ``size=3`` runs a 7-by-7 "
+"with forty-nine; and so on, up to whatever radius the application is willing"
+" to pay for. The framework handles either flat-list or nested-row layouts at"
+" any odd size."
+msgstr ""
+"このページのすべては3×3のカーネル（\\ ``size=1``\\ "
+"）で説明してきました。これは標準カタログが使うサイズであり、また行優先のレイアウトをそのサイズなら手で書き出すのが容易だからです。とはいえ、仕組み自体はカーネルを3×3に制限するものではありません。\\"
+" ``size=2`` は5×5のカーネルを実行し、フラットなリストには25個のエントリが入ります。\\ ``size=3`` "
+"は49個の7×7を実行します。以下同様に、アプリケーションが負担を許容できる半径まで可能です。フレームワークは、任意の奇数サイズでフラットリストとネストされた行のどちらのレイアウトにも対応します。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:195
+msgid ""
+"The reason to reach for a larger kernel is the same reason to reach for a "
+"larger neighbourhood on any of the built-in filters: more averaging, broader"
+" feature detection, less sensitivity to single-pixel noise. The cost grows "
+"as the square of the radius -- a 5-by-5 does roughly 2.8 times the per-pixel"
+" work of a 3-by-3, a 7-by-7 about 5.4 times -- and that multiplier comes "
+"straight out of the frame rate."
+msgstr ""
+"より大きなカーネルに手を伸ばす理由は、組み込みフィルタのいずれかでより大きな近傍に手を伸ばす理由と同じです。より多くの平均化、より広い特徴検出、単一ピクセルのノイズに対する感度の低下です。コストは半径の2乗に比例して増加します。5×5は3×3のおよそ2.8倍、7×7はおよそ5.4倍のピクセルあたりの処理を行い、その倍率はそのままフレームレートから引かれます。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:205
+msgid ""
+"The practical pattern is to stay at ``size=1`` for the standard catalogue "
+"and reach for larger sizes only when the algorithm needs the larger "
+"neighbourhood. Edge detectors rarely benefit beyond 3-by-3; smoothing "
+"filters sometimes do; the right size depends on the scale of the features "
+"the application is trying to emphasise or suppress."
+msgstr ""
+"実践的なパターンは、標準カタログでは ``size=1`` "
+"にとどまり、アルゴリズムがより大きな近傍を必要とするときにだけ大きなサイズに手を伸ばすことです。エッジ検出器が3×3を超えて恩恵を受けることはまれです。平滑化フィルタは恩恵を受けることがあります。適切なサイズは、アプリケーションが強調または抑制しようとしている特徴のスケールによって決まります。"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:215
+msgid "When to reach for morph"
+msgstr "morph に手を伸ばすべきとき"
+
+#: ../../openmvcam/tutorial/image/filters/custom-kernels.rst:217
+msgid ""
+"For everyday smoothing, :meth:`~image.Image.mean`, "
+":meth:`~image.Image.gaussian`, and :meth:`~image.Image.bilateral` are faster"
+" and cleaner. For edge detection, :meth:`~image.Image.laplacian` and "
+":meth:`~image.Image.find_edges` are purpose-built. The case for reaching "
+"into :meth:`~image.Image.morph` directly is when the application needs a "
+"*specific* convolution that the built-in filters do not expose -- a "
+"directional Sobel, a custom edge template, a kernel tuned to a particular "
+"texture the rest of the pipeline is going to look for, or any of the "
+"standard catalogue of useful kernels that classical image processing has "
+"built up over the decades. The full flexibility of arbitrary kernels is "
+"available; the price is that the application is responsible for choosing the"
+" kernel values that produce the result it wants."
+msgstr ""
+"日常的な平滑化には、\\ :meth:`~image.Image.mean`\\ 、\\ :meth:`~image.Image.gaussian`\\"
+" 、\\ :meth:`~image.Image.bilateral` のほうが高速できれいです。エッジ検出には、\\ "
+":meth:`~image.Image.laplacian` と :meth:`~image.Image.find_edges` "
+"が専用に作られています。\\ :meth:`~image.Image.morph` に直接手を伸ばす根拠があるのは、組み込みフィルタが公開していない\\"
+" *特定の*\\ "
+"畳み込みをアプリケーションが必要とする場合です。方向性のあるSobel、カスタムのエッジテンプレート、パイプラインの残りの部分が探そうとしている特定のテクスチャに合わせたカーネル、あるいは古典的な画像処理が数十年にわたって積み上げてきた有用なカーネルの標準カタログのいずれかです。任意のカーネルが持つ完全な柔軟性が利用できます。その代償は、望む結果を生み出すカーネル値を選ぶ責任がアプリケーション側にあることです。"

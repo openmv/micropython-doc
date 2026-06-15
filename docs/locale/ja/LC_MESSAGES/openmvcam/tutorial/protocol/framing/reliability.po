@@ -1,0 +1,283 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:2
+msgid "Reliability -- sequences, ACKs, retransmits"
+msgstr "信頼性 -- シーケンス、ACK、再送"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:4
+msgid ""
+"The framing layer detects corruption with its CRCs. The reliability layer "
+"turns \"detected corruption\" into \"the application never sees broken "
+"data\" by negotiating retransmits whenever a packet doesn't arrive intact."
+msgstr ""
+"フレーミング層はCRCによってデータの破損を検出します。信頼性層は、パケットが無傷で届かなかった場合に再送をネゴシエートすることで、「検出された破損」を「アプリケーションが壊れたデータを決して目にしない」状態へと変えます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:10
+msgid "Sequence numbers"
+msgstr "シーケンス番号"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:12
+msgid ""
+"Each packet header carries a one-byte sequence number, separate for each "
+"direction of travel. The sender increments the counter before transmit; the "
+"receiver checks that each received packet's sequence is the previous one "
+"plus one (modulo 256)."
+msgstr ""
+"各パケットのヘッダには1バイトのシーケンス番号が含まれており、通信方向ごとに別々に管理されます。送信側は送信前にカウンタをインクリメントし、受信側は受信した各パケットのシーケンスが直前の値に1を加えたもの（256を法とする）であることを確認します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:17
+msgid ""
+"Three things can show up at the receiver instead of a clean in-order packet:"
+msgstr "受信側には、整然と順序どおりに並んだパケットの代わりに、次の3つのいずれかが現れる可能性があります。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:20
+msgid ""
+"The expected sequence number, with a valid CRC. The packet is delivered up "
+"to the next layer."
+msgstr "想定どおりのシーケンス番号で、CRCも正しい場合。パケットは次の層へ引き渡されます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:22
+msgid ""
+"The expected sequence number, with a bad CRC. The receiver drops the packet "
+"and (if ACKs are negotiated) sends a NAK asking for a retransmit."
+msgstr ""
+"想定どおりのシーケンス番号だが、CRCが不正な場合。受信側はパケットを破棄し、（ACKがネゴシエートされていれば）再送を要求するNAKを送信します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:25
+msgid ""
+"A sequence number that's one higher than expected, with a valid CRC. The "
+"receiver knows the previous packet went missing; it sends a NAK referencing "
+"the missed sequence and stashes the new one."
+msgstr ""
+"想定より1つ大きいシーケンス番号で、CRCは正しい場合。受信側は直前のパケットが失われたと判断し、欠落したシーケンスを参照するNAKを送信して、新しいパケットを保留しておきます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:30
+msgid ""
+"The duplicate case (a retransmit arriving after the original finally made it"
+" through) is handled by checking against the expected counter: if the "
+"sequence is *behind* the expected one, the packet is a duplicate and the "
+"receiver discards it after sending the ACK the sender clearly didn't get the"
+" first time."
+msgstr ""
+"重複したケース（最終的に届いたオリジナルの後に再送が到着した場合）は、想定カウンタとの照合によって処理されます。シーケンスが想定より\\ *後ろ*\\ "
+"にある場合、そのパケットは重複であり、受信側は明らかに送信側が最初に受け取れなかったACKを再送した上で、パケットを破棄します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:37
+msgid "ACK and NAK"
+msgstr "ACKとNAK"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:39
+msgid ""
+"Two flag bits in the packet header carry the reliability traffic itself:"
+msgstr "パケットヘッダ内の2つのフラグビットが、信頼性に関するやり取り自体を担います。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:42
+msgid ""
+"``ACK_REQ`` set on an outgoing packet means \"I want an acknowledgement "
+"back.\" Data packets normally set this; status pings and one-off events may "
+"not."
+msgstr ""
+"送信パケットに ``ACK_REQ`` "
+"を立てると、「確認応答を返してほしい」という意味になります。データパケットは通常これを立てますが、ステータスのping（ピング）や一度きりのイベントでは立てない場合があります。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:45
+msgid ""
+"``ACK`` set on a packet means \"this packet is the acknowledgement for the "
+"sequence number in the header.\" It carries no payload of its own."
+msgstr ""
+"パケットに ``ACK`` "
+"を立てると、「このパケットはヘッダ内のシーケンス番号に対する確認応答である」という意味になります。これ自体はペイロードを持ちません。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:48
+msgid ""
+"``NAK`` set means \"this packet rejects a previous one\" -- usually because "
+"of a bad CRC or a sequence-number gap. The header points the sender at which"
+" sequence to retransmit."
+msgstr ""
+"``NAK`` "
+"を立てると、「このパケットは直前のパケットを拒否する」という意味になります。通常はCRCの不正やシーケンス番号の欠落が原因です。ヘッダは送信側に対して、どのシーケンスを再送すべきかを指し示します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:52
+msgid ""
+"The sender runs a stop-and-wait loop: it transmits one packet that requires "
+"acknowledgement, then waits for the matching ACK (or NAK) before sending the"
+" next. The single-in-flight model keeps the sender state bounded -- a few "
+"hundred bytes on the smallest cams -- and matches the protocol's role as a "
+"control channel between two endpoints rather than a throughput-optimised "
+"pipe. On NAK the sender retransmits the same packet with the ``RTX`` flag "
+"set so the receiver knows it's a retry."
+msgstr ""
+"送信側はstop-and-"
+"wait（停止待機）ループで動作します。確認応答を要求するパケットを1つ送信し、対応するACK（またはNAK）を待ってから次を送ります。同時に1つだけ送信するというモデルにより、送信側の状態が抑えられ"
+" -- 最小のカメラでも数百バイト程度に収まり -- "
+"スループットを最適化したパイプというより、2つのエンドポイント間の制御チャネルというプロトコルの役割に合致します。NAKを受け取ると、送信側は "
+"``RTX`` フラグを立てて同じパケットを再送し、受信側に再試行であることを伝えます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:62
+msgid "Retransmit timing"
+msgstr "再送のタイミング"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:64
+msgid ""
+"If neither ACK nor NAK arrives within the *retransmit timeout*, the sender "
+"retransmits the in-flight packet on its own. The timeout defaults to ``500 "
+"ms`` and doubles on each consecutive retry (1 s, 2 s, ...). After the "
+"configured number of retries -- default three -- the sender gives up and "
+"reports a transport error to the application."
+msgstr ""
+"*再送タイムアウト*\\ の間にACKもNAKも届かない場合、送信側は処理中のパケットを自発的に再送します。タイムアウトのデフォルトは ``500 "
+"ms`` で、連続する再試行ごとに2倍になります（1秒、2秒、…）。設定された再試行回数 -- デフォルトは3回 -- "
+"を超えると、送信側は処理を諦め、トランスポートエラーをアプリケーションに報告します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:71
+msgid ""
+"Doubling the timeout is the standard *exponential backoff* pattern. A short "
+"first timeout catches lost packets quickly; the doubling means a host that's"
+" busy for a few hundred milliseconds doesn't trigger a storm of duplicates "
+"that compound the load."
+msgstr ""
+"タイムアウトを2倍にしていくのは、標準的な\\ *指数バックオフ*\\ "
+"のパターンです。最初のタイムアウトを短くすることで失われたパケットを素早く捕捉できます。2倍にしていくことで、数百ミリ秒の間ビジー状態になったホストが、負荷を増大させる重複の嵐を引き起こすことを防ぎます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:77
+msgid "Configuring reliability"
+msgstr "信頼性の設定"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:79
+msgid ""
+"Both ends can turn pieces of the reliability layer off, by agreement, when "
+"the application can afford to lose data:"
+msgstr "アプリケーションがデータの損失を許容できる場合、両端は合意の上で信頼性層の一部を無効にできます。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:82
+msgid ""
+"``protocol.init(ack=False)`` disables per-packet ACKs. The sender fires and "
+"forgets; the receiver delivers whatever arrives. Good for streaming sensor "
+"data where a stale sample is acceptable."
+msgstr ""
+"``protocol.init(ack=False)`` "
+"はパケットごとのACKを無効にします。送信側は送信したら忘れ、受信側は届いたものをそのまま引き渡します。古くなったサンプルが許容されるセンサーデータのストリーミングに適しています。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:85
+msgid ""
+"``protocol.init(seq=False)`` turns sequence-number tracking off, which "
+"implies ACKs off too. Useful only on perfectly reliable transports."
+msgstr ""
+"``protocol.init(seq=False)`` "
+"はシーケンス番号の追跡を無効にし、これは同時にACKの無効化も意味します。完全に信頼できるトランスポートでのみ有用です。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:88
+msgid ""
+"``protocol.init(crc=False)`` turns the CRC validation off but leaves the "
+"rest of the framing intact. Worth doing only when the transport itself is "
+"robust enough that CRC errors don't happen."
+msgstr ""
+"``protocol.init(crc=False)`` "
+"はCRC検証を無効にしますが、フレーミングの他の部分はそのまま残します。トランスポート自体がCRCエラーが発生しないほど堅牢な場合にのみ行う価値があります。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:92
+msgid ""
+"The defaults -- everything on -- are the right starting point for any host-"
+"to-cam debugging session. Once the application is in production the trade-"
+"offs become specific to its data and its transport."
+msgstr ""
+"デフォルト -- すべて有効 -- "
+"は、あらゆるホストとカメラ間のデバッグセッションにおける適切な出発点です。アプリケーションが本番環境に入れば、トレードオフはそのデータとトランスポートに固有のものになります。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:98
+msgid "The status codes"
+msgstr "ステータスコード"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:100
+msgid ""
+"When a transport error does propagate up to application code it arrives as a"
+" status code. The protocol library defines ten:"
+msgstr ""
+"トランスポートエラーがアプリケーションコードまで伝播すると、それはステータスコードとして届きます。プロトコルライブラリは10種類を定義しています。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:103
+msgid "``SUCCESS`` -- operation completed."
+msgstr "``SUCCESS`` -- 操作が完了しました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:104
+msgid "``FAILED`` -- command failed for an unspecified reason."
+msgstr "``FAILED`` -- 原因不明の理由でコマンドが失敗しました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:105
+msgid ""
+"``INVALID`` -- the receiver rejected the command or one of its arguments."
+msgstr "``INVALID`` -- 受信側がコマンドまたはその引数のいずれかを拒否しました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:107
+msgid "``TIMEOUT`` -- a retry timer ran out."
+msgstr "``TIMEOUT`` -- 再試行タイマーが満了しました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:108
+msgid "``BUSY`` -- the cam is busy (typically a locked channel)."
+msgstr "``BUSY`` -- カメラがビジー状態です（通常はチャネルがロックされている）。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:109
+msgid "``CHECKSUM`` -- the header or payload CRC didn't match."
+msgstr "``CHECKSUM`` -- ヘッダまたはペイロードのCRCが一致しませんでした。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:110
+msgid ""
+"``SEQUENCE`` -- the sequence number was out of order beyond what the layer "
+"can recover from."
+msgstr "``SEQUENCE`` -- シーケンス番号が、層が回復できる範囲を超えて順序が乱れていました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:112
+msgid "``OVERFLOW`` -- a payload exceeded the negotiated maximum."
+msgstr "``OVERFLOW`` -- ペイロードがネゴシエートされた最大値を超えました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:113
+msgid "``FRAGMENT`` -- a multi-fragment message arrived with missing pieces."
+msgstr "``FRAGMENT`` -- 複数フラグメントのメッセージが、欠落した部分を伴って到着しました。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:115
+msgid ""
+"``UNKNOWN`` -- a defensive catch-all for genuinely unexpected conditions."
+msgstr "``UNKNOWN`` -- 本当に予期しない状況に対する防御的な総括的コードです。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:118
+msgid ""
+"Host code calling :meth:`~openmv.camera.Camera.channel_read` sees these as "
+"Python exceptions; cam-side application code that has opted into custom "
+"error handling sees them as return values from the backend callbacks. Most "
+"cam apps don't need to look at the status codes at all -- the library "
+"handles the retry, and only genuinely unrecoverable failures (e.g. the "
+"transport itself is gone) reach the application."
+msgstr ""
+":meth:`~openmv.camera.Camera.channel_read` "
+"を呼び出すホストコードは、これらをPythonの例外として受け取ります。カスタムエラー処理を選択したカメラ側のアプリケーションコードは、バックエンドコールバックからの戻り値として受け取ります。ほとんどのカメラアプリではステータスコードを一切見る必要はありません"
+" -- ライブラリが再試行を処理し、本当に回復不能な障害（例えばトランスポート自体が失われた場合）だけがアプリケーションに到達します。"
+
+#: ../../openmvcam/tutorial/protocol/framing/reliability.rst:126
+msgid ""
+"With framing in place to detect corruption and reliability in place to "
+"recover from it, the wire-level work is done. Application code sees framed, "
+"ordered, intact packets; the bytes inside them are free to mean whatever the"
+" channel above wants them to."
+msgstr ""
+"破損を検出するフレーミングと、そこから回復する信頼性が整えば、ワイヤレベルの作業は完了です。アプリケーションコードはフレーム化され、順序づけられ、無傷のパケットを目にします。その中のバイト列は、上位のチャネルが意味させたいものを自由に表現できます。"

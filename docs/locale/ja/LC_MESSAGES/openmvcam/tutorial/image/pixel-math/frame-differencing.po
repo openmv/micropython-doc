@@ -1,0 +1,227 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:2
+msgid "Frame differencing"
+msgstr "フレーム差分"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:4
+msgid ""
+"Frame differencing compares each new frame against a stored reference frame "
+"to find the parts of the scene that have changed. It is the workhorse of "
+"camera applications that watch for something happening -- motion-triggered "
+"capture, intrusion alerts, \"save a video when something moves\" -- and it "
+"is built entirely from the pixel-wise operations covered earlier: an "
+"absolute difference, a threshold, and a region search, run on every frame."
+msgstr ""
+"フレーム差分は、新しい各フレームを保存済みの参照フレームと比較し、シーンの中で変化した部分を見つけます。これは何かが起きていないか監視するカメラアプリケーション（動き検出によるキャプチャ、侵入アラート、「何かが動いたら動画を保存する」といった用途）の主役であり、すべては先に説明したピクセル単位の演算、つまり絶対差分、しきい値処理、領域探索だけで構築され、それらを毎フレーム実行します。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:16
+msgid "The basic pipeline"
+msgstr "基本的なパイプライン"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:18
+msgid ""
+"The first stage is to *acquire a reference*. At some point near startup -- "
+"ideally when the scene is in the state that \"no change\" means -- the "
+"application captures a frame and keeps it. The frame becomes the baseline "
+"that every subsequent capture will be compared against."
+msgstr ""
+"最初の段階は\\ *参照を取得する*\\ "
+"ことです。起動直後のどこかのタイミング（理想的には「変化なし」が意味する状態にシーンがあるとき）に、アプリケーションはフレームをキャプチャして保持します。このフレームが、以後のすべてのキャプチャと比較される基準となります。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:29
+msgid ""
+"The ``.copy()`` matters. ``csi0.snapshot()`` by itself returns an "
+":class:`Image` whose buffer lives in the frame buffer, where the *next* call"
+" to ``snapshot`` will overwrite it. ``.copy()`` allocates a separate buffer "
+"for the reference and lets the pixels of *this* frame survive past the next "
+"capture."
+msgstr ""
+"``.copy()`` が重要です。\\ ``csi0.snapshot()`` 単体では、バッファがフレームバッファ上に存在する "
+":class:`Image` を返しますが、そこでは\\ *次の* ``snapshot`` 呼び出しがそれを上書きしてしまいます。\\ "
+"``.copy()`` は参照用に別個のバッファを割り当て、\\ *この*\\ フレームのピクセルが次のキャプチャを越えて残るようにします。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:37
+msgid ""
+"The second stage runs on every frame: capture a fresh image, then compute "
+"the absolute difference between it and the reference. That is exactly what "
+":meth:`~image.Image.difference` does:"
+msgstr ""
+"第二段階は毎フレーム実行されます。新しい画像をキャプチャし、それと参照との絶対差分を計算します。それはまさに "
+":meth:`~image.Image.difference` が行うことです。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:48
+msgid ""
+"After this call, ``current`` holds an image whose non-zero pixels mark every"
+" position where the scene changed since the reference was taken, with the "
+"magnitude of each pixel proportional to how much it changed at that "
+"position."
+msgstr ""
+"この呼び出しの後、\\ ``current`` "
+"には、参照を取得して以降シーンが変化したすべての位置を非ゼロのピクセルが示す画像が入ります。各ピクセルの大きさは、その位置でどれだけ変化したかに比例します。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:55
+msgid ""
+"The third stage *thresholds* the difference image. The raw difference always"
+" contains some noise: small brightness variations from sensor shot noise, "
+"gradient changes from lighting drift, sub-pixel jitter from slight camera "
+"motion. A threshold pass -- :meth:`~image.Image.binary` with a threshold set"
+" above that noise floor -- keeps only the changes large enough to count as "
+"real motion and discards the rest, producing a binary image whose non-zero "
+"pixels are the actually-changed positions."
+msgstr ""
+"第三段階は差分画像を\\ *しきい値処理*\\ "
+"します。生の差分には常にいくらかのノイズが含まれます。センサーのショットノイズによるわずかな輝度変動、照明のドリフトによる勾配変化、カメラのわずかな動きによるサブピクセルのジッターなどです。しきい値処理（ノイズフロアより上にしきい値を設定した"
+" :meth:`~image.Image.binary`\\ "
+"）は、実際の動きとしてカウントできる十分に大きな変化だけを残し、それ以外を破棄して、非ゼロのピクセルが実際に変化した位置となる二値画像を生成します。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:68
+msgid ""
+"The fourth stage extracts *connected regions* of that binary mask -- groups "
+"of adjacent non-zero pixels that form contiguous patches. "
+":meth:`~image.Image.find_blobs` does that in one call, returning a list of "
+"motion regions, each with a bounding box and a pixel count, that the rest of"
+" the application can act on."
+msgstr ""
+"第四段階は、その二値マスクの\\ *連結領域*\\ 、つまり連続したまとまりを形成する隣接した非ゼロピクセルのグループを抽出します。\\ "
+":meth:`~image.Image.find_blobs` "
+"が一度の呼び出しでそれを行い、それぞれがバウンディングボックスとピクセル数を持つ動き領域のリストを返します。アプリケーションの残りの部分はそれに対して処理を行えます。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:76
+msgid ""
+"A horizontal pipeline diagram. The\n"
+"leftmost two panels are a reference\n"
+"frame and a current frame side by\n"
+"side, with a plus mark between them.\n"
+"An arrow leads from the pair to a\n"
+"third panel labelled difference, in\n"
+"which a few patches are bright against\n"
+"a dark background. An arrow leads from\n"
+"there to a fourth panel showing a\n"
+"binary thresholded version of the\n"
+"difference, with the same patches now\n"
+"solid white. A final arrow leads to a\n"
+"fifth panel showing the binary mask\n"
+"annotated with rectangular bounding\n"
+"boxes drawn around each patch."
+msgstr ""
+"水平なパイプライン図。左端の2つのパネルは参照フレームと現在のフレームが並んでおり、その間にプラス記号があります。矢印がそのペアから3番目のパネルへと続き、そこには"
+" difference "
+"というラベルが付けられ、暗い背景に対していくつかのまとまりが明るく表示されています。そこから矢印が4番目のパネルへ続き、差分の二値しきい値処理版を示しており、同じまとまりが今度は塗りつぶされた白になっています。最後の矢印が5番目のパネルへ続き、各まとまりの周りに矩形のバウンディングボックスが描画された二値マスクを示しています。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:93
+msgid ""
+"The *frame-differencing* pipeline: a reference frame plus a current frame "
+"become a difference image; thresholding turns the difference into a binary "
+"mask of changed positions; a connected-region step turns the mask into a "
+"list of motion regions."
+msgstr ""
+"*フレーム差分*\\ "
+"パイプライン。参照フレームと現在のフレームが差分画像になり、しきい値処理によって差分が変化した位置の二値マスクになり、連結領域のステップによってマスクが動き領域のリストになります。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:101
+msgid "In-memory and on-disk references"
+msgstr "メモリ上およびディスク上の参照"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:103
+msgid ""
+"The basic pipeline keeps the reference frame in RAM. That is the right "
+"answer when the reference is captured *this* run of the script and only has "
+"to survive for as long as the script keeps running."
+msgstr ""
+"基本的なパイプラインは参照フレームをRAMに保持します。これは、参照がスクリプトの\\ *この*\\ "
+"実行でキャプチャされ、スクリプトが動作し続ける間だけ存続すればよい場合に適切な答えです。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:109
+msgid ""
+"For a long-running application -- a cam that should resume change detection "
+"after a power cycle, an intermittent script that needs to detect *any* "
+"change since some earlier moment -- the reference frame has to outlive the "
+"running script. The pattern is to *save* the reference to disk:"
+msgstr ""
+"長時間動作するアプリケーション（電源を入れ直した後に変化検出を再開すべきカメラ、以前のある時点からの\\ *あらゆる*\\ "
+"変化を検出する必要がある断続的なスクリプト）の場合、参照フレームは動作中のスクリプトより長く存続しなければなりません。そのパターンは、参照をディスクに\\"
+" *保存する*\\ ことです。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:121
+msgid "and to load it back at the start of each run:"
+msgstr "そして、各実行の開始時にそれを読み込み直します。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:127
+msgid ""
+"The differencing logic does not change; only where the reference lives "
+"between captures does. A few refinements naturally extend this on-disk "
+"variant -- automatic re-capture of the reference on a timer, optional "
+"rolling averages to track slow lighting drift -- but the substitution at the"
+" centre is the same."
+msgstr ""
+"差分のロジックは変わりません。変わるのは参照がキャプチャの間どこに存在するかだけです。このディスク上の変種にはいくつかの改良を自然に加えられます。タイマーによる参照の自動再キャプチャ、ゆっくりとした照明ドリフトを追跡するためのオプションの移動平均などです。しかし中心となる置き換えは同じです。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:136
+msgid "Light-source isolation"
+msgstr "光源の分離"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:138
+msgid ""
+"The same subtraction pattern shows up in a slightly different setting: "
+"isolating a *light source* against the rest of the scene. The trick is to "
+"capture a \"lights-off\" reference -- a frame taken when whatever is being "
+"detected (an IR beacon, a screen pixel, a status indicator) is *not* "
+"illuminated -- and to subtract that reference from each subsequent frame. "
+"The result has zero brightness everywhere the scene was the same in both "
+"captures, and non-zero brightness only where the light source actually lit "
+"up."
+msgstr ""
+"同じ減算のパターンは、少し異なる状況でも現れます。シーンの残りの部分に対して\\ *光源*\\ "
+"を分離する場合です。コツは「消灯時」の参照、つまり検出対象（IRビーコン、画面のピクセル、ステータスインジケータ）が\\ *点灯していない*\\ "
+"ときに撮影したフレームをキャプチャし、その参照を以後の各フレームから減算することです。その結果、両方のキャプチャでシーンが同じだった場所はすべて輝度がゼロになり、実際に光源が点灯した場所だけが非ゼロの輝度になります。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:152
+msgid "Choosing difference or sub"
+msgstr "difference と sub の選択"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:154
+msgid ""
+"A practical note about which arithmetic operation to pick. "
+":meth:`~image.Image.difference` returns the absolute value of the change -- "
+"sign-free -- which makes it sensitive to change in either direction "
+"(brightening or darkening) at the cost of not telling the application "
+"*which* direction the change went. For pure motion detection that is the "
+"right answer: anything that moved is interesting, regardless of which way "
+"the brightness shifted."
+msgstr ""
+"どの算術演算を選ぶかについての実践的な注意です。\\ :meth:`~image.Image.difference` "
+"は変化の絶対値（符号なし）を返すため、どちらの方向の変化（明るくなる、暗くなる）にも敏感ですが、その代わりに変化が\\ *どちらの*\\ "
+"方向に進んだかをアプリケーションに伝えません。純粋な動き検出ではそれが正しい答えです。動いたものはすべて興味の対象であり、輝度がどちらの方向に変化したかは関係ありません。"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:166
+msgid ""
+"For light-source detection, the lit pixel is always *brighter* than the "
+"lights-off reference, so :meth:`~image.Image.sub` (with its clipping at "
+"zero) is the more honest choice. Anywhere the current frame is darker than "
+"the reference (which would be sensor noise around the unlit value) clips to "
+"zero rather than reporting a spurious \"the light was on\" signal."
+msgstr ""
+"光源検出の場合、点灯したピクセルは常に消灯時の参照より\\ *明るい*\\ ため、\\ :meth:`~image.Image.sub`\\ "
+"（ゼロでクリッピングする）の方がより正直な選択です。現在のフレームが参照より暗い場所（点灯していない値の周辺のセンサーノイズに相当する場所）はどこでも、誤った「光が点いていた」という信号を報告するのではなく、ゼロにクリッピングされます。"

@@ -1,0 +1,319 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:2
+msgid "Reading analog with the ADC"
+msgstr "ADC でアナログ信号を読み取る"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:4
+msgid ""
+"So far the camera has been reading digital signals -- a pin is either ``0`` "
+"or ``1``, a switch is open or closed. Most signals that come off real-world "
+"sensors are analog: a continuous voltage that varies smoothly over some "
+"range. A photoresistor sweeps through every voltage between the rails as "
+"ambient brightness changes. A temperature sensor's output drifts a few "
+"millivolts as a room heats up. A microphone's output rises and falls with "
+"the sound around it."
+msgstr ""
+"これまでカメラはデジタル信号を読み取ってきました。ピンは ``0`` か ``1`` "
+"のいずれか、スイッチは開いているか閉じているかのどちらかです。しかし、実世界のセンサーから得られる信号のほとんどはアナログです。つまり、ある範囲を滑らかに変化する連続的な電圧です。光抵抗（フォトレジスタ）は周囲の明るさが変化するにつれて電源電圧の間のあらゆる電圧を取り得ます。温度センサーの出力は部屋が暖まるにつれて数ミリボルトずつ変動します。マイクの出力は周囲の音に応じて上下します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:13
+msgid ""
+"An *analog-to-digital converter* (ADC) is the bridge. It samples the voltage"
+" on a pin and returns an integer that Python can read like any other value."
+msgstr ""
+"*アナログ-デジタル変換器*\\ （ADC）はその橋渡しをします。ピン上の電圧をサンプリングし、Python "
+"が他の値と同じように読み取れる整数を返します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:18
+msgid "Quantization"
+msgstr "量子化"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:20
+msgid ""
+"A digital value cannot represent a continuous voltage exactly. The ADC's job"
+" is to *quantize* -- snap each sample to the nearest of a fixed set of "
+"levels. An ``N``-bit ADC has ``2^N`` levels; a 12-bit converter has 4096 of "
+"them spread across its input range."
+msgstr ""
+"デジタル値は連続的な電圧を正確に表すことができません。ADC の役割は\\ *量子化*\\ "
+"すること、つまり各サンプルを固定された一連のレベルのうち最も近いものに丸めることです。\\ ``N`` ビットの ADC は ``2^N`` "
+"段階のレベルを持ち、12 ビットの変換器は入力範囲全体にわたって 4096 段階を持ちます。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:26
+msgid ""
+"A smooth analog curve plotted against time, overlaid\n"
+"with a stepped digital approximation. Dashed\n"
+"horizontal lines mark the quantization levels; the\n"
+"stepped curve snaps to whichever level is nearest the\n"
+"analog signal at each sample point."
+msgstr ""
+"時間に対してプロットされた滑らかなアナログ曲線に、\n"
+"階段状のデジタル近似が重ね合わされている。破線の\n"
+"水平線が量子化レベルを示し、階段状の曲線は各サンプル\n"
+"点でアナログ信号に最も近いレベルに丸められる。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:33
+msgid ""
+"Quantization: each sample of the analog signal (solid) is rounded to one of "
+"a finite set of digital levels (stepped dashed line)."
+msgstr "量子化: アナログ信号（実線）の各サンプルは、有限個のデジタルレベル（階段状の破線）のいずれかに丸められます。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:37
+msgid ""
+"The voltage between two adjacent levels is the *step size* of the ADC; "
+"anything smaller than that vanishes into rounding. A 12-bit ADC over a 3.3 V"
+" range has a step size of about ``3.3 / 4096 ≈ 0.8 mV`` -- fine enough that "
+"most signals look effectively continuous in software."
+msgstr ""
+"隣り合う 2 つのレベル間の電圧が ADC の\\ *ステップサイズ*\\ です。それより小さいものは丸めによって消えてしまいます。3.3 V "
+"範囲にわたる 12 ビット ADC のステップサイズは約 ``3.3 / 4096 ≈ 0.8 mV`` "
+"で、ほとんどの信号がソフトウェア上では実質的に連続して見えるほど細かい値です。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:44
+msgid "The machine.ADC class"
+msgstr "machine.ADC クラス"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:46
+msgid ""
+":class:`machine.ADC` wraps one analog input channel. Construct it with the "
+"pin you want to read, then call :meth:`~machine.ADC.read_u16`:"
+msgstr ""
+":class:`machine.ADC` は 1 つのアナログ入力チャネルをラップします。読み取りたいピンを指定して生成し、\\ "
+":meth:`~machine.ADC.read_u16` を呼び出します:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:58
+msgid ""
+":meth:`~machine.ADC.read_u16` always returns an unsigned 16-bit integer "
+"between ``0`` and ``65535``. The native ADC resolution varies by board "
+"(12-bit on STM32, port-specific elsewhere); the result is left-aligned into "
+"16 bits so the hardware detail does not leak into Python -- a value of "
+"``65535`` is full-scale regardless of the chip."
+msgstr ""
+":meth:`~machine.ADC.read_u16` は常に ``0`` から ``65535`` までの符号なし 16 "
+"ビット整数を返します。ネイティブの ADC 解像度はボードによって異なります（STM32 では 12 ビット、それ以外はポート固有）。結果は 16 "
+"ビットに左詰めされるため、ハードウェアの詳細が Python に漏れることはありません。\\ ``65535`` "
+"という値はチップにかかわらずフルスケールを意味します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:65
+msgid ""
+"The reference voltage -- the input that corresponds to full-scale -- depends"
+" on the board. Check the :doc:`/openmvcam/quickref` for the value on your "
+"cam. Anything above the reference reads as full-scale (and may damage the "
+"pin if it exceeds the absolute-maximum input voltage)."
+msgstr ""
+"基準電圧、つまりフルスケールに対応する入力電圧は、ボードによって異なります。お使いのカメラの値については "
+":doc:`/openmvcam/quickref` "
+"を確認してください。基準電圧を超えるものはすべてフルスケールとして読み取られます（また、絶対最大入力電圧を超えるとピンを損傷する可能性があります）。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:73
+msgid "Converting counts to voltage"
+msgstr "カウントから電圧への変換"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:75
+msgid ""
+"The mapping from counts to voltage is linear, with full-scale counts mapping"
+" exactly to ``Vref``:"
+msgstr "カウントから電圧への対応付けは線形で、フルスケールのカウントがちょうど ``Vref`` に対応します:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:82
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:195
+msgid "In code:"
+msgstr "コードでは:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:92
+msgid "Voltage dividers"
+msgstr "分圧回路"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:94
+msgid ""
+"Two resistors in series between a voltage rail and ground form a *voltage "
+"divider*. The node between them sits at a voltage set by the ratio of the "
+"two resistors:"
+msgstr ""
+"電圧レールとグランドの間に直列に接続された 2 つの抵抗は\\ *分圧回路*\\ を形成します。その間のノードは、2 "
+"つの抵抗の比によって決まる電圧になります:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:98
+msgid ""
+"A voltage divider. Vin at the top connects through\n"
+"R1 to a node tapped off as V_out, which then connects\n"
+"through R2 to ground."
+msgstr ""
+"分圧回路。上部の Vin は R1 を通じて V_out として\n"
+"取り出されるノードに接続され、そのノードはさらに\n"
+"R2 を通じてグランドに接続される。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:103
+msgid ""
+"A voltage divider: ``R1`` and ``R2`` in series scale ``Vin`` down to "
+"``V_out``."
+msgstr "分圧回路: ``R1`` と ``R2`` を直列に接続し、\\ ``Vin`` を ``V_out`` へと減衰させます。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:110
+msgid ""
+"Equal resistors give half the rail voltage; ``R2`` much smaller than ``R1`` "
+"puts the tap close to ground; ``R2`` much larger puts it close to the rail."
+msgstr ""
+"等しい抵抗ではレール電圧の半分になります。\\ ``R2`` が ``R1`` よりはるかに小さいと取り出し点はグランドに近くなり、\\ ``R2`` "
+"がはるかに大きいとレールに近くなります。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:114
+msgid ""
+"The formula assumes nothing else draws appreciable current from ``V_out``. "
+"An ADC pin is high-impedance (megohms, nanoamps) and easily satisfies that, "
+"so a divider feeding an ADC behaves as the formula predicts."
+msgstr ""
+"この式は ``V_out`` から他に目立った電流を引き出すものがないことを前提としています。ADC "
+"ピンは高インピーダンス（メガオーム単位、ナノアンペア単位）で、容易にその条件を満たすため、ADC に接続された分圧回路は式どおりに動作します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:120
+msgid "Potentiometers"
+msgstr "ポテンショメータ"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:122
+msgid ""
+"A *potentiometer* is a single physical component that is exactly a voltage "
+"divider, with a sliding wiper that moves the tap between the two ends. "
+"Turning the knob changes ``R1`` and ``R2`` together while keeping their sum "
+"(the total resistance of the pot) constant."
+msgstr ""
+"*ポテンショメータ*\\ "
+"は、まさに分圧回路そのものである単一の物理部品で、両端の間で取り出し点を移動させる摺動ワイパーを備えています。つまみを回すと、合計（ポット全体の抵抗値）を一定に保ちながら"
+" ``R1`` と ``R2`` が同時に変化します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:128
+msgid ""
+"A potentiometer wired between 3.3 V and ground. The\n"
+"wiper is tapped off to an ADC pin."
+msgstr ""
+"3.3 V とグランドの間に配線されたポテンショメータ。\n"
+"ワイパーが ADC ピンへ取り出されている。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:132
+msgid ""
+"A potentiometer wired as a manual voltage source for the ADC: 3.3 V on one "
+"end, ground on the other, wiper to the pin."
+msgstr "ADC 用の手動電圧源として配線されたポテンショメータ: 一端に 3.3 V、もう一端にグランド、ワイパーをピンに接続します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:136
+msgid ""
+"A pot is the canonical input device for trying out the ADC. Wire one end to "
+"``3.3 V``, the other to ground, and the wiper to an ADC-capable pin; turning"
+" the knob sweeps the wiper through every voltage between the rails."
+msgstr ""
+"ポットは ADC を試すための代表的な入力デバイスです。一端を ``3.3 V`` に、もう一端をグランドに、ワイパーを ADC "
+"対応ピンに配線します。つまみを回すと、ワイパーがレール間のあらゆる電圧を取ります。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:156
+msgid "Reading higher voltages with a divider"
+msgstr "分圧回路でより高い電圧を読み取る"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:158
+msgid ""
+"A voltage above ``Vref`` will pin the ADC at full-scale and may damage the "
+"input if it exceeds the absolute-maximum rating. To read a higher source -- "
+"a battery, a sensor output that ranges beyond ``Vref`` -- scale it down with"
+" a fixed voltage divider before it reaches the pin:"
+msgstr ""
+"``Vref`` を超える電圧は ADC "
+"をフルスケールに固定し、絶対最大定格を超えると入力を損傷する可能性があります。より高い電圧源、たとえばバッテリーや ``Vref`` "
+"を超える範囲を持つセンサー出力を読み取るには、ピンに到達する前に固定の分圧回路で電圧を下げます:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:164
+msgid ""
+"A voltage divider scaling a high V_in down to an ADC\n"
+"pin. R1 runs from V_in down to a junction, which is\n"
+"tapped off horizontally to the ADC pin; R2 continues\n"
+"from the junction down to ground."
+msgstr ""
+"高い V_in を ADC ピンに合わせて減衰させる分圧回路。\n"
+"R1 は V_in から接続点まで下り、そこから水平に\n"
+"ADC ピンへ取り出される。R2 は接続点から\n"
+"グランドまで続く。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:170
+msgid ""
+"Scaling a high-voltage source to fit the ADC: ``R1`` and ``R2`` form a fixed"
+" voltage divider whose tap feeds the ADC pin."
+msgstr ""
+"高電圧源を ADC に合わせて縮小する: ``R1`` と ``R2`` が固定の分圧回路を形成し、その取り出し点が ADC ピンに供給します。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:174
+msgid ""
+"Pick ``R1`` and ``R2`` so the divided voltage stays inside the ADC's range "
+"at the highest input voltage you expect:"
+msgstr "想定される最大入力電圧において、分圧された電圧が ADC の範囲内に収まるように ``R1`` と ``R2`` を選びます:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:181
+msgid ""
+"For a maximum ``V_in = 12 V`` and a 3.3 V reference, the ratio ``R2 / (R1 + "
+"R2)`` must be at most ``3.3 / 12 ≈ 0.275``. A common pick with a little "
+"headroom is ``R1 = 33 kΩ``, ``R2 = 10 kΩ``. The ratio is ``10 / 43 ≈ "
+"0.233``, so ``V_adc`` tops out at about ``12 × 0.233 ≈ 2.79 V`` -- safely "
+"below ``Vref``."
+msgstr ""
+"最大 ``V_in = 12 V`` と 3.3 V の基準電圧の場合、比 ``R2 / (R1 + R2)`` は最大でも ``3.3 / 12 ≈ "
+"0.275`` でなければなりません。少し余裕を持たせた一般的な選択肢は ``R1 = 33 kΩ``\\ 、\\ ``R2 = 10 kΩ`` "
+"です。この比は ``10 / 43 ≈ 0.233`` なので、\\ ``V_adc`` は最大でも約 ``12 × 0.233 ≈ 2.79 V`` "
+"となり、\\ ``Vref`` を十分下回ります。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:188
+msgid ""
+"To recover the original ``V_in`` from an ADC reading, invert the divider "
+"formula:"
+msgstr "ADC の読み取り値から元の ``V_in`` を復元するには、分圧の式を逆算します:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:212
+msgid "A few practical notes:"
+msgstr "いくつかの実用的な注意点:"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:214
+msgid ""
+"The divider draws ``V_in / (R1 + R2)`` continuously. With ``R1 + R2 = 43 "
+"kΩ`` and ``V_in = 12 V``, that is about 280 µA -- usually negligible, but if"
+" the source is battery-powered consider larger resistors (100 kΩ to 1 MΩ) to"
+" cut idle drain."
+msgstr ""
+"分圧回路は継続的に ``V_in / (R1 + R2)`` を引き出します。\\ ``R1 + R2 = 43 kΩ`` で ``V_in = 12 "
+"V`` の場合、これは約 280 µA で、通常は無視できる程度ですが、電源がバッテリーの場合はアイドル時の消費を減らすためにより大きな抵抗（100 "
+"kΩ から 1 MΩ）を検討してください。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:219
+#, python-format
+msgid ""
+"Resistor tolerance (typically ±1 % or ±5 %) feeds directly into measurement "
+"accuracy. Two ±5 % resistors can give the recovered ``V_in`` a worst-case "
+"error of roughly ±10 %."
+msgstr ""
+"抵抗の許容差（通常 ±1 % または ±5 %）は測定精度に直接影響します。2 つの ±5 % 抵抗では、復元された ``V_in`` "
+"に最悪の場合およそ ±10 % の誤差が生じることがあります。"
+
+#: ../../openmvcam/tutorial/hardware/analog/adc.rst:222
+msgid ""
+"The divider's source impedance combines with any stray capacitance to low-"
+"pass-filter the input. For fast-changing signals that matters; for a "
+"battery-voltage check it does not."
+msgstr ""
+"分圧回路の出力インピーダンスは浮遊容量と組み合わさって入力をローパスフィルタリングします。高速に変化する信号ではこれが問題になりますが、バッテリー電圧のチェック程度であれば問題になりません。"

@@ -1,0 +1,172 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:2
+msgid "Building a ROMFS image"
+msgstr "ROMFSイメージのビルド"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:4
+msgid ""
+"A *ROMFS image* is a flash-resident, read-only filesystem the runtime auto-"
+"mounts at ``/rom``. It solves the asset problem the previous page closed on:"
+" machine-learning model files, label tables, JSON configuration, image "
+"templates -- anything the application opens and reads but never writes -- "
+"ride into the build without paying the cost of being embedded as Python "
+"literals."
+msgstr ""
+"*ROMFSイメージ*\\ とは、ランタイムが ``/rom`` "
+"に自動マウントする、フラッシュ常駐の読み取り専用ファイルシステムです。前のページで締めくくったアセットの問題を解決します。機械学習のモデルファイル、ラベルテーブル、JSON設定、画像テンプレートなど、アプリケーションが開いて読み込むものの書き込むことは決してないものが、Pythonリテラルとして埋め込むコストを払うことなくビルドに乗ります。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:12
+msgid "Three things make ROMFS the right tool for shipped assets:"
+msgstr "ROMFSが出荷アセットに適したツールである理由は3つあります:"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:14
+msgid ""
+"The filesystem is *part of the firmware image*. End users cannot delete a "
+"file out of ``/rom``, edit one, or replace one with their own."
+msgstr ""
+"ファイルシステムは\\ *ファームウェアイメージの一部*\\ です。エンドユーザーは ``/rom`` "
+"からファイルを削除したり、編集したり、自分のものに置き換えたりできません。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:17
+msgid ""
+"Files in ``/rom`` are accessible *in place*. Consumers like the :mod:`ml` "
+"module loading a model file get a direct view into flash with no RAM copy --"
+" a multi-megabyte model on ``/rom`` \"loads\" essentially for free, where "
+"the same file on ``/sdcard`` is read into RAM at load time and stays there "
+"for the lifetime of the reference. Ordinary :func:`open` + ``read`` copies "
+"on demand: each ``read(n)`` call copies ``n`` bytes from flash to RAM at the"
+" moment of the call, with a bare ``read()`` asking for the whole file."
+msgstr ""
+"``/rom`` 内のファイルは\\ *そのままの場所で*\\ アクセスできます。モデルファイルを読み込む :mod:`ml` "
+"モジュールのような利用側は、RAMへのコピーなしにフラッシュへの直接ビューを取得します。\\ ``/rom`` "
+"上の数メガバイトのモデルは実質的に無料で「ロード」されますが、\\ ``/sdcard`` "
+"上の同じファイルはロード時にRAMに読み込まれ、その参照が存続する限りそこに留まります。通常の :func:`open` + ``read`` "
+"は要求に応じてコピーします。各 ``read(n)`` 呼び出しは、その呼び出しの時点でフラッシュからRAMへ ``n`` バイトをコピーし、引数なしの"
+" ``read()`` はファイル全体を要求します。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:26
+msgid ""
+"``/rom`` and ``/rom/lib`` are added to :data:`sys.path` at boot. Python "
+"packages dropped into the image are importable by name; nothing special at "
+"the call site."
+msgstr ""
+"``/rom`` と ``/rom/lib`` は起動時に :data:`sys.path` "
+"に追加されます。イメージに入れたPythonパッケージは名前でインポートでき、呼び出し側で特別なことは何も必要ありません。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:31
+msgid "Building an image"
+msgstr "イメージのビルド"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:33
+msgid ""
+"ROMFS images are created, edited, and flashed through the IDE. Use it as the"
+" source of truth for the contents of every shipped ROMFS partition."
+msgstr ""
+"ROMFSイメージはIDEを通じて作成、編集、フラッシュされます。すべての出荷ROMFSパーティションの内容に関する信頼できる情報源として、IDEを使ってください。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:37
+msgid ""
+"The reason this matters: model files come with alignment requirements that "
+"the loader at runtime enforces. ``.tflite`` files must be padded to 16-byte "
+"boundaries, and the N6's NPU requires 32-byte alignment for compiled models."
+" The IDE applies that padding automatically when it writes the image. Tools "
+"that walk the source tree without applying the padding -- ``mpremote romfs``"
+" in particular -- produce an image that mounts cleanly but whose models fail"
+" at the first inference call."
+msgstr ""
+"これが重要な理由: モデルファイルにはアライメント要件があり、ランタイムのローダーがそれを強制します。\\ ``.tflite`` "
+"ファイルは16バイト境界にパディングされなければならず、N6のNPUはコンパイル済みモデルに32バイトアライメントを要求します。IDEはイメージを書き込む際にそのパディングを自動的に適用します。パディングを適用せずにソースツリーを走査するツール（特に"
+" ``mpremote romfs``\\ ）は、マウントは問題なくできるものの、モデルが最初の推論呼び出しで失敗するイメージを生成します。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:47
+msgid ""
+"The IDE's ROMFS editor is an interactive view of the image's contents. Files"
+" and folders can be added, renamed, and deleted in memory; saving writes the"
+" result out as an ``.img`` file ready to flash. A typical structure for an "
+"application that ships a model alongside some assets and a Python package "
+"looks like::"
+msgstr ""
+"IDEのROMFSエディタは、イメージの内容を対話的に表示するものです。ファイルとフォルダはメモリ上で追加、リネーム、削除でき、保存すると結果がフラッシュ可能な"
+" ``.img`` "
+"ファイルとして書き出されます。モデルといくつかのアセット、そしてPythonパッケージを出荷するアプリケーションの典型的な構造は次のようになります::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:66
+msgid ""
+"Both the IDE and ``mpremote`` cross-compile ``.py`` files to ``.mpy`` "
+"bytecode on the way into a ROMFS image, so the cam imports them without "
+"paying the parse cost at load time. Source files in the editor stay ``.py``;"
+" the image contains ``.mpy``."
+msgstr ""
+"IDEと ``mpremote`` のどちらも、ROMFSイメージに入れる途中で ``.py`` ファイルを ``.mpy`` "
+"バイトコードにクロスコンパイルするため、カメラはロード時に解析コストを払うことなくそれらをインポートします。エディタ内のソースファイルは ``.py``"
+" のままですが、イメージには ``.mpy`` が含まれます。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:72
+msgid ""
+"Once the image is flashed, the tree is visible from MicroPython at "
+"``/rom/``::"
+msgstr "イメージがフラッシュされると、ツリーはMicroPythonから ``/rom/`` で見えるようになります::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:83
+msgid "Most of the application lives in ROMFS"
+msgstr "アプリケーションの大半はROMFSに置く"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:85
+msgid ""
+"ROMFS is the right home for almost everything an application ships: the "
+"libraries it imports, the model files it loads, the configuration it reads, "
+"any asset whose output came from a build tool that emits a file tree (model "
+"converters, image pipelines, asset packers), and -- importantly -- the "
+"application code itself."
+msgstr ""
+"ROMFSは、アプリケーションが出荷するほぼすべてのものにとって適切な置き場所です。インポートするライブラリ、ロードするモデルファイル、読み込む設定、ファイルツリーを出力するビルドツール（モデルコンバーター、画像パイプライン、アセットパッカー）の出力であるあらゆるアセット、そして、重要なことに、アプリケーションコードそのものです。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:92
+msgid ""
+"The frozen-modules side should stay small: ``boot.py`` for pre-REPL setup, "
+"``main.py`` as a thin entry point, and only the libraries the cam genuinely "
+"cannot boot without. Everything else goes in ROMFS, where iterating on it is"
+" a fresh ``.img`` saved out of the IDE and reflashed -- no firmware rebuild "
+"required, no toolchain on hand to do it."
+msgstr ""
+"フリーズモジュール側は小さく保つべきです。REPL前のセットアップ用の ``boot.py``\\ 、薄いエントリーポイントとしての "
+"``main.py``\\ "
+"、そしてカメラが本当にそれなしには起動できないライブラリだけです。それ以外はすべてROMFSに入れます。ROMFS上での反復作業は、IDEから新しい "
+"``.img`` を保存して再フラッシュするだけで済み、ファームウェアの再ビルドは不要で、それを行うためのツールチェーンも手元に要りません。"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:99
+msgid ""
+"The pattern that falls out is a ``main.py`` that does nothing but delegate "
+"into the ROMFS-resident application::"
+msgstr "そこから導かれるパターンは、ROMFS常駐のアプリケーションに委譲するだけの ``main.py`` です::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:110
+msgid ""
+"A change to ``app`` is a ROMFS edit and a reflash. The firmware build stays "
+"put for the lifetime of the product unless something on the frozen side "
+"actually has to change."
+msgstr ""
+"``app`` "
+"への変更はROMFSの編集と再フラッシュです。フリーズ側で実際に何かを変更しなければならない場合を除き、ファームウェアのビルドは製品の存続期間中そのまま据え置かれます。"

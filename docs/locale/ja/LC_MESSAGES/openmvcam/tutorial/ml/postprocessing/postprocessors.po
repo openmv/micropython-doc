@@ -1,0 +1,185 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:2
+msgid "Post-processors"
+msgstr "後処理"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:4
+msgid ""
+"A detection network does not emit boxes. It emits one or more tensors whose "
+"layout depends on the architecture the model was trained against -- a 2-D "
+"tensor of candidate predictions for a YOLO-family detector, a pair of "
+"``(boxes, scores)`` tensors for a MediaPipe detector, a flat list of "
+"keypoint coordinates for a pose network. The application cannot read any of "
+"these directly; what it wants -- a list of boxes, a list of keypoints, a "
+"per-class breakdown -- has to be *decoded* out of the raw tensor."
+msgstr ""
+"検出ネットワークはボックスを出力しません。出力するのは、モデルが学習されたアーキテクチャに応じてレイアウトが異なる1つ以上のテンソルです。YOLO系の検出器では候補予測の2次元テンソル、MediaPipe検出器では"
+" ``(boxes, scores)`` "
+"のテンソルのペア、ポーズネットワークではキーポイント座標のフラットなリストといった具合です。アプリケーションはこれらを直接読み取ることはできません。アプリケーションが求めるもの（ボックスのリスト、キーポイントのリスト、クラスごとの内訳）は、生のテンソルから"
+" *デコード* する必要があります。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:13
+msgid ""
+"That decoder is a *post-processor*. The :mod:`ml.postprocessing` module "
+"groups them by source ecosystem."
+msgstr ""
+"そのデコーダが *後処理* です。\\ :mod:`ml.postprocessing` モジュールはそれらをソースのエコシステムごとにまとめています。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:17
+msgid "Darknet"
+msgstr "Darknet"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:19
+msgid ""
+":mod:`ml.postprocessing.darknet` decodes models from the original YOLO era. "
+"YOLO v2 introduced the *grid* and *anchor* ideas most later detectors "
+"inherited in some form, so the v2 layout is the cleanest starting point."
+msgstr ""
+":mod:`ml.postprocessing.darknet` は初期のYOLO時代のモデルをデコードします。YOLO "
+"v2は、その後の多くの検出器が何らかの形で継承した *グリッド* と *アンカー* "
+"の考え方を導入したため、v2のレイアウトが最もわかりやすい出発点です。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:24
+msgid ""
+"YOLO v2 starts by dividing the input image into a coarse grid -- a 13-by-13 "
+"layout for the canonical 416-pixel input, smaller for smaller models -- and "
+"trains the network so each grid cell is responsible for detecting any object"
+" whose centre falls inside it. The spatial layout of the output tensor "
+"mirrors the layout of the input: one position in the output per cell in the "
+"image."
+msgstr ""
+"YOLO "
+"v2は、まず入力画像を粗いグリッドに分割します。標準的な416ピクセルの入力では13×13のレイアウト、小さいモデルではより小さくなります。そして、各グリッドセルが、その中心が含まれるあらゆる物体の検出を担当するようにネットワークを学習させます。出力テンソルの空間的レイアウトは入力のレイアウトを反映しており、画像内の各セルにつき出力に1つの位置が対応します。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:31
+msgid ""
+"At each grid cell, the network does not predict a box out of thin air. It "
+"picks from several pre-chosen reference shapes called *anchors* -- fixed "
+"``(width, height)`` pairs derived offline by clustering the box sizes in the"
+" training set so they cover the typical objects the model is expected to "
+"see. The network's job at each cell is to predict, for each anchor, a small "
+"offset to the box centre within the cell, a scale on the anchor's width and "
+"height, an *objectness* score (the likelihood that anything is there), and a"
+" per-class probability vector. A 13-by-13 grid with the default 5 anchors "
+"and 20 classes therefore emits ``13 * 13 * 5 * (4 + 1 + 20) = 21,125`` "
+"numbers per inference."
+msgstr ""
+"各グリッドセルにおいて、ネットワークは何もないところからボックスを予測するわけではありません。\\ *アンカー* "
+"と呼ばれる、あらかじめ選ばれたいくつかの参照形状から選択します。これは固定の ``(width, height)`` "
+"のペアで、モデルが見ると予想される典型的な物体をカバーするように、学習セット内のボックスサイズをクラスタリングしてオフラインで導出されます。各セルでのネットワークの役割は、各アンカーについて、セル内のボックス中心への小さなオフセット、アンカーの幅と高さに対するスケール、\\"
+" *objectness* "
+"スコア（何かが存在する尤度）、そしてクラスごとの確率ベクトルを予測することです。したがって、デフォルトの5つのアンカーと20クラスを持つ13×13グリッドは、推論ごとに"
+" ``13 * 13 * 5 * (4 + 1 + 20) = 21,125`` 個の数値を出力します。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:43
+msgid ""
+":class:`~ml.postprocessing.darknet.YoloV2` decodes that layout: it walks the"
+" cells, applies each anchor's offsets and scales to recover absolute box "
+"coordinates, combines objectness with class probability for a per-class "
+"score, thresholds, and pushes the survivors to NMS. The class takes an "
+"``anchors=`` constructor argument when the model was trained against a "
+"custom anchor table and falls back to a built-in default otherwise. Variants"
+" tuned for specific class sets ship in the same submodule."
+msgstr ""
+":class:`~ml.postprocessing.darknet.YoloV2` "
+"はそのレイアウトをデコードします。セルをたどり、各アンカーのオフセットとスケールを適用して絶対的なボックス座標を復元し、objectnessとクラス確率を組み合わせてクラスごとのスコアを求め、しきい値処理を行い、生き残ったものをNMSに渡します。このクラスは、モデルがカスタムアンカーテーブルで学習された場合に"
+" ``anchors=`` "
+"コンストラクタ引数を取り、そうでない場合は組み込みのデフォルトにフォールバックします。特定のクラスセット向けに調整されたバリアントが同じサブモジュールに含まれています。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:53
+msgid "Ultralytics"
+msgstr "Ultralytics"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:55
+msgid ""
+":mod:`ml.postprocessing.ultralytics` decodes the newer YOLO generations. "
+":class:`~ml.postprocessing.ultralytics.YoloV8` reads a column-major output "
+"where each column is one anchor prediction holding box coordinates and a "
+"per-class score vector -- the objectness channel earlier YOLO outputs "
+"carried has been dropped in v8, and the class scores stand alone. The "
+":doc:`YOLOv8 walkthrough <yolov8-walkthrough>` steps through the decode "
+"tensor-by-tensor. Older Ultralytics-era versions ship in the same submodule "
+"for models trained against their layouts."
+msgstr ""
+":mod:`ml.postprocessing.ultralytics` はより新しい世代のYOLOをデコードします。\\ "
+":class:`~ml.postprocessing.ultralytics.YoloV8` "
+"は列優先の出力を読み取ります。各列は1つのアンカー予測で、ボックス座標とクラスごとのスコアベクトルを保持します。以前のYOLO出力が持っていたobjectnessチャンネルはv8で削除され、クラススコアが単独で立っています。\\"
+" :doc:`YOLOv8ウォークスルー <yolov8-walkthrough>` "
+"ではデコードをテンソルごとに段階的に説明します。古いUltralytics時代のバージョンも、それらのレイアウトで学習されたモデル向けに同じサブモジュールに含まれています。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:66
+msgid "MediaPipe"
+msgstr "MediaPipe"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:68
+msgid ""
+":mod:`ml.postprocessing.mediapipe` decodes Google's lightweight on-device "
+"family. :class:`~ml.postprocessing.mediapipe.BlazeFace` is the face detector"
+" covered in :doc:`hello-blazeface <../foundations/hello-blazeface>`: a fast "
+"anchor-based detector that emits boxes and six landmark coordinates per "
+"face, returned as ``(box, score, keypoints)`` tuples with the landmarks "
+"attached to each box rather than as a separate output list. Hand-detection, "
+"landmark, and pose models from the same family ship alongside it and follow "
+"the same attached-keypoint return shape."
+msgstr ""
+":mod:`ml.postprocessing.mediapipe` はGoogleの軽量なオンデバイスファミリーをデコードします。\\ "
+":class:`~ml.postprocessing.mediapipe.BlazeFace` は :doc:`hello-blazeface "
+"<../foundations/hello-blazeface>` "
+"で扱った顔検出器です。高速なアンカーベースの検出器で、顔ごとにボックスと6つのランドマーク座標を出力し、ランドマークが別の出力リストとしてではなく各ボックスに付随した"
+" ``(box, score, keypoints)`` "
+"のタプルとして返されます。同じファミリーの手検出、ランドマーク、ポーズのモデルも一緒に含まれており、同じキーポイント付随型の戻り値の形状に従います。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:79
+msgid "Picking one"
+msgstr "選択する"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:81
+msgid ""
+"The right post-processor is determined by the architecture the model was "
+"trained against, not by what the application wants. A YOLOv8 ``.tflite`` "
+"only decodes correctly through "
+":class:`~ml.postprocessing.ultralytics.YoloV8`; a BlazeFace ``.tflite`` only"
+" through :class:`~ml.postprocessing.mediapipe.BlazeFace`. Picking the post-"
+"processor is part of picking the model. When a model's architecture is not "
+"represented by a shipped post-processor, :doc:`writing your own <writing-"
+"your-own>` is straightforward."
+msgstr ""
+"適切な後処理は、アプリケーションが求めるものではなく、モデルが学習されたアーキテクチャによって決まります。YOLOv8の ``.tflite`` は "
+":class:`~ml.postprocessing.ultralytics.YoloV8` を通してのみ正しくデコードされ、BlazeFaceの "
+"``.tflite`` は :class:`~ml.postprocessing.mediapipe.BlazeFace` "
+"を通してのみ正しくデコードされます。後処理を選ぶことはモデルを選ぶことの一部です。モデルのアーキテクチャが出荷される後処理で表現されていない場合は、\\"
+" :doc:`独自に記述する <writing-your-own>` のは簡単です。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/postprocessors.rst:91
+msgid ""
+"Classification networks are the exception. Their single output tensor is "
+"already what the application wants -- a list of per-class scores -- and no "
+"post-processor is needed. Loading the model without ``postprocess=`` and "
+"reading the predict result as a flat ndarray is the right path, as "
+":doc:`tensor I/O <../pipeline/tensor-io>` covered."
+msgstr ""
+"分類ネットワークは例外です。その単一の出力テンソルは、すでにアプリケーションが求めるもの（クラスごとのスコアのリスト）そのものであり、後処理は不要です。\\"
+" :doc:`テンソルI/O <../pipeline/tensor-io>` で扱ったように、\\ ``postprocess=`` "
+"なしでモデルをロードし、予測結果をフラットなndarrayとして読み取るのが適切な方法です。"

@@ -1,0 +1,696 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/speed_python.rst:4
+msgid "Maximising MicroPython speed"
+msgstr "MicroPython の速度を最大化する"
+
+#: ../../reference/speed_python.rst:10
+msgid ""
+"This tutorial describes ways of improving the performance of MicroPython "
+"code. Optimisations involving other languages are covered elsewhere, namely "
+"the use of modules written in C and the MicroPython inline assembler."
+msgstr ""
+"このチュートリアルでは、MicroPython コードのパフォーマンスを改善する方法について説明します。他の言語に関わる最適化、すなわち C "
+"で記述したモジュールの使用や MicroPython のインラインアセンブラについては、別の箇所で扱います。"
+
+#: ../../reference/speed_python.rst:14
+msgid ""
+"The process of developing high performance code comprises the following "
+"stages which should be performed in the order listed."
+msgstr "高性能なコードを開発するプロセスは、以下に列挙する各段階から構成され、記載した順序で実施する必要があります。"
+
+#: ../../reference/speed_python.rst:17
+msgid "Design for speed."
+msgstr "速度を考慮した設計を行う。"
+
+#: ../../reference/speed_python.rst:18
+msgid "Code and debug."
+msgstr "コードを書いてデバッグする。"
+
+#: ../../reference/speed_python.rst:20
+msgid "Optimisation steps:"
+msgstr "最適化の手順:"
+
+#: ../../reference/speed_python.rst:22
+msgid "Identify the slowest section of code."
+msgstr "最も遅いコード区間を特定する。"
+
+#: ../../reference/speed_python.rst:23
+msgid "Improve the efficiency of the Python code."
+msgstr "Python コードの効率を改善する。"
+
+#: ../../reference/speed_python.rst:24
+msgid "Use the native code emitter."
+msgstr "ネイティブコードエミッタを使用する。"
+
+#: ../../reference/speed_python.rst:25
+msgid "Use the viper code emitter."
+msgstr "Viper コードエミッタを使用する。"
+
+#: ../../reference/speed_python.rst:26
+msgid "Use hardware-specific optimisations."
+msgstr "ハードウェア固有の最適化を使用する。"
+
+#: ../../reference/speed_python.rst:29
+msgid "Designing for speed"
+msgstr "速度を考慮した設計"
+
+#: ../../reference/speed_python.rst:31
+msgid ""
+"Performance issues should be considered at the outset. This involves taking "
+"a view on the sections of code which are most performance critical and "
+"devoting particular attention to their design. The process of optimisation "
+"begins when the code has been tested: if the design is correct at the outset"
+" optimisation will be straightforward and may actually be unnecessary."
+msgstr ""
+"パフォーマンスの問題は最初から考慮しておくべきです。これは、パフォーマンスが最も重要なコード区間を見極め、その設計に特に注意を払うことを意味します。最適化のプロセスは、コードのテストが済んでから始まります。最初の段階で設計が正しければ、最適化は容易になり、実際には不要となる場合もあります。"
+
+#: ../../reference/speed_python.rst:38
+msgid "Algorithms"
+msgstr "アルゴリズム"
+
+#: ../../reference/speed_python.rst:40
+msgid ""
+"The most important aspect of designing any routine for performance is "
+"ensuring that the best algorithm is employed. This is a topic for textbooks "
+"rather than for a MicroPython guide but spectacular performance gains can "
+"sometimes be achieved by adopting algorithms known for their efficiency."
+msgstr ""
+"パフォーマンスを目的としてルーチンを設計する上で最も重要なのは、最良のアルゴリズムを採用することです。これは MicroPython "
+"ガイドというよりは教科書で扱うべき話題ですが、効率の良さで知られるアルゴリズムを採用することで、目覚ましいパフォーマンス向上が得られることがあります。"
+
+#: ../../reference/speed_python.rst:46
+msgid "RAM allocation"
+msgstr "RAM の割り当て"
+
+#: ../../reference/speed_python.rst:48
+msgid ""
+"To design efficient MicroPython code it is necessary to have an "
+"understanding of the way the interpreter allocates RAM. When an object is "
+"created or grows in size (for example where an item is appended to a list) "
+"the necessary RAM is allocated from a block known as the heap. This takes a "
+"significant amount of time; further it will on occasion trigger a process "
+"known as garbage collection which can take several milliseconds."
+msgstr ""
+"効率的な MicroPython コードを設計するには、インタプリタが RAM "
+"を割り当てる仕組みを理解しておく必要があります。オブジェクトが生成されたりサイズが増大したりすると（例えばリストに要素が追加されたとき）、必要な RAM"
+" "
+"はヒープと呼ばれるブロックから割り当てられます。これにはかなりの時間がかかり、さらに場合によってはガベージコレクションと呼ばれるプロセスがトリガーされ、これには数ミリ秒かかることがあります。"
+
+#: ../../reference/speed_python.rst:55
+msgid ""
+"Consequently the performance of a function or method can be improved if an "
+"object is created once only and not permitted to grow in size. This implies "
+"that the object persists for the duration of its use: typically it will be "
+"instantiated in a class constructor and used in various methods."
+msgstr ""
+"そのため、オブジェクトを一度だけ生成し、サイズを増大させないようにすれば、関数やメソッドのパフォーマンスを改善できます。これは、そのオブジェクトを使用する期間中ずっと存続させることを意味します。一般的には、クラスのコンストラクタでインスタンス化し、さまざまなメソッドで使用します。"
+
+#: ../../reference/speed_python.rst:60
+msgid ""
+"This is covered in further detail :ref:`Controlling garbage collection "
+"<controlling_gc>` below."
+msgstr "これについては、後述の :ref:`ガベージコレクションの制御 <controlling_gc>` でさらに詳しく扱います。"
+
+#: ../../reference/speed_python.rst:65
+msgid "Buffers"
+msgstr "バッファ"
+
+#: ../../reference/speed_python.rst:67
+msgid ""
+"An example of the above is the common case where a buffer is required, such "
+"as one used for communication with a device. A typical driver will create "
+"the buffer in the constructor and use it in its I/O methods which will be "
+"called repeatedly."
+msgstr ""
+"上記の一例は、デバイスとの通信に使用するものなど、バッファが必要となる一般的なケースです。典型的なドライバは、コンストラクタでバッファを生成し、繰り返し呼び出される"
+" I/O メソッド内でそれを使用します。"
+
+#: ../../reference/speed_python.rst:71
+msgid ""
+"The MicroPython libraries typically provide support for pre-allocated "
+"buffers. For example, objects which support stream interface (e.g., file or "
+"UART) provide ``read()`` method which allocates new buffer for read data, "
+"but also a ``readinto()`` method to read data into an existing buffer."
+msgstr ""
+"MicroPython "
+"のライブラリは通常、事前割り当てされたバッファのサポートを提供します。例えば、ストリームインターフェースをサポートするオブジェクト（ファイルや UART"
+" など）は、読み込んだデータ用に新しいバッファを割り当てる ``read()`` メソッドだけでなく、既存のバッファにデータを読み込む "
+"``readinto()`` メソッドも提供します。"
+
+#: ../../reference/speed_python.rst:76
+msgid "Some useful classes for creating reusable buffer objects:"
+msgstr "再利用可能なバッファオブジェクトを生成するのに便利なクラスをいくつか挙げます:"
+
+#: ../../reference/speed_python.rst:78
+msgid ":class:`bytearray`"
+msgstr ":class:`bytearray`"
+
+#: ../../reference/speed_python.rst:79
+msgid ":mod:`array` (:ref:`discussed below<speed_arrays>`)"
+msgstr ":mod:`array`\\ （\\ :ref:`後述<speed_arrays>`\\ ）"
+
+#: ../../reference/speed_python.rst:80
+msgid ":class:`io.StringIO` and :class:`io.BytesIO`"
+msgstr ":class:`io.StringIO` と :class:`io.BytesIO`"
+
+#: ../../reference/speed_python.rst:81
+msgid ":class:`micropython.RingIO`"
+msgstr ":class:`micropython.RingIO`"
+
+#: ../../reference/speed_python.rst:84
+msgid "Floating point"
+msgstr "浮動小数点"
+
+#: ../../reference/speed_python.rst:86
+msgid ""
+"Some MicroPython ports allocate floating point numbers on heap. Some other "
+"ports may lack dedicated floating-point coprocessor, and perform arithmetic "
+"operations on them in \"software\" at considerably lower speed than on "
+"integers. Where performance is important, use integer operations and "
+"restrict the use of floating point to sections of the code where performance"
+" is not paramount. For example, capture ADC readings as integer values to an"
+" array in one quick go, and only then convert them to floating-point numbers"
+" for signal processing."
+msgstr ""
+"一部の MicroPython "
+"ポートは、浮動小数点数をヒープ上に割り当てます。また、専用の浮動小数点コプロセッサを持たず、浮動小数点の算術演算を整数よりもかなり低速な「ソフトウェア」で行うポートもあります。パフォーマンスが重要な場合は整数演算を使用し、浮動小数点の使用はパフォーマンスが最重要でないコード区間に限定してください。例えば、ADC"
+" の読み取り値を整数値として一度にすばやく配列に取り込み、その後でのみ信号処理のために浮動小数点数へ変換するとよいでしょう。"
+
+#: ../../reference/speed_python.rst:97
+msgid "Arrays"
+msgstr "配列"
+
+#: ../../reference/speed_python.rst:99
+msgid ""
+"Consider the use of the various types of array classes as an alternative to "
+"lists. The :mod:`array` module supports various element types with 8-bit "
+"elements supported by Python's built in `bytes` and `bytearray` classes. "
+"These data structures all store elements in contiguous memory locations. "
+"Once again to avoid memory allocation in critical code these should be pre-"
+"allocated and passed as arguments or as bound objects."
+msgstr ""
+"リストの代替として、各種の配列クラスの使用を検討してください。\\ :mod:`array` モジュールはさまざまな要素型をサポートしており、8 "
+"ビット要素は Python 組み込みの `bytes` クラスと `bytearray` "
+"クラスでサポートされます。これらのデータ構造はいずれも要素を連続したメモリ位置に格納します。ここでも、重要なコードでのメモリ割り当てを避けるため、これらは事前に割り当て、引数として、あるいはバインドされたオブジェクトとして渡すべきです。"
+
+#: ../../reference/speed_python.rst:106
+msgid "Memoryviews"
+msgstr "Memoryview"
+
+#: ../../reference/speed_python.rst:108
+msgid ""
+"When passing slices of objects such as `bytearray` instances, Python creates"
+" a copy which involves allocation of the size proportional to the size of "
+"slice. This can be alleviated using a `memoryview` object. The `memoryview` "
+"itself is allocated on the heap, but is a small, fixed-size object, "
+"regardless of the size of slice it points to. Slicing a `memoryview` creates"
+" a new `memoryview`, so this cannot be done in an interrupt service routine."
+" Further, the slice syntax ``a:b`` causes further allocation by "
+"instantiating a ``slice(a, b)`` object."
+msgstr ""
+"`bytearray` インスタンスなどのオブジェクトのスライスを渡すと、Python "
+"はコピーを生成し、これにはスライスのサイズに比例した割り当てが伴います。これは `memoryview` オブジェクトを使うことで軽減できます。\\ "
+"`memoryview` 自体はヒープ上に割り当てられますが、参照先のスライスのサイズに関係なく、小さく固定サイズのオブジェクトです。\\ "
+"`memoryview` をスライスすると新しい `memoryview` "
+"が生成されるため、これは割り込みサービスルーチン内では行えません。さらに、スライス構文 ``a:b`` は ``slice(a, b)`` "
+"オブジェクトをインスタンス化することで、さらなる割り当てを引き起こします。"
+
+#: ../../reference/speed_python.rst:123
+msgid ""
+"A `memoryview` can only be applied to objects supporting the buffer protocol"
+" - this includes arrays but not lists. Small caveat is that while memoryview"
+" object is live, it also keeps alive the original buffer object. So, a "
+"memoryview isn't a universal panacea. For instance, in the example above, if"
+" you are done with 10K buffer and just need those bytes 30:2000 from it, it "
+"may be better to make a slice, and let the 10K buffer go (be ready for "
+"garbage collection), instead of making a long-living memoryview and keeping "
+"10K blocked for GC."
+msgstr ""
+"`memoryview` "
+"はバッファプロトコルをサポートするオブジェクトにのみ適用できます。これには配列は含まれますがリストは含まれません。注意点として、memoryview "
+"オブジェクトが生きている間は、元のバッファオブジェクトも生かし続けます。したがって、memoryview は万能薬ではありません。例えば、上記の例で "
+"10K のバッファを使い終わり、そこから 30:2000 のバイトだけが必要な場合は、長く生存する memoryview を作って 10K を GC "
+"のためにブロックし続けるよりも、スライスを作って 10K バッファを手放す（ガベージコレクションの対象になるようにする）方が良いかもしれません。"
+
+#: ../../reference/speed_python.rst:131
+msgid ""
+"Nonetheless, `memoryview` is indispensable for advanced preallocated buffer "
+"management. ``readinto()`` method discussed above puts data at the beginning"
+" of buffer and fills in entire buffer. What if you need to put data in the "
+"middle of existing buffer? Just create a memoryview into the needed section "
+"of buffer and pass it to ``readinto()``."
+msgstr ""
+"とはいえ、\\ `memoryview` は高度な事前割り当てバッファ管理には欠かせません。前述の ``readinto()`` "
+"メソッドはデータをバッファの先頭に置き、バッファ全体を埋めます。既存のバッファの途中にデータを置く必要がある場合はどうすればよいでしょうか。バッファの必要な区間への"
+" memoryview を作成し、それを ``readinto()`` に渡すだけです。"
+
+#: ../../reference/speed_python.rst:138
+msgid "Strings vs Bytes"
+msgstr "文字列とバイト列"
+
+#: ../../reference/speed_python.rst:140
+msgid ""
+"MicroPython uses :ref:`string interning <qstr>` to save space when there are"
+" multiple identical strings. Each time a new string is allocated at runtime "
+"(for example, when two other strings are concatenated), MicroPython checks "
+"whether the new string can be interned to save RAM."
+msgstr ""
+"MicroPython は、同一の文字列が複数存在する場合に領域を節約するため、\\ :ref:`文字列インターン <qstr>` "
+"を使用します。実行時に新しい文字列が割り当てられるたびに（例えば 2 つの文字列が連結されたとき）、MicroPython は RAM "
+"を節約するためにその新しい文字列をインターンできるかどうかを確認します。"
+
+#: ../../reference/speed_python.rst:145
+msgid ""
+"If you have code which performs performance-critical string operations then "
+"consider using :class:`bytes` objects and literals (i.e. ``b\"abc\"``). This"
+" skips the interning check, and can be several times faster than performing "
+"the same operations with string objects."
+msgstr ""
+"パフォーマンスが重要な文字列操作を行うコードがある場合は、\\ :class:`bytes` オブジェクトやリテラル（すなわち "
+"``b\"abc\"``\\ "
+"）の使用を検討してください。これによりインターンの確認がスキップされ、同じ操作を文字列オブジェクトで行う場合よりも数倍高速になることがあります。"
+
+#: ../../reference/speed_python.rst:150
+msgid ""
+"The fastest performance will always be achieved by avoiding new object "
+"creation entirely, for example with a reusable :ref:`buffer as described "
+"above<speed_buffers>`."
+msgstr ""
+"最速のパフォーマンスは、例えば :ref:`前述の再利用可能なバッファ<speed_buffers>` "
+"を使うなど、新しいオブジェクトの生成を完全に避けることで常に達成されます。"
+
+#: ../../reference/speed_python.rst:155
+msgid "Identifying the slowest section of code"
+msgstr "最も遅いコード区間を特定する"
+
+#: ../../reference/speed_python.rst:157
+msgid ""
+"This is a process known as profiling and is covered in textbooks and (for "
+"standard Python) supported by various software tools. For the type of "
+"smaller embedded application likely to be running on MicroPython platforms "
+"the slowest function or method can usually be established by judicious use "
+"of the timing ``ticks`` group of functions documented in `time`. Code "
+"execution time can be measured in ms, us, or CPU cycles."
+msgstr ""
+"これはプロファイリングと呼ばれるプロセスであり、教科書で扱われ、（標準の Python "
+"では）各種ソフトウェアツールによってサポートされています。MicroPython "
+"プラットフォーム上で動作する可能性が高い、比較的小規模な組み込みアプリケーションの種類では、最も遅い関数やメソッドは通常、\\ `time` "
+"に記載されているタイミング計測用の ``ticks`` 系関数を適切に使うことで特定できます。コードの実行時間は ms、us、または CPU "
+"サイクルで測定できます。"
+
+#: ../../reference/speed_python.rst:164
+msgid ""
+"The following enables any function or method to be timed by adding an "
+"``@timed_function`` decorator:"
+msgstr ""
+"以下を用いると、\\ ``@timed_function`` デコレータを追加するだけで、任意の関数やメソッドの実行時間を計測できるようになります:"
+
+#: ../../reference/speed_python.rst:180
+msgid "MicroPython code improvements"
+msgstr "MicroPython コードの改善"
+
+#: ../../reference/speed_python.rst:183
+msgid "The const() declaration"
+msgstr "const() 宣言"
+
+#: ../../reference/speed_python.rst:185
+msgid ""
+"MicroPython provides a ``const()`` declaration. This works in a similar way "
+"to ``#define`` in C in that when the code is compiled to bytecode the "
+"compiler substitutes the numeric value for the identifier. This avoids a "
+"dictionary lookup at runtime. The argument to ``const()`` may be anything "
+"which, at compile time, evaluates to an integer e.g. ``0x100`` or ``1 << "
+"8``."
+msgstr ""
+"MicroPython は ``const()`` 宣言を提供します。これは C の ``#define`` "
+"と同様に動作し、コードがバイトコードにコンパイルされる際に、コンパイラが識別子をその数値に置き換えます。これにより実行時の辞書検索が回避されます。\\ "
+"``const()`` への引数は、コンパイル時に整数に評価されるものなら何でもよく、例えば ``0x100`` や ``1 << 8`` などです。"
+
+#: ../../reference/speed_python.rst:194
+msgid "Caching object references"
+msgstr "オブジェクト参照のキャッシュ"
+
+#: ../../reference/speed_python.rst:196
+msgid ""
+"Where a function or method repeatedly accesses objects performance is "
+"improved by caching the object in a local variable:"
+msgstr "関数やメソッドがオブジェクトに繰り返しアクセスする場合、そのオブジェクトをローカル変数にキャッシュすることでパフォーマンスが改善されます:"
+
+#: ../../reference/speed_python.rst:209
+msgid ""
+"This avoids the need repeatedly to look up ``self.ba`` and "
+"``obj_display.framebuffer`` in the body of the method ``bar()``."
+msgstr ""
+"これにより、メソッド ``bar()`` の本体内で ``self.ba`` と ``obj_display.framebuffer`` "
+"を繰り返し検索する必要がなくなります。"
+
+#: ../../reference/speed_python.rst:215
+msgid "Controlling garbage collection"
+msgstr "ガベージコレクションの制御"
+
+#: ../../reference/speed_python.rst:217
+msgid ""
+"When memory allocation is required, MicroPython attempts to locate an "
+"adequately sized block on the heap. This may fail, usually because the heap "
+"is cluttered with objects which are no longer referenced by code. If a "
+"failure occurs, the process known as garbage collection reclaims the memory "
+"used by these redundant objects and the allocation is then tried again - a "
+"process which can take several milliseconds."
+msgstr ""
+"メモリ割り当てが必要になると、MicroPython "
+"はヒープ上で十分なサイズのブロックを見つけようとします。これは失敗することがあり、通常はコードからもう参照されなくなったオブジェクトでヒープが散らかっているためです。失敗が発生すると、ガベージコレクションと呼ばれるプロセスがこれらの不要なオブジェクトが使用していたメモリを回収し、その後で割り当てが再試行されます。これには数ミリ秒かかることがあります。"
+
+#: ../../reference/speed_python.rst:224
+msgid ""
+"There may be benefits in pre-empting this by periodically issuing "
+"``gc.collect()``. Firstly doing a collection before it is actually required "
+"is quicker - typically on the order of 1ms if done frequently. Secondly you "
+"can determine the point in code where this time is used rather than have a "
+"longer delay occur at random points, possibly in a speed critical section. "
+"Finally performing collections regularly can reduce fragmentation in the "
+"heap. Severe fragmentation can lead to non-recoverable allocation failures."
+msgstr ""
+"定期的に ``gc.collect()`` "
+"を発行してこれを先取りすることには利点がある場合があります。第一に、実際に必要になる前にコレクションを行う方が高速です。頻繁に行えば通常 1ms "
+"程度です。第二に、ランダムな箇所で（場合によっては速度が重要な区間で）長い遅延が発生するのではなく、この時間が使われるコード上の地点を自分で決められます。最後に、コレクションを定期的に行うことでヒープの断片化を軽減できます。深刻な断片化は回復不能な割り当て失敗につながることがあります。"
+
+#: ../../reference/speed_python.rst:233
+msgid "The Native code emitter"
+msgstr "ネイティブコードエミッタ"
+
+#: ../../reference/speed_python.rst:235
+msgid ""
+"This causes the MicroPython compiler to emit native CPU opcodes rather than "
+"bytecode. It covers the bulk of the MicroPython functionality, so most "
+"functions will require no adaptation (but see below). It is invoked by means"
+" of a function decorator:"
+msgstr ""
+"これにより、MicroPython コンパイラはバイトコードではなくネイティブの CPU オペコードを出力するようになります。MicroPython "
+"の機能の大部分をカバーするため、ほとんどの関数は適応が不要です（ただし以下を参照）。これは関数デコレータによって呼び出します:"
+
+#: ../../reference/speed_python.rst:246
+msgid ""
+"There are certain limitations in the current implementation of the native "
+"code emitter."
+msgstr "現在のネイティブコードエミッタの実装には、いくつかの制限があります。"
+
+#: ../../reference/speed_python.rst:248
+msgid "If ``raise`` is used an argument must be supplied."
+msgstr "``raise`` を使用する場合は、引数を指定する必要があります。"
+
+#: ../../reference/speed_python.rst:249
+msgid ""
+"The background scheduler (see `micropython.schedule`) is not run during "
+"execution of native code."
+msgstr "ネイティブコードの実行中は、バックグラウンドスケジューラ（\\ `micropython.schedule` を参照）が実行されません。"
+
+#: ../../reference/speed_python.rst:251
+msgid ""
+"On targets with threading and the GIL, the GIL is not released during "
+"execution of native code."
+msgstr "スレッドと GIL を持つターゲットでは、ネイティブコードの実行中に GIL が解放されません。"
+
+#: ../../reference/speed_python.rst:254
+msgid ""
+"To mitigate the last two points, long running native functions should call "
+"``time.sleep(0)`` periodically, which will run the scheduler and bounce the "
+"GIL."
+msgstr ""
+"後者の 2 点を緩和するため、長時間実行されるネイティブ関数は定期的に ``time.sleep(0)`` "
+"を呼び出すべきです。これによりスケジューラが実行され、GIL が一時的に解放されます。"
+
+#: ../../reference/speed_python.rst:257
+msgid ""
+"The trade-off for the improved performance (roughly twice as fast as "
+"bytecode) is an increase in compiled code size."
+msgstr "パフォーマンス向上（バイトコードのおよそ 2 倍の速度）と引き換えに、コンパイル後のコードサイズが増加します。"
+
+#: ../../reference/speed_python.rst:261
+msgid "The Viper code emitter"
+msgstr "Viper コードエミッタ"
+
+#: ../../reference/speed_python.rst:263
+msgid ""
+"The optimisations discussed above involve standards-compliant Python code. "
+"The Viper code emitter is not fully compliant. It supports special Viper "
+"native data types in pursuit of performance. Integer processing is non-"
+"compliant because it uses machine words: arithmetic on 32 bit hardware is "
+"performed modulo 2**32."
+msgstr ""
+"上で述べた最適化は、標準準拠の Python コードに関わるものです。Viper "
+"コードエミッタは完全には準拠していません。パフォーマンスを追求するために、Viper "
+"独自のネイティブデータ型をサポートします。整数処理はマシンワードを使用するため非準拠です。32 ビットハードウェアでの算術演算は 2**32 "
+"を法として行われます。"
+
+#: ../../reference/speed_python.rst:268
+msgid ""
+"Like the Native emitter Viper produces machine instructions but further "
+"optimisations are performed, substantially increasing performance especially"
+" for integer arithmetic and bit manipulations. It is invoked using a "
+"decorator:"
+msgstr ""
+"ネイティブエミッタと同様に Viper "
+"はマシン命令を生成しますが、さらに最適化が行われ、特に整数算術とビット操作のパフォーマンスが大幅に向上します。これはデコレータを使って呼び出します:"
+
+#: ../../reference/speed_python.rst:278
+msgid ""
+"As the above fragment illustrates it is beneficial to use Python type hints "
+"to assist the Viper optimiser. Type hints provide information on the data "
+"types of arguments and of the return value; these are a standard Python "
+"language feature formally defined here `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_. Viper supports its own set of"
+" types namely ``int``, ``uint`` (unsigned integer), ``ptr``, ``ptr8``, "
+"``ptr16`` and ``ptr32``. The ``ptrX`` types are discussed below. Currently "
+"the ``uint`` type serves a single purpose: as a type hint for a function "
+"return value. If such a function returns ``0xffffffff`` Python will "
+"interpret the result as 2**32 -1 rather than as -1."
+msgstr ""
+"上記の断片が示すように、Viper オプティマイザを補助するために Python "
+"の型ヒントを使うと有益です。型ヒントは引数や戻り値のデータ型に関する情報を提供します。これは標準的な Python 言語の機能で、\\ `PEP0484"
+" <https://www.python.org/dev/peps/pep-0484/>`_ で正式に定義されています。Viper "
+"は独自の型のセット、すなわち ``int``\\ 、\\ ``uint``\\ （符号なし整数）、\\ ``ptr``\\ 、\\ ``ptr8``\\"
+" 、\\ ``ptr16``\\ 、\\ ``ptr32`` をサポートします。\\ ``ptrX`` 型については後述します。現在、\\ "
+"``uint`` 型は単一の目的、すなわち関数の戻り値の型ヒントとして機能します。そのような関数が ``0xffffffff`` を返すと、Python"
+" はその結果を -1 ではなく 2**32 -1 と解釈します。"
+
+#: ../../reference/speed_python.rst:286
+msgid ""
+"In addition to the restrictions imposed by the native emitter the following "
+"constraints apply:"
+msgstr "ネイティブエミッタによって課される制限に加えて、以下の制約が適用されます:"
+
+#: ../../reference/speed_python.rst:288
+msgid "Default argument values are not permitted."
+msgstr "デフォルトの引数値は許可されません。"
+
+#: ../../reference/speed_python.rst:289
+msgid "Floating point may be used but is not optimised."
+msgstr "浮動小数点は使用できますが、最適化はされません。"
+
+#: ../../reference/speed_python.rst:291
+msgid "Viper provides pointer types to assist the optimiser. These comprise"
+msgstr "Viper はオプティマイザを補助するためにポインタ型を提供します。これらは以下から構成されます"
+
+#: ../../reference/speed_python.rst:293
+msgid "``ptr`` Pointer to an object."
+msgstr "``ptr`` オブジェクトへのポインタ。"
+
+#: ../../reference/speed_python.rst:294
+msgid "``ptr8`` Points to a byte."
+msgstr "``ptr8`` バイトを指します。"
+
+#: ../../reference/speed_python.rst:295
+msgid "``ptr16`` Points to a 16 bit half-word."
+msgstr "``ptr16`` 16 ビットのハーフワードを指します。"
+
+#: ../../reference/speed_python.rst:296
+msgid "``ptr32`` Points to a 32 bit machine word."
+msgstr "``ptr32`` 32 ビットのマシンワードを指します。"
+
+#: ../../reference/speed_python.rst:298
+msgid ""
+"The concept of a pointer may be unfamiliar to Python programmers. It has "
+"similarities to a Python `memoryview` object in that it provides direct "
+"access to data stored in memory. Items are accessed using subscript "
+"notation, but slices are not supported: a pointer can return a single item "
+"only. Its purpose is to provide fast random access to data stored in "
+"contiguous memory locations - such as data stored in objects which support "
+"the buffer protocol, and memory-mapped peripheral registers in a "
+"microcontroller. It should be noted that programming using pointers is "
+"hazardous: bounds checking is not performed and the compiler does nothing to"
+" prevent buffer overrun errors."
+msgstr ""
+"ポインタという概念は Python "
+"プログラマには馴染みがないかもしれません。これは、メモリに格納されたデータへの直接アクセスを提供するという点で、Python の "
+"`memoryview` "
+"オブジェクトに似ています。要素は添字記法を使ってアクセスしますが、スライスはサポートされません。ポインタは単一の要素のみを返すことができます。その目的は、連続したメモリ位置に格納されたデータ（バッファプロトコルをサポートするオブジェクトに格納されたデータや、マイクロコントローラのメモリマップされたペリフェラルレジスタなど）への高速なランダムアクセスを提供することです。ポインタを使ったプログラミングは危険であることに注意してください。境界チェックは行われず、コンパイラはバッファオーバーランエラーを防ぐために何もしません。"
+
+#: ../../reference/speed_python.rst:307
+msgid "Typical usage is to cache variables:"
+msgstr "典型的な用途は変数のキャッシュです:"
+
+#: ../../reference/speed_python.rst:318
+msgid ""
+"In this instance the compiler \"knows\" that ``buf`` is the address of an "
+"array of bytes; it can emit code to rapidly compute the address of "
+"``buf[x]`` at runtime. Where casts are used to convert objects to Viper "
+"native types these should be performed at the start of the function rather "
+"than in critical timing loops as the cast operation can take several "
+"microseconds. The rules for casting are as follows:"
+msgstr ""
+"この場合、コンパイラは ``buf`` がバイト配列のアドレスであることを「知って」います。そのため、実行時に ``buf[x]`` "
+"のアドレスを高速に計算するコードを出力できます。オブジェクトを Viper "
+"のネイティブ型に変換するためにキャストを使う場合、キャスト操作には数マイクロ秒かかることがあるため、これらはタイミングが重要なループ内ではなく関数の冒頭で行うべきです。キャストの規則は以下のとおりです:"
+
+#: ../../reference/speed_python.rst:324
+msgid ""
+"Casting operators are currently: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` and ``ptr32``."
+msgstr ""
+"現在のキャスト演算子は ``int``\\ 、\\ ``bool``\\ 、\\ ``uint``\\ 、\\ ``ptr``\\ 、\\ "
+"``ptr8``\\ 、\\ ``ptr16``\\ 、\\ ``ptr32`` です。"
+
+#: ../../reference/speed_python.rst:325
+msgid "The result of a cast will be a native Viper variable."
+msgstr "キャストの結果は Viper のネイティブ変数になります。"
+
+#: ../../reference/speed_python.rst:326
+msgid "Arguments to a cast can be a Python object or a native Viper variable."
+msgstr "キャストへの引数は Python オブジェクトか Viper のネイティブ変数のいずれかです。"
+
+#: ../../reference/speed_python.rst:327
+msgid ""
+"If argument is a native Viper variable, then cast is a no-op (i.e. costs "
+"nothing at runtime) that just changes the type (e.g. from ``uint`` to "
+"``ptr8``) so that you can then store/load using this pointer."
+msgstr ""
+"引数が Viper のネイティブ変数の場合、キャストは何もしない操作（すなわち実行時のコストがゼロ）であり、型を変えるだけ（例えば ``uint`` "
+"から ``ptr8`` へ）で、そのポインタを使って格納や読み込みができるようになります。"
+
+#: ../../reference/speed_python.rst:330
+msgid ""
+"If the argument is a Python object and the cast is ``int`` or ``uint``, then"
+" the Python object must be of integral type and the value of that integral "
+"object is returned."
+msgstr ""
+"引数が Python オブジェクトで、キャストが ``int`` または ``uint`` の場合、その Python "
+"オブジェクトは整数型でなければならず、その整数オブジェクトの値が返されます。"
+
+#: ../../reference/speed_python.rst:332
+msgid ""
+"The argument to a bool cast must be integral type (boolean or integer); when"
+" used as a return type the viper function will return True or False objects."
+msgstr ""
+"bool キャストへの引数は整数型（ブール値または整数）でなければなりません。戻り値の型として使用した場合、viper 関数は True または "
+"False オブジェクトを返します。"
+
+#: ../../reference/speed_python.rst:334
+msgid ""
+"If the argument is a Python object and the cast is ``ptr``, ``ptr8``, "
+"``ptr16`` or ``ptr32``, then the Python object must either have the buffer "
+"protocol (in which case a pointer to the start of the buffer is returned) or"
+" it must be of integral type (in which case the value of that integral "
+"object is returned)."
+msgstr ""
+"引数が Python オブジェクトで、キャストが ``ptr``\\ 、\\ ``ptr8``\\ 、\\ ``ptr16``\\ 、\\ "
+"``ptr32`` のいずれかの場合、その Python "
+"オブジェクトはバッファプロトコルを持つ（その場合はバッファの先頭へのポインタが返されます）か、整数型である（その場合はその整数オブジェクトの値が返されます）かのいずれかでなければなりません。"
+
+#: ../../reference/speed_python.rst:339
+msgid ""
+"Writing to a pointer which points to a read-only object will lead to "
+"undefined behaviour."
+msgstr "読み取り専用オブジェクトを指すポインタへの書き込みは、未定義動作につながります。"
+
+#: ../../reference/speed_python.rst:343
+msgid ""
+"The code examples below are given for the STM32-based OpenMV Cams, which "
+"provide the ``stm`` module. The techniques described apply generally."
+msgstr ""
+"以下のコード例は、\\ ``stm`` モジュールを提供する STM32 ベースの OpenMV Cam "
+"向けに記載されています。説明されている手法は一般的に適用できます。"
+
+#: ../../reference/speed_python.rst:346
+msgid ""
+"The ``stm`` module exposes the memory addresses of the MCU's peripheral "
+"registers. Each GPIO port has an *output data register* (ODR) whose bits map"
+" one-to-one to that port's pins: writing the register drives those pins "
+"directly, without the overhead of a :class:`machine.Pin` method call, and "
+"XOR-ing a bit toggles its pin. On the original OpenMV Cam the blue LED is "
+"wired to ``GPIOC`` pin 2, so the following example uses a ``ptr16`` cast to "
+"toggle the blue LED ``n`` times:"
+msgstr ""
+"``stm`` モジュールは MCU のペリフェラルレジスタのメモリアドレスを公開します。各 GPIO ポートには *出力データレジスタ*\\ "
+"（ODR）があり、そのビットはそのポートのピンに 1 対 1 で対応しています。レジスタへの書き込みは、\\ :class:`machine.Pin` "
+"メソッド呼び出しのオーバーヘッドなしにそれらのピンを直接駆動し、ビットの XOR を取るとそのピンがトグルします。オリジナルの OpenMV Cam "
+"では青色 LED が ``GPIOC`` のピン 2 に配線されているため、次の例では ``ptr16`` キャストを使って青色 LED を ``n``"
+" 回トグルします:"
+
+#: ../../reference/speed_python.rst:363
+msgid ""
+"A detailed technical description of the three code emitters may be found on "
+"Kickstarter here `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ and here `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+msgstr ""
+"3 つのコードエミッタの詳細な技術的説明は、Kickstarter のこちら `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ およびこちら `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_ で見ることができます"
+
+#: ../../reference/speed_python.rst:368
+msgid "Accessing hardware directly"
+msgstr "ハードウェアへの直接アクセス"
+
+#: ../../reference/speed_python.rst:370
+msgid ""
+"This comes into the category of more advanced programming and involves some "
+"knowledge of the target MCU. Consider the example of toggling an output pin "
+"on an OpenMV Cam. The standard approach would be to write"
+msgstr ""
+"これはより高度なプログラミングの範疇に入り、ターゲット MCU に関するある程度の知識を必要とします。OpenMV Cam "
+"で出力ピンをトグルする例を考えてみましょう。標準的なアプローチでは次のように書きます"
+
+#: ../../reference/speed_python.rst:378
+msgid ""
+"This involves the overhead of two calls to the :class:`~machine.Pin` "
+"instance's :meth:`~machine.Pin.value()` method. This overhead can be "
+"eliminated by performing a read/write to the relevant bit of the chip's GPIO"
+" port output data register (ODR). To facilitate this the ``stm`` module "
+"provides a set of constants giving the addresses of the relevant registers "
+"(``stm.GPIOC`` is the base address of the GPIOC port, ``stm.GPIO_ODR`` the "
+"offset of its output data register). As above, the blue LED on the original "
+"OpenMV Cam is ``GPIOC`` pin 2, so a fast toggle of it can be performed as "
+"follows:"
+msgstr ""
+"これには、\\ :class:`~machine.Pin` インスタンスの :meth:`~machine.Pin.value()` メソッドへの 2 "
+"回の呼び出しというオーバーヘッドが伴います。このオーバーヘッドは、チップの GPIO "
+"ポート出力データレジスタ（ODR）の該当ビットに対して読み書きを行うことで除去できます。これを容易にするため、\\ ``stm`` "
+"モジュールは該当レジスタのアドレスを与える一連の定数を提供します（\\ ``stm.GPIOC`` は GPIOC ポートのベースアドレス、\\ "
+"``stm.GPIO_ODR`` はその出力データレジスタのオフセットです）。上記のとおり、オリジナルの OpenMV Cam の青色 LED は "
+"``GPIOC`` のピン 2 なので、その高速なトグルは次のように行えます:"

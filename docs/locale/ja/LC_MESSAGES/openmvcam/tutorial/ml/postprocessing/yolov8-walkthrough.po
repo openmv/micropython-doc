@@ -1,0 +1,242 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:2
+msgid "YOLOv8 walkthrough"
+msgstr "YOLOv8ウォークスルー"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:4
+msgid ""
+"The YOLOv8 post-processor is small enough to step through from input tensor "
+"to returned list. Reading it once shows what every other post-processor in "
+"the catalogue is doing: threshold quantized scores cheaply, take what "
+"survives, dequantize, decode geometry, push to NMS, return per-class lists."
+msgstr ""
+"YOLOv8の後処理は、入力テンソルから返されるリストまで一通り追えるほど小さいものです。一度読めば、カタログ内の他のすべての後処理が何をしているかがわかります。量子化されたスコアを安価にしきい値処理し、生き残ったものを取り、逆量子化し、ジオメトリをデコードし、NMSに渡し、クラスごとのリストを返す、という流れです。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:11
+msgid "The starting tensor"
+msgstr "開始時のテンソル"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:13
+msgid ""
+"A YOLOv8 model emits a single output tensor whose shape is ``(1, C, A)`` -- "
+"one frame, ``C`` channels, ``A`` anchor predictions. The first four channels"
+" are box geometry -- ``cx``, ``cy``, ``w``, ``h`` -- normalized to ``[0, "
+"1]`` of the network's input dimensions. The remaining ``C - 4`` channels are"
+" per-class scores, already in ``[0, 1]`` for a trained model. Each anchor is"
+" a column down the channels."
+msgstr ""
+"YOLOv8モデルは、形状が ``(1, C, A)`` の単一の出力テンソルを出力します。1フレーム、\\ ``C`` チャンネル、\\ ``A`` "
+"アンカー予測です。最初の4つのチャンネルはボックスのジオメトリ（\\ ``cx``\\ 、\\ ``cy``\\ 、\\ ``w``\\ 、\\ "
+"``h``\\ ）で、ネットワークの入力次元の ``[0, 1]`` に正規化されています。残りの ``C - 4`` "
+"チャンネルはクラスごとのスコアで、学習済みモデルでは既に ``[0, 1]`` の範囲にあります。各アンカーはチャンネル方向に並んだ1つの列です。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:21
+msgid ""
+"A grid laid on its side: rows labelled cx, cy, w, h,\n"
+"score_0, score_1, ..., score_(N-1); columns labelled\n"
+"anchor 0 through anchor A-1. One column is outlined to\n"
+"show that a single anchor's prediction is one column\n"
+"down the channels."
+msgstr ""
+"横向きに置かれたグリッド。行にはcx、cy、w、h、score_0、score_1、...、score_(N-1)のラベルが付き、列にはアンカー0からアンカーA-1までのラベルが付いています。1つの列が囲まれていて、単一のアンカーの予測がチャンネル方向の1つの列であることを示しています。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:28
+msgid ""
+"One YOLOv8 anchor is one column down the channels: four box numbers and "
+"``N`` class scores."
+msgstr "1つのYOLOv8アンカーはチャンネル方向の1つの列です。4つのボックスの数値と ``N`` 個のクラススコアです。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:31
+msgid ""
+"The shipped ``yolov8n_192.tflite`` is a single-class person detector, so ``C"
+" = 5`` and ``A`` is in the thousands; a custom model trained on the full "
+"80-class COCO set has ``C = 84`` against the same ``A``. The decode below "
+"holds for any class count."
+msgstr ""
+"出荷される ``yolov8n_192.tflite`` は単一クラスの人物検出器なので、\\ ``C = 5`` で ``A`` "
+"は数千になります。完全な80クラスのCOCOセットで学習されたカスタムモデルは、同じ ``A`` に対して ``C = 84`` "
+"を持ちます。以下のデコードはどのクラス数に対しても成り立ちます。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:37
+msgid "Thresholding before dequantizing"
+msgstr "逆量子化前のしきい値処理"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:39
+msgid ""
+"The cheap step first. The output tensor is in the model's quantized integer "
+"dtype, and dequantizing every value would touch every element of a tensor "
+"with thousands of entries -- most of which are below the score threshold and"
+" end up discarded. The post-processor instead quantizes the threshold once "
+"and compares in raw quantized space::"
+msgstr ""
+"まず安価なステップです。出力テンソルはモデルの量子化された整数dtypeであり、すべての値を逆量子化すると、数千のエントリを持つテンソルのすべての要素に触れることになります。その大半はスコアしきい値を下回り、最終的に破棄されます。そこで後処理は、代わりにしきい値を一度だけ量子化し、生の量子化空間で比較します::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:62
+msgid ""
+"``column_outputs`` is the tensor reshaped to ``(C, A)`` so the channels are "
+"rows and the anchors are columns. ``score_block`` is the class-score sub-"
+"tensor -- everything from row ``4`` down. :func:`ml.utils.threshold` reduces"
+" that block along axis ``0`` (``find_max=True``, ``find_max_axis=0``) to the"
+" per-anchor maximum score, then returns the indices of anchors whose maximum"
+" passes the quantized threshold. The whole tensor was never dequantized; "
+"only a per-column max-reduction in quantized integer space."
+msgstr ""
+"``column_outputs`` は ``(C, A)`` に再形成されたテンソルで、チャンネルが行、アンカーが列になっています。\\ "
+"``score_block`` はクラススコアのサブテンソルで、行 ``4`` から下のすべてです。\\ "
+":func:`ml.utils.threshold` はそのブロックを軸 ``0`` に沿って（\\ ``find_max=True``\\ 、\\ "
+"``find_max_axis=0``\\ "
+"）アンカーごとの最大スコアに縮約し、その最大値が量子化されたしきい値を超えるアンカーのインデックスを返します。テンソル全体が逆量子化されることは一度もなく、量子化整数空間での列ごとの最大値縮約だけが行われます。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:71
+msgid ""
+"If no anchor passes, the post-processor returns the empty tuple "
+":meth:`~ml.Model.predict` interprets as no detection."
+msgstr "どのアンカーも通過しない場合、後処理は :meth:`~ml.Model.predict` が検出なしと解釈する空のタプルを返します。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:74
+msgid ""
+"Two decisions in this code make the difference between a runnable post-"
+"processor and an unusably slow one. The first is driving the arithmetic "
+"through :mod:`numpy`: the output tensor has thousands of elements, and "
+"iterating it in raw Python takes whole seconds per inference, where the same"
+" arithmetic vectorised through :mod:`numpy` runs in milliseconds. The second"
+" is dequantizing *after* the threshold filter rather than before. "
+"Dequantizing first would allocate a float tensor four times the size of the "
+"quantized one and walk every element before discarding nearly all of them; "
+"dequantizing only the surviving columns touches a handful of values at most "
+"and saves both the time and the RAM the full conversion would have consumed."
+msgstr ""
+"このコード内の2つの判断が、実行可能な後処理と使い物にならないほど遅い後処理との違いを生みます。1つ目は :mod:`numpy` "
+"を通して演算を駆動することです。出力テンソルは数千の要素を持ち、生のPythonでそれを反復処理すると推論ごとに数秒かかりますが、同じ演算を "
+":mod:`numpy` でベクトル化するとミリ秒で実行されます。2つ目は、しきい値フィルタの *前* ではなく *後* "
+"に逆量子化することです。先に逆量子化すると、量子化されたものの4倍のサイズの浮動小数点テンソルを確保し、そのほぼすべてを破棄する前にすべての要素をたどることになります。生き残った列だけを逆量子化すれば、せいぜい一握りの値に触れるだけで、完全な変換が消費したはずの時間とRAMの両方を節約できます。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:88
+msgid "Dequantizing the survivors"
+msgstr "生き残ったものを逆量子化する"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:90
+msgid ""
+"Only the surviving anchors need their geometry decoded. :func:`numpy.take` "
+"pulls those columns out and a single :func:`ml.utils.dequantize` call "
+"converts them to floats::"
+msgstr ""
+"生き残ったアンカーだけがジオメトリのデコードを必要とします。\\ :func:`numpy.take` がそれらの列を引き出し、1回の "
+":func:`ml.utils.dequantize` 呼び出しでそれらを浮動小数点に変換します::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:97
+msgid ""
+"``bb`` is now ``(C, K)`` where ``K`` is the number of surviving anchors -- "
+"typically a handful even when ``A`` was in the thousands."
+msgstr ""
+"``bb`` は今や ``(C, K)`` で、\\ ``K`` は生き残ったアンカーの数です。\\ ``A`` "
+"が数千であっても、通常はほんの一握りです。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:102
+msgid "Reading the geometry"
+msgstr "ジオメトリを読み取る"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:104
+msgid ""
+"The four box channels and the per-class scores are pulled out directly::"
+msgstr "4つのボックスチャンネルとクラスごとのスコアが直接引き出されます::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:115
+msgid ""
+"``bb_scores`` is the best class score per surviving anchor; ``bb_classes`` "
+"is the class index that delivered that score. The box geometry is still in "
+"normalized ``[0, 1]`` of network input dimensions, so the next step scales "
+"it to pixels::"
+msgstr ""
+"``bb_scores`` は生き残ったアンカーごとの最良のクラススコアで、\\ ``bb_classes`` "
+"はそのスコアをもたらしたクラスインデックスです。ボックスのジオメトリはまだネットワーク入力次元の正規化された ``[0, 1]`` "
+"のままなので、次のステップでそれをピクセルにスケールします::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:126
+msgid ""
+"After this the boxes are in network input pixel space -- the coordinate "
+"space :class:`~ml.utils.NMS` expects on input."
+msgstr ""
+"この後、ボックスはネットワーク入力ピクセル空間にあります。これは :class:`~ml.utils.NMS` が入力として期待する座標空間です。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:130
+msgid "Non-max suppression"
+msgstr "Non-max suppression"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:132
+msgid "The survivors go through NMS and are returned as per-class lists::"
+msgstr "生き残ったものはNMSを通り、クラスごとのリストとして返されます::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:142
+msgid ""
+":class:`~ml.utils.NMS` reads ``inputs[0].roi`` so the returned boxes are in "
+"the original image's coordinate space, not the network's -- the application "
+"draws them onto the captured frame directly without further remapping."
+msgstr ""
+":class:`~ml.utils.NMS` は ``inputs[0].roi`` "
+"を読み取るため、返されるボックスはネットワークの座標空間ではなく元画像の座標空間になります。アプリケーションはそれらをさらに再マッピングすることなく、キャプチャされたフレームに直接描画します。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:148
+msgid "What the script gets back"
+msgstr "スクリプトが受け取るもの"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:150
+msgid ""
+"The return value is a list of per-class lists indexed by class. A three-"
+"class example might look like::"
+msgstr "戻り値はクラスでインデックス付けされた、クラスごとのリストのリストです。3クラスの例は次のようになります::"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:159
+msgid ""
+"Each entry is a ``((x, y, w, h), score)`` tuple: ``(x, y)`` is the top-left "
+"corner of the bounding box in the original image's pixel coordinates, ``w`` "
+"and ``h`` are its width and height in pixels, and ``score`` is the "
+"confidence the network assigned to the detection. So ``((180, 60, 88, 130), "
+"0.71)`` reads as a box whose top-left corner sits at pixel ``(180, 60)``, "
+"extends 88 pixels right and 130 pixels down, and was reported with "
+"confidence ``0.71``."
+msgstr ""
+"各エントリは ``((x, y, w, h), score)`` のタプルです。\\ ``(x, y)`` "
+"は元画像のピクセル座標でのバウンディングボックスの左上隅、\\ ``w`` と ``h`` はピクセル単位の幅と高さ、\\ ``score`` "
+"はネットワークがその検出に割り当てた信頼度です。したがって ``((180, 60, 88, 130), 0.71)`` は、左上隅がピクセル "
+"``(180, 60)`` にあり、右に88ピクセル、下に130ピクセル広がり、信頼度 ``0.71`` で報告されたボックスと読み取れます。"
+
+#: ../../openmvcam/tutorial/ml/postprocessing/yolov8-walkthrough.rst:168
+msgid ""
+"The outer list shows two surviving boxes for class ``0``, nothing for class "
+"``1``, one for class ``2``. The empty list for class ``1`` is kept in place "
+"so that the outer index always matches the class index. For the shipped "
+"person detector the outer list has a single element whose inner list "
+"contains the surviving person boxes. For an 80-class model it has 80 inner "
+"lists, most empty on any given frame, with the non-empty entries holding the"
+" boxes for the classes that fired. The application reads the result with "
+"``enumerate(boxes)`` to walk the class indices alongside the box lists -- "
+"the same shape detection post-processors target across the catalogue."
+msgstr ""
+"外側のリストは、クラス ``0`` に対して2つの生き残ったボックス、クラス ``1`` に対しては何もなし、クラス ``2`` "
+"に対して1つを示しています。クラス ``1`` "
+"の空のリストは、外側のインデックスが常にクラスインデックスと一致するように保持されます。出荷される人物検出器では、外側のリストは単一の要素を持ち、その内側のリストには生き残った人物ボックスが含まれます。80クラスのモデルでは、80個の内側のリストを持ち、そのほとんどは任意のフレームで空ですが、空でないエントリには発火したクラスのボックスが含まれます。アプリケーションは"
+" ``enumerate(boxes)`` "
+"で結果を読み取り、クラスインデックスとボックスのリストを一緒にたどります。これはカタログ全体で検出後処理が対象とするのと同じ形状です。"

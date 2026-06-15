@@ -1,0 +1,2697 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.image.Image.rst:4
+msgid "class Image -- Image object"
+msgstr "class Image -- Image オブジェクト"
+
+#: ../../library/omv.image.Image.rst:6
+msgid ""
+":class:`Image` is the central data type of the :mod:`image` module -- an in-"
+"memory pixel buffer that every drawing routine, every filter, every "
+"geometric transform, and every feature-extraction routine operates on. Every"
+" frame coming out of `csi.CSI.snapshot()` is an :class:`Image`; so is every "
+"frame loaded from disk, decoded from JPEG or PNG, allocated from a numpy-"
+"style ``ndarray``, or constructed as an empty drawing canvas."
+msgstr ""
+":class:`Image` は :mod:`image` "
+"モジュールの中核となるデータ型であり、すべての描画ルーチン、すべてのフィルタ、すべての幾何変換、そしてすべての特徴抽出ルーチンが操作対象とするメモリ上のピクセルバッファです。\\"
+" `csi.CSI.snapshot()` から出力されるすべてのフレームは :class:`Image` "
+"であり、ディスクから読み込まれたフレーム、JPEG や PNG からデコードされたフレーム、numpy 形式の ``ndarray`` "
+"から確保されたフレーム、空の描画キャンバスとして構築されたフレームも同様です。"
+
+#: ../../library/omv.image.Image.rst:14
+msgid ""
+"An :class:`Image` is described by three numbers -- ``width``, ``height``, "
+"and ``pixformat`` -- plus a contiguous pixel buffer. The pixel format "
+"determines both the in-memory layout and which operations are available:"
+msgstr ""
+":class:`Image` は ``width``\\ 、\\ ``height``\\ 、\\ ``pixformat`` "
+"という3つの数値と、連続したピクセルバッファによって記述されます。ピクセルフォーマットは、メモリ上のレイアウトと利用可能な操作の両方を決定します。"
+
+#: ../../library/omv.image.Image.rst:19
+msgid ""
+"**BINARY (1 bpp)** -- 1 bit per pixel; used by morphology and thresholding."
+msgstr "**BINARY (1 bpp)** -- 1ピクセルあたり1ビット。モルフォロジー処理としきい値処理で使用されます。"
+
+#: ../../library/omv.image.Image.rst:21
+msgid ""
+"**GRAYSCALE (8 bpp)** -- 1 byte per pixel; the canonical format for most CV "
+"(AprilTag, edges, ORB, optical flow)."
+msgstr ""
+"**GRAYSCALE (8 bpp)** -- 1ピクセルあたり1バイト。ほとんどの "
+"CV（AprilTag、エッジ、ORB、オプティカルフロー）の標準フォーマットです。"
+
+#: ../../library/omv.image.Image.rst:23
+msgid ""
+"**RGB565 (16 bpp)** -- 2 bytes per pixel (5R/6G/5B); the default colour "
+"format."
+msgstr "**RGB565 (16 bpp)** -- 1ピクセルあたり2バイト（5R/6G/5B）。デフォルトのカラーフォーマットです。"
+
+#: ../../library/omv.image.Image.rst:25
+msgid ""
+"**BAYER (8 bpp)** -- raw Bayer-mosaic data straight off the sensor. Most CV "
+"methods are not available on Bayer images; debayer to GRAYSCALE / RGB565 "
+"first."
+msgstr ""
+"**BAYER (8 bpp)** -- センサーから直接出力される生の Bayer モザイクデータです。ほとんどの CV メソッドは Bayer "
+"画像では利用できません。まず GRAYSCALE / RGB565 にデベイヤー処理してください。"
+
+#: ../../library/omv.image.Image.rst:28
+msgid ""
+"**YUV422 (16 bpp)** -- 4:2:2 chroma-subsampled colour, two bytes per pixel. "
+"Only some methods work directly on YUV422."
+msgstr ""
+"**YUV422 (16 bpp)** -- 4:2:2 クロマサブサンプリングのカラーで、1ピクセルあたり2バイトです。一部のメソッドのみが "
+"YUV422 で直接動作します。"
+
+#: ../../library/omv.image.Image.rst:30
+msgid ""
+"**JPEG / PNG** -- compressed buffers. Pixel-level operations require "
+":meth:`to_grayscale` or :meth:`to_rgb565` first."
+msgstr ""
+"**JPEG / PNG** -- 圧縮されたバッファです。ピクセルレベルの操作には、まず :meth:`to_grayscale` または "
+":meth:`to_rgb565` が必要です。"
+
+#: ../../library/omv.image.Image.rst:34
+msgid "Where Image objects come from"
+msgstr "Image オブジェクトの取得元"
+
+#: ../../library/omv.image.Image.rst:36
+msgid "There are four ways to obtain an :class:`Image`:"
+msgstr ":class:`Image` を取得する方法は4つあります。"
+
+#: ../../library/omv.image.Image.rst:38
+msgid ""
+"**From the camera frame buffer** -- ``csi.CSI().snapshot()`` returns the "
+"next captured frame. The returned object is a thin wrapper around the "
+"camera's frame-buffer memory, so any draw / filter operation on it changes "
+"what gets sent to the IDE preview and the display."
+msgstr ""
+"**カメラのフレームバッファから** -- ``csi.CSI().snapshot()`` "
+"は次にキャプチャされたフレームを返します。返されるオブジェクトはカメラのフレームバッファメモリの薄いラッパーであるため、それに対して行う描画やフィルタ操作は、IDE"
+" のプレビューやディスプレイに送られる内容を変更します。"
+
+#: ../../library/omv.image.Image.rst:43
+msgid ""
+"**From a file** -- pass a path string to the :class:`Image` constructor. "
+"BMP, PGM, PPM, JPEG and PNG are decoded directly into RAM (or into the "
+"camera frame buffer if ``copy_to_fb=True``)."
+msgstr ""
+"**ファイルから** -- :class:`Image` コンストラクタにパス文字列を渡します。BMP、PGM、PPM、JPEG、PNG は RAM "
+"に直接デコードされます（\\ ``copy_to_fb=True`` の場合はカメラのフレームバッファにデコードされます）。"
+
+#: ../../library/omv.image.Image.rst:46
+msgid ""
+"**From an ndarray** -- pass a ``(h, w)`` or ``(h, w, 3)`` float32 array. The"
+" pixels are scaled from ``0.0 -- 255.0`` into GRAYSCALE or RGB565 "
+"respectively."
+msgstr ""
+"**ndarray から** -- ``(h, w)`` または ``(h, w, 3)`` の float32 配列を渡します。ピクセルは ``0.0"
+" -- 255.0`` からそれぞれ GRAYSCALE または RGB565 へとスケーリングされます。"
+
+#: ../../library/omv.image.Image.rst:49
+msgid ""
+"**Empty** -- pass ``(width, height, pixformat)`` to allocate a zero-filled "
+"drawing surface. For compressed pixel formats (``JPEG`` / ``PNG``) a "
+"``buffer=`` argument is required and holds the compressed byte stream."
+msgstr ""
+"**空** -- ``(width, height, pixformat)`` "
+"を渡してゼロ初期化された描画サーフェスを確保します。圧縮ピクセルフォーマット（\\ ``JPEG`` / ``PNG``\\ ）の場合は "
+"``buffer=`` 引数が必須で、圧縮されたバイトストリームを保持します。"
+
+#: ../../library/omv.image.Image.rst:55
+msgid "Typical capture-process-display loop"
+msgstr "典型的なキャプチャ・処理・表示ループ"
+
+#: ../../library/omv.image.Image.rst:75
+msgid "Indexing, length, iteration, and bytes-like access"
+msgstr "インデックス、長さ、イテレーション、bytes 風アクセス"
+
+#: ../../library/omv.image.Image.rst:77
+msgid ""
+"**Indexing** -- ``img[i]`` reads pixel ``i`` (linearly, row-major). ``img[i]"
+" = value`` writes it. Grayscale / Bayer pixels are 8-bit integers, RGB565 / "
+"YUV422 pixels are 16-bit packed integers, binary pixels are 0 / 1. For JPEG "
+"/ PNG images the index space is the compressed byte stream, not pixels."
+msgstr ""
+"**インデックス** -- ``img[i]`` はピクセル ``i`` を読み取ります（行優先の線形順）。\\ ``img[i] = value`` "
+"はそれを書き込みます。グレースケール / Bayer ピクセルは8ビット整数、RGB565 / YUV422 "
+"ピクセルは16ビットのパックされた整数、バイナリピクセルは 0 / 1 です。JPEG / PNG "
+"画像の場合、インデックス空間はピクセルではなく圧縮バイトストリームになります。"
+
+#: ../../library/omv.image.Image.rst:82
+msgid ""
+"**Length** -- ``len(img)`` returns the number of pixels for uncompressed "
+"formats or the byte count for compressed formats."
+msgstr "**長さ** -- ``len(img)`` は非圧縮フォーマットの場合はピクセル数を、圧縮フォーマットの場合はバイト数を返します。"
+
+#: ../../library/omv.image.Image.rst:84
+msgid ""
+"**Iteration** -- ``for px in img: ...`` walks the pixel array in the same "
+"order as ``[]`` indexing."
+msgstr ""
+"**イテレーション** -- ``for px in img: ...`` は ``[]`` インデックスと同じ順序でピクセル配列を走査します。"
+
+#: ../../library/omv.image.Image.rst:86
+msgid ""
+"**Bytes-like** -- :class:`Image` exposes the read buffer protocol, so you "
+"can pass it directly to anything that takes a ``bytes`` / ``bytearray`` "
+"(e.g. ``uart.write(img)``, ``socket.send(img)``, ``hashlib.sha256(img)``). "
+"Use :meth:`bytearray` instead to obtain a read/write view."
+msgstr ""
+"**bytes 風** -- :class:`Image` は読み取りバッファプロトコルを公開しているため、\\ ``bytes`` / "
+"``bytearray`` を受け取るあらゆるもの（例：\\ ``uart.write(img)``\\ 、\\ "
+"``socket.send(img)``\\ 、\\ ``hashlib.sha256(img)``\\ "
+"）に直接渡せます。読み書き可能なビューを取得するには代わりに :meth:`bytearray` を使用してください。"
+
+#: ../../library/omv.image.Image.rst:95
+msgid "Hint flags"
+msgstr "ヒントフラグ"
+
+#: ../../library/omv.image.Image.rst:97
+msgid ""
+"Many `Image` methods accept a ``hint`` argument which is a logical OR of the"
+" following flags:"
+msgstr "多くの `Image` メソッドは ``hint`` 引数を受け取ります。これは以下のフラグの論理 OR です。"
+
+#: ../../library/omv.image.Image.rst:99
+msgid ""
+"`image.AREA`: Use area scaling when downscaling versus the default of "
+"nearest neighbor."
+msgstr "`image.AREA`: デフォルトの最近傍法の代わりに、縮小時に面積スケーリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:100
+msgid ""
+"`image.BILINEAR`: Use bilinear scaling versus the default of nearest "
+"neighbor scaling."
+msgstr "`image.BILINEAR`: デフォルトの最近傍スケーリングの代わりにバイリニアスケーリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:101
+msgid ""
+"`image.BICUBIC`: Use bicubic scaling versus the default of nearest neighbor "
+"scaling."
+msgstr "`image.BICUBIC`: デフォルトの最近傍スケーリングの代わりにバイキュービックスケーリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:102
+msgid ""
+"`image.CENTER`: Center the image being drawn on the display. This is applied"
+" after scaling."
+msgstr "`image.CENTER`: 描画する画像をディスプレイ上で中央に配置します。これはスケーリングの後に適用されます。"
+
+#: ../../library/omv.image.Image.rst:103
+msgid "`image.HMIRROR`: Horizontally mirror the image."
+msgstr "`image.HMIRROR`: 画像を水平方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:104
+msgid "`image.VFLIP`: Vertically flip the image."
+msgstr "`image.VFLIP`: 画像を垂直方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:105
+msgid "`image.TRANSPOSE`: Transpose the image (swap x/y)."
+msgstr "`image.TRANSPOSE`: 画像を転置します（x/y を入れ替えます）。"
+
+#: ../../library/omv.image.Image.rst:106
+msgid ""
+"`image.EXTRACT_RGB_CHANNEL_FIRST`: Do rgb_channel extraction before scaling."
+msgstr "`image.EXTRACT_RGB_CHANNEL_FIRST`: スケーリングの前に rgb_channel の抽出を行います。"
+
+#: ../../library/omv.image.Image.rst:107
+msgid "`image.APPLY_COLOR_PALETTE_FIRST`: Apply color palette before scaling."
+msgstr "`image.APPLY_COLOR_PALETTE_FIRST`: スケーリングの前にカラーパレットを適用します。"
+
+#: ../../library/omv.image.Image.rst:108
+msgid ""
+"`image.SCALE_ASPECT_KEEP`: Scale the image being drawn to fit inside the "
+"display."
+msgstr "`image.SCALE_ASPECT_KEEP`: 描画する画像をディスプレイ内に収まるようにスケーリングします。"
+
+#: ../../library/omv.image.Image.rst:109
+msgid ""
+"`image.SCALE_ASPECT_EXPAND`: Scale the image being drawn to fill the display"
+" (results in cropping)"
+msgstr ""
+"`image.SCALE_ASPECT_EXPAND`: 描画する画像をディスプレイいっぱいになるようにスケーリングします（クロッピングが発生します）。"
+
+#: ../../library/omv.image.Image.rst:110
+msgid ""
+"`image.SCALE_ASPECT_IGNORE`: Scale the image being drawn to fill the display"
+" (results in stretching)."
+msgstr ""
+"`image.SCALE_ASPECT_IGNORE`: 描画する画像をディスプレイいっぱいになるようにスケーリングします（引き伸ばしが発生します）。"
+
+#: ../../library/omv.image.Image.rst:111
+msgid ""
+"`image.ROTATE_90`: Rotate the image by 90 degrees (this is just VFLIP | "
+"TRANSPOSE)."
+msgstr "`image.ROTATE_90`: 画像を90度回転します（これは単に VFLIP | TRANSPOSE です）。"
+
+#: ../../library/omv.image.Image.rst:112
+msgid ""
+"`image.ROTATE_180`: Rotate the image by 180 degrees (this is just HMIRROR | "
+"VFLIP)."
+msgstr "`image.ROTATE_180`: 画像を180度回転します（これは単に HMIRROR | VFLIP です）。"
+
+#: ../../library/omv.image.Image.rst:113
+msgid ""
+"`image.ROTATE_270`: Rotate the image by 270 degrees (this is just HMIRROR | "
+"TRANSPOSE)."
+msgstr "`image.ROTATE_270`: 画像を270度回転します（これは単に HMIRROR | TRANSPOSE です）。"
+
+#: ../../library/omv.image.Image.rst:114
+msgid ""
+"`image.BLACK_BACKGROUND`: Assume the background image being drawn on is "
+"black speeding up blending. Only supported by `Image.draw_image()` and "
+"`Image.get_similarity()`."
+msgstr ""
+"`image.BLACK_BACKGROUND`: 描画先の背景画像が黒であると仮定し、ブレンドを高速化します。\\ "
+"`Image.draw_image()` と `Image.get_similarity()` でのみサポートされます。"
+
+#: ../../library/omv.image.Image.rst:118
+msgid ""
+"If ``arg`` is a string then this creates a new image object from a file at "
+"``arg`` path. Supports loading bmp/pgm/ppm/jpg/jpeg/png image files from "
+"disk. If ``copy_to_fb`` is true the image is copied to the frame buffer "
+"verus being allocated on the heap."
+msgstr ""
+"``arg`` が文字列の場合、これは ``arg`` のパスにあるファイルから新しい画像オブジェクトを作成します。ディスクからの "
+"bmp/pgm/ppm/jpg/jpeg/png 画像ファイルの読み込みをサポートします。\\ ``copy_to_fb`` が true "
+"の場合、画像はヒープに確保される代わりにフレームバッファにコピーされます。"
+
+#: ../../library/omv.image.Image.rst:122
+msgid ""
+"If ``arg`` is an ``ndarray`` then this creates a new image object from the "
+"``ndarray``. ``ndarray`` objects with a shape of ``(w, h)`` are treated as "
+"grayscale images, ``(w, h, 3)`` are treated as RGB565 images. Only float32 "
+"point ``ndarrays`` are supported at this time. When creating an image this "
+"way if you pass a ``buffer`` argument it will be used to store the image "
+"data versus allocating space on the heap. If ``copy_to_fb`` is true the "
+"image is copied to the frame buffer verus being allocated on the heap or "
+"using the ``buffer``."
+msgstr ""
+"``arg`` が ``ndarray`` の場合、これは ``ndarray`` から新しい画像オブジェクトを作成します。形状が ``(w, h)``"
+" の ``ndarray`` オブジェクトはグレースケール画像として扱われ、\\ ``(w, h, 3)`` は RGB565 "
+"画像として扱われます。現時点では float32 の ``ndarrays`` のみがサポートされています。この方法で画像を作成する際に "
+"``buffer`` 引数を渡すと、ヒープに領域を確保する代わりにそれを画像データの格納に使用します。\\ ``copy_to_fb`` が true "
+"の場合、画像はヒープに確保されたり ``buffer`` を使用したりする代わりに、フレームバッファにコピーされます。"
+
+#: ../../library/omv.image.Image.rst:129
+msgid ""
+"If ``arg`` is an ``int`` it is then considered the width of a new image and "
+"a ``height`` value and a ``format`` value must follow to create a new blank "
+"image object. ``format`` can be be any image pixformat value like "
+"`image.GRAYSCALE`. The image will be initialized to all zeros. Note that a "
+"``buffer`` value is expected for compressed image formats. ``buffer`` is "
+"considered as the source of image data for creating images this way. If used"
+" with ``copy_to_fb`` the data from ``buffer`` is copied to the frame buffer."
+" If you'd like to create a JPEG image from a JPEG `bytes()` or `bytearray()`"
+" object you can pass the ``width``, ``height``, ``image.JPEG`` for the JPEG "
+"along with setting ``buffer`` to the JPEG byte stream to create a JPEG "
+"image."
+msgstr ""
+"``arg`` が ``int`` の場合、それは新しい画像の幅とみなされ、新しい空の画像オブジェクトを作成するには ``height`` 値と "
+"``format`` 値が後に続く必要があります。\\ ``format`` には `image.GRAYSCALE` のような任意の画像 "
+"pixformat 値を指定できます。画像はすべてゼロで初期化されます。圧縮画像フォーマットの場合は ``buffer`` "
+"値が期待される点に注意してください。\\ ``buffer`` はこの方法で画像を作成する際の画像データのソースとみなされます。\\ "
+"``copy_to_fb`` と併用すると、\\ ``buffer`` のデータがフレームバッファにコピーされます。JPEG の `bytes()` "
+"または `bytearray()` オブジェクトから JPEG 画像を作成したい場合は、JPEG 用に ``width``\\ 、\\ "
+"``height``\\ 、\\ ``image.JPEG`` を渡し、\\ ``buffer`` を JPEG バイトストリームに設定することで "
+"JPEG 画像を作成できます。"
+
+#: ../../library/omv.image.Image.rst:139
+msgid ""
+"Images support \"[]\" notation. Do ``image[index] = 8/16-bit value`` to "
+"assign an image pixel or ``image[index]`` to get an image pixel which will "
+"be either an 8-bit value for grayscale/bayer images of a 16-bit value for "
+"RGB565/YUV images. Binary images return a 1-bit value."
+msgstr ""
+"画像は「[]」記法をサポートします。\\ ``image[index] = 8/16-bit value`` で画像ピクセルを代入し、\\ "
+"``image[index]`` で画像ピクセルを取得します。これはグレースケール / bayer 画像では8ビット値、RGB565 / YUV "
+"画像では16ビット値になります。バイナリ画像は1ビット値を返します。"
+
+#: ../../library/omv.image.Image.rst:144
+msgid ""
+"For JPEG images the \"[]\" allows you to access the compressed JPEG image "
+"blob as a byte-array. Reading and writing to the data array is opaque "
+"however as JPEG images are compressed byte streams."
+msgstr ""
+"JPEG 画像の場合、「[]」を使うと圧縮された JPEG 画像ブロブにバイト配列としてアクセスできます。ただし、JPEG "
+"画像は圧縮されたバイトストリームであるため、データ配列の読み書きは不透明です。"
+
+#: ../../library/omv.image.Image.rst:148
+msgid ""
+"Images also support read buffer operations. You can pass images to all sorts"
+" of MicroPython functions like as if the image were a byte-array object. In "
+"particular, if you'd like to transmit an image you can just pass it to the "
+"UART/SPI/I2C write functions to be transmitted automatically."
+msgstr ""
+"画像は読み取りバッファ操作もサポートします。画像をバイト配列オブジェクトであるかのように、あらゆる種類の MicroPython "
+"関数に渡すことができます。特に、画像を送信したい場合は、UART/SPI/I2C の書き込み関数に渡すだけで自動的に送信できます。"
+
+#: ../../library/omv.image.Image.rst:154
+msgid "Basic Methods"
+msgstr "基本メソッド"
+
+#: ../../library/omv.image.Image.rst:158
+msgid "Returns the image width in pixels."
+msgstr "画像の幅をピクセル単位で返します。"
+
+#: ../../library/omv.image.Image.rst:162
+msgid "Returns the image height in pixels."
+msgstr "画像の高さをピクセル単位で返します。"
+
+#: ../../library/omv.image.Image.rst:166
+msgid ""
+"Returns `image.GRAYSCALE` for grayscale images, `image.RGB565` for RGB565 "
+"images, `image.BAYER` for bayer pattern images, and `image.JPEG` for JPEG "
+"images."
+msgstr ""
+"グレースケール画像の場合は `image.GRAYSCALE`\\ 、RGB565 画像の場合は `image.RGB565`\\ 、Bayer "
+"パターン画像の場合は `image.BAYER`\\ 、JPEG 画像の場合は `image.JPEG` を返します。"
+
+#: ../../library/omv.image.Image.rst:172
+msgid "Returns the image size in bytes."
+msgstr "画像のサイズをバイト単位で返します。"
+
+#: ../../library/omv.image.Image.rst:176
+msgid ""
+"Returns a `bytearray` object that points to the image data for byte-level "
+"read/write access."
+msgstr "バイトレベルの読み書きアクセスのために、画像データを指す `bytearray` オブジェクトを返します。"
+
+#: ../../library/omv.image.Image.rst:180
+msgid ""
+"Image objects are automatically cast as `bytes` objects when passed to "
+"MicroPython driver that requires a `bytes` like object. This is read-only "
+"access. Call `bytearray()` to get read/write access."
+msgstr ""
+"画像オブジェクトは、\\ `bytes` 風オブジェクトを必要とする MicroPython ドライバに渡されると、自動的に `bytes` "
+"オブジェクトにキャストされます。これは読み取り専用アクセスです。読み書きアクセスを得るには `bytearray()` を呼び出してください。"
+
+#: ../../library/omv.image.Image.rst:186
+msgid ""
+"For grayscale images: Returns the grayscale pixel value at location (x, y). "
+"For RGB565 images: Returns the RGB888 pixel tuple (r, g, b) at location (x, "
+"y). For bayer pattern images: Returns the the pixel value at the location "
+"(x, y)."
+msgstr ""
+"グレースケール画像の場合：位置 (x, y) のグレースケールピクセル値を返します。RGB565 画像の場合：位置 (x, y) の RGB888 "
+"ピクセルタプル (r, g, b) を返します。Bayer パターン画像の場合：位置 (x, y) のピクセル値を返します。"
+
+#: ../../library/omv.image.Image.rst:190
+msgid "Returns None if ``x`` or ``y`` is outside of the image."
+msgstr "``x`` または ``y`` が画像の外側にある場合は None を返します。"
+
+#: ../../library/omv.image.Image.rst:192 ../../library/omv.image.Image.rst:217
+msgid "``x`` and ``y`` may either be passed independently or as a tuple."
+msgstr "``x`` と ``y`` は個別に渡すこともタプルとして渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:194
+msgid ""
+"``rgbtuple`` if True causes this method to return an RGB888 tuple. "
+"Otherwise, this method returns the integer value of the underlying pixel. "
+"I.e. for RGB565 images this method returns a RGB565 value. Defaults to True "
+"for RGB565 images and False otherwise."
+msgstr ""
+"``rgbtuple`` が True の場合、このメソッドは RGB888 "
+"タプルを返します。それ以外の場合、このメソッドは基となるピクセルの整数値を返します。すなわち、RGB565 画像の場合このメソッドは RGB565 "
+"値を返します。RGB565 画像ではデフォルトで True、それ以外ではデフォルトで False です。"
+
+#: ../../library/omv.image.Image.rst:199 ../../library/omv.image.Image.rst:223
+#: ../../library/omv.image.Image.rst:997
+#: ../../library/omv.image.Image.rst:2208
+msgid "Not supported on compressed images."
+msgstr "圧縮画像ではサポートされていません。"
+
+#: ../../library/omv.image.Image.rst:203
+msgid ""
+"`Image.get_pixel()` and `Image.set_pixel()` are the only methods that allow "
+"you to manipulate bayer pattern images. Bayer pattern images are literal "
+"images where pixels in the image are R/G/R/G/etc. for even rows and "
+"G/B/G/B/etc. for odd rows. Each pixel is 8-bits. If you call this method "
+"with ``rgbtuple`` set then `Image.get_pixel()` will debayer the source image"
+" at that pixel location and return a valid RGB888 tuple for the pixel "
+"location."
+msgstr ""
+"`Image.get_pixel()` と `Image.set_pixel()` は、Bayer "
+"パターン画像を操作できる唯一のメソッドです。Bayer パターン画像は、偶数行ではピクセルが R/G/R/G/... 、奇数行では "
+"G/B/G/B/... となる文字通りの画像です。各ピクセルは8ビットです。\\ ``rgbtuple`` を設定してこのメソッドを呼び出すと、\\ "
+"`Image.get_pixel()` はそのピクセル位置でソース画像をデベイヤー処理し、そのピクセル位置の有効な RGB888 タプルを返します。"
+
+#: ../../library/omv.image.Image.rst:211
+msgid ""
+"For grayscale images: Sets the pixel at location (x, y) to the grayscale "
+"value ``pixel``. For RGB565 images: Sets the pixel at location (x, y) to the"
+" RGB888 tuple (r, g, b) ``pixel``. For bayer pattern images: Sets the pixel "
+"value at the location (x, y) to the value ``pixel``."
+msgstr ""
+"グレースケール画像の場合：位置 (x, y) のピクセルをグレースケール値 ``pixel`` に設定します。RGB565 画像の場合：位置 (x, "
+"y) のピクセルを RGB888 タプル (r, g, b) ``pixel`` に設定します。Bayer パターン画像の場合：位置 (x, y) "
+"のピクセル値を ``pixel`` の値に設定します。"
+
+#: ../../library/omv.image.Image.rst:215 ../../library/omv.image.Image.rst:315
+#: ../../library/omv.image.Image.rst:363 ../../library/omv.image.Image.rst:411
+#: ../../library/omv.image.Image.rst:459 ../../library/omv.image.Image.rst:507
+#: ../../library/omv.image.Image.rst:555 ../../library/omv.image.Image.rst:603
+#: ../../library/omv.image.Image.rst:651 ../../library/omv.image.Image.rst:708
+#: ../../library/omv.image.Image.rst:756 ../../library/omv.image.Image.rst:813
+#: ../../library/omv.image.Image.rst:861 ../../library/omv.image.Image.rst:909
+#: ../../library/omv.image.Image.rst:957 ../../library/omv.image.Image.rst:977
+#: ../../library/omv.image.Image.rst:995
+#: ../../library/omv.image.Image.rst:1010
+#: ../../library/omv.image.Image.rst:1027
+#: ../../library/omv.image.Image.rst:1044
+#: ../../library/omv.image.Image.rst:1061
+#: ../../library/omv.image.Image.rst:1104
+#: ../../library/omv.image.Image.rst:1121
+#: ../../library/omv.image.Image.rst:1136
+#: ../../library/omv.image.Image.rst:1153
+#: ../../library/omv.image.Image.rst:1172
+#: ../../library/omv.image.Image.rst:1220
+#: ../../library/omv.image.Image.rst:1239
+#: ../../library/omv.image.Image.rst:1269
+#: ../../library/omv.image.Image.rst:1304
+#: ../../library/omv.image.Image.rst:1313
+#: ../../library/omv.image.Image.rst:1322
+#: ../../library/omv.image.Image.rst:1352
+#: ../../library/omv.image.Image.rst:1361
+#: ../../library/omv.image.Image.rst:1375
+#: ../../library/omv.image.Image.rst:1389
+#: ../../library/omv.image.Image.rst:1403
+#: ../../library/omv.image.Image.rst:1417
+#: ../../library/omv.image.Image.rst:1431
+#: ../../library/omv.image.Image.rst:1445
+#: ../../library/omv.image.Image.rst:1460
+#: ../../library/omv.image.Image.rst:1474
+#: ../../library/omv.image.Image.rst:1489
+#: ../../library/omv.image.Image.rst:1530
+#: ../../library/omv.image.Image.rst:1565
+#: ../../library/omv.image.Image.rst:1579
+#: ../../library/omv.image.Image.rst:1593
+#: ../../library/omv.image.Image.rst:1617
+#: ../../library/omv.image.Image.rst:1634
+#: ../../library/omv.image.Image.rst:1648
+#: ../../library/omv.image.Image.rst:1702
+#: ../../library/omv.image.Image.rst:1723
+#: ../../library/omv.image.Image.rst:1742
+#: ../../library/omv.image.Image.rst:1764
+#: ../../library/omv.image.Image.rst:1791
+#: ../../library/omv.image.Image.rst:1816
+#: ../../library/omv.image.Image.rst:1841
+#: ../../library/omv.image.Image.rst:1865
+#: ../../library/omv.image.Image.rst:1919
+#: ../../library/omv.image.Image.rst:1953
+msgid ""
+"Returns the image object so you can call another method using ``.`` "
+"notation."
+msgstr "``.`` 記法で別のメソッドを呼び出せるように、画像オブジェクトを返します。"
+
+#: ../../library/omv.image.Image.rst:219
+msgid ""
+"``pixel`` may either be an RGB888 tuple (r, g, b) or the underlying pixel "
+"value (i.e. a RGB565 value for RGB565 images or an 8-bit value for grayscale"
+" images."
+msgstr ""
+"``pixel`` は RGB888 タプル (r, g, b)、または基となるピクセル値（すなわち RGB565 画像の場合は RGB565 "
+"値、グレースケール画像の場合は8ビット値）のいずれかです。"
+
+#: ../../library/omv.image.Image.rst:227
+msgid ""
+"`Image.get_pixel()` and `Image.set_pixel()` are the only methods that allow "
+"you to manipulate bayer pattern images. Bayer pattern images are literal "
+"images where pixels in the image are R/G/R/G/etc. for even rows and "
+"G/B/G/B/etc. for odd rows. Each pixel is 8-bits. If you call this method "
+"with an RGB888 tuple the grayscale value of that RGB888 tuple is extracted "
+"and set to the pixel location."
+msgstr ""
+"`Image.get_pixel()` と `Image.set_pixel()` は、Bayer "
+"パターン画像を操作できる唯一のメソッドです。Bayer パターン画像は、偶数行ではピクセルが R/G/R/G/... 、奇数行では "
+"G/B/G/B/... となる文字通りの画像です。各ピクセルは8ビットです。RGB888 タプルを指定してこのメソッドを呼び出すと、その RGB888 "
+"タプルのグレースケール値が抽出され、ピクセル位置に設定されます。"
+
+#: ../../library/omv.image.Image.rst:234
+msgid "Conversion Methods"
+msgstr "変換メソッド"
+
+#: ../../library/omv.image.Image.rst:238
+msgid ""
+"Returns a ``ndarray`` object created from the image. This only works for "
+"GRAYSCALE or RGB565 images currently."
+msgstr ""
+"画像から作成した ``ndarray`` オブジェクトを返します。現時点ではこれは GRAYSCALE または RGB565 画像でのみ動作します。"
+
+#: ../../library/omv.image.Image.rst:241
+msgid ""
+"``dtype`` can be ``b``, ``B``, or ``f`` for creating a signed 8-bit, "
+"unsigned 8-bit, or 32-bit floating point ``ndarray``. GRAYSCALE images are "
+"directly converted to unsigned 8-bit ``ndarray`` objects. For signed 8-bit "
+"``ndarray`` objects the values (0:255) are mapped to (-127:128). For float "
+"32-bit ``ndarray`` objects the values are mapped to (0.0:255.0). RGB565 "
+"images are converted to 3-channel ``ndarray`` objects and the same process "
+"described above for GRAYSCALE images is applied to each channel depending on"
+" ``dtype``. Note that ``dtype`` also accepts the integer values (e.g. "
+"`ord()`) of ``b``, ``B``, and ``f`` respectively."
+msgstr ""
+"``dtype`` には ``b``\\ 、\\ ``B``\\ 、\\ ``f`` "
+"を指定でき、それぞれ符号付き8ビット、符号なし8ビット、32ビット浮動小数点の ``ndarray`` を作成します。GRAYSCALE "
+"画像は符号なし8ビットの ``ndarray`` オブジェクトに直接変換されます。符号付き8ビットの ``ndarray`` オブジェクトでは値 "
+"(0:255) が (-127:128) にマッピングされます。float 32ビットの ``ndarray`` オブジェクトでは値が "
+"(0.0:255.0) にマッピングされます。RGB565 画像は3チャンネルの ``ndarray`` オブジェクトに変換され、\\ "
+"``dtype`` に応じて各チャンネルに上記の GRAYSCALE 画像と同じ処理が適用されます。なお、\\ ``dtype`` はそれぞれ "
+"``b``\\ 、\\ ``B``\\ 、\\ ``f`` の整数値（例：\\ `ord()`\\ ）も受け付けます。"
+
+#: ../../library/omv.image.Image.rst:248
+msgid ""
+"``buffer`` if not ``None`` is a ``bytearray`` object to use as the buffer "
+"for the ``ndarray``. If ``None`` a new buffer is allocated on the heap to "
+"store the ``ndarray`` image data. You can use the ``buffer`` argument to "
+"directly allocate the ``ndarray`` in a pre-allocated buffer saving a heap "
+"allocation and a copy operation."
+msgstr ""
+"``buffer`` が ``None`` でない場合、\\ ``ndarray`` のバッファとして使用する ``bytearray`` "
+"オブジェクトです。\\ ``None`` の場合、\\ ``ndarray`` 画像データを格納するために新しいバッファがヒープに確保されます。\\ "
+"``buffer`` 引数を使うと、\\ ``ndarray`` を事前に確保されたバッファに直接確保でき、ヒープ確保とコピー操作を省けます。"
+
+#: ../../library/omv.image.Image.rst:253
+msgid ""
+"The ``ndarray`` returned has the shape of ``(height, width)`` for GRAYSCALE "
+"images and ``(height, width, 3)`` for RGB565 images."
+msgstr ""
+"返される ``ndarray`` は、GRAYSCALE 画像では ``(height, width)``\\ 、RGB565 画像では "
+"``(height, width, 3)`` の形状を持ちます。"
+
+#: ../../library/omv.image.Image.rst:258
+msgid "Converts an image to a bitmap image (1 bit per pixel)."
+msgstr "画像をビットマップ画像（1ピクセルあたり1ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:260 ../../library/omv.image.Image.rst:321
+#: ../../library/omv.image.Image.rst:369 ../../library/omv.image.Image.rst:417
+#: ../../library/omv.image.Image.rst:465 ../../library/omv.image.Image.rst:513
+#: ../../library/omv.image.Image.rst:561 ../../library/omv.image.Image.rst:609
+#: ../../library/omv.image.Image.rst:657 ../../library/omv.image.Image.rst:714
+#: ../../library/omv.image.Image.rst:762 ../../library/omv.image.Image.rst:823
+#: ../../library/omv.image.Image.rst:867 ../../library/omv.image.Image.rst:915
+#: ../../library/omv.image.Image.rst:1185
+msgid ""
+"``x_scale`` controls how much the displayed image is scaled by in the x "
+"direction (float). If this value is negative the image will be flipped "
+"horizontally. Note that if ``y_scale`` is not specified then it will match "
+"``x_scale`` to maintain the aspect ratio."
+msgstr ""
+"``x_scale`` は、表示される画像を x "
+"方向にどれだけスケーリングするかを制御します（float）。この値が負の場合、画像は水平方向に反転されます。\\ ``y_scale`` "
+"が指定されていない場合、アスペクト比を保つために ``x_scale`` と一致する点に注意してください。"
+
+#: ../../library/omv.image.Image.rst:264 ../../library/omv.image.Image.rst:325
+#: ../../library/omv.image.Image.rst:373 ../../library/omv.image.Image.rst:421
+#: ../../library/omv.image.Image.rst:469 ../../library/omv.image.Image.rst:517
+#: ../../library/omv.image.Image.rst:565 ../../library/omv.image.Image.rst:613
+#: ../../library/omv.image.Image.rst:661 ../../library/omv.image.Image.rst:718
+#: ../../library/omv.image.Image.rst:766 ../../library/omv.image.Image.rst:827
+#: ../../library/omv.image.Image.rst:871 ../../library/omv.image.Image.rst:919
+#: ../../library/omv.image.Image.rst:1189
+msgid ""
+"``y_scale`` controls how much the displayed image is scaled by in the y "
+"direction (float). If this value is negative the image will be flipped "
+"vertically. Note that if ``x_scale`` is not specified then it will match "
+"``x_scale`` to maintain the aspect ratio."
+msgstr ""
+"``y_scale`` は、表示される画像を y "
+"方向にどれだけスケーリングするかを制御します（float）。この値が負の場合、画像は垂直方向に反転されます。\\ ``x_scale`` "
+"が指定されていない場合、アスペクト比を保つために ``x_scale`` と一致する点に注意してください。"
+
+#: ../../library/omv.image.Image.rst:268 ../../library/omv.image.Image.rst:329
+#: ../../library/omv.image.Image.rst:377 ../../library/omv.image.Image.rst:425
+#: ../../library/omv.image.Image.rst:473 ../../library/omv.image.Image.rst:521
+#: ../../library/omv.image.Image.rst:569 ../../library/omv.image.Image.rst:617
+#: ../../library/omv.image.Image.rst:665 ../../library/omv.image.Image.rst:722
+#: ../../library/omv.image.Image.rst:770 ../../library/omv.image.Image.rst:831
+#: ../../library/omv.image.Image.rst:875 ../../library/omv.image.Image.rst:923
+#: ../../library/omv.image.Image.rst:1193
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h) of the source"
+" image to draw. This allows you to extract just the pixels in the ROI to "
+"scale and draw on the destination image."
+msgstr ""
+"``roi`` は、描画するソース画像の関心領域の矩形タプル (x, y, w, h) です。これにより、ROI "
+"内のピクセルだけを抽出してスケーリングし、描画先の画像に描画できます。"
+
+#: ../../library/omv.image.Image.rst:271 ../../library/omv.image.Image.rst:332
+#: ../../library/omv.image.Image.rst:380 ../../library/omv.image.Image.rst:428
+#: ../../library/omv.image.Image.rst:476 ../../library/omv.image.Image.rst:524
+#: ../../library/omv.image.Image.rst:572 ../../library/omv.image.Image.rst:620
+#: ../../library/omv.image.Image.rst:668 ../../library/omv.image.Image.rst:725
+#: ../../library/omv.image.Image.rst:773 ../../library/omv.image.Image.rst:834
+#: ../../library/omv.image.Image.rst:878 ../../library/omv.image.Image.rst:926
+#: ../../library/omv.image.Image.rst:1196
+msgid ""
+"``rgb_channel`` is the RGB channel (0=R, G=1, B=2) to extract from an RGB565"
+" image (if passed) and to render onto the destination image. For example, if"
+" you pass ``rgb_channel=1`` this will extract the green channel of the "
+"source RGB565 image and draw that in grayscale on the destination image."
+msgstr ""
+"``rgb_channel`` は、RGB565 画像（渡された場合）から抽出して描画先の画像にレンダリングする RGB "
+"チャンネル（0=R、G=1、B=2）です。例えば ``rgb_channel=1`` を渡すと、ソース RGB565 "
+"画像の緑チャンネルが抽出され、描画先の画像にグレースケールで描画されます。"
+
+#: ../../library/omv.image.Image.rst:276 ../../library/omv.image.Image.rst:337
+#: ../../library/omv.image.Image.rst:385 ../../library/omv.image.Image.rst:433
+#: ../../library/omv.image.Image.rst:481 ../../library/omv.image.Image.rst:529
+#: ../../library/omv.image.Image.rst:577 ../../library/omv.image.Image.rst:625
+#: ../../library/omv.image.Image.rst:673 ../../library/omv.image.Image.rst:730
+#: ../../library/omv.image.Image.rst:778 ../../library/omv.image.Image.rst:839
+#: ../../library/omv.image.Image.rst:883 ../../library/omv.image.Image.rst:931
+#: ../../library/omv.image.Image.rst:1201
+msgid ""
+"``alpha`` controls how much of the source image to blend into the "
+"destination image. A value of 255 draws an opaque source image while a value"
+" lower than 255 produces a blend between the source and destination image. 0"
+" results in no modification to the destination image."
+msgstr ""
+"``alpha`` は、ソース画像を描画先の画像にどれだけブレンドするかを制御します。値が 255 の場合は不透明なソース画像を描画し、255 "
+"未満の値の場合はソース画像と描画先画像のブレンドを生成します。0 の場合は描画先画像に変更がありません。"
+
+#: ../../library/omv.image.Image.rst:280 ../../library/omv.image.Image.rst:341
+#: ../../library/omv.image.Image.rst:389 ../../library/omv.image.Image.rst:437
+#: ../../library/omv.image.Image.rst:485 ../../library/omv.image.Image.rst:581
+#: ../../library/omv.image.Image.rst:629 ../../library/omv.image.Image.rst:677
+#: ../../library/omv.image.Image.rst:734 ../../library/omv.image.Image.rst:782
+#: ../../library/omv.image.Image.rst:843 ../../library/omv.image.Image.rst:887
+#: ../../library/omv.image.Image.rst:935
+#: ../../library/omv.image.Image.rst:1205
+msgid ""
+"``color_palette`` if not ``None`` can be an a color palette enum or a 256 "
+"pixel in total RGB565 image to use as a color lookup table on the grayscale "
+"value of whatever the source image is. This is applied after ``rgb_channel``"
+" extraction if used."
+msgstr ""
+"``color_palette`` が ``None`` でない場合、カラーパレット列挙値、または合計256ピクセルの RGB565 "
+"画像を指定でき、ソース画像が何であれそのグレースケール値に対するカラールックアップテーブルとして使用されます。これは、\\ "
+"``rgb_channel`` 抽出が使われている場合はその後に適用されます。"
+
+#: ../../library/omv.image.Image.rst:284 ../../library/omv.image.Image.rst:345
+#: ../../library/omv.image.Image.rst:393 ../../library/omv.image.Image.rst:441
+#: ../../library/omv.image.Image.rst:489 ../../library/omv.image.Image.rst:537
+#: ../../library/omv.image.Image.rst:585 ../../library/omv.image.Image.rst:633
+#: ../../library/omv.image.Image.rst:681 ../../library/omv.image.Image.rst:738
+#: ../../library/omv.image.Image.rst:786 ../../library/omv.image.Image.rst:847
+#: ../../library/omv.image.Image.rst:891 ../../library/omv.image.Image.rst:939
+#: ../../library/omv.image.Image.rst:1209
+msgid ""
+"``alpha_palette`` if not ``None`` can be a 256 pixel in total GRAYSCALE "
+"image to use as a alpha palette which modulates the ``alpha`` value of the "
+"source image being drawn at a pixel pixel level allowing you to precisely "
+"control the alpha value of pixels based on their grayscale value. A pixel "
+"value of 255 in the alpha lookup table is opaque which anything less than "
+"255 becomes more transparent until 0. This is applied after ``rgb_channel`` "
+"extraction if used."
+msgstr ""
+"``alpha_palette`` が ``None`` でない場合、合計256ピクセルの GRAYSCALE "
+"画像を指定でき、アルファパレットとして使用されます。これは描画されるソース画像の ``alpha`` "
+"値をピクセルレベルで変調し、グレースケール値に基づいてピクセルのアルファ値を精密に制御できるようにします。アルファルックアップテーブル内のピクセル値 "
+"255 は不透明で、255 未満になるにつれて 0 までより透明になります。これは、\\ ``rgb_channel`` "
+"抽出が使われている場合はその後に適用されます。"
+
+#: ../../library/omv.image.Image.rst:290 ../../library/omv.image.Image.rst:351
+#: ../../library/omv.image.Image.rst:399 ../../library/omv.image.Image.rst:447
+#: ../../library/omv.image.Image.rst:495 ../../library/omv.image.Image.rst:543
+#: ../../library/omv.image.Image.rst:591 ../../library/omv.image.Image.rst:639
+#: ../../library/omv.image.Image.rst:687 ../../library/omv.image.Image.rst:744
+#: ../../library/omv.image.Image.rst:792 ../../library/omv.image.Image.rst:853
+#: ../../library/omv.image.Image.rst:897 ../../library/omv.image.Image.rst:945
+msgid ""
+"``hint`` is a logical OR of the flags listed in :ref:`Hint flags "
+"<image.Image.hint>` (excluding `image.BLACK_BACKGROUND` which is not "
+"supported here)."
+msgstr ""
+"``hint`` は :ref:`Hint flags <image.Image.hint>` に列挙されたフラグの論理 OR "
+"です（ここではサポートされていない `image.BLACK_BACKGROUND` を除く）。"
+
+#: ../../library/omv.image.Image.rst:292 ../../library/omv.image.Image.rst:353
+#: ../../library/omv.image.Image.rst:401 ../../library/omv.image.Image.rst:449
+#: ../../library/omv.image.Image.rst:497 ../../library/omv.image.Image.rst:545
+#: ../../library/omv.image.Image.rst:593 ../../library/omv.image.Image.rst:641
+#: ../../library/omv.image.Image.rst:689 ../../library/omv.image.Image.rst:746
+#: ../../library/omv.image.Image.rst:794 ../../library/omv.image.Image.rst:855
+#: ../../library/omv.image.Image.rst:899 ../../library/omv.image.Image.rst:947
+#: ../../library/omv.image.Image.rst:1217
+msgid ""
+"``transform`` is 3x3 ``ndarray`` that is used to perform a persepective "
+"transformation on the image. Only supported on the OpenMV Cam N6 currently "
+"as it has a GPU that can do this in hardware."
+msgstr ""
+"``transform`` は、画像に透視変換を行うために使用される 3x3 の ``ndarray`` "
+"です。現時点では、これをハードウェアで実行できる GPU を搭載した OpenMV Cam N6 でのみサポートされています。"
+
+#: ../../library/omv.image.Image.rst:295 ../../library/omv.image.Image.rst:356
+#: ../../library/omv.image.Image.rst:404 ../../library/omv.image.Image.rst:452
+#: ../../library/omv.image.Image.rst:500 ../../library/omv.image.Image.rst:548
+#: ../../library/omv.image.Image.rst:596 ../../library/omv.image.Image.rst:644
+#: ../../library/omv.image.Image.rst:692 ../../library/omv.image.Image.rst:749
+#: ../../library/omv.image.Image.rst:797 ../../library/omv.image.Image.rst:902
+#: ../../library/omv.image.Image.rst:950
+msgid ""
+"``copy`` if True create a deep-copy on the heap of the image that's been "
+"converted versus converting the original image in-place."
+msgstr "``copy`` が True の場合、元の画像をインプレースで変換する代わりに、変換された画像のディープコピーをヒープに作成します。"
+
+#: ../../library/omv.image.Image.rst:298 ../../library/omv.image.Image.rst:359
+#: ../../library/omv.image.Image.rst:407 ../../library/omv.image.Image.rst:455
+#: ../../library/omv.image.Image.rst:503 ../../library/omv.image.Image.rst:551
+#: ../../library/omv.image.Image.rst:599 ../../library/omv.image.Image.rst:647
+#: ../../library/omv.image.Image.rst:695 ../../library/omv.image.Image.rst:752
+#: ../../library/omv.image.Image.rst:800 ../../library/omv.image.Image.rst:905
+#: ../../library/omv.image.Image.rst:953
+msgid ""
+"``copy_to_fb`` if True the image is loaded directly into the frame buffer. "
+"``copy_to_fb`` has priority over ``copy``. This has no special effect if the"
+" image is already in the frame buffer."
+msgstr ""
+"``copy_to_fb`` が True の場合、画像はフレームバッファに直接読み込まれます。\\ ``copy_to_fb`` は ``copy``"
+" よりも優先されます。画像がすでにフレームバッファにある場合、これは特別な効果を持ちません。"
+
+#: ../../library/omv.image.Image.rst:304
+msgid ""
+"Bitmap images are like grayscale images with only two pixels values - 0 and "
+"1. Additionally, bitmap images are packed such that they only store 1 bit "
+"per pixel making them very small. The OpenMV image library allows bitmap "
+"images to be used in all places `sensor.GRAYSCALE` and `sensor.RGB565` "
+"images can be used. However, many operations when applied on bitmap images "
+"don't make any sense becuase bitmap images only have 2 values. OpenMV "
+"recommends using bitmap images for ``mask`` values in operations and such as"
+" they fit on the MicroPython heap quite easily. Finally, bitmap image pixel "
+"values 0 and 1 are interpreted as black and white when being applied to "
+"`sensor.GRAYSCALE` or `sensor.RGB565` images. The library automatically "
+"handles conversion."
+msgstr ""
+"ビットマップ画像は、0 と 1 "
+"の2つのピクセル値のみを持つグレースケール画像のようなものです。さらに、ビットマップ画像は1ピクセルあたり1ビットのみを格納するようにパックされているため、非常に小さくなります。OpenMV"
+" 画像ライブラリでは、\\ `sensor.GRAYSCALE` と `sensor.RGB565` "
+"画像が使用できるすべての場所でビットマップ画像を使用できます。ただし、ビットマップ画像は2つの値しか持たないため、ビットマップ画像に適用しても意味をなさない操作が多くあります。OpenMV"
+" では、MicroPython ヒープに非常に簡単に収まるため、操作などにおける ``mask`` "
+"値としてビットマップ画像を使用することを推奨します。最後に、ビットマップ画像のピクセル値 0 と 1 は、\\ `sensor.GRAYSCALE` "
+"または `sensor.RGB565` 画像に適用される際には黒と白として解釈されます。ライブラリが変換を自動的に処理します。"
+
+#: ../../library/omv.image.Image.rst:319
+msgid "Converts an image to a grayscale image (8-bits per pixel)."
+msgstr "画像をグレースケール画像（1ピクセルあたり8ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:367
+msgid "Converts an image to an RGB565 image (16-bits per pixel)."
+msgstr "画像を RGB565 画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:415
+msgid "Converts an image to an RGB565 rainbow image (16-bits per pixel)."
+msgstr "画像を RGB565 のレインボー画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:463
+msgid "Converts an image to an RGB565 ironbow image (16-bits per pixel)."
+msgstr "画像を RGB565 のアイアンボウ画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:511
+msgid "Converts an image to an RGB565 Depth Image (16-bits per pixel)."
+msgstr "画像を RGB565 の深度画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:533
+msgid ""
+"``color_palette`` if not ``None`` can be `image.PALETTE_DEPTH` or a 256 "
+"pixel in total RGB565 image to use as a color lookup table on the grayscale "
+"value of whatever the source image is. This is applied after ``rgb_channel``"
+" extraction if used."
+msgstr ""
+"``color_palette`` が ``None`` でない場合、\\ `image.PALETTE_DEPTH`\\ 、または合計256ピクセルの"
+" RGB565 画像を指定でき、ソース画像が何であれそのグレースケール値に対するカラールックアップテーブルとして使用されます。これは、\\ "
+"``rgb_channel`` 抽出が使われている場合はその後に適用されます。"
+
+#: ../../library/omv.image.Image.rst:559
+msgid "Converts an image to an RGB565 Dark Event Image (16-bits per pixel)."
+msgstr "画像を RGB565 のダークイベント画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:607
+msgid "Converts an image to an RGB565 Light Event Image (16-bits per pixel)."
+msgstr "画像を RGB565 のライトイベント画像（1ピクセルあたり16ビット）に変換します。"
+
+#: ../../library/omv.image.Image.rst:655 ../../library/omv.image.Image.rst:760
+msgid "Converts an image to a JPEG image."
+msgstr "画像を JPEG 画像に変換します。"
+
+#: ../../library/omv.image.Image.rst:699 ../../library/omv.image.Image.rst:804
+msgid ""
+"``quality`` controls the jpeg image compression quality. The value can be "
+"between 0 and 100."
+msgstr "``quality`` は jpeg 画像の圧縮品質を制御します。値は 0 から 100 の間で指定できます。"
+
+#: ../../library/omv.image.Image.rst:701 ../../library/omv.image.Image.rst:806
+msgid "``subsampling`` can be:"
+msgstr "``subsampling`` には以下を指定できます。"
+
+#: ../../library/omv.image.Image.rst:703 ../../library/omv.image.Image.rst:808
+msgid ""
+"`image.JPEG_SUBSAMPLING_AUTO`: Use the best subsampling for the image based "
+"on the quality."
+msgstr "`image.JPEG_SUBSAMPLING_AUTO`: 品質に基づいて画像に最適なサブサンプリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:704 ../../library/omv.image.Image.rst:809
+msgid "`image.JPEG_SUBSAMPLING_444`: Use 4:4:4 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_444`: 4:4:4 サブサンプリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:705 ../../library/omv.image.Image.rst:810
+msgid "`image.JPEG_SUBSAMPLING_422`: Use 4:2:2 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_422`: 4:2:2 サブサンプリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:706 ../../library/omv.image.Image.rst:811
+msgid "`image.JPEG_SUBSAMPLING_420`: Use 4:2:0 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_420`: 4:2:0 サブサンプリングを使用します。"
+
+#: ../../library/omv.image.Image.rst:712
+msgid "Converts an image to a PNG image."
+msgstr "画像を PNG 画像に変換します。"
+
+#: ../../library/omv.image.Image.rst:817
+msgid "`Image.compress` is an alias for `Image.to_jpeg`."
+msgstr "`Image.compress` は `Image.to_jpeg` のエイリアスです。"
+
+#: ../../library/omv.image.Image.rst:821
+msgid "Creates a deep copy of the image object."
+msgstr "画像オブジェクトのディープコピーを作成します。"
+
+#: ../../library/omv.image.Image.rst:858
+msgid ""
+"``copy_to_fb`` if True the image is loaded directly into the frame buffer. "
+"This has no special effect if the image is already in the frame buffer."
+msgstr ""
+"``copy_to_fb`` が True "
+"の場合、画像はフレームバッファに直接読み込まれます。画像がすでにフレームバッファにある場合、これは特別な効果を持ちません。"
+
+#: ../../library/omv.image.Image.rst:865 ../../library/omv.image.Image.rst:913
+msgid "Modifies an image in-place without changing the underlying image type."
+msgstr "基となる画像タイプを変更せずに、画像をインプレースで変更します。"
+
+#: ../../library/omv.image.Image.rst:961
+msgid "`Image.scale` is an alias for `Image.crop`."
+msgstr "`Image.scale` は `Image.crop` のエイリアスです。"
+
+#: ../../library/omv.image.Image.rst:965
+msgid "Saves a copy of the image to the filesystem at ``path``."
+msgstr "画像のコピーを ``path`` のファイルシステムに保存します。"
+
+#: ../../library/omv.image.Image.rst:967
+msgid ""
+"Supports bmp/pgm/ppm/jpg/jpeg image files. Note that you cannot save jpeg "
+"compressed images to an uncompressed format."
+msgstr ""
+"bmp/pgm/ppm/jpg/jpeg 画像ファイルをサポートします。jpeg "
+"圧縮画像を非圧縮フォーマットに保存することはできない点に注意してください。"
+
+#: ../../library/omv.image.Image.rst:970
+msgid ""
+"``roi`` is the region-of-interest rectangle (x, y, w, h) to save from. If "
+"not specified, it is equal to the image rectangle which copies the entire "
+"image. This argument is not applicable for JPEG images."
+msgstr ""
+"``roi`` は、保存元とする関心領域の矩形 (x, y, w, h) "
+"です。指定されない場合は画像全体をコピーする画像矩形に等しくなります。この引数は JPEG 画像には適用されません。"
+
+#: ../../library/omv.image.Image.rst:974
+msgid ""
+"``quality`` is the jpeg compression quality to use to save the image to jpeg"
+" format if the image is not already compressed (0-100) (int)."
+msgstr ""
+"``quality`` は、画像がまだ圧縮されていない場合に画像を jpeg フォーマットで保存するために使用する jpeg 圧縮品質です "
+"(0-100)（int）。"
+
+#: ../../library/omv.image.Image.rst:981
+msgid ""
+"Updates the frame buffer in the IDE with the image in the frame buffer on "
+"the camera."
+msgstr "カメラのフレームバッファ内の画像で、IDE 内のフレームバッファを更新します。"
+
+#: ../../library/omv.image.Image.rst:984
+msgid "Drawing Methods"
+msgstr "描画メソッド"
+
+#: ../../library/omv.image.Image.rst:988
+msgid "Sets all pixels in the image to zero (very fast)."
+msgstr "画像内のすべてのピクセルをゼロに設定します（非常に高速）。"
+
+#: ../../library/omv.image.Image.rst:990
+msgid ""
+"``mask`` is another image to use as a pixel level mask for the operation. "
+"The mask should be an image with just black or white pixels and should be "
+"the same size as the image being operated on. Only pixels set in the mask "
+"are modified."
+msgstr ""
+"``mask`` "
+"は、操作のためのピクセルレベルのマスクとして使用する別の画像です。マスクは黒または白のピクセルのみを持つ画像で、操作対象の画像と同じサイズである必要があります。マスクに設定されたピクセルのみが変更されます。"
+
+#: ../../library/omv.image.Image.rst:1001
+msgid ""
+"Draws a line from (x0, y0) to (x1, y1) on the image. You may either pass x0,"
+" y0, x1, y1 separately or as a tuple (x0, y0, x1, y1)."
+msgstr ""
+"画像上に (x0, y0) から (x1, y1) への線を描画します。x0, y0, x1, y1 を個別に渡すこともタプル (x0, y0, x1,"
+" y1) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1004
+#: ../../library/omv.image.Image.rst:1019
+#: ../../library/omv.image.Image.rst:1036
+#: ../../library/omv.image.Image.rst:1053
+#: ../../library/omv.image.Image.rst:1073
+#: ../../library/omv.image.Image.rst:1113
+#: ../../library/omv.image.Image.rst:1130
+#: ../../library/omv.image.Image.rst:1162
+#: ../../library/omv.image.Image.rst:1229
+#: ../../library/omv.image.Image.rst:1254
+msgid ""
+"``color`` is an RGB888 tuple for Grayscale or RGB565 images. Defaults to "
+"white. However, you may also pass the underlying pixel value (0-255) for "
+"grayscale images or a RGB565 value for RGB565 images."
+msgstr ""
+"``color`` は、グレースケールまたは RGB565 画像用の RGB888 "
+"タプルです。デフォルトは白です。ただし、グレースケール画像の基となるピクセル値 (0-255) や RGB565 画像の RGB565 "
+"値を渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1008
+#: ../../library/omv.image.Image.rst:1134
+#: ../../library/omv.image.Image.rst:1168
+#: ../../library/omv.image.Image.rst:1235
+msgid "``thickness`` controls how thick the line is in pixels."
+msgstr "``thickness`` は、線の太さをピクセル単位で制御します。"
+
+#: ../../library/omv.image.Image.rst:1012
+#: ../../library/omv.image.Image.rst:1029
+#: ../../library/omv.image.Image.rst:1046
+#: ../../library/omv.image.Image.rst:1063
+#: ../../library/omv.image.Image.rst:1106
+#: ../../library/omv.image.Image.rst:1123
+#: ../../library/omv.image.Image.rst:1138
+#: ../../library/omv.image.Image.rst:1155
+#: ../../library/omv.image.Image.rst:1174
+#: ../../library/omv.image.Image.rst:1241
+#: ../../library/omv.image.Image.rst:1271
+#: ../../library/omv.image.Image.rst:1306
+#: ../../library/omv.image.Image.rst:1315
+#: ../../library/omv.image.Image.rst:1324
+#: ../../library/omv.image.Image.rst:1354
+#: ../../library/omv.image.Image.rst:1377
+#: ../../library/omv.image.Image.rst:1391
+#: ../../library/omv.image.Image.rst:1405
+#: ../../library/omv.image.Image.rst:1419
+#: ../../library/omv.image.Image.rst:1433
+#: ../../library/omv.image.Image.rst:1447
+#: ../../library/omv.image.Image.rst:1532
+#: ../../library/omv.image.Image.rst:1548
+#: ../../library/omv.image.Image.rst:1567
+#: ../../library/omv.image.Image.rst:1581
+#: ../../library/omv.image.Image.rst:1595
+#: ../../library/omv.image.Image.rst:1619
+#: ../../library/omv.image.Image.rst:1884
+#: ../../library/omv.image.Image.rst:1901
+#: ../../library/omv.image.Image.rst:1921
+#: ../../library/omv.image.Image.rst:1955
+#: ../../library/omv.image.Image.rst:2000
+#: ../../library/omv.image.Image.rst:2025
+#: ../../library/omv.image.Image.rst:2050
+#: ../../library/omv.image.Image.rst:2093
+#: ../../library/omv.image.Image.rst:2112
+msgid "Not supported on compressed images or bayer images."
+msgstr "圧縮画像や Bayer 画像ではサポートされていません。"
+
+#: ../../library/omv.image.Image.rst:1016
+msgid ""
+"Draws a rectangle on the image. You may either pass x, y, w, h separately or"
+" as a tuple (x, y, w, h)."
+msgstr "画像上に矩形を描画します。x, y, w, h を個別に渡すこともタプル (x, y, w, h) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1023
+msgid "``thickness`` controls how thick the lines are in pixels."
+msgstr "``thickness`` は、線の太さをピクセル単位で制御します。"
+
+#: ../../library/omv.image.Image.rst:1025
+msgid "Pass ``fill`` set to True to fill the rectangle."
+msgstr "矩形を塗りつぶすには ``fill`` を True に設定して渡します。"
+
+#: ../../library/omv.image.Image.rst:1033
+msgid ""
+"Draws a circle on the image. You may either pass x, y, radius separately or "
+"as a tuple (x, y, radius)."
+msgstr "画像上に円を描画します。x, y, radius を個別に渡すこともタプル (x, y, radius) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1040
+#: ../../library/omv.image.Image.rst:1057
+#: ../../library/omv.image.Image.rst:1119
+msgid "``thickness`` controls how thick the edges are in pixels."
+msgstr "``thickness`` は、エッジの太さをピクセル単位で制御します。"
+
+#: ../../library/omv.image.Image.rst:1042
+msgid "Pass ``fill`` set to True to fill the circle."
+msgstr "円を塗りつぶすには ``fill`` を True に設定して渡します。"
+
+#: ../../library/omv.image.Image.rst:1050
+msgid ""
+"Draws an ellipse on the image. You may either pass cx, cy, rx, ry, and the "
+"rotation (in degrees) separately or as a tuple (cx, yc, rx, ry, rotation)."
+msgstr ""
+"画像上に楕円を描画します。cx, cy, rx, ry、および回転（度単位）を個別に渡すこともタプル (cx, yc, rx, ry, "
+"rotation) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1059
+msgid "Pass ``fill`` set to True to fill the ellipse."
+msgstr "楕円を塗りつぶすには ``fill`` を True に設定して渡します。"
+
+#: ../../library/omv.image.Image.rst:1067
+msgid ""
+"Draws 8x10 text starting at location (x, y) in the image. You may either "
+"pass x, y separately or as a tuple (x, y)."
+msgstr ""
+"画像内の位置 (x, y) から 8x10 のテキストを描画します。x, y を個別に渡すこともタプル (x, y) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1070
+msgid ""
+"``text`` is a string to write to the image. ``\\n``, ``\\r``, and ``\\r\\n``"
+" line endings move the cursor to the next line."
+msgstr "``text`` は、画像に書き込む文字列です。\\ ``\\n``\\ 、\\ ``\\r``\\ 、\\ ``\\r\\n`` の改行はカーソルを次の行に移動します。"
+
+#: ../../library/omv.image.Image.rst:1077
+msgid ""
+"``scale`` may be increased to increase/decrease the size of the text on the "
+"image. You can pass greater than 0 integer or floating point values."
+msgstr "``scale`` を増やすと、画像上のテキストのサイズを拡大／縮小できます。0 より大きい整数値または浮動小数点値を渡せます。"
+
+#: ../../library/omv.image.Image.rst:1080
+msgid ""
+"``x_spacing`` allows you to add (if positive) or subtract (if negative) x "
+"pixels between cahracters."
+msgstr "``x_spacing`` は、文字間に x ピクセルを追加（正の場合）または減算（負の場合）できます。"
+
+#: ../../library/omv.image.Image.rst:1083
+msgid ""
+"``y_spacing`` allows you to add (if positive) or subtract (if negative) y "
+"pixels between cahracters (for multi-line text)."
+msgstr "``y_spacing`` は、（複数行テキストの場合）文字間に y ピクセルを追加（正の場合）または減算（負の場合）できます。"
+
+#: ../../library/omv.image.Image.rst:1086
+msgid ""
+"``mono_space`` defaults to True which forces text to be fixed spaced. For "
+"large text scales this looks terrible. Set the False to get non-fixed width "
+"character spacing which looks A LOT better."
+msgstr ""
+"``mono_space`` はデフォルトで True "
+"であり、テキストを固定幅にします。大きなテキストスケールでは、これは見栄えが悪くなります。固定幅でない文字間隔を得るには False "
+"に設定してください。こちらの方がはるかに見栄えが良くなります。"
+
+#: ../../library/omv.image.Image.rst:1090
+msgid ""
+"``char_rotation`` may be 0, 90, 180, 270 to rotate each character in the "
+"string by this amount."
+msgstr "``char_rotation`` は 0、90、180、270 を指定でき、文字列内の各文字をこの量だけ回転します。"
+
+#: ../../library/omv.image.Image.rst:1093
+msgid ""
+"``char_hmirror`` if True horizontally mirrors all characters in the string."
+msgstr "``char_hmirror`` が True の場合、文字列内のすべての文字を水平方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:1095
+msgid "``char_vflip`` if True vertically flips all characters in the string."
+msgstr "``char_vflip`` が True の場合、文字列内のすべての文字を垂直方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:1097
+msgid ""
+"``string_rotation`` may be 0, 90, 180, 270 to rotate the string by this "
+"amount."
+msgstr "``string_rotation`` は 0、90、180、270 を指定でき、文字列をこの量だけ回転します。"
+
+#: ../../library/omv.image.Image.rst:1100
+msgid "``string_hmirror`` if True horizontally mirrors the string."
+msgstr "``string_hmirror`` が True の場合、文字列を水平方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:1102
+msgid "``string_vflip`` if True vertically flips the string."
+msgstr "``string_vflip`` が True の場合、文字列を垂直方向に反転します。"
+
+#: ../../library/omv.image.Image.rst:1110
+msgid ""
+"Draws a cross at location x, y. You may either pass x, y separately or as a "
+"tuple (x, y)."
+msgstr "位置 x, y に十字を描画します。x, y を個別に渡すこともタプル (x, y) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1117
+msgid "``size`` controls how long the lines of the cross extend."
+msgstr "``size`` は、十字の線がどれだけ長く伸びるかを制御します。"
+
+#: ../../library/omv.image.Image.rst:1127
+msgid ""
+"Draws an arrow from (x0, y0) to (x1, y1) on the image. You may either pass "
+"x0, y0, x1, y1 separately or as a tuple (x0, y0, x1, y1)."
+msgstr ""
+"画像上に (x0, y0) から (x1, y1) への矢印を描画します。x0, y0, x1, y1 を個別に渡すこともタプル (x0, y0, "
+"x1, y1) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1142
+msgid ""
+"Draws a detection result onto the image. ``detection`` is a 6-tuple ``(rx, "
+"ry, rw, rh, cx, cy)`` describing a bounding rectangle and a centroid "
+"(typically returned by NN or color tracking code)."
+msgstr ""
+"検出結果を画像上に描画します。\\ ``detection`` は、バウンディング矩形とセントロイドを記述する6要素タプル ``(rx, ry, rw,"
+" rh, cx, cy)`` です（通常は NN またはカラー追跡コードによって返されます）。"
+
+#: ../../library/omv.image.Image.rst:1146
+msgid ""
+"``color1`` is the rectangle color and ``color2`` is the centroid cross "
+"color. ``size`` is the centroid cross size, ``thickness`` controls outline "
+"width, and ``fill`` fills the rectangle."
+msgstr ""
+"``color1`` は矩形の色、\\ ``color2`` はセントロイド十字の色です。\\ ``size`` はセントロイド十字のサイズ、\\ "
+"``thickness`` は輪郭の幅を制御し、\\ ``fill`` は矩形を塗りつぶします。"
+
+#: ../../library/omv.image.Image.rst:1150
+msgid ""
+"``label`` if provided is drawn near the rectangle, offset by "
+"``label_offset`` ``(x, y)``."
+msgstr ""
+"``label`` が指定された場合、矩形の近くに ``label_offset`` ``(x, y)`` だけオフセットして描画されます。"
+
+#: ../../library/omv.image.Image.rst:1159
+msgid ""
+"Draws line edges between a corner list returned by methods like "
+"`blob.corners`. Coners is a four valued tuple of two valued x/y tuples. E.g."
+" [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]."
+msgstr ""
+"`blob.corners` のようなメソッドによって返されるコーナーリストの間に線のエッジを描画します。Corners は、2要素の x/y "
+"タプルからなる4要素タプルです。例：[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]。"
+
+#: ../../library/omv.image.Image.rst:1166
+msgid ""
+"``size`` if greater than 0 causes the corners to be drawn as circles of "
+"radius ``size``."
+msgstr "``size`` が 0 より大きい場合、コーナーが半径 ``size`` の円として描画されます。"
+
+#: ../../library/omv.image.Image.rst:1170
+msgid "Pass ``fill`` set to True to fill the corner circles if drawn."
+msgstr "描画されるコーナーの円を塗りつぶすには ``fill`` を True に設定して渡します。"
+
+#: ../../library/omv.image.Image.rst:1178
+msgid ""
+"Draws an ``image`` whose top-left corner starts at location x, y. You may "
+"either pass x, y separately or as a tuple (x, y). This method automatically "
+"handles rendering the image passed into the correct pixel format for the "
+"destination image while also handling clipping seamlessly."
+msgstr ""
+"左上隅が位置 x, y から始まる ``image`` を描画します。x, y を個別に渡すこともタプル (x, y) "
+"として渡すこともできます。このメソッドは、渡された画像を描画先画像の正しいピクセルフォーマットへレンダリングする処理を自動的に行い、同時にクリッピングもシームレスに処理します。"
+
+#: ../../library/omv.image.Image.rst:1182
+msgid ""
+"You may also pass a path instead of an image object for this method to "
+"automatically load the image from disk and use it in one step. E.g. "
+"``draw_image(\"test.jpg\")``."
+msgstr ""
+"このメソッドでは、画像オブジェクトの代わりにパスを渡すこともでき、ディスクから画像を自動的に読み込んで1ステップで使用できます。例：\\ "
+"``draw_image(\"test.jpg\")``\\ 。"
+
+#: ../../library/omv.image.Image.rst:1215
+msgid ""
+"``hint`` is a logical OR of the flags listed in :ref:`Hint flags "
+"<image.Image.hint>` (including `image.BLACK_BACKGROUND` which is supported "
+"here)."
+msgstr ""
+"``hint`` は :ref:`Hint flags <image.Image.hint>` に列挙されたフラグの論理 OR "
+"です（ここでサポートされている `image.BLACK_BACKGROUND` を含む）。"
+
+#: ../../library/omv.image.Image.rst:1224
+msgid ""
+"Draws the keypoints of a keypoints object on the image. You may also pass a "
+"list of three value tuples containing the (x, y, rotation_angle_in_degrees) "
+"to re-use this method for drawing keypoint glyphs which are a cirle with a "
+"line pointing in a particular direction."
+msgstr ""
+"キーポイントオブジェクトのキーポイントを画像上に描画します。(x, y, rotation_angle_in_degrees) "
+"を含む3要素タプルのリストを渡すこともでき、このメソッドを再利用して、特定の方向を指す線を持つ円であるキーポイントグリフを描画できます。"
+
+#: ../../library/omv.image.Image.rst:1233
+msgid "``size`` controls how large the keypoints are."
+msgstr "``size`` は、キーポイントの大きさを制御します。"
+
+#: ../../library/omv.image.Image.rst:1237
+msgid "Pass ``fill`` set to True to fill the keypoints."
+msgstr "キーポイントを塗りつぶすには ``fill`` を True に設定して渡します。"
+
+#: ../../library/omv.image.Image.rst:1245
+msgid ""
+"Flood fills a region of the image starting from location x, y. You may "
+"either pass x, y separately or as a tuple (x, y)."
+msgstr "位置 x, y から始まる画像の領域をフラッドフィルします。x, y を個別に渡すこともタプル (x, y) として渡すこともできます。"
+
+#: ../../library/omv.image.Image.rst:1248
+msgid ""
+"``seed_threshold`` controls how different any pixel in the fill area may be "
+"from the original starting pixel."
+msgstr "``seed_threshold`` は、塗りつぶし領域内の任意のピクセルが、最初の開始ピクセルからどれだけ異なってよいかを制御します。"
+
+#: ../../library/omv.image.Image.rst:1251
+msgid ""
+"``floating_threshold`` controls how different any pixel in the fill area may"
+" be from any neighbor pixels."
+msgstr ""
+"``floating_threshold`` は、塗りつぶし領域内の任意のピクセルが、隣接するピクセルからどれだけ異なってよいかを制御します。"
+
+#: ../../library/omv.image.Image.rst:1258
+msgid ""
+"Pass ``invert`` as True to re-color everything outside of the flood-fill "
+"connected area."
+msgstr "フラッドフィルで接続された領域の外側にあるすべてを再着色するには ``invert`` を True として渡します。"
+
+#: ../../library/omv.image.Image.rst:1261
+msgid ""
+"Pass ``clear_background`` as True to zero the rest of the pixels that flood-"
+"fill did not re-color."
+msgstr "フラッドフィルが再着色しなかった残りのピクセルをゼロにするには ``clear_background`` を True として渡します。"
+
+#: ../../library/omv.image.Image.rst:1264
+msgid ""
+"``mask`` is another image to use as a pixel level mask for the operation. "
+"The mask should be an image with just black or white pixels and should be "
+"the same size as the image being operated on. Only pixels set in the mask "
+"are evaluated when flood filling."
+msgstr ""
+"``mask`` "
+"は、操作のためのピクセルレベルのマスクとして使用する別の画像です。マスクは黒または白のピクセルのみを持つ画像で、操作対象の画像と同じサイズである必要があります。フラッドフィル時にはマスクに設定されたピクセルのみが評価されます。"
+
+#: ../../library/omv.image.Image.rst:1273
+#: ../../library/omv.image.Image.rst:1886
+#: ../../library/omv.image.Image.rst:1903
+#: ../../library/omv.image.Image.rst:1957
+#: ../../library/omv.image.Image.rst:2114
+#: ../../library/omv.image.Image.rst:2129
+#: ../../library/omv.image.Image.rst:2154
+#: ../../library/omv.image.Image.rst:2167
+#: ../../library/omv.image.Image.rst:2177
+#: ../../library/omv.image.Image.rst:2210
+#: ../../library/omv.image.Image.rst:2225
+#: ../../library/omv.image.Image.rst:2241
+#: ../../library/omv.image.Image.rst:2373
+msgid "This method is not available on the OpenMV Cam M4."
+msgstr "このメソッドは OpenMV Cam M4 では利用できません。"
+
+#: ../../library/omv.image.Image.rst:1277
+msgid ""
+"Rasterizes an event ndarray (as filled by `csi.IOCTL_GENX320_READ_EVENTS`) "
+"onto an `Image` for visualization. The image buffer must be a 320x320 "
+"GRAYSCALE image."
+msgstr ""
+"イベント ndarray（\\ `csi.IOCTL_GENX320_READ_EVENTS` によって埋められたもの）を可視化のために `Image`"
+" 上にラスタライズします。画像バッファは 320x320 の GRAYSCALE 画像である必要があります。"
+
+#: ../../library/omv.image.Image.rst:1280
+msgid ""
+"For each `csi.PIX_ON_EVENT` row the event's pixel gets ``+contrast`` added; "
+"for each `csi.PIX_OFF_EVENT` row the pixel gets ``-contrast``. Trigger "
+"events are ignored. Pixel values are clamped to 0-255."
+msgstr ""
+"各 `csi.PIX_ON_EVENT` 行について、そのイベントのピクセルに ``+contrast`` が加算されます。各 "
+"`csi.PIX_OFF_EVENT` 行についてはピクセルに ``-contrast`` が加算されます。トリガーイベントは無視されます。ピクセル値は"
+" 0-255 にクランプされます。"
+
+#: ../../library/omv.image.Image.rst:1284
+msgid ""
+"``clear`` if True resets the image buffer to ``brightness`` before drawing "
+"--- every frame becomes a fresh event-only render. Set to False to "
+"accumulate events across multiple calls (useful for long-exposure motion "
+"trails)."
+msgstr ""
+"``clear`` が True の場合、描画前に画像バッファを ``brightness`` "
+"にリセットします。これにより、すべてのフレームが新しいイベントのみのレンダリングになります。複数の呼び出しにわたってイベントを蓄積するには False "
+"に設定します（長時間露光のモーショントレイルに便利です）。"
+
+#: ../../library/omv.image.Image.rst:1288
+msgid ""
+"``brightness`` controls the mid-gray baseline the buffer is reset to when "
+"``clear`` is True. The default 128 puts ON events at the bright end and OFF "
+"events at the dark end with equal headroom."
+msgstr ""
+"``brightness`` は、\\ ``clear`` が True "
+"のときにバッファがリセットされる中間グレーのベースラインを制御します。デフォルトの 128 は、ON イベントを明るい端に、OFF "
+"イベントを暗い端に、等しいヘッドルームで配置します。"
+
+#: ../../library/omv.image.Image.rst:1292
+msgid ""
+"``contrast`` controls how much each event shifts its pixel --- higher values"
+" make events pop, at the cost of saturating quickly when many events land on"
+" the same pixel."
+msgstr ""
+"``contrast`` "
+"は、各イベントがそのピクセルをどれだけシフトさせるかを制御します。値が高いほどイベントが目立ちますが、多くのイベントが同じピクセルに集まると素早く飽和してしまう代償があります。"
+
+#: ../../library/omv.image.Image.rst:1297
+msgid "Masking Methods"
+msgstr "マスキングメソッド"
+
+#: ../../library/omv.image.Image.rst:1301
+msgid ""
+"Zeros a rectangular part of the image. If no arguments are supplied this "
+"method zeros the center of the image."
+msgstr "画像の矩形部分をゼロにします。引数が指定されない場合、このメソッドは画像の中央をゼロにします。"
+
+#: ../../library/omv.image.Image.rst:1310
+msgid ""
+"Zeros a circular part of the image. If no arguments are supplied this method"
+" zeros the center of the image."
+msgstr "画像の円形部分をゼロにします。引数が指定されない場合、このメソッドは画像の中央をゼロにします。"
+
+#: ../../library/omv.image.Image.rst:1319
+msgid ""
+"Zeros an ellipsed shaped part of the image. If no arguments are supplied "
+"this method zeros the center of the image."
+msgstr "画像の楕円形部分をゼロにします。引数が指定されない場合、このメソッドは画像の中央をゼロにします。"
+
+#: ../../library/omv.image.Image.rst:1327
+msgid "Binary Methods"
+msgstr "バイナリメソッド"
+
+#: ../../library/omv.image.Image.rst:1331
+msgid ""
+"Sets all pixels in the image to black or white depending on whether each "
+"pixel is inside one of the threshold tuples in ``thresholds``."
+msgstr ""
+"各ピクセルが ``thresholds`` 内のいずれかのしきい値タプルの内側にあるかどうかに応じて、画像内のすべてのピクセルを黒または白に設定します。"
+
+#: ../../library/omv.image.Image.rst:1334
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. Swapped "
+"min/max values are auto-fixed; missing components default to maximum range."
+msgstr ""
+"``thresholds`` は、グレースケール画像の場合は ``(lo, hi)`` タプルのリスト、RGB565 画像の場合は ``(l_lo, "
+"l_hi, a_lo, a_hi, b_lo, b_hi)`` タプルのリストです。min/max "
+"値が入れ替わっている場合は自動的に修正され、欠けている要素はデフォルトで最大範囲になります。"
+
+#: ../../library/omv.image.Image.rst:1339
+#: ../../library/omv.image.Image.rst:1988
+#: ../../library/omv.image.Image.rst:2013
+#: ../../library/omv.image.Image.rst:2035
+#: ../../library/omv.image.Image.rst:2065
+msgid "``invert`` inverts the threshold matching."
+msgstr "``invert`` はしきい値マッチングを反転します。"
+
+#: ../../library/omv.image.Image.rst:1341
+msgid ""
+"``zero`` if True, zeros thresholded pixels and leaves others untouched."
+msgstr "``zero`` が True の場合、しきい値に該当するピクセルをゼロにし、それ以外はそのまま残します。"
+
+#: ../../library/omv.image.Image.rst:1343
+#: ../../library/omv.image.Image.rst:1372
+#: ../../library/omv.image.Image.rst:1386
+#: ../../library/omv.image.Image.rst:1400
+#: ../../library/omv.image.Image.rst:1414
+#: ../../library/omv.image.Image.rst:1428
+#: ../../library/omv.image.Image.rst:1442
+#: ../../library/omv.image.Image.rst:1527
+#: ../../library/omv.image.Image.rst:1541
+#: ../../library/omv.image.Image.rst:1562
+#: ../../library/omv.image.Image.rst:1576
+#: ../../library/omv.image.Image.rst:1590
+#: ../../library/omv.image.Image.rst:1614
+#: ../../library/omv.image.Image.rst:1631
+#: ../../library/omv.image.Image.rst:1645
+#: ../../library/omv.image.Image.rst:1656
+#: ../../library/omv.image.Image.rst:1665
+#: ../../library/omv.image.Image.rst:1674
+#: ../../library/omv.image.Image.rst:1683
+#: ../../library/omv.image.Image.rst:1699
+#: ../../library/omv.image.Image.rst:1720
+#: ../../library/omv.image.Image.rst:1739
+#: ../../library/omv.image.Image.rst:1761
+#: ../../library/omv.image.Image.rst:1788
+#: ../../library/omv.image.Image.rst:1813
+#: ../../library/omv.image.Image.rst:1838
+#: ../../library/omv.image.Image.rst:1862
+msgid ""
+"``mask`` is a binary image used as a pixel-level mask; only pixels set in "
+"the mask are modified."
+msgstr "``mask`` は、ピクセルレベルのマスクとして使用されるバイナリ画像です。マスクに設定されたピクセルのみが変更されます。"
+
+#: ../../library/omv.image.Image.rst:1346
+msgid ""
+"``to_bitmap`` if True, converts the image data to a 1-bit-per-pixel bitmap. "
+"For very small images this may require ``copy=True``."
+msgstr ""
+"``to_bitmap`` が True の場合、画像データを1ピクセルあたり1ビットのビットマップに変換します。非常に小さな画像では "
+"``copy=True`` が必要になる場合があります。"
+
+#: ../../library/omv.image.Image.rst:1349
+msgid ""
+"``copy`` if True, returns a new image on the heap instead of modifying the "
+"source image."
+msgstr "``copy`` が True の場合、ソース画像を変更する代わりにヒープ上に新しい画像を返します。"
+
+#: ../../library/omv.image.Image.rst:1358
+msgid ""
+"Inverts all pixel values in the image (each pixel becomes ``255 - pixel`` "
+"for 8-bit channels)."
+msgstr "画像内のすべてのピクセル値を反転します（8ビットチャンネルでは各ピクセルが ``255 - pixel`` になります）。"
+
+#: ../../library/omv.image.Image.rst:1363
+#: ../../library/omv.image.Image.rst:1476
+#: ../../library/omv.image.Image.rst:1636
+#: ../../library/omv.image.Image.rst:1650
+#: ../../library/omv.image.Image.rst:1659
+#: ../../library/omv.image.Image.rst:1668
+#: ../../library/omv.image.Image.rst:1677
+#: ../../library/omv.image.Image.rst:1686
+#: ../../library/omv.image.Image.rst:1704
+#: ../../library/omv.image.Image.rst:1725
+#: ../../library/omv.image.Image.rst:1744
+#: ../../library/omv.image.Image.rst:1766
+#: ../../library/omv.image.Image.rst:1793
+#: ../../library/omv.image.Image.rst:1818
+#: ../../library/omv.image.Image.rst:1843
+#: ../../library/omv.image.Image.rst:1867
+msgid "Not supported on compressed images or bayer/yuv images."
+msgstr "圧縮画像や bayer/yuv 画像ではサポートされていません。"
+
+#: ../../library/omv.image.Image.rst:1367
+msgid "Logically ANDs this image with another image."
+msgstr "この画像と別の画像を論理 AND 演算します。"
+
+#: ../../library/omv.image.Image.rst:1369
+#: ../../library/omv.image.Image.rst:1383
+#: ../../library/omv.image.Image.rst:1397
+#: ../../library/omv.image.Image.rst:1411
+#: ../../library/omv.image.Image.rst:1425
+#: ../../library/omv.image.Image.rst:1439
+#: ../../library/omv.image.Image.rst:1524
+#: ../../library/omv.image.Image.rst:1559
+#: ../../library/omv.image.Image.rst:1573
+#: ../../library/omv.image.Image.rst:1587
+msgid ""
+"``image`` can be an image object, a path to an uncompressed image file "
+"(bmp/pgm/ppm), or a scalar value (RGB888 tuple or underlying pixel value)."
+msgstr ""
+"``image`` は、画像オブジェクト、非圧縮画像ファイル（bmp/pgm/ppm）へのパス、またはスカラー値（RGB888 "
+"タプルまたは基となるピクセル値）のいずれかです。"
+
+#: ../../library/omv.image.Image.rst:1381
+msgid "Logically NANDs this image with another image."
+msgstr "この画像と別の画像を論理 NAND 演算します。"
+
+#: ../../library/omv.image.Image.rst:1395
+msgid "Logically ORs this image with another image."
+msgstr "この画像と別の画像を論理 OR 演算します。"
+
+#: ../../library/omv.image.Image.rst:1409
+msgid "Logically NORs this image with another image."
+msgstr "この画像と別の画像を論理 NOR 演算します。"
+
+#: ../../library/omv.image.Image.rst:1423
+msgid "Logically XORs this image with another image."
+msgstr "この画像と別の画像を論理 XOR 演算します。"
+
+#: ../../library/omv.image.Image.rst:1437
+msgid "Logically XNORs this image with another image."
+msgstr "この画像と別の画像を論理 XNOR 演算します。"
+
+#: ../../library/omv.image.Image.rst:1450
+msgid "ISP Methods"
+msgstr "ISP メソッド"
+
+#: ../../library/omv.image.Image.rst:1454
+msgid ""
+"Performs automatic white balance on the image using the gray-world "
+"algorithm. Operates on RAW Bayer or RGB565 images. Has no effect on "
+"binary/grayscale images."
+msgstr ""
+"グレーワールドアルゴリズムを使用して、画像に対して自動ホワイトバランスを実行します。RAW Bayer または RGB565 "
+"画像で動作します。バイナリ／グレースケール画像には効果がありません。"
+
+#: ../../library/omv.image.Image.rst:1458
+msgid "``max`` if True, uses the white-patch algorithm instead."
+msgstr "``max`` が True の場合、代わりにホワイトパッチアルゴリズムを使用します。"
+
+#: ../../library/omv.image.Image.rst:1462
+msgid "Not supported on compressed or yuv images."
+msgstr "圧縮画像や yuv 画像ではサポートされていません。"
+
+#: ../../library/omv.image.Image.rst:1466
+msgid ""
+"Multiplies the passed floating-point color-correction-matrix with the image."
+" Matrices may be 3x3 or 3x4 (with offset column), in nested list or flat "
+"list form::"
+msgstr ""
+"渡された浮動小数点のカラー補正行列を画像と乗算します。行列は 3x3 または "
+"3x4（オフセット列付き）で、ネストされたリストまたはフラットなリストの形式で指定できます::"
+
+#: ../../library/omv.image.Image.rst:1480
+msgid "Adjusts the image gamma, contrast, and brightness."
+msgstr "画像のガンマ、コントラスト、明るさを調整します。"
+
+#: ../../library/omv.image.Image.rst:1482
+msgid ""
+"``gamma`` applies ``pow(pixel, 1/gamma)`` after normalization. Values "
+"greater than 1.0 brighten; less than 1.0 darken."
+msgstr ""
+"``gamma`` は、正規化の後に ``pow(pixel, 1/gamma)`` を適用します。1.0 より大きい値は明るくし、1.0 "
+"より小さい値は暗くします。"
+
+#: ../../library/omv.image.Image.rst:1485
+msgid "``contrast`` applies ``pixel * contrast`` after normalization."
+msgstr "``contrast`` は、正規化の後に ``pixel * contrast`` を適用します。"
+
+#: ../../library/omv.image.Image.rst:1487
+msgid "``brightness`` applies ``pixel + brightness`` after normalization."
+msgstr "``brightness`` は、正規化の後に ``pixel + brightness`` を適用します。"
+
+#: ../../library/omv.image.Image.rst:1491
+msgid "Not supported on compressed or bayer/yuv images."
+msgstr "圧縮画像や bayer/yuv 画像ではサポートされていません。"
+
+#: ../../library/omv.image.Image.rst:1495
+msgid "Alias for `Image.gamma`."
+msgstr "`Image.gamma` のエイリアスです。"
+
+#: ../../library/omv.image.Image.rst:1498
+msgid "Math Methods"
+msgstr "算術メソッド"
+
+#: ../../library/omv.image.Image.rst:1502
+msgid "Alias for `Image.invert`."
+msgstr "`Image.invert` のエイリアスです。"
+
+#: ../../library/omv.image.Image.rst:1506
+msgid ""
+"Alias for `Image.draw_image()`. Replaces this image with ``image`` (or "
+"transforms this image in place if ``image`` is omitted) using the standard "
+"`draw_image` keyword arguments. The ``transform`` argument is a 3x3 "
+"``ndarray`` describing a perspective transformation (only supported on "
+"OpenMV cameras with ULAB enabled)."
+msgstr ""
+"`Image.draw_image()` のエイリアスです。標準の `draw_image` キーワード引数を使用して、この画像を ``image`` "
+"で置き換えます（\\ ``image`` が省略された場合はこの画像をインプレースで変換します）。\\ ``transform`` "
+"引数は、透視変換を記述する 3x3 の ``ndarray`` です（ULAB が有効な OpenMV カメラでのみサポートされます）。"
+
+#: ../../library/omv.image.Image.rst:1514
+#: ../../library/omv.image.Image.rst:1518
+msgid "Alias for `Image.replace()`."
+msgstr "`Image.replace()` のエイリアスです。"
+
+#: ../../library/omv.image.Image.rst:1522
+msgid "Adds an image pixel-wise to this one."
+msgstr "画像をこの画像にピクセル単位で加算します。"
+
+#: ../../library/omv.image.Image.rst:1536
+msgid "Subtracts ``image`` pixel-wise from this image (``self - image``)."
+msgstr "``image`` をこの画像からピクセル単位で減算します（\\ ``self - image``\\ ）。"
+
+#: ../../library/omv.image.Image.rst:1538
+msgid ""
+"``image`` can either be an image object, a path to an uncompressed image "
+"file (bmp/pgm/ppm), or a scalar value (RGB888 tuple or underlying pixel "
+"value)."
+msgstr ""
+"``image`` は、画像オブジェクト、非圧縮画像ファイル（bmp/pgm/ppm）へのパス、またはスカラー値（RGB888 "
+"タプルまたは基となるピクセル値）のいずれかです。"
+
+#: ../../library/omv.image.Image.rst:1544
+msgid ""
+"This method also accepts the full set of `Image.draw_image()` keyword "
+"arguments (``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, ``rgb_channel``,"
+" ``alpha``, ``color_palette``, ``alpha_palette``, ``hint``, ``transform``)."
+msgstr ""
+"このメソッドは、\\ `Image.draw_image()` のキーワード引数一式（\\ ``x``\\ 、\\ ``y``\\ 、\\ "
+"``x_scale``\\ 、\\ ``y_scale``\\ 、\\ ``roi``\\ 、\\ ``rgb_channel``\\ 、\\ "
+"``alpha``\\ 、\\ ``color_palette``\\ 、\\ ``alpha_palette``\\ 、\\ ``hint``\\ "
+"、\\ ``transform``\\ ）も受け付けます。"
+
+#: ../../library/omv.image.Image.rst:1552
+msgid ""
+"Reverse subtract: replaces this image with ``image - self`` pixel-wise. "
+"Otherwise identical to `Image.sub()`."
+msgstr "逆減算：この画像を ``image - self`` でピクセル単位に置き換えます。それ以外は `Image.sub()` と同一です。"
+
+#: ../../library/omv.image.Image.rst:1557
+msgid "Returns the minimum image of two images pixel-wise."
+msgstr "2つの画像のピクセル単位の最小値画像を返します。"
+
+#: ../../library/omv.image.Image.rst:1571
+msgid "Returns the maximum image of two images pixel-wise."
+msgstr "2つの画像のピクセル単位の最大値画像を返します。"
+
+#: ../../library/omv.image.Image.rst:1585
+msgid ""
+"Returns the absolute difference image between two images (e.g. ||a-b||)."
+msgstr "2つの画像間の絶対差分画像（例：||a-b||）を返します。"
+
+#: ../../library/omv.image.Image.rst:1599
+msgid ""
+"Alias for `Image.draw_image()`. Alpha-blends ``image`` into this image. "
+"``alpha`` is an integer 0-256; values closer to 256 favor the source image. "
+"Accepts all `Image.draw_image()` keyword arguments."
+msgstr ""
+"`Image.draw_image()` のエイリアスです。\\ ``image`` をこの画像にアルファブレンドします。\\ ``alpha`` は "
+"0-256 の整数で、256 に近いほどソース画像が優先されます。すべての `Image.draw_image()` のキーワード引数を受け付けます。"
+
+#: ../../library/omv.image.Image.rst:1605
+msgid ""
+"Runs histogram equalization on the image to normalize contrast and "
+"brightness."
+msgstr "コントラストと明るさを正規化するために、画像に対してヒストグラム平坦化を実行します。"
+
+#: ../../library/omv.image.Image.rst:1608
+msgid ""
+"``adaptive`` if True, runs adaptive histogram equalization (slower but "
+"generally better)."
+msgstr "``adaptive`` が True の場合、適応ヒストグラム平坦化を実行します（より低速ですが一般的により良い結果になります）。"
+
+#: ../../library/omv.image.Image.rst:1611
+msgid ""
+"``clip_limit`` limits contrast in the adaptive variant (a small value like "
+"10 produces good CLAHE results)."
+msgstr "``clip_limit`` は、適応版でのコントラストを制限します（10 のような小さな値が良好な CLAHE 結果を生成します）。"
+
+#: ../../library/omv.image.Image.rst:1622
+msgid "Filtering Methods"
+msgstr "フィルタリングメソッド"
+
+#: ../../library/omv.image.Image.rst:1626
+msgid ""
+"Removes pixels from the edges of segmented areas. Convolves a "
+"``((size*2)+1)x((size*2)+1)`` kernel across the image, clearing the center "
+"pixel if more than ``threshold`` neighbors are clear (acts as standard erode"
+" if ``threshold`` is None)."
+msgstr ""
+"セグメント化された領域のエッジからピクセルを除去します。\\ ``((size*2)+1)x((size*2)+1)`` "
+"のカーネルを画像全体に畳み込み、\\ ``threshold`` 個を超える隣接ピクセルがクリアされている場合に中心ピクセルをクリアします（\\ "
+"``threshold`` が None の場合は標準的な収縮として機能します）。"
+
+#: ../../library/omv.image.Image.rst:1640
+msgid ""
+"Adds pixels to the edges of segmented areas. Convolves a "
+"``((size*2)+1)x((size*2)+1)`` kernel across the image, setting the center "
+"pixel if more than ``threshold`` neighbors are set (acts as standard dilate "
+"if ``threshold`` is None)."
+msgstr ""
+"セグメント化された領域のエッジにピクセルを追加します。\\ ``((size*2)+1)x((size*2)+1)`` "
+"のカーネルを画像全体に畳み込み、\\ ``threshold`` 個を超える隣接ピクセルが設定されている場合に中心ピクセルを設定します（\\ "
+"``threshold`` が None の場合は標準的な膨張として機能します）。"
+
+#: ../../library/omv.image.Image.rst:1654
+msgid ""
+"Performs erosion then dilation. See `Image.erode()` and `Image.dilate()`."
+msgstr "収縮の後に膨張を実行します。\\ `Image.erode()` と `Image.dilate()` を参照してください。"
+
+#: ../../library/omv.image.Image.rst:1663
+msgid ""
+"Performs dilation then erosion. See `Image.dilate()` and `Image.erode()`."
+msgstr "膨張の後に収縮を実行します。\\ `Image.dilate()` と `Image.erode()` を参照してください。"
+
+#: ../../library/omv.image.Image.rst:1672
+msgid ""
+"Returns the image difference of the image and the `Image.open()`-ed image."
+msgstr "画像と `Image.open()` した画像との画像差分を返します。"
+
+#: ../../library/omv.image.Image.rst:1681
+msgid ""
+"Returns the image difference of the image and the `Image.close()`-ed image."
+msgstr "画像と `Image.close()` した画像との画像差分を返します。"
+
+#: ../../library/omv.image.Image.rst:1690
+msgid "Standard mean blurring filter using a box filter."
+msgstr "ボックスフィルタを使用した標準的な平均ぼかしフィルタです。"
+
+#: ../../library/omv.image.Image.rst:1692
+#: ../../library/omv.image.Image.rst:1710
+#: ../../library/omv.image.Image.rst:1732
+#: ../../library/omv.image.Image.rst:1751
+#: ../../library/omv.image.Image.rst:1799
+#: ../../library/omv.image.Image.rst:1824
+#: ../../library/omv.image.Image.rst:1849
+msgid "``size`` is the kernel size. Use 1 (3x3 kernel), 2 (5x5 kernel), etc."
+msgstr "``size`` はカーネルサイズです。1（3x3 カーネル）、2（5x5 カーネル）などを使用します。"
+
+#: ../../library/omv.image.Image.rst:1694
+#: ../../library/omv.image.Image.rst:1715
+#: ../../library/omv.image.Image.rst:1734
+#: ../../library/omv.image.Image.rst:1756
+#: ../../library/omv.image.Image.rst:1783
+#: ../../library/omv.image.Image.rst:1808
+#: ../../library/omv.image.Image.rst:1833
+#: ../../library/omv.image.Image.rst:1857
+msgid ""
+"``threshold`` if True, adaptively thresholds the filter output to a binary "
+"image. ``offset`` shifts the binarization (negative makes more pixels white,"
+" positive makes fewer). ``invert`` inverts the binary output."
+msgstr ""
+"``threshold`` が True の場合、フィルタ出力を適応的にしきい値処理してバイナリ画像にします。\\ ``offset`` "
+"は二値化をシフトします（負の値はより多くのピクセルを白に、正の値はより少なくします）。\\ ``invert`` はバイナリ出力を反転します。"
+
+#: ../../library/omv.image.Image.rst:1708
+msgid "Runs a percentile filter on the image (median by default)."
+msgstr "画像に対してパーセンタイルフィルタを実行します（デフォルトはメディアン）。"
+
+#: ../../library/omv.image.Image.rst:1712
+msgid ""
+"``percentile`` is the percentile to select from each kernel (0 = min, 0.5 = "
+"median, 1.0 = max). Defaults to 0.5."
+msgstr ""
+"``percentile`` は、各カーネルから選択するパーセンタイルです（0 = 最小、0.5 = メディアン、1.0 = 最大）。デフォルトは "
+"0.5 です。"
+
+#: ../../library/omv.image.Image.rst:1729
+msgid ""
+"Replaces each pixel with the mode of its neighbors. May produce artifacts on"
+" RGB image edges due to the non-linear operation."
+msgstr "各ピクセルをその隣接ピクセルの最頻値で置き換えます。非線形操作のため、RGB 画像のエッジでアーティファクトが生じる場合があります。"
+
+#: ../../library/omv.image.Image.rst:1748
+msgid ""
+"Runs the midpoint filter on the image. This filter finds the midpoint ((max-"
+"min)/2) of each pixel neighborhood in the image."
+msgstr ""
+"画像に対してミッドポイントフィルタを実行します。このフィルタは、画像内の各ピクセル近傍のミッドポイント ((max-min)/2) を見つけます。"
+
+#: ../../library/omv.image.Image.rst:1753
+msgid ""
+"``bias`` controls the min/max mixing. 0 for min filtering only, 1.0 for max "
+"filtering only. By using the ``bias`` you can min/max filter the image."
+msgstr ""
+"``bias`` は min/max の混合を制御します。0 は min フィルタリングのみ、1.0 は max フィルタリングのみです。\\ "
+"``bias`` を使うことで画像を min/max フィルタリングできます。"
+
+#: ../../library/omv.image.Image.rst:1770
+msgid "Convolves the image with an arbitrary filter kernel."
+msgstr "画像を任意のフィルタカーネルで畳み込みます。"
+
+#: ../../library/omv.image.Image.rst:1772
+msgid ""
+"``size`` controls the kernel size, which must be "
+"``((size*2)+1)x((size*2)+1)`` elements."
+msgstr "``size`` はカーネルサイズを制御し、\\ ``((size*2)+1)x((size*2)+1)`` 要素である必要があります。"
+
+#: ../../library/omv.image.Image.rst:1775
+msgid ""
+"``kernel`` is the kernel to convolve with, as a flat 1D list/tuple of "
+"``((size*2)+1)*((size*2)+1)`` elements, or as a 2D list/tuple with "
+"``((size*2)+1)`` rows of ``((size*2)+1)`` elements."
+msgstr ""
+"``kernel`` は畳み込みに使用するカーネルで、\\ ``((size*2)+1)*((size*2)+1)`` "
+"要素のフラットな1次元リスト／タプル、または ``((size*2)+1)`` 個の ``((size*2)+1)`` "
+"要素の行を持つ2次元リスト／タプルとして指定します。"
+
+#: ../../library/omv.image.Image.rst:1779
+#: ../../library/omv.image.Image.rst:1804
+#: ../../library/omv.image.Image.rst:1829
+msgid "``mul`` is a multiplicative contrast scale (default 1.0)."
+msgstr "``mul`` は乗法的なコントラストスケールです（デフォルト 1.0）。"
+
+#: ../../library/omv.image.Image.rst:1781
+#: ../../library/omv.image.Image.rst:1806
+#: ../../library/omv.image.Image.rst:1831
+msgid "``add`` is an additive brightness offset (default 0.0)."
+msgstr "``add`` は加法的な明るさのオフセットです（デフォルト 0.0）。"
+
+#: ../../library/omv.image.Image.rst:1797
+msgid "Convolves the image with a smoothing gaussian kernel."
+msgstr "画像を平滑化ガウシアンカーネルで畳み込みます。"
+
+#: ../../library/omv.image.Image.rst:1801
+msgid ""
+"``unsharp`` if True, performs an unsharp mask operation (sharpens edges) "
+"instead of a plain gaussian."
+msgstr "``unsharp`` が True の場合、単純なガウシアンの代わりにアンシャープマスク操作（エッジをシャープにする）を実行します。"
+
+#: ../../library/omv.image.Image.rst:1822
+msgid "Convolves the image with an edge-detecting laplacian kernel."
+msgstr "画像をエッジ検出ラプラシアンカーネルで畳み込みます。"
+
+#: ../../library/omv.image.Image.rst:1826
+msgid ""
+"``sharpen`` if True, sharpens the image instead of outputting the raw "
+"unthresholded edge response."
+msgstr "``sharpen`` が True の場合、しきい値処理されていない生のエッジ応答を出力する代わりに、画像をシャープにします。"
+
+#: ../../library/omv.image.Image.rst:1847
+msgid ""
+"Convolves the image with a bilateral filter (edge-preserving smoothing)."
+msgstr "画像をバイラテラルフィルタ（エッジ保存平滑化）で畳み込みます。"
+
+#: ../../library/omv.image.Image.rst:1851
+msgid ""
+"``color_sigma`` controls color matching tolerance; larger values produce "
+"more color blurring."
+msgstr "``color_sigma`` はカラーマッチングの許容度を制御します。値が大きいほどより多くのカラーぼかしが生じます。"
+
+#: ../../library/omv.image.Image.rst:1854
+msgid ""
+"``space_sigma`` controls spatial blurring; larger values produce more pixel "
+"blurring."
+msgstr "``space_sigma`` は空間的なぼかしを制御します。値が大きいほどより多くのピクセルぼかしが生じます。"
+
+#: ../../library/omv.image.Image.rst:1870
+msgid "Geometric Methods"
+msgstr "幾何メソッド"
+
+#: ../../library/omv.image.Image.rst:1874
+msgid ""
+"Re-projects an image from Cartesian coordinates to linear polar coordinates."
+msgstr "画像をデカルト座標から線形極座標へ再投影します。"
+
+#: ../../library/omv.image.Image.rst:1876
+#: ../../library/omv.image.Image.rst:1892
+msgid "Set ``reverse=True`` to re-project in the opposite direction."
+msgstr "逆方向に再投影するには ``reverse=True`` を設定します。"
+
+#: ../../library/omv.image.Image.rst:1878
+#: ../../library/omv.image.Image.rst:1894
+msgid ""
+"``x`` and ``y`` specify the center coordinate of the transform in image "
+"pixels. If ``x`` is ``None`` (the default) it is set to half the image "
+"width; likewise ``y`` defaults to half the image height."
+msgstr ""
+"``x`` と ``y`` は、画像ピクセルでの変換の中心座標を指定します。\\ ``x`` が ``None``\\ "
+"（デフォルト）の場合、画像の幅の半分に設定されます。同様に ``y`` はデフォルトで画像の高さの半分になります。"
+
+#: ../../library/omv.image.Image.rst:1882
+msgid ""
+"Linear polar re-projection turns rotation of an image into x-translation."
+msgstr "線形極座標再投影は、画像の回転を x 方向の平行移動に変換します。"
+
+#: ../../library/omv.image.Image.rst:1890
+msgid ""
+"Re-projects an image from Cartesian coordinates to log polar coordinates."
+msgstr "画像をデカルト座標から対数極座標へ再投影します。"
+
+#: ../../library/omv.image.Image.rst:1898
+msgid ""
+"Log polar re-projection turns rotation of an image into x-translation and "
+"scaling/zooming into y-translation."
+msgstr "対数極座標再投影は、画像の回転を x 方向の平行移動に、スケーリング／ズームを y 方向の平行移動に変換します。"
+
+#: ../../library/omv.image.Image.rst:1907
+msgid ""
+"Performs lens correction to un-fisheye the image due to the lens distortion."
+msgstr "レンズの歪みによる魚眼効果を補正するため、レンズ補正を実行します。"
+
+#: ../../library/omv.image.Image.rst:1909
+msgid ""
+"``strength`` is a float defining how much to un-fisheye the image. Try 1.8 "
+"out by default and then increase or decrease from there until the image "
+"looks good."
+msgstr ""
+"``strength`` は、画像の魚眼効果をどれだけ補正するかを定義する float です。まずデフォルトの 1.8 "
+"を試し、その後画像が良く見えるまでそこから増減させてください。"
+
+#: ../../library/omv.image.Image.rst:1913
+#: ../../library/omv.image.Image.rst:1942
+msgid "``zoom`` is the amount to zoom in on the image by. 1.0 by default."
+msgstr "``zoom`` は、画像をどれだけズームインするかの量です。デフォルトは 1.0 です。"
+
+#: ../../library/omv.image.Image.rst:1915
+msgid ""
+"``x_corr`` floating point pixel offset from center. Can be negative or "
+"positive."
+msgstr "``x_corr`` は中心からの浮動小数点のピクセルオフセットです。負または正の値を指定できます。"
+
+#: ../../library/omv.image.Image.rst:1917
+msgid ""
+"``y_corr`` floating point pixel offset from center. Can be negative or "
+"positive."
+msgstr "``y_corr`` は中心からの浮動小数点のピクセルオフセットです。負または正の値を指定できます。"
+
+#: ../../library/omv.image.Image.rst:1925
+msgid ""
+"Corrects perspective issues in the image by doing a 3D rotation of the frame"
+" buffer."
+msgstr "フレームバッファの3D回転を行うことで、画像の透視に関する問題を補正します。"
+
+#: ../../library/omv.image.Image.rst:1927
+msgid ""
+"``x_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the x axis (i.e. this spins the image up and down)."
+msgstr "``x_rotation`` は、フレームバッファ内の画像を x 軸周りに回転させる度数です（すなわち、これは画像を上下に回転させます）。"
+
+#: ../../library/omv.image.Image.rst:1930
+msgid ""
+"``y_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the y axis (i.e. this spins the image left and right)."
+msgstr "``y_rotation`` は、フレームバッファ内の画像を y 軸周りに回転させる度数です（すなわち、これは画像を左右に回転させます）。"
+
+#: ../../library/omv.image.Image.rst:1933
+msgid ""
+"``z_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the z axis (i.e. this spins the image in place)."
+msgstr ""
+"``z_rotation`` は、フレームバッファ内の画像を z 軸周りに回転させる度数です（すなわち、これは画像をその場で回転させます）。"
+
+#: ../../library/omv.image.Image.rst:1936
+msgid ""
+"``x_translation`` is the number of units to move the image to the left or "
+"right after rotation. Because this translation is applied in 3D space the "
+"units aren't pixels..."
+msgstr ""
+"``x_translation`` "
+"は、回転後に画像を左右に移動させる単位数です。この平行移動は3D空間で適用されるため、単位はピクセルではありません..."
+
+#: ../../library/omv.image.Image.rst:1939
+msgid ""
+"``y_translation`` is the number of units to move the image to the up or down"
+" after rotation. Because this translation is applied in 3D space the units "
+"aren't pixels..."
+msgstr ""
+"``y_translation`` "
+"は、回転後に画像を上下に移動させる単位数です。この平行移動は3D空間で適用されるため、単位はピクセルではありません..."
+
+#: ../../library/omv.image.Image.rst:1944
+msgid ""
+"``fov`` is the field-of-view used for the internal 2D->3D projection. As "
+"``fov`` approaches 0 the image is placed at infinity; as it approaches 180 "
+"the image is placed within the viewport."
+msgstr ""
+"``fov`` は、内部の 2D->3D 投影に使用される視野角です。\\ ``fov`` が 0 に近づくと画像は無限遠に配置され、180 "
+"に近づくと画像はビューポート内に配置されます。"
+
+#: ../../library/omv.image.Image.rst:1948
+msgid ""
+"``corners`` is a list of four (x, y) tuples used to build a 4-point "
+"homography mapping the corners to (0, 0), (image_width-1, 0), "
+"(image_width-1, image_height-1), and (0, image_height-1) before applying the"
+" 3D rotation. Useful for birds-eye-view transforms."
+msgstr ""
+"``corners`` は、3D回転を適用する前に、コーナーを (0, 0)、(image_width-1, 0)、(image_width-1, "
+"image_height-1)、(0, image_height-1) にマッピングする4点ホモグラフィを構築するために使用される、4つの (x, y)"
+" タプルのリストです。鳥瞰図変換に便利です。"
+
+#: ../../library/omv.image.Image.rst:1960
+msgid "Get Methods"
+msgstr "取得メソッド"
+
+#: ../../library/omv.image.Image.rst:1964
+msgid ""
+"Computes the similarity between two images using the Structural Similarity "
+"Index (SSIM). SSIM ranges from -1 (opposite) to 1 (identical). Returns an "
+"`image.similarity` object."
+msgstr ""
+"構造的類似性指標（SSIM）を使用して2つの画像間の類似性を計算します。SSIM は -1（正反対）から 1（同一）の範囲です。\\ "
+"`image.similarity` オブジェクトを返します。"
+
+#: ../../library/omv.image.Image.rst:1968
+msgid ""
+"``image`` is the image to compare to (an image object or a path string, e.g."
+" ``\"test.jpg\"``)."
+msgstr "``image`` は比較対象の画像です（画像オブジェクトまたはパス文字列、例：\\ ``\"test.jpg\"``\\ ）。"
+
+#: ../../library/omv.image.Image.rst:1971
+msgid ""
+"``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, ``rgb_channel``, ``alpha``,"
+" ``color_palette``, ``alpha_palette``, ``hint``, and ``transform`` accept "
+"the same values as `Image.draw_image()`."
+msgstr ""
+"``x``\\ 、\\ ``y``\\ 、\\ ``x_scale``\\ 、\\ ``y_scale``\\ 、\\ ``roi``\\ 、\\ "
+"``rgb_channel``\\ 、\\ ``alpha``\\ 、\\ ``color_palette``\\ 、\\ "
+"``alpha_palette``\\ 、\\ ``hint``\\ 、\\ ``transform`` は、\\ "
+"`Image.draw_image()` と同じ値を受け付けます。"
+
+#: ../../library/omv.image.Image.rst:1975
+msgid ""
+"``dssim`` if True, returns the Structural Dissimilarity Index (DSSIM) "
+"instead, where 0 means identical and 1 means completely different."
+msgstr ""
+"``dssim`` が True の場合、代わりに構造的非類似性指標（DSSIM）を返します。これは 0 が同一、1 が完全に異なることを意味します。"
+
+#: ../../library/omv.image.Image.rst:1980
+msgid ""
+"Computes the normalized histogram on all color channels for an ``roi`` and "
+"returns an `image.histogram` object. Also available as ``Image.get_hist()`` "
+"or ``Image.histogram()``."
+msgstr ""
+"``roi`` についてすべてのカラーチャンネルの正規化ヒストグラムを計算し、\\ `image.histogram` オブジェクトを返します。\\ "
+"``Image.get_hist()`` または ``Image.histogram()`` としても利用できます。"
+
+#: ../../library/omv.image.Image.rst:1984
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. If "
+"passed, the histogram is computed only over pixels within the thresholds."
+msgstr ""
+"``thresholds`` は、グレースケール画像の場合は ``(lo, hi)`` タプルのリスト、RGB565 画像の場合は ``(l_lo, "
+"l_hi, a_lo, a_hi, b_lo, b_hi)`` "
+"タプルのリストです。指定された場合、ヒストグラムはしきい値内のピクセルのみについて計算されます。"
+
+#: ../../library/omv.image.Image.rst:1990
+#: ../../library/omv.image.Image.rst:2015
+#: ../../library/omv.image.Image.rst:2037
+#: ../../library/omv.image.Image.rst:2067
+#: ../../library/omv.image.Image.rst:2100
+#: ../../library/omv.image.Image.rst:2120
+#: ../../library/omv.image.Image.rst:2136
+#: ../../library/omv.image.Image.rst:2161
+#: ../../library/omv.image.Image.rst:2174
+#: ../../library/omv.image.Image.rst:2184
+#: ../../library/omv.image.Image.rst:2217
+#: ../../library/omv.image.Image.rst:2238
+#: ../../library/omv.image.Image.rst:2278
+#: ../../library/omv.image.Image.rst:2303
+#: ../../library/omv.image.Image.rst:2332
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h). Defaults to "
+"the image rectangle."
+msgstr "``roi`` は関心領域の矩形タプル (x, y, w, h) です。デフォルトは画像矩形です。"
+
+#: ../../library/omv.image.Image.rst:1993
+#: ../../library/omv.image.Image.rst:2018
+msgid ""
+"``bins`` (grayscale) or ``l_bins``/``a_bins``/``b_bins`` (RGB565) set the "
+"number of histogram bins per channel. Must be greater than 2. Defaults to "
+"the maximum bins per channel."
+msgstr ""
+"``bins``\\ （グレースケール）または ``l_bins``/``a_bins``/``b_bins``\\ "
+"（RGB565）は、チャンネルごとのヒストグラムビン数を設定します。2 より大きい必要があります。デフォルトはチャンネルごとの最大ビン数です。"
+
+#: ../../library/omv.image.Image.rst:1997
+#: ../../library/omv.image.Image.rst:2022
+msgid ""
+"``difference`` may be set to an image object to operate on the difference "
+"between the current image and that image without an extra buffer."
+msgstr "``difference`` に画像オブジェクトを設定すると、追加のバッファなしで、現在の画像とその画像との差分に対して操作できます。"
+
+#: ../../library/omv.image.Image.rst:2004
+msgid ""
+"Computes the mean, median, mode, standard deviation, min, max, lower "
+"quartile, and upper quartile for all color channels for an ``roi`` and "
+"returns an `image.statistics` object. Also available as "
+"``Image.get_stats()`` or ``Image.statistics()``."
+msgstr ""
+"``roi`` についてすべてのカラーチャンネルの平均、中央値、最頻値、標準偏差、最小、最大、第1四分位数、第3四分位数を計算し、\\ "
+"`image.statistics` オブジェクトを返します。\\ ``Image.get_stats()`` または "
+"``Image.statistics()`` としても利用できます。"
+
+#: ../../library/omv.image.Image.rst:2009
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. If "
+"passed, statistics are computed only over pixels within the thresholds."
+msgstr ""
+"``thresholds`` は、グレースケール画像の場合は ``(lo, hi)`` タプルのリスト、RGB565 画像の場合は ``(l_lo, "
+"l_hi, a_lo, a_hi, b_lo, b_hi)`` タプルのリストです。指定された場合、統計はしきい値内のピクセルのみについて計算されます。"
+
+#: ../../library/omv.image.Image.rst:2029
+msgid ""
+"Computes a linear regression (Theil-Sen) on all the thresholded pixels in "
+"the image. Returns an `image.line` object, or None if no line was found."
+msgstr ""
+"画像内のしきい値処理されたすべてのピクセルに対して線形回帰（Theil-Sen）を計算します。\\ `image.line` "
+"オブジェクトを返すか、線が見つからなかった場合は None を返します。"
+
+#: ../../library/omv.image.Image.rst:2032
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images."
+msgstr ""
+"``thresholds`` は、グレースケール画像の場合は ``(lo, hi)`` タプルのリスト、RGB565 画像の場合は ``(l_lo, "
+"l_hi, a_lo, a_hi, b_lo, b_hi)`` タプルのリストです。"
+
+#: ../../library/omv.image.Image.rst:2040
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped over while"
+" evaluating the image."
+msgstr "``x_stride`` と ``y_stride`` は、画像を評価する際にスキップするピクセル数を制御します。"
+
+#: ../../library/omv.image.Image.rst:2043
+msgid ""
+"``area_threshold`` minimum bounding box area; smaller results return None."
+msgstr "``area_threshold`` は最小バウンディングボックス面積です。これより小さい結果は None を返します。"
+
+#: ../../library/omv.image.Image.rst:2045
+msgid ""
+"``pixels_threshold`` minimum thresholded pixel count; smaller results return"
+" None."
+msgstr "``pixels_threshold`` は最小しきい値処理ピクセル数です。これより小さい結果は None を返します。"
+
+#: ../../library/omv.image.Image.rst:2047
+msgid ""
+"``target_size`` is a ``(w, h)`` tuple. The ROI is area-scaled down to fit "
+"inside this size before running the O(N^2) algorithm. Defaults to ``(80, "
+"60)``."
+msgstr ""
+"``target_size`` は ``(w, h)`` タプルです。O(N^2) アルゴリズムを実行する前に、ROI "
+"はこのサイズ内に収まるように面積スケーリングで縮小されます。デフォルトは ``(80, 60)`` です。"
+
+#: ../../library/omv.image.Image.rst:2053
+msgid "Detection Methods"
+msgstr "検出メソッド"
+
+#: ../../library/omv.image.Image.rst:2057
+msgid ""
+"Finds all blobs (connected pixel regions that pass a threshold test) in the "
+"image and returns a list of `image.blob` objects."
+msgstr "画像内のすべてのブロブ（しきい値テストを通過する連結ピクセル領域）を見つけ、\\ `image.blob` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2060
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images (LAB "
+"channels). Up to 32 tuples may be passed. Swapped min/max values are auto-"
+"fixed; missing components default to maximum range."
+msgstr ""
+"``thresholds`` は、グレースケール画像の場合は ``(lo, hi)`` タプルのリスト、RGB565 画像の場合は ``(l_lo, "
+"l_hi, a_lo, a_hi, b_lo, b_hi)`` タプル（LAB チャンネル）のリストです。最大32個のタプルを渡せます。min/max "
+"値が入れ替わっている場合は自動的に修正され、欠けている要素はデフォルトで最大範囲になります。"
+
+#: ../../library/omv.image.Image.rst:2070
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped while "
+"searching for a blob. Increase if blobs are known to be large."
+msgstr ""
+"``x_stride`` と ``y_stride`` "
+"は、ブロブを探索する際にスキップするピクセル数を制御します。ブロブが大きいことがわかっている場合は増やしてください。"
+
+#: ../../library/omv.image.Image.rst:2073
+msgid ""
+"``area_threshold`` minimum bounding box area; smaller blobs are filtered."
+msgstr "``area_threshold`` は最小バウンディングボックス面積です。これより小さいブロブはフィルタされます。"
+
+#: ../../library/omv.image.Image.rst:2075
+msgid ""
+"``pixels_threshold`` minimum thresholded pixel count; smaller blobs are "
+"filtered."
+msgstr "``pixels_threshold`` は最小しきい値処理ピクセル数です。これより小さいブロブはフィルタされます。"
+
+#: ../../library/omv.image.Image.rst:2077
+msgid ""
+"``merge`` if True merges blobs whose bounding rectangles intersect. "
+"``margin`` grows/shrinks the bounding rectangles used for intersection. "
+"Merged blobs OR their ``code`` bit vectors together (one bit per threshold)."
+msgstr ""
+"``merge`` が True の場合、バウンディング矩形が交差するブロブをマージします。\\ ``margin`` "
+"は交差判定に使用するバウンディング矩形を拡大／縮小します。マージされたブロブは、それぞれの ``code`` ビットベクトルを OR "
+"で結合します（しきい値ごとに1ビット）。"
+
+#: ../../library/omv.image.Image.rst:2081
+msgid ""
+"``threshold_cb`` is called per blob after thresholding; return True to keep,"
+" False to filter."
+msgstr ""
+"``threshold_cb`` は、しきい値処理後にブロブごとに呼び出されます。保持するには True、フィルタするには False を返します。"
+
+#: ../../library/omv.image.Image.rst:2084
+msgid ""
+"``merge_cb`` is called per pair of blobs about to be merged; return True to "
+"allow the merge, False to prevent it."
+msgstr ""
+"``merge_cb`` は、マージされようとしているブロブのペアごとに呼び出されます。マージを許可するには True、防ぐには False "
+"を返します。"
+
+#: ../../library/omv.image.Image.rst:2087
+msgid ""
+"``x_hist_bins_max`` if non-zero, populates each blob with an x_histogram "
+"projection using this many bins."
+msgstr "``x_hist_bins_max`` がゼロでない場合、この数のビンを使用した x_histogram 投影で各ブロブを埋めます。"
+
+#: ../../library/omv.image.Image.rst:2090
+msgid ""
+"``y_hist_bins_max`` if non-zero, populates each blob with a y_histogram "
+"projection using this many bins."
+msgstr "``y_hist_bins_max`` がゼロでない場合、この数のビンを使用した y_histogram 投影で各ブロブを埋めます。"
+
+#: ../../library/omv.image.Image.rst:2097
+msgid ""
+"Finds all infinite lines in the image using the hough transform. Returns a "
+"list of `image.line` objects."
+msgstr "ハフ変換を使用して画像内のすべての無限直線を見つけます。\\ `image.line` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2103
+#: ../../library/omv.image.Image.rst:2139
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped during the"
+" hough transform."
+msgstr "``x_stride`` と ``y_stride`` は、ハフ変換中にスキップするピクセル数を制御します。"
+
+#: ../../library/omv.image.Image.rst:2106
+msgid ""
+"``threshold`` minimum line magnitude (sum of sobel magnitudes along the "
+"line); lines below this are filtered out."
+msgstr "``threshold`` は最小の線の大きさ（線に沿ったソーベル強度の合計）です。これを下回る線はフィルタアウトされます。"
+
+#: ../../library/omv.image.Image.rst:2109
+msgid ""
+"``theta_margin`` and ``rho_margin`` control merging: lines within these "
+"thresholds are merged."
+msgstr "``theta_margin`` と ``rho_margin`` はマージを制御します。これらのしきい値内にある線はマージされます。"
+
+#: ../../library/omv.image.Image.rst:2118
+msgid ""
+"Finds line segments in the image. Returns a list of `image.line` objects."
+msgstr "画像内の線分を見つけます。\\ `image.line` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2123
+msgid ""
+"``merge_distance`` is the maximum pixel separation between two segments to "
+"be merged."
+msgstr "``merge_distance`` は、2つの線分がマージされるための最大ピクセル間隔です。"
+
+#: ../../library/omv.image.Image.rst:2126
+msgid ""
+"``max_theta_difference`` is the maximum theta difference in degrees between "
+"segments to be merged."
+msgstr "``max_theta_difference`` は、線分間でマージされるための最大シータ差（度単位）です。"
+
+#: ../../library/omv.image.Image.rst:2133
+msgid ""
+"Finds circles in the image using the hough transform. Returns a list of "
+"`image.circle` objects."
+msgstr "ハフ変換を使用して画像内の円を見つけます。\\ `image.circle` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2142
+msgid ""
+"``threshold`` minimum circle magnitude (sum of sobel magnitudes along the "
+"circle); circles below this are filtered out."
+msgstr "``threshold`` は最小の円の大きさ（円に沿ったソーベル強度の合計）です。これを下回る円はフィルタアウトされます。"
+
+#: ../../library/omv.image.Image.rst:2145
+msgid ""
+"``x_margin``, ``y_margin``, and ``r_margin`` control merging: circles within"
+" these thresholds are merged."
+msgstr ""
+"``x_margin``\\ 、\\ ``y_margin``\\ 、\\ ``r_margin`` "
+"はマージを制御します。これらのしきい値内にある円はマージされます。"
+
+#: ../../library/omv.image.Image.rst:2148
+msgid "``r_min`` minimum circle radius. Defaults to 2."
+msgstr "``r_min`` は最小の円の半径です。デフォルトは 2 です。"
+
+#: ../../library/omv.image.Image.rst:2150
+msgid ""
+"``r_max`` maximum circle radius. Defaults to ``min(roi.w/2, roi.h/2)``."
+msgstr "``r_max`` は最大の円の半径です。デフォルトは ``min(roi.w/2, roi.h/2)`` です。"
+
+#: ../../library/omv.image.Image.rst:2152
+msgid "``r_step`` radius step size. Defaults to 2."
+msgstr "``r_step`` は半径のステップサイズです。デフォルトは 2 です。"
+
+#: ../../library/omv.image.Image.rst:2158
+msgid ""
+"Finds rectangles in the image using the apriltag quad detection algorithm. "
+"Returns a list of `image.rect` objects."
+msgstr ""
+"apriltag のクワッド検出アルゴリズムを使用して画像内の矩形を見つけます。\\ `image.rect` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2164
+msgid ""
+"``threshold`` minimum edge magnitude (sum of sobel magnitudes along the "
+"rectangle edges); rectangles below this are filtered out."
+msgstr ""
+"``threshold`` は最小のエッジの大きさ（矩形のエッジに沿ったソーベル強度の合計）です。これを下回る矩形はフィルタアウトされます。"
+
+#: ../../library/omv.image.Image.rst:2171
+msgid ""
+"Finds all qrcodes within the ``roi`` and returns a list of `image.qrcode` "
+"objects."
+msgstr "``roi`` 内のすべての qrcode を見つけ、\\ `image.qrcode` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2181
+msgid ""
+"Finds all apriltags within the ``roi`` and returns a list of "
+"`image.apriltag` objects."
+msgstr "``roi`` 内のすべての apriltag を見つけ、\\ `image.apriltag` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2187
+msgid ""
+"``families`` is a bitmask of tag families to decode. It is the logical OR "
+"of:"
+msgstr "``families`` はデコードするタグファミリーのビットマスクです。以下の論理 OR です。"
+
+#: ../../library/omv.image.Image.rst:2190
+msgid "`image.TAG16H5`"
+msgstr "`image.TAG16H5`"
+
+#: ../../library/omv.image.Image.rst:2191
+msgid "`image.TAG25H9`"
+msgstr "`image.TAG25H9`"
+
+#: ../../library/omv.image.Image.rst:2192
+msgid "`image.TAG36H10`"
+msgstr "`image.TAG36H10`"
+
+#: ../../library/omv.image.Image.rst:2193
+msgid "`image.TAG36H11`"
+msgstr "`image.TAG36H11`"
+
+#: ../../library/omv.image.Image.rst:2194
+msgid "`image.TAGCIRCLE21H7`"
+msgstr "`image.TAGCIRCLE21H7`"
+
+#: ../../library/omv.image.Image.rst:2195
+msgid "`image.TAGCIRCLE49H12`"
+msgstr "`image.TAGCIRCLE49H12`"
+
+#: ../../library/omv.image.Image.rst:2196
+msgid "`image.TAGCUSTOM48H12`"
+msgstr "`image.TAGCUSTOM48H12`"
+
+#: ../../library/omv.image.Image.rst:2197
+msgid "`image.TAGSTANDARD41H12`"
+msgstr "`image.TAGSTANDARD41H12`"
+
+#: ../../library/omv.image.Image.rst:2198
+msgid "`image.TAGSTANDARD52H13`"
+msgstr "`image.TAGSTANDARD52H13`"
+
+#: ../../library/omv.image.Image.rst:2200
+msgid ""
+"Defaults to `image.TAG36H11`. Detection time scales with the number of "
+"enabled families."
+msgstr "デフォルトは `image.TAG36H11` です。検出時間は有効なファミリーの数に比例します。"
+
+#: ../../library/omv.image.Image.rst:2203
+msgid "``fx`` and ``fy`` are the camera X and Y focal lengths in pixels."
+msgstr "``fx`` と ``fy`` は、カメラの X および Y 方向の焦点距離（ピクセル単位）です。"
+
+#: ../../library/omv.image.Image.rst:2205
+msgid ""
+"``cx`` and ``cy`` are the image center, typically ``image.width()/2`` and "
+"``image.height()/2``."
+msgstr ""
+"``cx`` と ``cy`` は画像の中心で、通常は ``image.width()/2`` と ``image.height()/2`` です。"
+
+#: ../../library/omv.image.Image.rst:2214
+msgid ""
+"Finds all datamatrices within the ``roi`` and returns a list of "
+"`image.datamatrix` objects."
+msgstr "``roi`` 内のすべての datamatrix を見つけ、\\ `image.datamatrix` オブジェクトのリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2220
+msgid ""
+"``effort`` controls how much time to spend trying to find data matrix "
+"matches. Higher values improve detection at the cost of frame rate. Values "
+"below ~160 fail to detect; values above ~240 yield diminishing returns. "
+"Defaults to 200."
+msgstr ""
+"``effort`` "
+"は、データマトリックスのマッチを見つけるのにどれだけの時間を費やすかを制御します。値が高いほど検出が向上しますが、フレームレートが犠牲になります。約160を下回る値は検出に失敗し、約240を上回る値は効果が逓減します。デフォルトは"
+" 200 です。"
+
+#: ../../library/omv.image.Image.rst:2229
+msgid ""
+"Finds all 1D barcodes within the ``roi`` and returns a list of "
+"`image.barcode` objects. Scans both horizontally and vertically."
+msgstr ""
+"``roi`` 内のすべての1Dバーコードを見つけ、\\ `image.barcode` "
+"オブジェクトのリストを返します。水平方向と垂直方向の両方をスキャンします。"
+
+#: ../../library/omv.image.Image.rst:2232
+msgid ""
+"Supported barcode types: `image.EAN2`, `image.EAN5`, `image.EAN8`, "
+"`image.UPCE`, `image.ISBN10`, `image.UPCA`, `image.EAN13`, `image.ISBN13`, "
+"`image.I25`, `image.DATABAR` (RSS-14), `image.DATABAR_EXP` (RSS-Expanded), "
+"`image.CODABAR`, `image.CODE39`, `image.PDF417`, `image.CODE93`, "
+"`image.CODE128`."
+msgstr ""
+"サポートされるバーコードタイプ：\\ `image.EAN2`\\ 、\\ `image.EAN5`\\ 、\\ `image.EAN8`\\ 、\\ "
+"`image.UPCE`\\ 、\\ `image.ISBN10`\\ 、\\ `image.UPCA`\\ 、\\ `image.EAN13`\\ "
+"、\\ `image.ISBN13`\\ 、\\ `image.I25`\\ 、\\ `image.DATABAR`\\ （RSS-14）、\\ "
+"`image.DATABAR_EXP`\\ （RSS-Expanded）、\\ `image.CODABAR`\\ 、\\ "
+"`image.CODE39`\\ 、\\ `image.PDF417`\\ 、\\ `image.CODE93`\\ 、\\ "
+"`image.CODE128`\\ 。"
+
+#: ../../library/omv.image.Image.rst:2245
+msgid ""
+"Find the translation offset of this image from ``template`` using phase "
+"correlation. Returns an `image.displacement` object."
+msgstr ""
+"位相相関を使用して、この画像の ``template`` からの平行移動オフセットを見つけます。\\ `image.displacement` "
+"オブジェクトを返します。"
+
+#: ../../library/omv.image.Image.rst:2248
+msgid ""
+"``roi`` is the region-of-interest rectangle (x, y, w, h). Defaults to the "
+"image rectangle."
+msgstr "``roi`` は関心領域の矩形 (x, y, w, h) です。デフォルトは画像矩形です。"
+
+#: ../../library/omv.image.Image.rst:2251
+msgid ""
+"``template_roi`` is the template's region-of-interest. Defaults to the "
+"template image rectangle. ``roi`` and ``template_roi`` must have the same "
+"width and height."
+msgstr ""
+"``template_roi`` はテンプレートの関心領域です。デフォルトはテンプレート画像矩形です。\\ ``roi`` と "
+"``template_roi`` は同じ幅と高さを持つ必要があります。"
+
+#: ../../library/omv.image.Image.rst:2255
+msgid ""
+"``logpolar`` if True returns rotation/scale change instead of x/y "
+"translation."
+msgstr "``logpolar`` が True の場合、x/y 平行移動の代わりに回転／スケール変化を返します。"
+
+#: ../../library/omv.image.Image.rst:2258
+msgid ""
+"``fix_rotation_scale`` if True, computes displacement after aligning "
+"rotation and scale (only meaningful when ``logpolar=False``)."
+msgstr ""
+"``fix_rotation_scale`` が True の場合、回転とスケールを整合させた後に変位を計算します（\\ "
+"``logpolar=False`` のときのみ意味があります）。"
+
+#: ../../library/omv.image.Image.rst:2263
+msgid "Use this method on power-of-2 image sizes (e.g. `sensor.B64X64`)."
+msgstr "このメソッドは2のべき乗の画像サイズ（例：\\ `sensor.B64X64`\\ ）で使用してください。"
+
+#: ../../library/omv.image.Image.rst:2265
+msgid ""
+"Not supported on compressed images or bayer images. Not available on the "
+"OpenMV Cam M4."
+msgstr "圧縮画像や bayer 画像ではサポートされていません。OpenMV Cam M4 では利用できません。"
+
+#: ../../library/omv.image.Image.rst:2269
+msgid ""
+"Tries to find the first location in the image where ``template`` matches "
+"using Normalized Cross Correlation. Returns a bounding box tuple (x, y, w, "
+"h), or None."
+msgstr ""
+"正規化相互相関を使用して、\\ ``template`` がマッチする画像内の最初の位置を見つけようとします。バウンディングボックスタプル (x, y,"
+" w, h)、または None を返します。"
+
+#: ../../library/omv.image.Image.rst:2273
+msgid "``template`` is a grayscale image to match against this image."
+msgstr "``template`` は、この画像と照合するグレースケール画像です。"
+
+#: ../../library/omv.image.Image.rst:2275
+msgid ""
+"``threshold`` is a value (0.0-1.0). Higher values reduce false positives and"
+" detections; lower values do the opposite."
+msgstr "``threshold`` は値 (0.0-1.0) です。値が高いほど誤検出や検出が減り、値が低いほどその逆になります。"
+
+#: ../../library/omv.image.Image.rst:2281
+msgid ""
+"``step`` is the number of pixels to skip while searching (only used in "
+"``image.SEARCH_EX`` mode)."
+msgstr "``step`` は、探索中にスキップするピクセル数です（\\ ``image.SEARCH_EX`` モードでのみ使用されます）。"
+
+#: ../../library/omv.image.Image.rst:2284
+msgid ""
+"``search`` is ``image.SEARCH_DS`` (faster diamond search) or "
+"``image.SEARCH_EX`` (exhaustive search)."
+msgstr ""
+"``search`` は ``image.SEARCH_DS``\\ （より高速なダイヤモンド探索）または ``image.SEARCH_EX``\\ "
+"（網羅的探索）です。"
+
+#: ../../library/omv.image.Image.rst:2287
+#: ../../library/omv.image.Image.rst:2314
+#: ../../library/omv.image.Image.rst:2324
+#: ../../library/omv.image.Image.rst:2347
+#: ../../library/omv.image.Image.rst:2360
+#: ../../library/omv.image.Image.rst:2371
+msgid "Only works on grayscale images."
+msgstr "グレースケール画像でのみ動作します。"
+
+#: ../../library/omv.image.Image.rst:2291
+msgid ""
+"Searches the image for areas matching the passed Haar cascade and returns a "
+"list of bounding box tuples (x, y, w, h). Returns an empty list if no "
+"features are found."
+msgstr ""
+"渡された Haar カスケードにマッチする領域を画像内で探索し、バウンディングボックスタプル (x, y, w, h) "
+"のリストを返します。特徴が見つからなかった場合は空のリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2295
+msgid "``cascade`` is a Haar Cascade object (see `image.HaarCascade()`)."
+msgstr "``cascade`` は Haar カスケードオブジェクトです（\\ `image.HaarCascade()` を参照）。"
+
+#: ../../library/omv.image.Image.rst:2297
+msgid ""
+"``threshold`` (0.0-1.0). Lower values raise the detection rate and the "
+"false-positive rate."
+msgstr "``threshold`` (0.0-1.0)。値が低いほど検出率と誤検出率が上がります。"
+
+#: ../../library/omv.image.Image.rst:2300
+msgid ""
+"``scale`` must be greater than 1.0. Higher values run faster but produce "
+"poorer matches."
+msgstr "``scale`` は 1.0 より大きい必要があります。値が高いほど高速に動作しますが、マッチの精度は低下します。"
+
+#: ../../library/omv.image.Image.rst:2308
+msgid ""
+"Searches for the pupil in a region-of-interest (x, y, w, h) tuple around an "
+"eye. Returns the (x, y) location of the pupil, or (0, 0) if none is found."
+msgstr ""
+"目の周りの関心領域 (x, y, w, h) タプル内で瞳孔を探索します。瞳孔の (x, y) 位置、または見つからなかった場合は (0, 0) "
+"を返します。"
+
+#: ../../library/omv.image.Image.rst:2312
+#: ../../library/omv.image.Image.rst:2322
+msgid "``roi`` is the region-of-interest rectangle tuple (x, y, w, h)."
+msgstr "``roi`` は関心領域の矩形タプル (x, y, w, h) です。"
+
+#: ../../library/omv.image.Image.rst:2318
+msgid ""
+"Extracts LBP (local-binary-patterns) keypoints from the region-of-interest. "
+"Use `image.match_descriptor()` to compare two descriptors."
+msgstr ""
+"関心領域から LBP（local-binary-patterns）キーポイントを抽出します。2つのディスクリプタを比較するには "
+"`image.match_descriptor()` を使用してください。"
+
+#: ../../library/omv.image.Image.rst:2328
+msgid ""
+"Extracts ORB keypoints from the region-of-interest. Use "
+"`image.match_descriptor()` to compare two descriptors. Returns None if no "
+"keypoints were found."
+msgstr ""
+"関心領域から ORB キーポイントを抽出します。2つのディスクリプタを比較するには `image.match_descriptor()` "
+"を使用してください。キーポイントが見つからなかった場合は None を返します。"
+
+#: ../../library/omv.image.Image.rst:2335
+msgid ""
+"``threshold`` (0-255) controls the number of extracted corners. Lower "
+"thresholds produce more corners. Use ~20 for AGAST, ~60-80 for FAST."
+msgstr ""
+"``threshold`` (0-255) は抽出されるコーナーの数を制御します。しきい値が低いほど多くのコーナーが生成されます。AGAST "
+"には約20、FAST には約60-80を使用してください。"
+
+#: ../../library/omv.image.Image.rst:2338
+msgid "``normalized`` if True, disables multi-resolution keypoint extraction."
+msgstr "``normalized`` が True の場合、マルチ解像度キーポイント抽出を無効にします。"
+
+#: ../../library/omv.image.Image.rst:2340
+msgid ""
+"``scale_factor`` must be greater than 1.0. Higher values run faster but "
+"produce poorer matches."
+msgstr "``scale_factor`` は 1.0 より大きい必要があります。値が高いほど高速に動作しますが、マッチの精度は低下します。"
+
+#: ../../library/omv.image.Image.rst:2343
+msgid "``max_keypoints`` is the maximum number of keypoints to retain."
+msgstr "``max_keypoints`` は保持するキーポイントの最大数です。"
+
+#: ../../library/omv.image.Image.rst:2345
+msgid "``corner_detector`` is `image.CORNER_FAST` or `image.CORNER_AGAST`."
+msgstr ""
+"``corner_detector`` は `image.CORNER_FAST` または `image.CORNER_AGAST` です。"
+
+#: ../../library/omv.image.Image.rst:2351
+msgid ""
+"Turns the image to black and white leaving only the edges as white pixels."
+msgstr "画像を白黒に変換し、エッジのみを白いピクセルとして残します。"
+
+#: ../../library/omv.image.Image.rst:2353
+msgid "image.EDGE_SIMPLE - Simple thresholded high pass filter algorithm."
+msgstr "image.EDGE_SIMPLE - 単純なしきい値処理されたハイパスフィルタアルゴリズムです。"
+
+#: ../../library/omv.image.Image.rst:2354
+msgid "image.EDGE_CANNY - Canny edge detection algorithm."
+msgstr "image.EDGE_CANNY - Canny エッジ検出アルゴリズムです。"
+
+#: ../../library/omv.image.Image.rst:2356
+msgid ""
+"``threshold`` is a two valued tuple containing a low threshold and high "
+"threshold. You can control the quality of edges by adjusting these values. "
+"It defaults to (100, 200)."
+msgstr ""
+"``threshold`` は、低しきい値と高しきい値を含む2要素タプルです。これらの値を調整することでエッジの品質を制御できます。デフォルトは "
+"(100, 200) です。"
+
+#: ../../library/omv.image.Image.rst:2364
+msgid ""
+"Replaces the pixels in the ROI with HOG (histogram of orientated graidients)"
+" lines."
+msgstr "ROI 内のピクセルを HOG（histogram of orientated gradients）の線で置き換えます。"
+
+#: ../../library/omv.image.Image.rst:2367
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h). If not "
+"specified, it is equal to the image rectangle. Only pixels within the "
+"``roi`` are operated on."
+msgstr ""
+"``roi`` は関心領域の矩形タプル (x, y, w, h) です。指定されない場合は画像矩形に等しくなります。\\ ``roi`` "
+"内のピクセルのみが操作されます。"
+
+#: ../../library/omv.image.Image.rst:2377
+msgid ""
+"Takes a double-wide grayscale image containing the output of two side-by-"
+"side camera sensors and replaces one half with the stereo disparity image "
+"(each pixel represents depth). E.g. for two 320x240 cameras pass a 640x240 "
+"image."
+msgstr ""
+"2つの並んだカメラセンサーの出力を含む横幅2倍のグレースケール画像を受け取り、片方を立体視差画像（各ピクセルが深度を表す）で置き換えます。例えば、320x240"
+" のカメラ2台の場合は 640x240 の画像を渡します。"
+
+#: ../../library/omv.image.Image.rst:2381
+msgid ""
+"``reversed`` By default the left image is compared to the right and the "
+"right image is replaced. Set True to compare right->left and replace the "
+"left image."
+msgstr ""
+"``reversed`` デフォルトでは左の画像が右と比較され、右の画像が置き換えられます。右->左 で比較して左の画像を置き換えるには True "
+"に設定します。"
+
+#: ../../library/omv.image.Image.rst:2384
+msgid ""
+"``max_disparity`` is the maximum distance (1-255) to search for a matching "
+"pixel block using sum-of-absolute differences. Larger values take "
+"exponentially longer but produce higher quality output."
+msgstr ""
+"``max_disparity`` は、絶対差分の合計を使用してマッチするピクセルブロックを探索する最大距離 (1-255) "
+"です。値が大きいほど指数関数的に時間がかかりますが、より高品質な出力を生成します。"
+
+#: ../../library/omv.image.Image.rst:2388
+msgid ""
+"``threshold`` if the sum-of-absolute differences between two blocks is less "
+"than or equal to this threshold they are considered matching."
+msgstr "``threshold`` 2つのブロック間の絶対差分の合計がこのしきい値以下である場合、それらはマッチしているとみなされます。"
+
+#: ../../library/omv.image.Image.rst:2393
+msgid ""
+"Runs selective search on the image and returns a list of bounding box tuples"
+" (x, y, w, h) of object proposals."
+msgstr "画像に対して選択的探索を実行し、オブジェクト候補のバウンディングボックスタプル (x, y, w, h) のリストを返します。"
+
+#: ../../library/omv.image.Image.rst:2396
+msgid ""
+"``threshold`` is the segmentation threshold; higher values produce "
+"fewer/larger regions."
+msgstr "``threshold`` はセグメンテーションのしきい値です。値が高いほど、より少なく／より大きな領域が生成されます。"
+
+#: ../../library/omv.image.Image.rst:2399
+msgid "``size`` is the minimum region size after merging."
+msgstr "``size`` はマージ後の最小領域サイズです。"
+
+#: ../../library/omv.image.Image.rst:2401
+msgid ""
+"``a1``, ``a2``, ``a3`` are the color/texture/size similarity weights used "
+"when merging regions."
+msgstr "``a1``\\ 、\\ ``a2``\\ 、\\ ``a3`` は、領域をマージする際に使用される色／テクスチャ／サイズの類似度の重みです。"

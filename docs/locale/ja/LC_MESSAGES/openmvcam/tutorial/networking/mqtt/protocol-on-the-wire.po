@@ -1,0 +1,401 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT をバイト単位で見る"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"この時点で、カメラはオープンなインターネット上の実サービスと通信するために必要なすべての要素を備えています。すなわち TCP ソケット、それをラップする"
+" TLS、相手に名前を付ける DNS、そして接続が開いている間に同じスクリプトが他の作業を行えるようにする asyncio です。MQTT "
+"は、これらすべてをまとめて、実際に出荷される製品が使うものへと仕立て上げる最初のワイヤープロトコルです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"このページではプロトコルそのもの、つまりワイヤー上のフォーマット、各参加者が果たす役割、そして設計上のトレードオフを扱います。これらを十分に正直に説明することで、付属の"
+" :mod:`mqtt` "
+"クライアントが、すでに分かっていることを当然のように包んだものに見え、信仰の飛躍のようには感じられないようにすることが狙いです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "パブリッシュ/サブスクライブ対リクエスト/レスポンス"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"HTTP は、ほとんどのカメラプロジェクトが最初に手を伸ばすプロトコルですが、これは *リクエスト/レスポンス* "
+"型です。クライアントが特定のサーバーに特定のリソースを要求し、サーバーが応答します。すべてのやり取りは一対一で、両端が事前に互いのアドレスを知っています。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT は *パブリッシュ/サブスクライブ* 型です。クライアントは中間に位置する第三者である **ブローカー** に接続します。\\ "
+"*パブリッシャー* は、誰が聞いているかを知ることも気にすることもなく、名前の付いた **トピック** にメッセージを送ります。\\ "
+"*サブスクライバー* "
+"は、どのトピックが欲しいかをブローカーに伝え、それ以降そのトピックに発行されたすべてのメッセージを受信します。ブローカーはファンアウトの役割を担います。\\"
+" ``yard-cam/motion`` への 1 回のパブリッシュは、その購読者がゼロ台でも 1 台でも 50 台でも、\\ ``yard-"
+"cam/motion`` を購読しているすべてのデバイスに届きます。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "このモデルの変化から、次の 3 つのことが導かれます。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**疎結合。** "
+"パブリッシャーはサブスクライバーが存在することを知る必要がありません。サブスクライバーはパブリッシャーに気づかれることなく現れたり消えたりできます。2 "
+"つ目のダッシュボードを追加するのは、新しいダッシュボード側のコード 1 行で済み、カメラは変更されません。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**ファンアウト。** ブローカーがすべての複製を処理するため、カメラは何台のデバイスが読み取るかに関係なくパケットを 1 つ送ります。これこそが "
+"MQTT が作られた目的のユースケースです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**非対称性。** "
+"ブローカーは今や必須のインフラとなり、これがなければプロトコルは機能しません。家庭向けプロジェクトでは、通常これは無料の公開ブローカー（\\ "
+"``test.mosquitto.org``\\ 、\\ ``broker.hivemq.com``\\ ）か、自分で運用する小さなものになります。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"1 台のカメラがブローカー上の yard-cam/motion トピックにパブリッシュし、\n"
+"2 つのブラウザダッシュボードと 1 つのクラウドアーカイバーが\n"
+"それぞれ同じメッセージを受信する様子。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "トピック"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr "トピックはスラッシュ区切りの文字列です。慣例として、左側が最も一般的、右側が最も具体的になります::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr "*サブスクリプション* では 2 つのワイルドカードが使えます（パブリッシュでは使えません）。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` は 1 レベルにマッチします。\\ ``+/motion`` はすべてのカメラの motion トピックを購読し、\\ ``yard-"
+"cam/+`` はすべての yard-cam サブトピックを購読します。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` は末尾の 1 レベル以上にマッチします。\\ ``yard-cam/#`` は ``yard-cam/motion``\\ 、\\ "
+"``yard-cam/temperature``\\ 、\\ ``yard-cam/temperature/sensor-3``\\ 、そして "
+"``yard-cam/`` の下にあるその他すべてを購読します。これはサブスクリプションの末尾に現れる必要があります。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"トピック文字列は大文字と小文字を区別します。仕様により、先頭の ``$`` はブローカー内部のトピック（\\ ``$SYS/...``\\ "
+"）を示し、パブリッシャーはそこに書き込むべきではありません。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "パケットフォーマット"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"MQTT は TCP 上で動作します。すべての制御パケットは 1 バイトの *固定ヘッダー* で始まり、続いて可変長の *Remaining "
+"Length* フィールド、その後にパケットタイプ固有の *可変ヘッダー*\\ 、そして *ペイロード* "
+"が続きます。同じ外側のフォーマットが、CONNECT、PUBLISH、SUBSCRIBE、PUBACK、DISCONNECT "
+"などすべてのコマンドをカバーします。だからこそ MQTT クライアントは数百行で書けるのです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"MQTT PUBLISH パケットのバイトレイアウト。固定ヘッダーの\n"
+"タイプおよびフラグバイト、可変長の Remaining Length\n"
+"フィールド、トピック名、オプションのパケット識別子、\n"
+"そしてペイロードバイトを示しています。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "固定ヘッダーは 1 バイトです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"ビット 7..4 は **制御パケットタイプ** です。\\ ``0x3`` は PUBLISH です（そのため最初のバイトは通常 ``0x3?`` "
+"で始まります）。\\ ``0x1`` は CONNECT、\\ ``0x2`` は CONNACK、\\ ``0x8`` は SUBSCRIBE、\\ "
+"``0xC`` は PINGREQ、\\ ``0xE`` は DISCONNECT などです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"ビット 3..0 はパケットタイプ固有の **フラグ** です。PUBLISH の場合、フラグは DUP 再送フラグ、QoS レベル（2 "
+"ビット）、および RETAIN フラグをエンコードします。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"Remaining Length は、それ自身より後ろのすべてのバイトを数える 1 ～ 4 "
+"バイトの可変長整数です。各バイトの最上位ビットは継続マーカーで、1 は「別の長さバイトが続く」、0 は「これが最後」を意味します。128 未満の長さは "
+"1 バイトに収まり、より大きなペイロードはより多くのバイトを使います。エンコード可能な最大長は 256 MiB です。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"PUBLISH の場合、可変ヘッダーはトピック名（2 バイトの長さ、続いて UTF-8 バイト）で、その後に QoS が 1 または 2 "
+"のときにのみ存在する 2 バイトの *パケット識別子* が続きます。残りのバイトはペイロードで、プロトコルからは不透明なバイト列として扱われます。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "``a/b`` への ``ok`` の最小限の QoS-0 PUBLISH は次のようになります::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH、フラグはすべてゼロ。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- 7 バイトが続く。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- トピック長 3。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- トピック。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- ペイロード。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr "ワイヤー上では 9 バイトで、メッセージはブローカー上の ``a/b`` のすべてのサブスクライバーに届きます。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "QoS レベル"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"Quality-of-Service（サービス品質）は、ブローカー（およびクライアント）が配信を保証するためにどれだけ努力するかを制御します。3 "
+"つのレベルがあります。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- 高々 1 回。** 送りっぱなしです。PUBLISH パケットは送信され、確認されることはありません。TCP "
+"が配信すればブローカーは転送します。送信途中で接続が切れれば、メッセージは失われます。ほとんどのセンサーテレメトリは QoS 0 で問題ありません。30"
+" 秒ごとに発信されるストリームの中で温度測定値が 1 つ欠けても問題にはなりません。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- 少なくとも 1 回。** パブリッシャーはパケット識別子を含め、PUBACK を待ちます。タイムアウトまでに PUBACK "
+"が届かなければ、パブリッシャーは DUP フラグを立てて再送します。ブローカーは同じレベルのサブスクライバーに同じメッセージを 2 "
+"回配信することになる場合があり、サブスクライバーは重複を処理する用意がなければなりません。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- ちょうど 1 回。** 4 ステップのハンドシェイク（PUBREC / PUBREL / "
+"PUBCOMP）によって、再接続をまたいでもメッセージがちょうど 1 "
+"回だけ届くことを保証します。ラウンドトリップ数とブローカーの状態の点で高コストです。これを必要とするカメラアプリはほとんどありません。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"付属の :mod:`mqtt` クライアントは QoS 0 と QoS 1 を実装しています。QoS 2 "
+"を要求すると例外が発生します。センサー測定値を報告するカメラの場合、ほぼ常に QoS 0 が正しい選択です。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "保持メッセージと最終遺言"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr "ブローカーがあなたのトピックについて何を記憶するかを変える 2 つの機能は、知っておく価値があります。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN。** PUBLISH に RETAIN フラグが立っている場合、ブローカーはそのメッセージを保存し、\\ *将来の* "
+"サブスクライバーが購読した瞬間にそれを転送します。これが MQTT "
+"による「現在の値は何か？」の扱い方です。センサーは最新の測定値を保持付きで発行し、10 "
+"分後に購読したダッシュボードでも、次の発行を待つことなく直近の値を受け取れます。同じトピックで再発行すると保持された値が上書きされ、空のペイロードを発行するとそれがクリアされます。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**最終遺言。** クライアントは接続時にブローカーに「最終遺言（last will and "
+"testament）」を渡すことができます。これはトピック、ペイロード、QoS、保持フラグから成ります。そのクライアントが *正常でない形で* "
+"切断された場合、つまり TCP RESET、電源喪失、DISCONNECT "
+"パケットなしのネットワーク断などが起きた場合、ブローカーはそのクライアントに代わって遺言を発行します。サブスクライバーはそれを、カメラがオフラインになったという通知として受け取ります。カメラ自身は決して遺言を送りません。送るのはブローカーです。なぜなら、その時点ではカメラはもういないからです。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "キープアライブと再接続"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"CONNECT は *キープアライブ* "
+"間隔を秒単位で運びます。クライアントがその時間だけ無音であれば、ブローカーはそれを死んだものとみなします。これを防ぐため、クライアントは定期的に "
+"PINGREQ（1 バイト: ``0xC0``\\ ）を送り、PINGRESP（\\ ``0xD0``\\ "
+"）を受け取ります。これはプロトコルが運べる最小かつ最も安価なハートビートです。ほとんどのカメラアプリはキープアライブを 30 秒または 60 "
+"秒に設定します。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"TCP 接続が切れると、両側がそれに気づいて一から再接続します。接続時にクライアントが *永続セッション* "
+"を使っていない限り、切断前に行ったサブスクリプションは失われます。単純なカメラアプリでは、再接続時に再購読するパターンの方が短く、同じくらい有効です。"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"これだけ分かれば、MQTT 仕様を読んだり、\\ :class:`socket.socket` 上で自前のクライアントを手作りしたりできます。\\ "
+":mod:`mqtt` の付属クライアントはまさにそれを行い、加えてアプリケーションコード向けの理にかなった API を提供します。"

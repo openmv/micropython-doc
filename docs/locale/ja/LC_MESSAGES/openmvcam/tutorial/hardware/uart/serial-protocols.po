@@ -1,0 +1,490 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "シリアルプロトコル、フレーミング、CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` "
+"では2つの端点間でバイトをやり取りしました。しかしそれだけでは、信頼性の高いリンクを構築するには不十分です。実際のデバイスがワイヤの反対側にある瞬間に、3つの問題が浮上します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**メッセージはどこで始まり、どこで終わるのか?** "
+"バイトは組み込みの区切り文字を持たないストリームとして到着します。受信側が最初のバイトを取りこぼすと（送信側より後に電源が入った、ライン上に一瞬の電気的グリッチが発生したなど）、それ以降のすべてのバイトは、受信側が新しい再同期点を見つけるまで1バイトずれたままになります。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**各メッセージの長さはどれくらいか?** "
+"32バイトのセンサー読み取り値と4バイトのステータス応答は、バイトレベルでは見分けがつきません。受信側は、何バイトが現在のメッセージに属しているかを知る手段を必要とします。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**バイトは無傷で到着したか?** "
+"ノイズが個々のビットを反転させることがあります。チェックがなければ、受信側は破損したデータをそのまま使ってしまいます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"この3つすべてに対する標準的な答えは、データをパケットフレームで包むことです。先頭に既知のバイト列、長さフィールド、ペイロード本体、そして末尾にチェックサムを配置します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "パケットフレーミング"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "典型的なフレーミング形式は次のとおりです。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"順番に並んだ6つのフィールド。0xAA 0x55 とラベル付けされた\n"
+"2バイトの HEADER、このパケットがどのコマンドを\n"
+"運ぶかを選択する1バイトの CMD フィールド、ペイロード\n"
+"サイズを示す2バイトの LEN フィールド、HEADER と CMD と\n"
+"LEN をカバーする1バイトの HCRC フィールド、CMD によって\n"
+"形式が決まる LEN バイトの可変長 PAYLOAD、そして\n"
+"ペイロードをカバーする4バイトの DCRC フィールド。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"ヘッダーとデータで別々のCRCを持つフレーム化パケット。ヘッダー（マジックバイト）、コマンド、長さ、ヘッダーCRC、ペイロード、データCRC。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "各フィールドはそれぞれ1つの役割を果たします。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**ヘッダー（マジックバイト）。** 受信側が入力ストリーム内で探す、固定された珍しいバイト列です。多くの場合 ``0xAA 0x55`` "
+"のような2バイトです。受信側はこの列を見つけると、新しいパケットが始まることを認識し、その前にあったゴミデータをすべて破棄できます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**コマンド。** パケットが *何* "
+"であるかを示す1バイトです。コマンド値が異なれば、使用するペイロード形式も異なります。あるコマンドは2バイトのペイロードを伴う「サーボ角度を設定」を意味し、別のコマンドはペイロードなしの「センサーを読み取る」、また別のコマンドは文字列を伴う「メッセージをログに記録」を意味するかもしれません。受信側はコマンドバイトに基づいて振り分け、パケットの残りをどう解釈するかを判断します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**長さ。** ペイロードのサイズをバイト単位で示す2バイトです（ここではリトルエンディアン）。これにより約64 "
+"KiBまでのペイロードが可能になります。受信側は、ヘッダーCRCが検証された後、ちょうどこのバイト数を読み取ります。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**ヘッダーCRC。** HEADER、CMD、LEN "
+"の各フィールドに対する1バイトのチェックサムです。受信側はペイロードを読み取る前にこれをチェックするため、破損した LEN "
+"はわずか数バイトで検出されます（なぜこれが重要なのかは、後述のCRCセクションを参照してください）。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**ペイロード。** コマンド固有のアプリケーションデータで、ちょうど LEN バイトの長さです。形式はコマンドバイトによって決まります。\\ "
+":mod:`struct` "
+"でパックされた固定幅フィールドのレコード、文字列、生のメモリなど、そのコマンドについて両者が合意したものなら何でもかまいません。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**データCRC。** ペイロードバイトに対する4バイトのCRCです。受信側は読み取ったばかりのバイトから再計算し、一致しなければパケットを破棄します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"最も単純な「チェックサム」は、全バイトの合計を256または65536で割った余りです。ほとんどの単一ビット反転は検出できますが、多ビットエラーの多くを見逃し、バイトの並び順を無視します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"*巡回冗長検査*\\ （CRC）は、その標準的なアップグレードです。入力を1つの長い2進数として扱い、それを固定の *多項式* "
+"で（特別な方法で）割ります。その割り算の余りがCRCです。多項式が異なれば検出できるエラーの種類も異なります。一般的な8ビット、16ビット、32ビットの多項式は、それぞれ自身のビット幅より短いすべてのバーストエラーを検出し、さらに長いバーストの大部分も検出します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "なぜ2つのCRCなのか"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"上のパケット図には *2つ* "
+"の別々のCRCが含まれています。1つはヘッダー（HEADER、CMD、LEN）に対するもので、もう1つはペイロードに対するものです。これは堅牢なフレーミングが実際に必要とするものです。なぜなら、末尾の単一CRCは、LEN"
+" フィールド自体が転送中に破損したときに次のように破綻するからです。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr "受信側は破損した LEN に基づいて動作し、そのバイト数をワイヤから読み取ります。送信側が意図したよりもはるかに多いかもしれません。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr "末尾のCRCだけが最終的に何かおかしいことを受信側に伝えますが、それはこれらすべてのバイトを消費し終えた後のことです。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"パーサーが誤った数のバイトを待ち続けて立ち往生している間、破損したパケットの後ろに到着する本物のパケットがペイロードとして飲み込まれてしまい、受信側は1つではなく複数のパケットを失います。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "CRCを分割することでこれが解決します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**ヘッダーCRC** は HEADER、CMD、LEN をカバーします。受信側はペイロードを読み取る前にこれをチェックするため、破損した LEN "
+"は数バイトで検出され、パーサーは即座に再同期し、不良なパケットを1つだけ捨てて済みます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**データCRC** はペイロードをカバーします。ヘッダーCRCが通過すれば、受信側は LEN "
+"を信頼できると判断し、ちょうどそのバイト数のペイロードを読み取り、データCRCと照合して検証します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"一般的なサイズ設定（そしてこのページで使用しているもの）は、ヘッダーCRCに1バイト（5バイトのヘッダーにはCRC-8で十分）、データCRCに4バイト（CRC-32は数キロバイトのペイロードを、衝突率がほぼゼロでカバーします）です。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "ヘルパー"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython は4バイトのCRC用に :func:`binascii.crc32` "
+"を直接提供しています。1バイトのヘッダーCRCには、Maxim の1-wireデバイスが使用する多項式（反射形式で ``0x8C``\\ "
+"）を用いた小さなヘルパーが、インラインで書けるほど短く済みます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "完全なエンコーダーは、2つのCRCを1つの関数にまとめます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr "逆関数は、完全なパケットからコマンドとペイロードを復元するか、いずれかのCRCチェックが失敗した場合は ``None`` を返します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"実際には、受信側はパケット全体を一度に渡されるわけではありません。バイトはUART経由で1つずつ到着し、パケットの途中で一時停止する送信側（あるいはバイトを失うノイズの多いライン）に対しては、適切なサイズのバッファに単純に"
+" ``read()`` するわけにはいきません。次のセクションでは、同じデコードロジックをステートマシンとして1バイトずつ実行します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "ステートマシン型の受信側"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"受信側は、ある固定の ``N`` に対して単純に ``uart.read(N)`` "
+"を呼ぶことはできません。次のパケットが何バイトになるか分からず、ライン上のあらゆるゴミがアライメントを狂わせるからです。解決策は、バイトを1つずつ消費し、パケット内のどの位置にいるかに基づいて反応する小さなステートマシンです。メインループは"
+" :meth:`~machine.UART.any` をポーリングして何バイトがバッファされているかを確認し、それらを1回の "
+":meth:`~machine.UART.read` 呼び出しで吸い出し、各バイトをステートマシンに送り込みます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"各バイトはステートマシンを1ステップ進めるか、完全なパケットの後、不正なヘッダーCRC、または不正なデータCRCの後に "
+"``HUNT_FOR_HEADER`` "
+"に戻ります。ヘッダーに一致しないライン上のゴミは黙って破棄され、次の有効なヘッダーが受信側を再同期させます。重要な安全特性はヘッダーCRCから得られます。LEN"
+" "
+"フィールドが破損した場合、パーサーは、とんでもなく誤った数のペイロードバイトを読み取ることにコミットした後ではなく、ヘッダーCRCチェックの後（数バイト）でそれを検出します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "基本を超えて"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"上記のフレーミングは、シリアルリンクがライン上のノイズから回復するために必要な *最小限* "
+"のものです。ヘッダーマジック、長さ、コマンド、そして2つのCRCです。破損を検出し、文字化けしたバイトの後で再同期しますが、損傷したパケットを通過させるのではなく諦めてしまい、また送信側には受信側が実際に何を受け取ったのかが分からないままです。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"現実世界のシリアルプロトコルは、その基本の上に機能を積み重ねます。すべての組み込みリンクがそれらすべてを必要とするわけではありません。アプリケーションが実際に必要とするものを選んでください。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**シーケンス番号。** "
+"送信のたびにインクリメントされる小さなカウンターです。受信側は、ギャップ（パケットが失われた）、重複（送信側が再送したが、受信側はすでに最初のコピーを受け入れていた）、そして、チャネルが順序を入れ替えうる場合には、順序の入れ替わった到着を検出します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**確認応答（ACK）。** "
+"受信側が各パケットを確認するために送り返す専用のACKパケット（または応答にピギーバックさせたビット）です。ACKがなければ、送信側はデータが到着したかどうかを知る術がありません。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**否定確認応答（NACK）。** "
+"受信側がCRC失敗やシーケンスのギャップを検出したときに送られるNACKです。送信側は、ACKタイムアウトが発動するのを待つのではなく、即座に再送します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**再送。** "
+"送信側は、確認応答されていない各パケットを小さなキューに保持し、タイムアウト後（またはNACK時）に再送します。リトライ回数の上限と、リトライ間のバックオフがあれば、恒久的に壊れたリンクが永遠にループするのを防げます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**スライディングウィンドウ。** "
+"ACKを要求する前に複数のパケットを送信中の状態にしておくことで、1パケットあたりの送信時間に比べて往復時間が長いリンクでもスループットを維持できます。コストは送信側の状態が増えることです。送信中のパケットごとに1スロットが必要になります。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**フロー制御。** バッファがいっぱいになりつつあるときに、減速または一時停止するよう受信側が送信側に伝える信号です。実装はさまざまです。明示的な "
+"XON / XOFF バイト、受信側が一度にN個追加のパケットを許可するクレジットベースの付与、あるいはワイヤ上の RTS / CTS "
+"ハードウェアラインそのものなどがあります。フロー制御がなければ、速い送信側はいずれ遅い受信側を追い越し、パケットが破棄されます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**プロトコルバージョン。** "
+"パケットの先頭近くにあるバージョンフィールドにより、形式を進化させることができます。各側は起動時に双方がサポートする最も高いバージョンをネゴシエートしたり、互換性のないピアからのパケットを拒否したりできます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**フラグメンテーションと再構成。** 2バイトの LEN はパケットを64 "
+"KiBに制限します。それより大きいメッセージは複数のパケットに分割され、反対側で再構成されます。フラグメンテーションのメタデータ（フラグメントインデックス、総数、または「さらにフラグメントあり」フラグ）はペイロード内に格納されます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**ハートビート。** "
+"「まだここにいます」と伝える小さな周期的なパケットです。反対側は、ハートビートが止まったことに気づくと、黙ってハングするのではなく再接続します（あるいは目立つ形で失敗します）。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**チャネル。** "
+"ヘッダー内のチャネルまたはストリームIDにより、1本の物理リンクが複数の論理ストリームを運びます。制御チャネル、テレメトリチャネル、ログチャネルなどが、そのフィールドだけで区別されます。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**認証。** "
+"正規の送信側と受信側だけが知っているペイロードと秘密値から計算された短いタグです。受信側は受信したバイトから再びタグを計算し、両者が一致しなければパケットを拒否します。これは改ざん（攻撃者がバイトを変更した）と、タグがカバーする対象にシーケンス番号やタイムスタンプが含まれている場合はリプレイ（攻撃者がワイヤ上から本物のパケットを記録し、受信側に二度動作させるために後で再送する）の両方を検出します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**暗号化。** "
+"共有された秘密鍵でペイロードバイトをスクランブルし、その鍵を持たずにラインを読む者にはノイズしか見えないようにします。通常は上記の認証タグと組み合わせます。認証タグがなければ、攻撃者はたまたまCRCを通過するゴミを送り込むことができ、受信側は無意味なものを復号しようとしてサイクルを浪費します。"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"産業機器向けの典型的な「良い」プロトコルは、最終的にフレーミング、デュアルCRC、シーケンス番号、再送付きのACK / "
+"NACK、そしてハートビートを備えることになります。一見の価値がある現実世界の例として、\\ *MAVLink*\\ "
+"（ドローンのテレメトリ。シーケンス番号、システム / コンポーネントID、オプションのパケット署名を備える）、\\ *Modbus*\\ "
+"（産業用PLC。ファンクションコードとCRCを備える）、\\ *NMEA 0183*\\ "
+"（あらゆる民生用GPS受信機が話すASCIIプロトコル。星形の区切り文字の後にチェックサムを置く行ベースのメッセージ）があります。"

@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ja <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:2
+msgid "Why a protocol library"
+msgstr "なぜプロトコルライブラリが必要なのか"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:4
+msgid ""
+"A pair of cables and a baud rate is enough to move bytes from a cam to a "
+"host PC. USB-CDC and UART both give the cam program a stream where ``write``"
+" puts bytes in one end and ``read`` takes them out the other. So what does a"
+" *protocol library* add on top of that?"
+msgstr ""
+"ケーブル一対とボーレートさえあれば、カメラからホストPCへバイトを送ることはできます。USB-CDCとUARTはどちらも、\\ ``write`` "
+"で一方の端にバイトを入れ、\\ ``read`` でもう一方の端から取り出すストリームをカメラのプログラムに提供します。では、その上に\\ "
+"*プロトコルライブラリ*\\ が加えるものは何でしょうか。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:9
+msgid ""
+"Three things you would have to write yourself, every time, if you tried to "
+"build a serious cam-to-host channel directly on raw bytes:"
+msgstr "本格的なカメラ・ホスト間チャネルを生のバイト上に直接構築しようとすると、毎回自分で書かなければならない3つの要素があります。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:12
+msgid ""
+"**Framing.** A byte stream has no inherent structure. The cam writes "
+"``temp=42`` and the host reads ``temp=`` plus an interrupt arriving later, "
+"then ``42`` plus the next message starting with ``humid=...`` already "
+"running into it. Bytes don't have boundaries. Every non-trivial host link "
+"ends up inventing some marker -- ``\\n`` between messages, length-prefix "
+"headers, escape sequences for binary payloads -- so the receiver knows where"
+" one message ends and the next begins. The protocol library gives you a "
+"uniform packet format with a sync word and a length field, and the receiver "
+"never has to guess."
+msgstr ""
+"**フレーミング。** バイトストリームには本来の構造がありません。カメラが ``temp=42`` を書き込むと、ホストは ``temp=`` "
+"を読み、その後に割り込みが入り、続いて ``42`` を読み、さらに次のメッセージ ``humid=...`` "
+"の先頭がすでにそこへ流れ込んでいる、といったことが起こります。バイトには境界がありません。重要なホストリンクは必ず何らかのマーカーを考案することになります。メッセージ間の"
+" ``\\n``\\ "
+"、長さプレフィックスのヘッダー、バイナリペイロード用のエスケープシーケンスなどです。これにより受信側は1つのメッセージがどこで終わり、次がどこで始まるかを知ることができます。プロトコルライブラリは、同期ワードと長さフィールドを備えた統一的なパケット形式を提供するため、受信側が推測する必要は一切ありません。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:24
+msgid ""
+"**Reliability.** USB-CDC doesn't drop bytes silently in normal operation, "
+"but UART does (when the host stops servicing the port quickly enough), and a"
+" serial cable unplugged and reseated can leave one side with a partial "
+"packet. The right thing to do is to detect the corruption, ask the other "
+"side to retransmit, and only ever hand application code messages that "
+"arrived intact. The protocol library does that for every packet with a CRC "
+"and per-packet acknowledgements -- on by default; the application doesn't "
+"see the retries."
+msgstr ""
+"**信頼性。** USB-"
+"CDCは通常動作で静かにバイトを取りこぼすことはありませんが、UARTは取りこぼします（ホストがポートを十分に速く処理しなくなった場合）。また、シリアルケーブルを抜き差しすると、一方の側に不完全なパケットが残ることがあります。正しい対処は、破損を検出し、相手側に再送を要求し、無傷で到着したメッセージだけをアプリケーションコードに渡すことです。プロトコルライブラリはCRCとパケットごとの確認応答により、すべてのパケットに対してこれを行います。これはデフォルトで有効であり、アプリケーションは再送を意識しません。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:34
+msgid ""
+"**Multiplexing.** There's exactly one USB-CDC port between the cam and the "
+"host. If the cam is streaming an image *and* the host is sending it "
+"configuration *and* the IDE is reading ``stdout`` for ``print`` output, all "
+"three exchanges have to share that single byte stream. The protocol library "
+"gives each independent stream a *channel* number, lets the cam register a "
+"Python class for each one, and keeps the host's reads on each channel from "
+"interfering with the others. From application code, each channel looks like "
+"its own private link."
+msgstr ""
+"**多重化。** カメラとホストの間にはUSB-CDCポートが正確に1つだけ存在します。カメラが画像をストリーミングし、\\ *同時に*\\ "
+"ホストが設定を送信し、\\ *さらに*\\ IDEが ``print`` 出力のために ``stdout`` "
+"を読んでいる場合、これら3つのやり取りはすべてその単一のバイトストリームを共有しなければなりません。プロトコルライブラリは、独立した各ストリームに\\ "
+"*チャネル*\\ "
+"番号を与え、カメラ側でそれぞれにPythonクラスを登録できるようにし、各チャネルでのホストの読み取りが他のチャネルに干渉しないようにします。アプリケーションコードから見ると、各チャネルはそれぞれ専用のリンクのように見えます。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:46
+msgid "Why not write that yourself"
+msgstr "なぜ自分で書かないのか"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:48
+msgid ""
+"You can. It's a few weeks of work to get all three correct on a serial line "
+"and another few weeks to make the framing handle hot-plug recovery cleanly, "
+"the retransmits work without burning energy on round-trips, and the "
+"multiplexer survive partial reads without corrupting one channel's bytes "
+"into another's."
+msgstr ""
+"もちろん書くことはできます。シリアルラインで3つすべてを正しく動かすには数週間かかり、さらにフレーミングがホットプラグからの復旧をきれいに処理し、再送がラウンドトリップでエネルギーを浪費せずに機能し、多重化が部分読み取りに耐えてあるチャネルのバイトを別のチャネルへ混入させないようにするには、さらに数週間かかります。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:54
+msgid ""
+"The protocol library has already done that work, has been validated on every"
+" supported cam, and has matching libraries on the host side that speak the "
+"same wire format. Using it means the cam-side code is one small class per "
+"channel and the host-side code is a :class:`~openmv.camera.Camera` object "
+"with ``channel_read`` and ``channel_write`` methods. The mental space saved "
+"goes to whatever the application actually does."
+msgstr ""
+"プロトコルライブラリはすでにその作業を終えており、サポートされているすべてのカメラで検証済みで、同じワイヤ形式を話すホスト側の対応ライブラリも備えています。これを使えば、カメラ側のコードはチャネルごとに小さなクラス1つで済み、ホスト側のコードは"
+" ``channel_read`` と ``channel_write`` メソッドを持つ :class:`~openmv.camera.Camera`"
+" オブジェクトで済みます。そうして節約できた頭のスペースは、アプリケーションが実際に行うべきことへ振り向けられます。"
+
+#: ../../openmvcam/tutorial/protocol/concepts/why-a-protocol.rst:62
+msgid ""
+"This chapter teaches the protocol from the ground up: the wire format, the "
+"framing rules, the reliability machinery, the channel model, and finally the"
+" Python classes on both ends. By the end the reader can build a host GUI "
+"that talks to the cam, a script that streams sensor data from cam to laptop,"
+" and the kind of interactive calibration tool that ships in `openmv-"
+"projects/tools/ <https://github.com/openmv/openmv-"
+"projects/tree/master/tools>`_."
+msgstr ""
+"この章ではプロトコルを基礎から解説します。ワイヤ形式、フレーミング規則、信頼性の仕組み、チャネルモデル、そして最後に両端のPythonクラスです。読み終える頃には、カメラと通信するホストGUI、カメラからノートPCへセンサーデータをストリーミングするスクリプト、そして"
+" `openmv-projects/tools/ <https://github.com/openmv/openmv-"
+"projects/tree/master/tools>`_ に同梱されているようなインタラクティブな校正ツールを構築できるようになります。"
