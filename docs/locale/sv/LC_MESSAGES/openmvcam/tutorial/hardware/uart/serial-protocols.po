@@ -1,0 +1,573 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: sv <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Seriella protokoll, ramning och CRC:er"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` flyttade byte mellan två ändar. I sig själv räcker inte det"
+" för att bygga en pålitlig länk. Tre problem dyker upp i samma ögonblick som"
+" en verklig enhet finns i andra änden av kabeln:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Var börjar och slutar ett meddelande?** Byte anländer i en ström utan "
+"någon inbyggd avgränsare. Om mottagaren missar den första byten (slås på "
+"efter sändaren; en kort elektrisk störning på ledningen) hamnar varje byte "
+"därefter ett steg fel tills mottagaren hittar en ny synkroniseringspunkt."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Hur lång är varje meddelande?** En 32-byte sensoravläsning och ett 4-byte "
+"statussvar ser identiska ut på bytenivå. Mottagaren behöver ett sätt att "
+"veta hur många byte som tillhör det aktuella meddelandet."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Anlände byten oskadda?** Brus kan vända enskilda bitar. Utan en kontroll "
+"agerar mottagaren glatt på korrupt data."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Standardsvaret på alla tre är att slå in datan i en paketram: en känd "
+"bytesekvens i början, ett längdfält, själva nyttolasten och en kontrollsumma"
+" i slutet."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Paketramning"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Ett typiskt ramningsformat:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Sex fält ritade i sekvens: ett två-byte HEADER\n"
+"märkt 0xAA 0x55, ett en-byte CMD-fält som väljer\n"
+"vilket kommando detta paket bär, ett två-byte LEN-fält\n"
+"som anger nyttolastens storlek, ett en-byte HCRC-fält\n"
+"som täcker HEADER plus CMD plus LEN, en PAYLOAD med\n"
+"variabel längd på LEN byte vars format beror på CMD,\n"
+"och ett fyra-byte DCRC-fält som täcker nyttolasten."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Ett ramat paket med separata CRC:er för header och data: header (magiska "
+"byte), kommando, längd, header-CRC, nyttolast, data-CRC."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Varje fält gör ett jobb:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Header (magiska byte).** En fast, ovanlig bytesekvens -- ofta två byte som"
+" ``0xAA 0x55`` -- som mottagaren letar efter i den inkommande strömmen. När "
+"den hittar sekvensen vet den att ett nytt paket börjar och kan kasta bort "
+"allt skräp som kom innan."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Kommando.** En enda byte som anger *vad* paketet är. Olika kommandovärden "
+"använder olika nyttolastformat -- ett kommando kan betyda \"ställ in "
+"servovinkel\" med två nyttolastbyte, ett annat kan betyda \"läs sensor\" "
+"utan nyttolast, ett tredje kan vara \"loggmeddelande\" med en sträng. "
+"Mottagaren skickar vidare baserat på kommandobyten för att veta hur resten "
+"av paketet ska tolkas."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Längd.** Två byte som anger nyttolastens storlek i byte (little-endian "
+"här), vilket tillåter nyttolaster upp till cirka 64 KiB. Mottagaren läser "
+"exakt så här många byte när header-CRC:n har verifierats."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**Header-CRC.** En en-byte kontrollsumma över fälten HEADER, CMD och LEN. "
+"Mottagaren kontrollerar den innan någon nyttolast läses, så en korrupt LEN "
+"fångas efter bara en handfull byte (se CRC-avsnittet nedan för varför detta "
+"är viktigt)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Nyttolast.** Kommandospecifik applikationsdata, exakt LEN byte lång. "
+"Formatet bestäms av kommandobyten: en :mod:`struct`\\ -packad post med fält "
+"av fast bredd, en sträng, rått minne -- vad än båda sidor är överens om för "
+"det kommandot."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**Data-CRC.** En fyra-byte CRC över nyttolastbyten. Mottagaren beräknar den "
+"på nytt från de byte den just läste och kasserar paketet om den inte "
+"stämmer."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC:er"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"Den enklaste \"kontrollsumman\" är summan av alla byte, modulo 256 eller "
+"65536. Den fångar de flesta enkelbitsvändningar men missar många flerbitsfel"
+" och ignorerar byteordningen."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"En *cyklisk redundanskontroll* (CRC) är standarduppgraderingen. Den "
+"behandlar indata som ett enda långt binärt tal och dividerar det (på ett "
+"särskilt sätt) med ett fast *polynom*\\ ; resten av divisionen är CRC:n. "
+"Olika polynom fångar olika klasser av fel; de vanliga 8-, 16- och "
+"32-bitspolynomen fångar var och en alla felskurar som är kortare än sin "
+"bredd plus en stor andel av längre skurar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Varför två CRC:er"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"Paketdiagrammet ovan bär *två* separata CRC:er -- en över headern (HEADER, "
+"CMD, LEN) och en över nyttolasten. Detta är vad en robust ramning faktiskt "
+"behöver, på grund av hur en enda avslutande CRC fallerar när själva LEN-"
+"fältet blir korrupt under överföringen:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Mottagaren agerar på den korrupta LEN och läser så många byte från ledningen"
+" -- möjligen långt fler än sändaren avsåg."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Endast den avslutande CRC:n talar så småningom om för mottagaren att något "
+"gick fel, och först efter att alla dessa byte har förbrukats."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Medan parsern sitter fast och väntar på fel antal byte sväljs verkliga paket"
+" som anländer bakom det korrupta som nyttolast, och mottagaren tappar flera "
+"paket i stället för bara ett."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "Att dela upp CRC:n löser detta:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**Header-CRC:n** täcker HEADER, CMD och LEN. Mottagaren kontrollerar den "
+"innan någon nyttolast läses, så en korrupt LEN fångas efter en handfull byte"
+" och parsern synkroniserar om sig omedelbart, vilket tar ner endast det ena "
+"felaktiga paketet."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**Data-CRC:n** täcker nyttolasten. När header-CRC:n har godkänts vet "
+"mottagaren att den kan lita på LEN, läser exakt så många nyttolastbyte och "
+"verifierar dem mot data-CRC:n."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"En vanlig dimensionering -- och det som denna sida använder -- är en byte "
+"för header-CRC:n (en CRC-8 räcker gott och väl för en fem-byte header) och "
+"fyra byte för data-CRC:n (en CRC-32 täcker många kilobyte nyttolast med en "
+"försvinnande låg kollisionsfrekvens)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Hjälpfunktioner"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython levererar :func:`binascii.crc32` för den fyra-byte CRC:n direkt."
+" För den en-byte header-CRC:n är en liten hjälpfunktion som använder "
+"polynomet som Maxims 1-wire-enheter använder (\\ ``0x8C`` i reflekterad "
+"form) tillräckligt kort för att skrivas inline:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "En komplett kodare kombinerar de två CRC:erna i en funktion:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Den inversa funktionen återskapar kommandot och nyttolasten från ett "
+"komplett paket, eller returnerar ``None`` om någon av CRC-kontrollerna "
+"misslyckas:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"I praktiken får mottagaren inte ett helt paket överlämnat till sig -- byte "
+"anländer en i taget över UART:en, och en sändare som pausar mitt i ett paket"
+" (eller en brusig ledning som tappar en byte) kan inte bara ``read()``\\ :as"
+" in i en buffert av rätt storlek. Nästa avsnitt kör samma avkodningslogik "
+"byte för byte som en tillståndsmaskin."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "En tillståndsmaskinsmottagare"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Mottagaren kan inte bara anropa ``uart.read(N)`` för något fast ``N`` -- den"
+" vet inte hur många byte nästa paket kommer att vara, och vilket skräp som "
+"helst på ledningen kastar av justeringen. Lösningen är en liten "
+"tillståndsmaskin som förbrukar byten en i taget och reagerar baserat på var "
+"den befinner sig i paketet. Huvudloopen pollar :meth:`~machine.UART.any` för"
+" att se hur många byte som är buffrade, tömmer dem i ett enda "
+":meth:`~machine.UART.read`\\ -anrop och matar varje byte genom "
+"tillståndsmaskinen:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Varje byte för tillståndsmaskinen ett steg framåt, eller faller tillbaka "
+"till ``HUNT_FOR_HEADER`` efter ett komplett paket, en felaktig header-CRC "
+"eller en felaktig data-CRC. Skräp på ledningen som inte matchar headern "
+"kasseras tyst; nästa giltiga header synkroniserar om mottagaren. Den "
+"viktigaste säkerhetsegenskapen kommer från header-CRC:n: om LEN-fältet är "
+"korrupt fångar parsern det efter header-CRC-kontrollen (en handfull byte), "
+"inte efter att ha förbundit sig att läsa ett vilt felaktigt antal "
+"nyttolastbyte."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Bortom grundnivån"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Ramningen ovan är *minimum* som en seriell länk behöver för att återhämta "
+"sig från ledningsbrus: header-magi, längd, kommando och två CRC:er. Den "
+"upptäcker korruption och synkroniserar om efter förvanskade byte, men den "
+"ger upp skadade paket i stället för att få igenom dem, och den lämnar "
+"sändaren utan en aning om vad mottagaren faktiskt hörde."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Verkliga seriella protokoll lägger funktioner ovanpå den grundnivån. Inte "
+"varje inbäddad länk behöver alla -- välj det som applikationen faktiskt "
+"kräver:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Sekvensnummer.** En liten räknare som ökas vid varje sändning. Mottagaren "
+"upptäcker luckor (ett paket gick förlorat), dubbletter (sändaren skickade om"
+" men mottagaren hade redan accepterat den första kopian) och -- där kanalen "
+"kan ändra ordning -- ankomster i fel ordning."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Kvitteringar.** Ett dedikerat ACK-paket (eller en medföljande bit i ett "
+"svar) som mottagaren skickar tillbaka för att bekräfta varje paket. Utan "
+"ACK:er har sändaren inget sätt att veta att dess data kom fram."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Negativa kvitteringar.** En NACK skickas när mottagaren ser ett CRC-fel "
+"eller en sekvenslucka. Sändaren skickar om omedelbart i stället för att "
+"vänta på att en ACK-timeout ska lösa ut."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Omsändning.** Sändaren håller varje okvitterat paket i en liten kö och "
+"skickar om det efter en timeout (eller vid en NACK). En omförsöksgräns och "
+"viss backoff mellan omförsök hindrar en permanent trasig länk från att loopa"
+" för evigt."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Glidande fönster.** Att tillåta flera paket i luften innan en ACK krävs "
+"håller uppe genomströmningen på länkar där rundresan är lång jämfört med "
+"sändtiden per paket. Kostnaden är mer tillstånd på sändarsidan -- en plats "
+"per paket i luften."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Flödeskontroll.** En signal från mottagaren som säger åt sändaren att "
+"sakta ner eller pausa när dess buffert fylls upp. Implementeringar varierar "
+"-- explicita XON/XOFF-byte, kreditbaserade tilldelningar där mottagaren "
+"licensierar N fler paket åt gången, eller hårdvaruledningarna RTS/CTS på "
+"själva kabeln. Utan flödeskontroll översvämmar en snabb sändare så småningom"
+" en långsam mottagare och paket tappas."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Protokollversion.** Ett versionsfält tidigt i paketet låter formatet "
+"utvecklas. Varje sida kan förhandla fram den högsta version som båda stöder "
+"vid uppstart, eller avvisa paket från inkompatibla motparter."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Fragmentering och återsammansättning.** En två-byte LEN begränsar paketet "
+"till 64 KiB; meddelanden större än så delas upp i flera paket och sätts ihop"
+" igen på andra sidan. Fragmenteringsmetadatan (fragmentindex, totalt antal "
+"eller en \"fler fragment\"-flagga) lever inne i nyttolasten."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Hjärtslag.** Ett litet periodiskt paket som säger \"jag är fortfarande "
+"här\". Den andra sidan märker när hjärtslagen slutar och återansluter (eller"
+" fallerar högljutt) i stället för att hänga sig tyst."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Kanaler.** Ett kanal- eller ström-ID i headern så att en fysisk länk bär "
+"flera logiska strömmar -- en styrkanal, en telemetrikanal, en loggkanal -- "
+"åtskilda endast av det fältet."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Autentisering.** En kort tagg beräknad från nyttolasten och ett hemligt "
+"värde som endast den legitima sändaren och mottagaren känner till. "
+"Mottagaren beräknar taggen igen från de byte den tog emot och avvisar "
+"paketet om de två inte stämmer överens. Detta fångar både manipulation (en "
+"angripare modifierade byten) och -- om ett sekvensnummer eller en "
+"tidsstämpel ingår i det taggen täcker -- replay, där en angripare spelar in "
+"ett verkligt paket från ledningen och skickar om det senare för att få "
+"mottagaren att agera på det två gånger."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Kryptering.** Att förvränga nyttolastbyten med en delad hemlig nyckel så "
+"att vem som helst som läser ledningen utan den nyckeln bara ser brus. "
+"Vanligtvis kombinerat med autentiseringstaggen ovan -- utan den kan en "
+"angripare mata in skräp som råkar passera CRC:n och mottagaren slösar cykler"
+" på att försöka dekryptera nonsens."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Ett typiskt \"bra\" protokoll för industriell utrustning slutar med ramning,"
+" dubbel CRC, sekvensnummer, ACK/NACK med omsändning och hjärtslag. Verkliga "
+"exempel värda en titt: *MAVLink* (drönartelemetri, med sekvensnummer, "
+"system-/komponent-ID:n och valfria paketsignaturer), *Modbus* (industriella "
+"PLC:er, med funktionskoder och CRC) och *NMEA 0183* (ASCII-protokollet som "
+"varje konsument-GPS-mottagare talar -- radbaserade meddelanden med en "
+"kontrollsumma efter en stjärnavgränsare)."

@@ -1,0 +1,444 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: sv <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT, byte för byte"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"Vid det här laget har kameran alla delar den behöver för att kommunicera med"
+" en riktig tjänst på det öppna internet: en TCP-socket, TLS för att kapsla "
+"in den, DNS för att namnge motparten och asyncio för att låta samma skript "
+"göra annat arbete medan anslutningen är öppen. MQTT är det första "
+"trådprotokollet som drar samman allt detta till något som en driftsatt "
+"produkt faktiskt använder."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"Den här sidan behandlar själva protokollet -- formatet på tråden, de roller "
+"varje deltagare spelar och avvägningarna i dess utformning -- ärligt nog för"
+" att den medföljande :mod:`mqtt`\\ -klienten ska framstå som en uppenbar "
+"inpackning av det som redan är känt i stället för ett trossprång."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "Pub/sub kontra request/response"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"HTTP -- det protokoll de flesta kameraprojekt griper efter först -- är "
+"*request/response*\\ . En klient frågar en specifik server efter en specifik"
+" resurs; servern svarar. Varje utbyte är en-till-en, och båda ändarna känner"
+" varandras adress i förväg."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT är *publish/subscribe*\\ . Klienter ansluter till en tredje part i "
+"mitten som kallas **broker**\\ . En *publisher* skickar ett meddelande till "
+"ett namngivet **topic** utan att veta eller bry sig om vem som lyssnar. En "
+"*subscriber* talar om för brokern vilka topics den vill ha och tar därefter "
+"emot varje meddelande som publiceras till de topics. Brokern är fan-outen: "
+"en publicering på ``yard-cam/motion`` når varje enhet som prenumererar på "
+"``yard-cam/motion``\\ , oavsett om det finns noll, en eller femtio av dem."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "Tre saker följer av detta byte av modell:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**Frikoppling.** Publishers behöver inte veta att subscribers existerar. "
+"Subscribers kan komma och gå utan att publishern märker det. Att lägga till "
+"en andra instrumentpanel är en kodrad på den nya instrumentpanelen; kameran "
+"ändras inte."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**Fan-out.** Brokern hanterar varje duplikat, så kameran skickar ett paket "
+"oavsett hur många enheter som läser det. Det är det användningsfall MQTT "
+"byggdes för."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**Asymmetri.** Brokern är nu en nödvändig infrastrukturdel -- utan en sådan "
+"fungerar protokollet inte. För hemprojekt är detta vanligtvis en gratis "
+"publik broker (\\ ``test.mosquitto.org``\\ , ``broker.hivemq.com``\\ ) eller"
+" en liten som du kör själv."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"En kamera som publicerar till ett yard-cam/motion-topic på en broker\n"
+"medan två webbläsarinstrumentpaneler och en molnarkiverare var och en\n"
+"tar emot samma meddelande."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "Topics"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr ""
+"Topics är snedstreckseparerade strängar. Konventionen är mest generell till "
+"vänster, mest specifik till höger::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr "Två jokertecken fungerar i *prenumerationer* (inte i publiceringar):"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` matchar en enda nivå. ``+/motion`` prenumererar på varje kameras "
+"motion-topic; ``yard-cam/+`` prenumererar på varje yard-cam-subtopic."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` matchar en eller flera efterföljande nivåer. ``yard-cam/#`` "
+"prenumererar på ``yard-cam/motion``\\ , ``yard-cam/temperature``\\ , ``yard-"
+"cam/temperature/sensor-3`` och allt annat under ``yard-cam/``\\ . Det måste "
+"stå i slutet av prenumerationen."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"Topic-strängar är skiftlägeskänsliga. Enligt specifikationen markerar ett "
+"inledande ``$`` broker-interna topics (\\ ``$SYS/...``\\ ) som publishers "
+"inte bör skriva till."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "Paketformatet"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"MQTT körs över TCP. Varje styrpaket inleds med ett en-byte *fixed header* "
+"följt av ett *Remaining Length*\\ -fält av variabel längd, sedan ett "
+"pakettypspecifikt *variable header* och därefter *payload*\\ . Samma yttre "
+"format täcker varje kommando -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT och resten -- vilket är anledningen till att en MQTT-klient kan "
+"skrivas på några hundra rader."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"Byte-layouten för ett MQTT PUBLISH-paket som visar\n"
+"byten med fixed-header-typ och flaggor, fältet Remaining\n"
+"Length av variabel längd, topic-namnet, den valfria\n"
+"paketidentifieraren och payload-byten."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "Det fasta huvudet är en byte:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"Bit 7..4 är **control packet type**\\ . ``0x3`` är PUBLISH (så den första "
+"byten börjar vanligtvis med ``0x3?``\\ ). ``0x1`` är CONNECT, ``0x2`` "
+"CONNACK, ``0x8`` SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT och så "
+"vidare."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"Bit 3..0 är pakettypspecifika **flaggor**\\ . För PUBLISH kodar flaggorna "
+"DUP-återsändningsflaggan, QoS-nivån (2 bitar) och RETAIN-flaggan."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"Remaining Length är ett heltal av variabel längd på 1 till 4 byte som räknar"
+" varje byte efter sig själv. Varje bytes översta bit är en "
+"fortsättningsmarkör -- 1 betyder \"ytterligare en längdbyte följer\", 0 "
+"betyder \"detta är den sista\". En längd under 128 ryms i en byte; större "
+"payloads använder fler. Den maximala kodade längden är 256 MiB."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"För en PUBLISH är variable header topic-namnet -- en 2-byte-längd, sedan "
+"UTF-8-byte -- följt av en 2-byte *paketidentifierare* som bara finns när QoS"
+" är 1 eller 2. De återstående byten är payloaden, som protokollet behandlar "
+"som ogenomskinliga byte."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "En minimal QoS-0 PUBLISH av ``ok`` till ``a/b`` är::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH, alla flaggor noll."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- 7 byte följer."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- topic-längd 3."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- topic."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- payload."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr ""
+"Nio byte på tråden och meddelandet landar hos varje subscriber till ``a/b`` "
+"på brokern."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "QoS-nivåer"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"Quality-of-Service styr hur hårt brokern (och klienten) arbetar för att "
+"säkerställa leverans. De tre nivåerna:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- högst en gång.** Skicka och glöm. PUBLISH-paketet skickas och "
+"bekräftas aldrig. Om TCP levererar vidarebefordrar brokern. Om anslutningen "
+"bryts mitt i sändningen är meddelandet borta. Det mesta av sensortelemetri "
+"klarar sig bra med QoS 0 -- en enstaka missad temperaturavläsning i en ström"
+" som sänder var 30:e sekund spelar ingen roll."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- minst en gång.** Publishern inkluderar en paketidentifierare och "
+"väntar på en PUBACK. Om ingen PUBACK kommer fram före en timeout sänder "
+"publishern om med DUP-flaggan satt. Brokern kan komma att leverera samma "
+"meddelande två gånger till en subscriber på samma nivå; subscribern måste "
+"vara beredd att hantera duplikat."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- exakt en gång.** En fyrstegs handskakning (PUBREC / PUBREL / "
+"PUBCOMP) ser till att meddelandet landar exakt en gång, även över "
+"återanslutningar. Dyrt i tur-och-retur-resor och brokertillstånd. Få "
+"kameraappar behöver det."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"Den medföljande :mod:`mqtt`\\ -klienten implementerar QoS 0 och QoS 1; QoS 2"
+" ger upphov till ett fel om du begär det. För en kamera som rapporterar "
+"sensoravläsningar är QoS 0 nästan alltid rätt svar."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "Bevarade meddelanden och last will"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr ""
+"Två funktioner är värda att känna till eftersom de ändrar vad brokern minns "
+"om ditt topic."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN.** Om en PUBLISH har RETAIN-flaggan satt lagrar brokern meddelandet"
+" och vidarebefordrar det till varje *framtida* subscriber i samma ögonblick "
+"som de prenumererar. Det är så MQTT hanterar \"vad är det aktuella värdet?\""
+" -- en sensor publicerar sin senaste avläsning bevarad, och en "
+"instrumentpanel som prenumererar tio minuter senare tar fortfarande emot det"
+" senaste värdet i stället för att vänta på nästa publicering. Att publicera "
+"om med samma topic skriver över det bevarade värdet; att publicera en tom "
+"payload rensar det."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**Last will.** När en klient ansluter kan den ge brokern ett \"last will and"
+" testament\": ett topic, en payload, ett QoS och en retain-flagga. Om den "
+"klienten kopplar från *orent* -- TCP RESET, strömavbrott, nätverksbortfall "
+"utan något DISCONNECT-paket -- publicerar brokern testamentet å klientens "
+"vägnar. Subscribers ser det som kamerans avisering om att den har gått "
+"offline. Kameran själv skickar aldrig testamentet; det gör brokern, eftersom"
+" kameran vid det laget är borta."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "Keepalive och återanslutning"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"CONNECT bär ett *keepalive*\\ -intervall i sekunder. Om klienten har varit "
+"tyst så länge betraktar brokern den som död. För att förhindra det skickar "
+"klienten med jämna mellanrum en PINGREQ (en byte: ``0xC0``\\ ) och får "
+"tillbaka en PINGRESP (\\ ``0xD0``\\ ) -- det minsta, billigaste hjärtslag "
+"protokollet kan bära. De flesta kameraappar sätter keepalive till 30 eller "
+"60 sekunder."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"Om TCP-anslutningen bryts märker båda sidor det och återansluter från "
+"början. Prenumerationer som gjordes före brottet går förlorade om inte "
+"klienten använde en *beständig session* vid anslutning; för enkla "
+"kameraappar är mönstret med att prenumerera om vid återanslutning kortare "
+"och precis lika bra."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"Detta räcker för att läsa MQTT-specifikationen eller handrulla en klient "
+"över en :class:`socket.socket`\\ . Den medföljande klienten i :mod:`mqtt` "
+"gör precis det, plus ett vettigt API för applikationskod."
