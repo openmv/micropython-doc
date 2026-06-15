@@ -364,6 +364,7 @@ html_context["languages"] = [
 # directories to ignore when looking for source files.
 exclude_patterns = [
     "build",
+    "tools",
     ".venv",
     "esp32",
     "esp8266",
