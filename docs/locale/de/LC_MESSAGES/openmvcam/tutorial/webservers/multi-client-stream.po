@@ -1,0 +1,159 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: de <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:2
+msgid "Sharing one capture loop across viewers"
+msgstr "Eine Erfassungsschleife über mehrere Betrachter hinweg teilen"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:4
+msgid ""
+"Each connected client calling ``csi0.snapshot()`` independently is wasteful,"
+" and once two streams are open at once it gets worse: the sensor delivers "
+"frames at its own rate, and every duplicated capture slows everybody down. "
+"The right approach is one capture coroutine that publishes \"the latest "
+"frame\" to a shared slot, plus per-client iterators that read from the slot."
+msgstr ""
+"Wenn jeder verbundene Client unabhängig ``csi0.snapshot()`` aufruft, ist das"
+" verschwenderisch, und sobald zwei Streams gleichzeitig geöffnet sind, wird "
+"es schlimmer: Der Sensor liefert Einzelbilder mit seiner eigenen Rate, und "
+"jede doppelte Erfassung verlangsamt alle. Der richtige Ansatz ist eine "
+"Erfassungs-Koroutine, die \"das neueste Einzelbild\" in einem gemeinsamen "
+"Slot veröffentlicht, plus Iteratoren pro Client, die aus dem Slot lesen."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:11
+msgid ""
+"One capture task writes JPEG bytes to a single latest_jpeg\n"
+"slot; three stream-client iterators read from the slot and\n"
+"each wait on the shared new_frame event."
+msgstr ""
+"Eine Erfassungsaufgabe schreibt JPEG-Bytes in einen einzigen latest_jpeg-\n"
+"Slot; drei Stream-Client-Iteratoren lesen aus dem Slot und\n"
+"warten jeweils auf das gemeinsame new_frame-Ereignis."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:18
+msgid "The capture task"
+msgstr "Die Erfassungsaufgabe"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:20
+msgid ""
+"A background coroutine grabs frames as fast as the sensor delivers them, "
+"JPEG-compresses each one into a shared ``bytes``, and pulses an event so any"
+" waiting client wakes up:"
+msgstr ""
+"Eine Hintergrund-Koroutine greift Einzelbilder so schnell ab, wie der Sensor"
+" sie liefert, JPEG-komprimiert jedes davon in ein gemeinsames ``bytes`` und "
+"setzt einen Impuls auf ein Ereignis, sodass jeder wartende Client aufwacht:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:37
+msgid ""
+"The ``set()`` / ``clear()`` pair is the *pulse* pattern. ``set()`` unblocks "
+"every coroutine currently waiting on the event in one go; ``clear()`` "
+"immediately resets the event so the next ``wait()`` blocks again. With "
+"multiple consumers (a viewer, another viewer, any other coroutine that needs"
+" to react to a new frame), no single consumer is responsible for resetting "
+"the event, and nobody steals a wake-up from anybody else."
+msgstr ""
+"Das Paar ``set()`` / ``clear()`` ist das *Impuls*-Muster. ``set()`` "
+"entsperrt jede Koroutine, die gerade auf das Ereignis wartet, auf einen "
+"Schlag; ``clear()`` setzt das Ereignis sofort zurück, sodass das nächste "
+"``wait()`` wieder blockiert. Bei mehreren Verbrauchern (ein Betrachter, ein "
+"weiterer Betrachter, jede andere Koroutine, die auf ein neues Einzelbild "
+"reagieren muss) ist kein einzelner Verbraucher für das Zurücksetzen des "
+"Ereignisses verantwortlich, und niemand stiehlt jemand anderem ein "
+"Aufwecken."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:47
+msgid ""
+"The ``bytes(...)`` wrap around the JPEG is load-bearing here. "
+":meth:`~image.Image.bytearray` returns a view into the camera's image "
+"buffer; the very next :meth:`~csi.CSI.snapshot` call rewrites that buffer in"
+" place with the next frame. ``latest_jpeg`` outlives the local ``img``, so "
+"without the copy every reader would see the slot shift under them on every "
+"capture."
+msgstr ""
+"Das ``bytes(...)`` um das JPEG herum ist hier tragend. "
+":meth:`~image.Image.bytearray` gibt eine Ansicht in den Bildpuffer der "
+"Kamera zurück; der unmittelbar nächste :meth:`~csi.CSI.snapshot`-Aufruf "
+"überschreibt diesen Puffer an Ort und Stelle mit dem nächsten Einzelbild. "
+"``latest_jpeg`` überlebt das lokale ``img``, sodass ohne die Kopie jeder "
+"Leser den Slot bei jeder Erfassung unter sich verschieben sehen würde."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:56
+msgid "Per-client iterators read from the slot"
+msgstr "Iteratoren pro Client lesen aus dem Slot"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:58
+msgid ""
+"The MJPEG stream handler stops calling ``csi0.snapshot()`` itself. Instead, "
+"each ``FrameStream`` instance waits on the shared event and reads from the "
+"shared bytes:"
+msgstr ""
+"Der MJPEG-Stream-Handler ruft selbst nicht mehr ``csi0.snapshot()`` auf. "
+"Stattdessen wartet jede ``FrameStream``-Instanz auf das gemeinsame Ereignis "
+"und liest aus den gemeinsamen Bytes:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:80
+msgid ""
+"The snapshot route changes too: it no longer triggers a capture, it returns "
+"whatever ``latest_jpeg`` currently holds:"
+msgstr ""
+"Die Snapshot-Route ändert sich ebenfalls: Sie löst keine Erfassung mehr aus,"
+" sondern gibt zurück, was ``latest_jpeg`` aktuell enthält:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:94
+msgid ""
+"The ``(body, status)`` tuple is microdot's shorthand for setting an HTTP "
+"status code without constructing a :class:`microdot.Response`. 503 says *I'm"
+" here but not ready* -- the right code for \"ask again in a moment.\""
+msgstr ""
+"Das Tupel ``(body, status)`` ist microdots Kurzschreibweise zum Setzen eines"
+" HTTP-Statuscodes, ohne eine :class:`microdot.Response` zu konstruieren. 503"
+" sagt *Ich bin da, aber noch nicht bereit* -- der richtige Code für \"frag "
+"gleich noch einmal\"."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:100
+msgid "Running capture alongside the server"
+msgstr "Die Erfassung neben dem Server ausführen"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:102
+msgid ""
+"``main`` now has two top-level coroutines: the capture loop and the HTTP "
+"server. :func:`asyncio.gather` runs them both, and if either crashes the "
+"other is cancelled:"
+msgstr ""
+"``main`` hat nun zwei Top-Level-Koroutinen: die Erfassungsschleife und den "
+"HTTP-Server. :func:`asyncio.gather` führt beide aus, und wenn eine abstürzt,"
+" wird die andere abgebrochen:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:116
+msgid ""
+"Now the sensor reads one frame per cycle no matter how many viewers are "
+"connected. The first browser to ``/stream.jpg`` sees frames; so does the "
+"second, the third, the tenth -- they all share the same capture, and the cam"
+" stays as responsive on its other routes."
+msgstr ""
+"Jetzt liest der Sensor ein Einzelbild pro Zyklus, egal wie viele Betrachter "
+"verbunden sind. Der erste Browser auf ``/stream.jpg`` sieht Einzelbilder; "
+"ebenso der zweite, der dritte, der zehnte -- sie alle teilen sich dieselbe "
+"Erfassung, und die Kamera bleibt bei ihren anderen Routen ebenso "
+"reaktionsschnell."

@@ -1,0 +1,322 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: de <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:2
+msgid "Filesystem hygiene"
+msgstr "Dateisystem-Hygiene"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:4
+msgid ""
+"Flash and SD storage on a shipped cam fill up with files no operator is "
+"going to clean out by hand. Two decisions about that storage stay with the "
+"product for its lifetime: *which surface holds which kind of data*, and *how"
+" the directories are structured so file operations keep working as the "
+"application accumulates records*."
+msgstr ""
+"Flash- und SD-Speicher einer ausgelieferten Kamera füllen sich mit Dateien, "
+"die kein Bediener von Hand aufräumen wird. Zwei Entscheidungen über diesen "
+"Speicher begleiten das Produkt für seine gesamte Lebensdauer: *welcher "
+"Datenträger welche Art von Daten aufnimmt* und *wie die Verzeichnisse "
+"strukturiert sind, damit Dateioperationen weiterhin funktionieren, während "
+"die Anwendung Datensätze ansammelt*."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:12
+msgid "Where things go"
+msgstr "Wo die Dinge hingehören"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:14
+msgid ""
+"Code and assets ride in the frozen modules and ROMFS the build commits at "
+"ship time. Application *state* -- anything the application writes at "
+"runtime, anything that grows, anything that changes between boots -- has to "
+"live somewhere else. The cam exposes two writable surfaces for it:"
+msgstr ""
+"Code und Assets reisen in den eingefrorenen Modulen und in ROMFS mit, die "
+"der Build zur Auslieferungszeit festschreibt. Der *Zustand* der Anwendung --"
+" alles, was die Anwendung zur Laufzeit schreibt, alles, was wächst, alles, "
+"was sich zwischen den Bootvorgängen ändert -- muss irgendwo anders "
+"untergebracht werden. Die Kamera stellt dafür zwei beschreibbare Datenträger"
+" bereit:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:20
+msgid ""
+"**Internal flash** at ``/flash``: a small writable filesystem mounted before"
+" any application code runs. The right place for *small fixed-size records "
+"that survive reboots*: configuration the application updates at runtime, "
+"last-known calibration, a rolling counter, a one-line marker file saying "
+"\"this cam was provisioned.\" Limited write cycles -- modern internal flash "
+"tolerates thousands to tens of thousands of writes per sector, not millions,"
+" so writes need to be infrequent, not per frame."
+msgstr ""
+"**Interner Flash** unter ``/flash``: ein kleines beschreibbares Dateisystem,"
+" das eingehängt wird, bevor irgendein Anwendungscode läuft. Der richtige Ort"
+" für *kleine Datensätze mit fester Größe, die Neustarts überdauern*: "
+"Konfiguration, welche die Anwendung zur Laufzeit aktualisiert, die zuletzt "
+"bekannte Kalibrierung, ein fortlaufender Zähler, eine einzeilige "
+"Markierungsdatei mit der Aussage \"diese Kamera wurde bereitgestellt\". "
+"Begrenzte Schreibzyklen -- moderner interner Flash verträgt Tausende bis "
+"Zehntausende von Schreibvorgängen pro Sektor, nicht Millionen, daher müssen "
+"Schreibvorgänge selten erfolgen, nicht pro Einzelbild."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:30
+msgid ""
+"**SD card** at ``/sdcard``: a larger writable filesystem mounted when a card"
+" is present. The right place for *bulky variable files*: image and video "
+"captures, log files, model fine-tuning data, anything that might grow to "
+"megabytes or gigabytes. Higher write capacity than internal flash but still "
+"finite; removable, replaceable, and the surface most likely to disappear "
+"when the application is mid-write."
+msgstr ""
+"**SD-Karte** unter ``/sdcard``: ein größeres beschreibbares Dateisystem, das"
+" eingehängt wird, wenn eine Karte vorhanden ist. Der richtige Ort für "
+"*große, variable Dateien*: Bild- und Videoaufnahmen, Logdateien, Daten für "
+"das Feintuning von Modellen, alles, was auf Megabyte oder Gigabyte anwachsen"
+" kann. Höhere Schreibkapazität als der interne Flash, aber dennoch endlich; "
+"entfernbar, austauschbar und der Datenträger, der am ehesten verschwindet, "
+"während die Anwendung mitten in einem Schreibvorgang steckt."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:38
+msgid ""
+"The right answer for *where to write something* is almost always \"flash for"
+" small fixed records, SD for everything else.\" The two are not "
+"interchangeable: an application that scribbles its rolling log file to "
+"``/flash`` will burn through the flash's write endurance in a deployment "
+"that would have been fine on SD."
+msgstr ""
+"Die richtige Antwort darauf, *wohin etwas geschrieben werden soll*, lautet "
+"fast immer \"Flash für kleine feste Datensätze, SD für alles andere\". Die "
+"beiden sind nicht austauschbar: Eine Anwendung, die ihre rotierende Logdatei"
+" nach ``/flash`` kritzelt, verbraucht in einem Einsatz, der auf SD "
+"problemlos gewesen wäre, die Schreibfestigkeit des Flash."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:46
+msgid "Treat both as can-fail"
+msgstr "Beide als ausfallgefährdet behandeln"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:48
+msgid ""
+"``/flash`` and ``/sdcard`` can both fail. The SD card can be ejected, the "
+"flash can be corrupted by a power loss mid-write, either can run out of "
+"space, and any operation on either can raise :exc:`OSError` for reasons the "
+"application will not get a chance to diagnose in the field."
+msgstr ""
+"``/flash`` und ``/sdcard`` können beide ausfallen. Die SD-Karte kann "
+"ausgeworfen werden, der Flash kann durch einen Stromausfall mitten im "
+"Schreibvorgang beschädigt werden, beiden kann der Speicherplatz ausgehen, "
+"und jede Operation auf beiden kann aus Gründen, die die Anwendung im Feld "
+"nicht diagnostizieren kann, einen :exc:`OSError` auslösen."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:54
+msgid "Two patterns make the application survive that:"
+msgstr "Zwei Muster sorgen dafür, dass die Anwendung das übersteht:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:56
+msgid ""
+"**Wrap mounts and operations in try blocks.** Every :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` against user-data paths is potentially"
+" failing. Catch :exc:`OSError`, log it, and fall back to a defined "
+"alternative -- write to ``/flash`` if ``/sdcard`` is gone, skip the "
+"operation if neither is available."
+msgstr ""
+"**Mounts und Operationen in try-Blöcke einpacken.** Jedes :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` auf Pfaden mit Benutzerdaten kann "
+"potenziell fehlschlagen. Fangen Sie :exc:`OSError` ab, protokollieren Sie "
+"ihn und greifen Sie auf eine definierte Alternative zurück -- nach "
+"``/flash`` schreiben, falls ``/sdcard`` nicht mehr da ist, die Operation "
+"überspringen, falls keines von beiden verfügbar ist."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:63
+msgid ""
+"**Atomic writes for files that must survive a power loss.** Write to a "
+"temporary path, close the handle, then :func:`os.rename` over the live name."
+" Either the rename succeeded and the file is the new version, or it did not "
+"and the file is the old version. There is no third state where the file is "
+"half-written::"
+msgstr ""
+"**Atomare Schreibvorgänge für Dateien, die einen Stromausfall überstehen "
+"müssen.** Schreiben Sie auf einen temporären Pfad, schließen Sie das Handle "
+"und führen Sie dann :func:`os.rename` über den aktiven Namen aus. Entweder "
+"ist die Umbenennung gelungen und die Datei ist die neue Version, oder sie "
+"ist es nicht und die Datei ist die alte Version. Es gibt keinen dritten "
+"Zustand, in dem die Datei halb geschrieben ist::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:79
+msgid ""
+"The pattern works on both flash and SD. It does *not* work for files large "
+"enough that the tmp file uses up the filesystem's free space; reserve it for"
+" small records."
+msgstr ""
+"Das Muster funktioniert sowohl auf Flash als auch auf SD. Es funktioniert "
+"*nicht* für Dateien, die groß genug sind, dass die tmp-Datei den freien "
+"Speicherplatz des Dateisystems aufbraucht; reservieren Sie es für kleine "
+"Datensätze."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:84
+msgid "The slow-directory trap"
+msgstr "Die Falle des langsamen Verzeichnisses"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:86
+msgid ""
+"The MicroPython VFS does not index directory contents the way a desktop "
+"filesystem does. :func:`os.listdir` and :func:`os.stat` walk the underlying "
+"file table linearly. A directory with a hundred files is fine; a directory "
+"with ten thousand files is unusably slow, with every :func:`os.listdir` "
+"taking seconds and every :func:`open` checking against the table on its way "
+"through."
+msgstr ""
+"Das MicroPython-VFS indiziert Verzeichnisinhalte nicht so, wie es ein "
+"Desktop-Dateisystem tut. :func:`os.listdir` und :func:`os.stat` durchlaufen "
+"die zugrunde liegende Dateitabelle linear. Ein Verzeichnis mit hundert "
+"Dateien ist in Ordnung; ein Verzeichnis mit zehntausend Dateien ist "
+"unbrauchbar langsam, wobei jedes :func:`os.listdir` Sekunden dauert und "
+"jedes :func:`open` auf seinem Weg die Tabelle durchprüft."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:94
+msgid ""
+"Applications that write logs or captures to disk hit this fastest. A naive "
+"``/sdcard/logs/<timestamp>.log`` scheme that opens one new file per minute "
+"fills the ``logs/`` directory with half a million files in a year of "
+"deployment. Long before then the application starts missing its frame rate "
+"because every file open is taking longer than a frame interval."
+msgstr ""
+"Anwendungen, die Logs oder Aufnahmen auf die Festplatte schreiben, treffen "
+"darauf am schnellsten. Ein naives ``/sdcard/logs/<timestamp>.log``-Schema, "
+"das jede Minute eine neue Datei öffnet, füllt das Verzeichnis ``logs/`` in "
+"einem Jahr Einsatz mit einer halben Million Dateien. Lange davor beginnt die"
+" Anwendung, ihre Bildrate zu verfehlen, weil jedes Öffnen einer Datei länger"
+" dauert als ein Einzelbildintervall."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:102
+msgid ""
+"The right pattern is to split files across a tree of dated subdirectories so"
+" no single directory ever holds more than a few hundred entries::"
+msgstr ""
+"Das richtige Muster besteht darin, Dateien über einen Baum von datierten "
+"Unterverzeichnissen aufzuteilen, sodass kein einzelnes Verzeichnis jemals "
+"mehr als ein paar hundert Einträge enthält::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:130
+msgid ""
+"A year of one-file-per-hour logging is now spread across 365 day-"
+"directories, each containing at most 24 files; :func:`os.listdir` against "
+"any one directory stays cheap, and the application's frame loop does not "
+"stall on file operations as the deployment ages."
+msgstr ""
+"Ein Jahr Protokollierung mit einer Datei pro Stunde verteilt sich nun über "
+"365 Tagesverzeichnisse, die jeweils höchstens 24 Dateien enthalten; "
+":func:`os.listdir` auf ein beliebiges einzelnes Verzeichnis bleibt günstig, "
+"und die Einzelbildschleife der Anwendung gerät bei Dateioperationen nicht "
+"ins Stocken, während der Einsatz altert."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:136
+msgid ""
+"The same principle applies to image captures, sensor traces, or anything "
+"else the application writes a file per event for. If the event rate is high,"
+" the tree wants to be deeper (year/month/day/hour, or "
+"year/month/day/hour/minute) so each leaf directory stays small. If the event"
+" rate is low, a year/month tree is enough."
+msgstr ""
+"Dasselbe Prinzip gilt für Bildaufnahmen, Sensor-Traces oder alles andere, "
+"wofür die Anwendung pro Ereignis eine Datei schreibt. Ist die Ereignisrate "
+"hoch, sollte der Baum tiefer sein (Jahr/Monat/Tag/Stunde oder "
+"Jahr/Monat/Tag/Stunde/Minute), damit jedes Blattverzeichnis klein bleibt. "
+"Ist die Ereignisrate niedrig, genügt ein Jahr/Monat-Baum."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:144
+msgid "Per-device paths"
+msgstr "Gerätespezifische Pfade"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:146
+msgid ""
+"In a fleet of more than one cam, log files need to identify which physical "
+"unit they came from. :func:`machine.unique_id` returns a hardware identifier"
+" baked into the cam at the factory; it is the same value across reboots, "
+"across firmware updates, and across SD card swaps. Embed it in the log path "
+"or in the log records and an operator looking at a pile of SD cards or a "
+"centralised log can tell which one is which::"
+msgstr ""
+"In einer Flotte von mehr als einer Kamera müssen Logdateien angeben, von "
+"welcher physischen Einheit sie stammen. :func:`machine.unique_id` gibt eine "
+"Hardwarekennung zurück, die der Kamera im Werk fest einprogrammiert wurde; "
+"sie ist über Neustarts, über Firmware-Updates und über SD-Kartenwechsel "
+"hinweg derselbe Wert. Betten Sie sie in den Logpfad oder in die "
+"Logdatensätze ein, und ein Bediener, der auf einen Stapel SD-Karten oder ein"
+" zentrales Log schaut, kann erkennen, welche welche ist::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:161
+msgid ""
+"Combined with the dated-subdirectory pattern, the layout becomes "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- one unit's hour of records, "
+"in a directory shallow enough to walk, on a path that names the unit on the "
+"file system itself."
+msgstr ""
+"Kombiniert mit dem Muster der datierten Unterverzeichnisse wird das Layout "
+"zu ``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- eine Stunde Datensätze "
+"einer Einheit, in einem Verzeichnis, das flach genug zum Durchlaufen ist, "
+"auf einem Pfad, der die Einheit im Dateisystem selbst benennt."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:168
+msgid "Pulling it together"
+msgstr "Alles zusammenführen"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:170
+msgid "A shipped cam's writable storage looks roughly like this:"
+msgstr ""
+"Der beschreibbare Speicher einer ausgelieferten Kamera sieht in etwa so aus:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:172
+msgid ""
+"``/flash`` -- configuration, calibration, a provisioning marker. Written "
+"rarely, read often. Atomic-rename pattern for any file whose loss would "
+"break the next boot."
+msgstr ""
+"``/flash`` -- Konfiguration, Kalibrierung, eine Bereitstellungsmarkierung. "
+"Selten geschrieben, oft gelesen. Atomares Umbenennungsmuster für jede Datei,"
+" deren Verlust den nächsten Bootvorgang stören würde."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:176
+msgid ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- the "
+"operational log. Written continuously, rotated by the path, never written "
+"through a directory with thousands of siblings."
+msgstr ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- das "
+"Betriebslog. Kontinuierlich geschrieben, über den Pfad rotiert, niemals "
+"durch ein Verzeichnis mit Tausenden von Geschwistern geschrieben."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:181
+msgid ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- image or video "
+"captures the application makes. Same tree shape, same reason."
+msgstr ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- Bild- oder "
+"Videoaufnahmen, die die Anwendung erstellt. Gleiche Baumstruktur, gleicher "
+"Grund."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:185
+msgid ""
+"That layout costs the application about twenty lines of code and saves it "
+"from the failure modes that take the cam down months into a deployment."
+msgstr ""
+"Dieses Layout kostet die Anwendung etwa zwanzig Zeilen Code und bewahrt sie "
+"vor den Fehlermodi, die die Kamera Monate nach Einsatzbeginn lahmlegen."

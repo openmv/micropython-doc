@@ -1,0 +1,826 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: de <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/speed_python.rst:4
+msgid "Maximising MicroPython speed"
+msgstr "Maximierung der MicroPython-Geschwindigkeit"
+
+#: ../../reference/speed_python.rst:10
+msgid ""
+"This tutorial describes ways of improving the performance of MicroPython "
+"code. Optimisations involving other languages are covered elsewhere, namely "
+"the use of modules written in C and the MicroPython inline assembler."
+msgstr ""
+"Dieses Tutorial beschreibt Möglichkeiten, die Leistung von MicroPython-Code "
+"zu verbessern. Optimierungen, die andere Sprachen betreffen, werden an "
+"anderer Stelle behandelt, namentlich der Einsatz von in C geschriebenen "
+"Modulen und der Inline-Assembler von MicroPython."
+
+#: ../../reference/speed_python.rst:14
+msgid ""
+"The process of developing high performance code comprises the following "
+"stages which should be performed in the order listed."
+msgstr ""
+"Der Prozess der Entwicklung von Hochleistungscode umfasst die folgenden "
+"Phasen, die in der aufgeführten Reihenfolge durchgeführt werden sollten."
+
+#: ../../reference/speed_python.rst:17
+msgid "Design for speed."
+msgstr "Auf Geschwindigkeit ausgelegt entwerfen."
+
+#: ../../reference/speed_python.rst:18
+msgid "Code and debug."
+msgstr "Codieren und debuggen."
+
+#: ../../reference/speed_python.rst:20
+msgid "Optimisation steps:"
+msgstr "Optimierungsschritte:"
+
+#: ../../reference/speed_python.rst:22
+msgid "Identify the slowest section of code."
+msgstr "Den langsamsten Codeabschnitt identifizieren."
+
+#: ../../reference/speed_python.rst:23
+msgid "Improve the efficiency of the Python code."
+msgstr "Die Effizienz des Python-Codes verbessern."
+
+#: ../../reference/speed_python.rst:24
+msgid "Use the native code emitter."
+msgstr "Den nativen Code-Emitter verwenden."
+
+#: ../../reference/speed_python.rst:25
+msgid "Use the viper code emitter."
+msgstr "Den Viper-Code-Emitter verwenden."
+
+#: ../../reference/speed_python.rst:26
+msgid "Use hardware-specific optimisations."
+msgstr "Hardwarespezifische Optimierungen verwenden."
+
+#: ../../reference/speed_python.rst:29
+msgid "Designing for speed"
+msgstr "Entwurf auf Geschwindigkeit"
+
+#: ../../reference/speed_python.rst:31
+msgid ""
+"Performance issues should be considered at the outset. This involves taking "
+"a view on the sections of code which are most performance critical and "
+"devoting particular attention to their design. The process of optimisation "
+"begins when the code has been tested: if the design is correct at the outset"
+" optimisation will be straightforward and may actually be unnecessary."
+msgstr ""
+"Leistungsaspekte sollten von Anfang an berücksichtigt werden. Dazu gehört, "
+"sich einen Überblick über die leistungskritischsten Codeabschnitte zu "
+"verschaffen und deren Entwurf besondere Aufmerksamkeit zu widmen. Der "
+"Optimierungsprozess beginnt, wenn der Code getestet wurde: Ist der Entwurf "
+"von Anfang an korrekt, gestaltet sich die Optimierung unkompliziert und kann"
+" sogar überflüssig sein."
+
+#: ../../reference/speed_python.rst:38
+msgid "Algorithms"
+msgstr "Algorithmen"
+
+#: ../../reference/speed_python.rst:40
+msgid ""
+"The most important aspect of designing any routine for performance is "
+"ensuring that the best algorithm is employed. This is a topic for textbooks "
+"rather than for a MicroPython guide but spectacular performance gains can "
+"sometimes be achieved by adopting algorithms known for their efficiency."
+msgstr ""
+"Der wichtigste Aspekt beim Entwurf einer leistungsorientierten Routine "
+"besteht darin, sicherzustellen, dass der beste Algorithmus eingesetzt wird. "
+"Dies ist eher ein Thema für Lehrbücher als für einen MicroPython-Leitfaden, "
+"doch durch die Verwendung von Algorithmen, die für ihre Effizienz bekannt "
+"sind, lassen sich mitunter spektakuläre Leistungssteigerungen erzielen."
+
+#: ../../reference/speed_python.rst:46
+msgid "RAM allocation"
+msgstr "RAM-Zuweisung"
+
+#: ../../reference/speed_python.rst:48
+msgid ""
+"To design efficient MicroPython code it is necessary to have an "
+"understanding of the way the interpreter allocates RAM. When an object is "
+"created or grows in size (for example where an item is appended to a list) "
+"the necessary RAM is allocated from a block known as the heap. This takes a "
+"significant amount of time; further it will on occasion trigger a process "
+"known as garbage collection which can take several milliseconds."
+msgstr ""
+"Um effizienten MicroPython-Code zu entwerfen, ist ein Verständnis der Art "
+"und Weise erforderlich, wie der Interpreter RAM zuweist. Wenn ein Objekt "
+"erstellt wird oder an Größe zunimmt (zum Beispiel, wenn ein Element an eine "
+"Liste angehängt wird), wird der benötigte RAM aus einem als Heap bekannten "
+"Block zugewiesen. Dies nimmt eine beträchtliche Zeit in Anspruch; zudem löst"
+" es gelegentlich einen Prozess namens Garbage Collection aus, der mehrere "
+"Millisekunden dauern kann."
+
+#: ../../reference/speed_python.rst:55
+msgid ""
+"Consequently the performance of a function or method can be improved if an "
+"object is created once only and not permitted to grow in size. This implies "
+"that the object persists for the duration of its use: typically it will be "
+"instantiated in a class constructor and used in various methods."
+msgstr ""
+"Folglich kann die Leistung einer Funktion oder Methode verbessert werden, "
+"wenn ein Objekt nur einmal erstellt wird und nicht an Größe zunehmen darf. "
+"Dies impliziert, dass das Objekt für die Dauer seiner Verwendung bestehen "
+"bleibt: Typischerweise wird es in einem Klassenkonstruktor instanziiert und "
+"in verschiedenen Methoden verwendet."
+
+#: ../../reference/speed_python.rst:60
+msgid ""
+"This is covered in further detail :ref:`Controlling garbage collection "
+"<controlling_gc>` below."
+msgstr ""
+"Dies wird weiter unten unter :ref:`Steuerung der Garbage Collection "
+"<controlling_gc>` näher behandelt."
+
+#: ../../reference/speed_python.rst:65
+msgid "Buffers"
+msgstr "Puffer"
+
+#: ../../reference/speed_python.rst:67
+msgid ""
+"An example of the above is the common case where a buffer is required, such "
+"as one used for communication with a device. A typical driver will create "
+"the buffer in the constructor and use it in its I/O methods which will be "
+"called repeatedly."
+msgstr ""
+"Ein Beispiel für das oben Gesagte ist der häufige Fall, dass ein Puffer "
+"benötigt wird, etwa für die Kommunikation mit einem Gerät. Ein typischer "
+"Treiber erstellt den Puffer im Konstruktor und verwendet ihn in seinen "
+"E/A-Methoden, die wiederholt aufgerufen werden."
+
+#: ../../reference/speed_python.rst:71
+msgid ""
+"The MicroPython libraries typically provide support for pre-allocated "
+"buffers. For example, objects which support stream interface (e.g., file or "
+"UART) provide ``read()`` method which allocates new buffer for read data, "
+"but also a ``readinto()`` method to read data into an existing buffer."
+msgstr ""
+"Die MicroPython-Bibliotheken bieten typischerweise Unterstützung für vorab "
+"zugewiesene Puffer. Beispielsweise stellen Objekte, die die Stream-"
+"Schnittstelle unterstützen (z. B. Datei oder UART), eine ``read()``-Methode "
+"bereit, die einen neuen Puffer für die gelesenen Daten zuweist, aber auch "
+"eine ``readinto()``-Methode, um Daten in einen vorhandenen Puffer "
+"einzulesen."
+
+#: ../../reference/speed_python.rst:76
+msgid "Some useful classes for creating reusable buffer objects:"
+msgstr ""
+"Einige nützliche Klassen zum Erstellen wiederverwendbarer Pufferobjekte:"
+
+#: ../../reference/speed_python.rst:78
+msgid ":class:`bytearray`"
+msgstr ":class:`bytearray`"
+
+#: ../../reference/speed_python.rst:79
+msgid ":mod:`array` (:ref:`discussed below<speed_arrays>`)"
+msgstr ":mod:`array` (:ref:`weiter unten erörtert<speed_arrays>`)"
+
+#: ../../reference/speed_python.rst:80
+msgid ":class:`io.StringIO` and :class:`io.BytesIO`"
+msgstr ":class:`io.StringIO` und :class:`io.BytesIO`"
+
+#: ../../reference/speed_python.rst:81
+msgid ":class:`micropython.RingIO`"
+msgstr ":class:`micropython.RingIO`"
+
+#: ../../reference/speed_python.rst:84
+msgid "Floating point"
+msgstr "Gleitkommazahlen"
+
+#: ../../reference/speed_python.rst:86
+msgid ""
+"Some MicroPython ports allocate floating point numbers on heap. Some other "
+"ports may lack dedicated floating-point coprocessor, and perform arithmetic "
+"operations on them in \"software\" at considerably lower speed than on "
+"integers. Where performance is important, use integer operations and "
+"restrict the use of floating point to sections of the code where performance"
+" is not paramount. For example, capture ADC readings as integer values to an"
+" array in one quick go, and only then convert them to floating-point numbers"
+" for signal processing."
+msgstr ""
+"Einige MicroPython-Ports weisen Gleitkommazahlen auf dem Heap zu. Bei "
+"manchen anderen Ports fehlt möglicherweise ein dedizierter Gleitkomma-"
+"Koprozessor, sodass arithmetische Operationen mit ihnen \"in Software\" und "
+"mit erheblich geringerer Geschwindigkeit als bei Ganzzahlen ausgeführt "
+"werden. Wo Leistung wichtig ist, verwenden Sie Ganzzahloperationen und "
+"beschränken Sie den Einsatz von Gleitkommazahlen auf Codeabschnitte, in "
+"denen Leistung nicht entscheidend ist. Erfassen Sie beispielsweise ADC-"
+"Messwerte in einem schnellen Durchgang als Ganzzahlwerte in einem Array und "
+"wandeln Sie sie erst danach für die Signalverarbeitung in Gleitkommazahlen "
+"um."
+
+#: ../../reference/speed_python.rst:97
+msgid "Arrays"
+msgstr "Arrays"
+
+#: ../../reference/speed_python.rst:99
+msgid ""
+"Consider the use of the various types of array classes as an alternative to "
+"lists. The :mod:`array` module supports various element types with 8-bit "
+"elements supported by Python's built in `bytes` and `bytearray` classes. "
+"These data structures all store elements in contiguous memory locations. "
+"Once again to avoid memory allocation in critical code these should be pre-"
+"allocated and passed as arguments or as bound objects."
+msgstr ""
+"Erwägen Sie den Einsatz der verschiedenen Array-Klassentypen als Alternative"
+" zu Listen. Das :mod:`array`-Modul unterstützt verschiedene Elementtypen, "
+"wobei 8-Bit-Elemente von Pythons eingebauten Klassen `bytes` und `bytearray`"
+" unterstützt werden. Diese Datenstrukturen speichern Elemente allesamt in "
+"zusammenhängenden Speicherbereichen. Auch hier sollten diese, um eine "
+"Speicherzuweisung in kritischem Code zu vermeiden, vorab zugewiesen und als "
+"Argumente oder als gebundene Objekte übergeben werden."
+
+#: ../../reference/speed_python.rst:106
+msgid "Memoryviews"
+msgstr "Memoryviews"
+
+#: ../../reference/speed_python.rst:108
+msgid ""
+"When passing slices of objects such as `bytearray` instances, Python creates"
+" a copy which involves allocation of the size proportional to the size of "
+"slice. This can be alleviated using a `memoryview` object. The `memoryview` "
+"itself is allocated on the heap, but is a small, fixed-size object, "
+"regardless of the size of slice it points to. Slicing a `memoryview` creates"
+" a new `memoryview`, so this cannot be done in an interrupt service routine."
+" Further, the slice syntax ``a:b`` causes further allocation by "
+"instantiating a ``slice(a, b)`` object."
+msgstr ""
+"Beim Übergeben von Slices von Objekten wie `bytearray`-Instanzen erstellt "
+"Python eine Kopie, was eine Zuweisung in einer Größe proportional zur Größe "
+"des Slice mit sich bringt. Dies lässt sich mit einem `memoryview`-Objekt "
+"abmildern. Der `memoryview` selbst wird auf dem Heap zugewiesen, ist aber "
+"ein kleines Objekt fester Größe, unabhängig von der Größe des Slice, auf das"
+" er verweist. Das Slicen eines `memoryview` erzeugt einen neuen "
+"`memoryview`, sodass dies nicht in einer Interrupt-Service-Routine erfolgen "
+"kann. Außerdem verursacht die Slice-Syntax ``a:b`` durch das Instanziieren "
+"eines ``slice(a, b)``-Objekts eine weitere Zuweisung."
+
+#: ../../reference/speed_python.rst:123
+msgid ""
+"A `memoryview` can only be applied to objects supporting the buffer protocol"
+" - this includes arrays but not lists. Small caveat is that while memoryview"
+" object is live, it also keeps alive the original buffer object. So, a "
+"memoryview isn't a universal panacea. For instance, in the example above, if"
+" you are done with 10K buffer and just need those bytes 30:2000 from it, it "
+"may be better to make a slice, and let the 10K buffer go (be ready for "
+"garbage collection), instead of making a long-living memoryview and keeping "
+"10K blocked for GC."
+msgstr ""
+"Ein `memoryview` kann nur auf Objekte angewendet werden, die das Buffer-"
+"Protokoll unterstützen – dazu gehören Arrays, aber keine Listen. Ein kleiner"
+" Vorbehalt ist, dass ein memoryview-Objekt, solange es aktiv ist, auch das "
+"ursprüngliche Pufferobjekt am Leben hält. Ein memoryview ist also kein "
+"Allheilmittel. Wenn Sie zum Beispiel im obigen Beispiel mit dem 10K-Puffer "
+"fertig sind und nur die Bytes 30:2000 daraus benötigen, kann es besser sein,"
+" ein Slice zu erstellen und den 10K-Puffer freizugeben (für die Garbage "
+"Collection bereit zu machen), anstatt ein langlebiges memoryview zu erzeugen"
+" und 10K für die GC blockiert zu halten."
+
+#: ../../reference/speed_python.rst:131
+msgid ""
+"Nonetheless, `memoryview` is indispensable for advanced preallocated buffer "
+"management. ``readinto()`` method discussed above puts data at the beginning"
+" of buffer and fills in entire buffer. What if you need to put data in the "
+"middle of existing buffer? Just create a memoryview into the needed section "
+"of buffer and pass it to ``readinto()``."
+msgstr ""
+"Nichtsdestotrotz ist `memoryview` für die fortgeschrittene Verwaltung vorab "
+"zugewiesener Puffer unverzichtbar. Die oben erörterte ``readinto()``-Methode"
+" legt Daten am Anfang des Puffers ab und füllt den gesamten Puffer. Was, "
+"wenn Sie Daten in der Mitte eines vorhandenen Puffers ablegen müssen? "
+"Erstellen Sie einfach einen memoryview auf den benötigten Abschnitt des "
+"Puffers und übergeben Sie ihn an ``readinto()``."
+
+#: ../../reference/speed_python.rst:138
+msgid "Strings vs Bytes"
+msgstr "Strings vs. Bytes"
+
+#: ../../reference/speed_python.rst:140
+msgid ""
+"MicroPython uses :ref:`string interning <qstr>` to save space when there are"
+" multiple identical strings. Each time a new string is allocated at runtime "
+"(for example, when two other strings are concatenated), MicroPython checks "
+"whether the new string can be interned to save RAM."
+msgstr ""
+"MicroPython verwendet :ref:`String-Interning <qstr>`, um Speicherplatz zu "
+"sparen, wenn mehrere identische Strings vorhanden sind. Jedes Mal, wenn zur "
+"Laufzeit ein neuer String zugewiesen wird (zum Beispiel, wenn zwei andere "
+"Strings verkettet werden), prüft MicroPython, ob der neue String interniert "
+"werden kann, um RAM zu sparen."
+
+#: ../../reference/speed_python.rst:145
+msgid ""
+"If you have code which performs performance-critical string operations then "
+"consider using :class:`bytes` objects and literals (i.e. ``b\"abc\"``). This"
+" skips the interning check, and can be several times faster than performing "
+"the same operations with string objects."
+msgstr ""
+"Wenn Sie Code haben, der leistungskritische String-Operationen durchführt, "
+"sollten Sie die Verwendung von :class:`bytes`-Objekten und -Literalen (d. h."
+" ``b\"abc\"``) in Betracht ziehen. Dies überspringt die Interning-Prüfung "
+"und kann um ein Mehrfaches schneller sein als dieselben Operationen mit "
+"String-Objekten."
+
+#: ../../reference/speed_python.rst:150
+msgid ""
+"The fastest performance will always be achieved by avoiding new object "
+"creation entirely, for example with a reusable :ref:`buffer as described "
+"above<speed_buffers>`."
+msgstr ""
+"Die schnellste Leistung wird stets erreicht, indem das Erstellen neuer "
+"Objekte gänzlich vermieden wird, zum Beispiel mit einem wiederverwendbaren "
+":ref:`Puffer wie oben beschrieben<speed_buffers>`."
+
+#: ../../reference/speed_python.rst:155
+msgid "Identifying the slowest section of code"
+msgstr "Identifizierung des langsamsten Codeabschnitts"
+
+#: ../../reference/speed_python.rst:157
+msgid ""
+"This is a process known as profiling and is covered in textbooks and (for "
+"standard Python) supported by various software tools. For the type of "
+"smaller embedded application likely to be running on MicroPython platforms "
+"the slowest function or method can usually be established by judicious use "
+"of the timing ``ticks`` group of functions documented in `time`. Code "
+"execution time can be measured in ms, us, or CPU cycles."
+msgstr ""
+"Dies ist ein als Profiling bekannter Prozess, der in Lehrbüchern behandelt "
+"und (für Standard-Python) durch verschiedene Softwarewerkzeuge unterstützt "
+"wird. Bei den kleineren eingebetteten Anwendungen, die wahrscheinlich auf "
+"MicroPython-Plattformen laufen, lässt sich die langsamste Funktion oder "
+"Methode in der Regel durch den umsichtigen Einsatz der in `time` "
+"dokumentierten Zeitmess-``ticks``-Funktionsgruppe ermitteln. Die "
+"Codeausführungszeit kann in ms, us oder CPU-Zyklen gemessen werden."
+
+#: ../../reference/speed_python.rst:164
+msgid ""
+"The following enables any function or method to be timed by adding an "
+"``@timed_function`` decorator:"
+msgstr ""
+"Das Folgende ermöglicht es, jede Funktion oder Methode durch Hinzufügen "
+"eines ``@timed_function``-Dekorators zeitlich zu messen:"
+
+#: ../../reference/speed_python.rst:180
+msgid "MicroPython code improvements"
+msgstr "Verbesserungen am MicroPython-Code"
+
+#: ../../reference/speed_python.rst:183
+msgid "The const() declaration"
+msgstr "Die const()-Deklaration"
+
+#: ../../reference/speed_python.rst:185
+msgid ""
+"MicroPython provides a ``const()`` declaration. This works in a similar way "
+"to ``#define`` in C in that when the code is compiled to bytecode the "
+"compiler substitutes the numeric value for the identifier. This avoids a "
+"dictionary lookup at runtime. The argument to ``const()`` may be anything "
+"which, at compile time, evaluates to an integer e.g. ``0x100`` or ``1 << "
+"8``."
+msgstr ""
+"MicroPython stellt eine ``const()``-Deklaration bereit. Diese funktioniert "
+"ähnlich wie ``#define`` in C: Wenn der Code in Bytecode kompiliert wird, "
+"ersetzt der Compiler den Bezeichner durch den numerischen Wert. Dies "
+"vermeidet eine Dictionary-Suche zur Laufzeit. Das Argument für ``const()`` "
+"kann alles sein, was zur Kompilierzeit zu einer Ganzzahl ausgewertet wird, "
+"z. B. ``0x100`` oder ``1 << 8``."
+
+#: ../../reference/speed_python.rst:194
+msgid "Caching object references"
+msgstr "Zwischenspeichern von Objektreferenzen"
+
+#: ../../reference/speed_python.rst:196
+msgid ""
+"Where a function or method repeatedly accesses objects performance is "
+"improved by caching the object in a local variable:"
+msgstr ""
+"Wenn eine Funktion oder Methode wiederholt auf Objekte zugreift, wird die "
+"Leistung verbessert, indem das Objekt in einer lokalen Variablen "
+"zwischengespeichert wird:"
+
+#: ../../reference/speed_python.rst:209
+msgid ""
+"This avoids the need repeatedly to look up ``self.ba`` and "
+"``obj_display.framebuffer`` in the body of the method ``bar()``."
+msgstr ""
+"Dies vermeidet die Notwendigkeit, ``self.ba`` und "
+"``obj_display.framebuffer`` im Rumpf der Methode ``bar()`` wiederholt "
+"nachzuschlagen."
+
+#: ../../reference/speed_python.rst:215
+msgid "Controlling garbage collection"
+msgstr "Steuerung der Garbage Collection"
+
+#: ../../reference/speed_python.rst:217
+msgid ""
+"When memory allocation is required, MicroPython attempts to locate an "
+"adequately sized block on the heap. This may fail, usually because the heap "
+"is cluttered with objects which are no longer referenced by code. If a "
+"failure occurs, the process known as garbage collection reclaims the memory "
+"used by these redundant objects and the allocation is then tried again - a "
+"process which can take several milliseconds."
+msgstr ""
+"Wenn eine Speicherzuweisung erforderlich ist, versucht MicroPython, einen "
+"ausreichend großen Block auf dem Heap zu finden. Dies kann fehlschlagen, in "
+"der Regel weil der Heap mit Objekten überfüllt ist, die vom Code nicht mehr "
+"referenziert werden. Tritt ein Fehler auf, gibt der als Garbage Collection "
+"bekannte Prozess den von diesen überflüssigen Objekten belegten Speicher "
+"frei, und die Zuweisung wird anschließend erneut versucht – ein Vorgang, der"
+" mehrere Millisekunden dauern kann."
+
+#: ../../reference/speed_python.rst:224
+msgid ""
+"There may be benefits in pre-empting this by periodically issuing "
+"``gc.collect()``. Firstly doing a collection before it is actually required "
+"is quicker - typically on the order of 1ms if done frequently. Secondly you "
+"can determine the point in code where this time is used rather than have a "
+"longer delay occur at random points, possibly in a speed critical section. "
+"Finally performing collections regularly can reduce fragmentation in the "
+"heap. Severe fragmentation can lead to non-recoverable allocation failures."
+msgstr ""
+"Es kann von Vorteil sein, dem durch periodisches Ausführen von "
+"``gc.collect()`` zuvorzukommen. Erstens ist es schneller, eine Collection "
+"durchzuführen, bevor sie tatsächlich benötigt wird – bei häufiger Ausführung"
+" typischerweise in der Größenordnung von 1 ms. Zweitens können Sie die "
+"Codestelle bestimmen, an der diese Zeit aufgewendet wird, anstatt dass eine "
+"längere Verzögerung an zufälligen Stellen auftritt, möglicherweise in einem "
+"geschwindigkeitskritischen Abschnitt. Schließlich kann regelmäßiges "
+"Durchführen von Collections die Fragmentierung im Heap verringern. Starke "
+"Fragmentierung kann zu nicht behebbaren Zuweisungsfehlern führen."
+
+#: ../../reference/speed_python.rst:233
+msgid "The Native code emitter"
+msgstr "Der native Code-Emitter"
+
+#: ../../reference/speed_python.rst:235
+msgid ""
+"This causes the MicroPython compiler to emit native CPU opcodes rather than "
+"bytecode. It covers the bulk of the MicroPython functionality, so most "
+"functions will require no adaptation (but see below). It is invoked by means"
+" of a function decorator:"
+msgstr ""
+"Dies veranlasst den MicroPython-Compiler, native CPU-Opcodes anstelle von "
+"Bytecode auszugeben. Er deckt den Großteil der MicroPython-Funktionalität "
+"ab, sodass die meisten Funktionen keine Anpassung erfordern (siehe jedoch "
+"unten). Er wird mittels eines Funktionsdekorators aufgerufen:"
+
+#: ../../reference/speed_python.rst:246
+msgid ""
+"There are certain limitations in the current implementation of the native "
+"code emitter."
+msgstr ""
+"In der aktuellen Implementierung des nativen Code-Emitters bestehen gewisse "
+"Einschränkungen."
+
+#: ../../reference/speed_python.rst:248
+msgid "If ``raise`` is used an argument must be supplied."
+msgstr "Wenn ``raise`` verwendet wird, muss ein Argument angegeben werden."
+
+#: ../../reference/speed_python.rst:249
+msgid ""
+"The background scheduler (see `micropython.schedule`) is not run during "
+"execution of native code."
+msgstr ""
+"Der Hintergrund-Scheduler (siehe `micropython.schedule`) wird während der "
+"Ausführung von nativem Code nicht ausgeführt."
+
+#: ../../reference/speed_python.rst:251
+msgid ""
+"On targets with threading and the GIL, the GIL is not released during "
+"execution of native code."
+msgstr ""
+"Auf Zielsystemen mit Threading und dem GIL wird der GIL während der "
+"Ausführung von nativem Code nicht freigegeben."
+
+#: ../../reference/speed_python.rst:254
+msgid ""
+"To mitigate the last two points, long running native functions should call "
+"``time.sleep(0)`` periodically, which will run the scheduler and bounce the "
+"GIL."
+msgstr ""
+"Um die letzten beiden Punkte abzumildern, sollten lange laufende native "
+"Funktionen periodisch ``time.sleep(0)`` aufrufen, was den Scheduler ausführt"
+" und den GIL kurz freigibt."
+
+#: ../../reference/speed_python.rst:257
+msgid ""
+"The trade-off for the improved performance (roughly twice as fast as "
+"bytecode) is an increase in compiled code size."
+msgstr ""
+"Der Kompromiss für die verbesserte Leistung (ungefähr doppelt so schnell wie"
+" Bytecode) ist eine Zunahme der kompilierten Codegröße."
+
+#: ../../reference/speed_python.rst:261
+msgid "The Viper code emitter"
+msgstr "Der Viper-Code-Emitter"
+
+#: ../../reference/speed_python.rst:263
+msgid ""
+"The optimisations discussed above involve standards-compliant Python code. "
+"The Viper code emitter is not fully compliant. It supports special Viper "
+"native data types in pursuit of performance. Integer processing is non-"
+"compliant because it uses machine words: arithmetic on 32 bit hardware is "
+"performed modulo 2**32."
+msgstr ""
+"Die oben erörterten Optimierungen betreffen standardkonformen Python-Code. "
+"Der Viper-Code-Emitter ist nicht vollständig konform. Er unterstützt "
+"spezielle native Viper-Datentypen im Streben nach Leistung. Die "
+"Ganzzahlverarbeitung ist nicht konform, da sie Maschinenwörter verwendet: "
+"Arithmetik auf 32-Bit-Hardware wird modulo 2**32 ausgeführt."
+
+#: ../../reference/speed_python.rst:268
+msgid ""
+"Like the Native emitter Viper produces machine instructions but further "
+"optimisations are performed, substantially increasing performance especially"
+" for integer arithmetic and bit manipulations. It is invoked using a "
+"decorator:"
+msgstr ""
+"Wie der native Emitter erzeugt Viper Maschinenbefehle, doch es werden "
+"weitere Optimierungen durchgeführt, die die Leistung erheblich steigern, "
+"insbesondere bei Ganzzahlarithmetik und Bitmanipulationen. Er wird mit einem"
+" Dekorator aufgerufen:"
+
+#: ../../reference/speed_python.rst:278
+msgid ""
+"As the above fragment illustrates it is beneficial to use Python type hints "
+"to assist the Viper optimiser. Type hints provide information on the data "
+"types of arguments and of the return value; these are a standard Python "
+"language feature formally defined here `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_. Viper supports its own set of"
+" types namely ``int``, ``uint`` (unsigned integer), ``ptr``, ``ptr8``, "
+"``ptr16`` and ``ptr32``. The ``ptrX`` types are discussed below. Currently "
+"the ``uint`` type serves a single purpose: as a type hint for a function "
+"return value. If such a function returns ``0xffffffff`` Python will "
+"interpret the result as 2**32 -1 rather than as -1."
+msgstr ""
+"Wie das obige Fragment veranschaulicht, ist es vorteilhaft, Python-Typ-"
+"Hinweise zu verwenden, um den Viper-Optimierer zu unterstützen. Typ-Hinweise"
+" liefern Informationen über die Datentypen von Argumenten und des "
+"Rückgabewerts; dies ist ein Standard-Sprachmerkmal von Python, das formal "
+"hier definiert ist: `PEP0484 <https://www.python.org/dev/peps/pep-0484/>`_. "
+"Viper unterstützt seinen eigenen Satz von Typen, nämlich ``int``, ``uint`` "
+"(vorzeichenlose Ganzzahl), ``ptr``, ``ptr8``, ``ptr16`` und ``ptr32``. Die "
+"``ptrX``-Typen werden weiter unten erörtert. Derzeit erfüllt der Typ "
+"``uint`` einen einzigen Zweck: als Typ-Hinweis für den Rückgabewert einer "
+"Funktion. Wenn eine solche Funktion ``0xffffffff`` zurückgibt, interpretiert"
+" Python das Ergebnis als 2**32 -1 anstatt als -1."
+
+#: ../../reference/speed_python.rst:286
+msgid ""
+"In addition to the restrictions imposed by the native emitter the following "
+"constraints apply:"
+msgstr ""
+"Zusätzlich zu den vom nativen Emitter auferlegten Beschränkungen gelten die "
+"folgenden Einschränkungen:"
+
+#: ../../reference/speed_python.rst:288
+msgid "Default argument values are not permitted."
+msgstr "Standardargumentwerte sind nicht zulässig."
+
+#: ../../reference/speed_python.rst:289
+msgid "Floating point may be used but is not optimised."
+msgstr ""
+"Gleitkommazahlen dürfen verwendet werden, werden aber nicht optimiert."
+
+#: ../../reference/speed_python.rst:291
+msgid "Viper provides pointer types to assist the optimiser. These comprise"
+msgstr ""
+"Viper stellt Zeigertypen zur Unterstützung des Optimierers bereit. Diese "
+"umfassen"
+
+#: ../../reference/speed_python.rst:293
+msgid "``ptr`` Pointer to an object."
+msgstr "``ptr`` Zeiger auf ein Objekt."
+
+#: ../../reference/speed_python.rst:294
+msgid "``ptr8`` Points to a byte."
+msgstr "``ptr8`` Zeigt auf ein Byte."
+
+#: ../../reference/speed_python.rst:295
+msgid "``ptr16`` Points to a 16 bit half-word."
+msgstr "``ptr16`` Zeigt auf ein 16-Bit-Halbwort."
+
+#: ../../reference/speed_python.rst:296
+msgid "``ptr32`` Points to a 32 bit machine word."
+msgstr "``ptr32`` Zeigt auf ein 32-Bit-Maschinenwort."
+
+#: ../../reference/speed_python.rst:298
+msgid ""
+"The concept of a pointer may be unfamiliar to Python programmers. It has "
+"similarities to a Python `memoryview` object in that it provides direct "
+"access to data stored in memory. Items are accessed using subscript "
+"notation, but slices are not supported: a pointer can return a single item "
+"only. Its purpose is to provide fast random access to data stored in "
+"contiguous memory locations - such as data stored in objects which support "
+"the buffer protocol, and memory-mapped peripheral registers in a "
+"microcontroller. It should be noted that programming using pointers is "
+"hazardous: bounds checking is not performed and the compiler does nothing to"
+" prevent buffer overrun errors."
+msgstr ""
+"Das Konzept eines Zeigers ist Python-Programmierern möglicherweise "
+"unbekannt. Es weist Ähnlichkeiten mit einem Python-`memoryview`-Objekt auf, "
+"da es direkten Zugriff auf im Speicher abgelegte Daten bietet. Auf Elemente "
+"wird mittels Indexnotation zugegriffen, Slices werden jedoch nicht "
+"unterstützt: Ein Zeiger kann nur ein einzelnes Element zurückgeben. Sein "
+"Zweck besteht darin, schnellen wahlfreien Zugriff auf Daten zu ermöglichen, "
+"die in zusammenhängenden Speicherbereichen abgelegt sind – wie etwa Daten in"
+" Objekten, die das Buffer-Protokoll unterstützen, sowie speicherabgebildete "
+"Peripherieregister in einem Mikrocontroller. Es ist zu beachten, dass das "
+"Programmieren mit Zeigern riskant ist: Es findet keine Bereichsprüfung "
+"statt, und der Compiler unternimmt nichts, um Pufferüberlauf-Fehler zu "
+"verhindern."
+
+#: ../../reference/speed_python.rst:307
+msgid "Typical usage is to cache variables:"
+msgstr ""
+"Eine typische Verwendung besteht darin, Variablen zwischenzuspeichern:"
+
+#: ../../reference/speed_python.rst:318
+msgid ""
+"In this instance the compiler \"knows\" that ``buf`` is the address of an "
+"array of bytes; it can emit code to rapidly compute the address of "
+"``buf[x]`` at runtime. Where casts are used to convert objects to Viper "
+"native types these should be performed at the start of the function rather "
+"than in critical timing loops as the cast operation can take several "
+"microseconds. The rules for casting are as follows:"
+msgstr ""
+"In diesem Fall \"weiß\" der Compiler, dass ``buf`` die Adresse eines Byte-"
+"Arrays ist; er kann Code ausgeben, um die Adresse von ``buf[x]`` zur "
+"Laufzeit schnell zu berechnen. Wo Casts verwendet werden, um Objekte in "
+"native Viper-Typen umzuwandeln, sollten diese am Anfang der Funktion und "
+"nicht in zeitkritischen Schleifen durchgeführt werden, da die Cast-Operation"
+" mehrere Mikrosekunden dauern kann. Die Regeln für das Casting lauten wie "
+"folgt:"
+
+#: ../../reference/speed_python.rst:324
+msgid ""
+"Casting operators are currently: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` and ``ptr32``."
+msgstr ""
+"Cast-Operatoren sind derzeit: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` und ``ptr32``."
+
+#: ../../reference/speed_python.rst:325
+msgid "The result of a cast will be a native Viper variable."
+msgstr "Das Ergebnis eines Casts ist eine native Viper-Variable."
+
+#: ../../reference/speed_python.rst:326
+msgid "Arguments to a cast can be a Python object or a native Viper variable."
+msgstr ""
+"Argumente für einen Cast können ein Python-Objekt oder eine native Viper-"
+"Variable sein."
+
+#: ../../reference/speed_python.rst:327
+msgid ""
+"If argument is a native Viper variable, then cast is a no-op (i.e. costs "
+"nothing at runtime) that just changes the type (e.g. from ``uint`` to "
+"``ptr8``) so that you can then store/load using this pointer."
+msgstr ""
+"Ist das Argument eine native Viper-Variable, so ist der Cast eine No-op (d. "
+"h. er kostet zur Laufzeit nichts), die lediglich den Typ ändert (z. B. von "
+"``uint`` zu ``ptr8``), sodass Sie anschließend mit diesem Zeiger "
+"speichern/laden können."
+
+#: ../../reference/speed_python.rst:330
+msgid ""
+"If the argument is a Python object and the cast is ``int`` or ``uint``, then"
+" the Python object must be of integral type and the value of that integral "
+"object is returned."
+msgstr ""
+"Ist das Argument ein Python-Objekt und der Cast ``int`` oder ``uint``, so "
+"muss das Python-Objekt vom Ganzzahltyp sein, und der Wert dieses "
+"Ganzzahlobjekts wird zurückgegeben."
+
+#: ../../reference/speed_python.rst:332
+msgid ""
+"The argument to a bool cast must be integral type (boolean or integer); when"
+" used as a return type the viper function will return True or False objects."
+msgstr ""
+"Das Argument für einen bool-Cast muss vom Ganzzahltyp sein (boolesch oder "
+"Ganzzahl); wird er als Rückgabetyp verwendet, gibt die Viper-Funktion True- "
+"oder False-Objekte zurück."
+
+#: ../../reference/speed_python.rst:334
+msgid ""
+"If the argument is a Python object and the cast is ``ptr``, ``ptr8``, "
+"``ptr16`` or ``ptr32``, then the Python object must either have the buffer "
+"protocol (in which case a pointer to the start of the buffer is returned) or"
+" it must be of integral type (in which case the value of that integral "
+"object is returned)."
+msgstr ""
+"Ist das Argument ein Python-Objekt und der Cast ``ptr``, ``ptr8``, ``ptr16``"
+" oder ``ptr32``, so muss das Python-Objekt entweder das Buffer-Protokoll "
+"besitzen (in diesem Fall wird ein Zeiger auf den Anfang des Puffers "
+"zurückgegeben) oder vom Ganzzahltyp sein (in diesem Fall wird der Wert "
+"dieses Ganzzahlobjekts zurückgegeben)."
+
+#: ../../reference/speed_python.rst:339
+msgid ""
+"Writing to a pointer which points to a read-only object will lead to "
+"undefined behaviour."
+msgstr ""
+"Das Schreiben in einen Zeiger, der auf ein schreibgeschütztes Objekt "
+"verweist, führt zu undefiniertem Verhalten."
+
+#: ../../reference/speed_python.rst:343
+msgid ""
+"The code examples below are given for the STM32-based OpenMV Cams, which "
+"provide the ``stm`` module. The techniques described apply generally."
+msgstr ""
+"Die folgenden Codebeispiele sind für die STM32-basierten OpenMV Cams "
+"angegeben, die das ``stm``-Modul bereitstellen. Die beschriebenen Techniken "
+"gelten allgemein."
+
+#: ../../reference/speed_python.rst:346
+msgid ""
+"The ``stm`` module exposes the memory addresses of the MCU's peripheral "
+"registers. Each GPIO port has an *output data register* (ODR) whose bits map"
+" one-to-one to that port's pins: writing the register drives those pins "
+"directly, without the overhead of a :class:`machine.Pin` method call, and "
+"XOR-ing a bit toggles its pin. On the original OpenMV Cam the blue LED is "
+"wired to ``GPIOC`` pin 2, so the following example uses a ``ptr16`` cast to "
+"toggle the blue LED ``n`` times:"
+msgstr ""
+"Das ``stm``-Modul legt die Speicheradressen der Peripherieregister des MCU "
+"offen. Jeder GPIO-Port verfügt über ein *Ausgangsdatenregister* (ODR), "
+"dessen Bits eins zu eins auf die Pins dieses Ports abgebildet sind: Das "
+"Schreiben in das Register steuert diese Pins direkt an, ohne den Mehraufwand"
+" eines :class:`machine.Pin`-Methodenaufrufs, und das XOR-Verknüpfen eines "
+"Bits schaltet seinen Pin um. Bei der ursprünglichen OpenMV Cam ist die blaue"
+" LED an Pin 2 von ``GPIOC`` angeschlossen, sodass das folgende Beispiel "
+"einen ``ptr16``-Cast verwendet, um die blaue LED ``n``-mal umzuschalten:"
+
+#: ../../reference/speed_python.rst:363
+msgid ""
+"A detailed technical description of the three code emitters may be found on "
+"Kickstarter here `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ and here `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+msgstr ""
+"Eine detaillierte technische Beschreibung der drei Code-Emitter findet sich "
+"auf Kickstarter hier `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ und hier `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+
+#: ../../reference/speed_python.rst:368
+msgid "Accessing hardware directly"
+msgstr "Direkter Zugriff auf Hardware"
+
+#: ../../reference/speed_python.rst:370
+msgid ""
+"This comes into the category of more advanced programming and involves some "
+"knowledge of the target MCU. Consider the example of toggling an output pin "
+"on an OpenMV Cam. The standard approach would be to write"
+msgstr ""
+"Dies fällt in die Kategorie der fortgeschritteneren Programmierung und "
+"erfordert gewisse Kenntnisse des Ziel-MCU. Betrachten Sie das Beispiel des "
+"Umschaltens eines Ausgangspins auf einer OpenMV Cam. Der Standardansatz "
+"wäre, Folgendes zu schreiben"
+
+#: ../../reference/speed_python.rst:378
+msgid ""
+"This involves the overhead of two calls to the :class:`~machine.Pin` "
+"instance's :meth:`~machine.Pin.value()` method. This overhead can be "
+"eliminated by performing a read/write to the relevant bit of the chip's GPIO"
+" port output data register (ODR). To facilitate this the ``stm`` module "
+"provides a set of constants giving the addresses of the relevant registers "
+"(``stm.GPIOC`` is the base address of the GPIOC port, ``stm.GPIO_ODR`` the "
+"offset of its output data register). As above, the blue LED on the original "
+"OpenMV Cam is ``GPIOC`` pin 2, so a fast toggle of it can be performed as "
+"follows:"
+msgstr ""
+"Dies bringt den Mehraufwand von zwei Aufrufen der "
+":meth:`~machine.Pin.value()`-Methode der :class:`~machine.Pin`-Instanz mit "
+"sich. Dieser Mehraufwand kann eliminiert werden, indem ein "
+"Lese-/Schreibzugriff auf das relevante Bit des Ausgangsdatenregisters (ODR) "
+"des GPIO-Ports des Chips durchgeführt wird. Um dies zu erleichtern, stellt "
+"das ``stm``-Modul einen Satz von Konstanten bereit, die die Adressen der "
+"relevanten Register angeben (``stm.GPIOC`` ist die Basisadresse des GPIOC-"
+"Ports, ``stm.GPIO_ODR`` der Offset seines Ausgangsdatenregisters). Wie oben "
+"ist die blaue LED auf der ursprünglichen OpenMV Cam ``GPIOC`` Pin 2, sodass "
+"ein schnelles Umschalten wie folgt durchgeführt werden kann:"
