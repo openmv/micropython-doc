@@ -1,0 +1,175 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:2
+msgid "Cooperative concurrency"
+msgstr "Кооперативная многозадачность"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:4
+msgid ""
+"Asyncio's scheduling model is *cooperative*, not *preemptive*. The "
+"distinction is the single most important mental model the rest of this "
+"section builds on, so it is worth pinning down before any code appears."
+msgstr ""
+"Модель планирования в asyncio — *кооперативная*, а не *вытесняющая*. Это "
+"различие является важнейшей мысленной моделью, на которой строится весь "
+"остальной раздел, поэтому стоит разобраться с ним прежде, чем появится "
+"какой-либо код."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:10
+msgid "Preemptive vs cooperative"
+msgstr "Вытесняющая и кооперативная многозадачность"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:12
+msgid ""
+"A *preemptive* scheduler -- the kind a desktop operating system uses to keep"
+" many programs running at once -- can pause whichever piece of code is "
+"currently running at *any* moment and switch to another. The running code "
+"does not have to do anything special; the scheduler interrupts it. That "
+"makes preemptive scheduling very flexible (no one piece of code can starve "
+"the others by being slow), but it also means any shared variable has to be "
+"defended carefully, because the switch could land anywhere -- even halfway "
+"through writing a value, or partway through reading a list."
+msgstr ""
+"*Вытесняющий* планировщик — такой, какой настольная операционная система "
+"использует для одновременной работы множества программ — может приостановить"
+" выполняющийся в данный момент фрагмент кода в *любой* момент и "
+"переключиться на другой. Выполняющемуся коду не нужно делать ничего "
+"особенного; планировщик прерывает его сам. Это делает вытесняющее "
+"планирование очень гибким (ни один фрагмент кода не может, будучи медленным,"
+" лишить ресурсов остальные), но также означает, что любую общую переменную "
+"приходится тщательно защищать, поскольку переключение может произойти где "
+"угодно — даже посреди записи значения или на полпути чтения списка."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:23
+msgid ""
+"A *cooperative* scheduler can only switch between pieces of code at points "
+"the currently running piece *explicitly hands control back*. On asyncio, "
+"those points are every ``await`` and every call to a coroutine that yields "
+"internally (most commonly :func:`asyncio.sleep`). Between two awaits, the "
+"running coroutine has the CPU to itself."
+msgstr ""
+"*Кооперативный* планировщик может переключаться между фрагментами кода "
+"только в тех точках, где выполняющийся в данный момент фрагмент *явно "
+"возвращает управление*. В asyncio такими точками являются каждый ``await`` и"
+" каждый вызов корутины, которая внутренне передаёт управление (чаще всего "
+":func:`asyncio.sleep`). Между двумя await выполняющаяся корутина владеет "
+"процессором единолично."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:30
+msgid "Two consequences fall out of that:"
+msgstr "Из этого вытекают два следствия:"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:32
+msgid ""
+"**A coroutine that never awaits never gets paused.** If a coroutine sits in "
+"a tight loop with no ``await`` inside, it monopolises the scheduler and "
+"nothing else makes progress. The fix is to ``await asyncio.sleep_ms(0)`` (or"
+" some other waiting call) at a sensible point in the loop."
+msgstr ""
+"**Корутина, которая никогда не выполняет await, никогда не "
+"приостанавливается.** Если корутина находится в плотном цикле без ``await`` "
+"внутри, она монополизирует планировщик, и ничто другое не продвигается "
+"вперёд. Решение — выполнить ``await asyncio.sleep_ms(0)`` (или другой "
+"ожидающий вызов) в подходящей точке цикла."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:37
+msgid ""
+"**Shared state is safe between awaits.** Two coroutines cannot interleave "
+"halfway through an operation that has no ``await`` in it. The kind of "
+"corruption that arises when preemption lands in the middle of a multi-step "
+"update -- one piece of code reading a value while another is partway through"
+" changing it -- simply cannot happen here. Coordination between coroutines "
+"is still needed when several of them have to share a resource *across* "
+"awaits, but the in-the-middle-of-a-line interleaving problem does not apply."
+msgstr ""
+"**Общее состояние безопасно между await.** Две корутины не могут вклиниться "
+"друг в друга посреди операции, не содержащей ``await``. Тот вид повреждения "
+"данных, который возникает, когда вытеснение попадает в середину "
+"многошагового обновления — один фрагмент кода читает значение, пока другой "
+"на полпути его изменения, — здесь просто не может произойти. Координация "
+"между корутинами всё ещё нужна, когда нескольким из них приходится совместно"
+" использовать ресурс *через* await, но проблема вклинивания посреди строки "
+"тут неприменима."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:49
+msgid "The three layers"
+msgstr "Три уровня"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:51
+msgid ""
+"Every asyncio script is built from the same three layers. The next two pages"
+" cover them in detail; these are the labels to keep in mind while reading "
+"them."
+msgstr ""
+"Каждый скрипт asyncio построен из одних и тех же трёх уровней. Следующие две"
+" страницы рассматривают их подробно; вот метки, которые стоит держать в уме "
+"при чтении."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:55
+msgid ""
+"**Coroutines** -- functions declared with ``async def``, each one a self-"
+"contained unit of work that awaits where appropriate. The Python Overview "
+"introduced the ``async``/``await`` keywords; in asyncio they are how a "
+"coroutine yields back to the scheduler."
+msgstr ""
+"**Корутины** — функции, объявленные с ``async def``, каждая из которых "
+"представляет собой самодостаточную единицу работы, выполняющую await там, "
+"где это уместно. Обзор Python познакомил с ключевыми словами "
+"``async``/``await``; в asyncio именно так корутина возвращает управление "
+"планировщику."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:60
+msgid ""
+"**Tasks** -- a wrapper :func:`asyncio.create_task` puts around a coroutine "
+"to *schedule it concurrently with the current one*. The application "
+"typically creates a handful of tasks for the long-running jobs (the snapshot"
+" loop, the network client, the UART reader, ...)."
+msgstr ""
+"**Задачи** — обёртка, которую :func:`asyncio.create_task` накладывает на "
+"корутину, чтобы *запланировать её выполнение параллельно с текущей*. "
+"Приложение обычно создаёт несколько задач для долго выполняющихся заданий "
+"(цикл снимков, сетевой клиент, читатель UART, ...)."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:65
+msgid ""
+"**The event loop** -- the engine underneath that keeps track of which "
+"coroutines are waiting and which are ready to run, switching between tasks "
+"at every ``await``. The application doesn't write the loop; it hands a top-"
+"level coroutine to :func:`asyncio.run` and the loop drives everything from "
+"there."
+msgstr ""
+"**Цикл событий** — движок в основе, который отслеживает, какие корутины "
+"ожидают, а какие готовы к выполнению, переключаясь между задачами на каждом "
+"``await``. Приложение не пишет цикл само; оно передаёт корутину верхнего "
+"уровня в :func:`asyncio.run`, и цикл управляет всем оттуда."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:72
+msgid ""
+"When the application is described that way -- as a small set of coroutines "
+"composed by an event loop -- *concurrency becomes a property of the shape of"
+" the program*, not something the application has to manage step by step."
+msgstr ""
+"Когда приложение описано таким образом — как небольшой набор корутин, "
+"скомпонованных циклом событий, — *многозадачность становится свойством формы"
+" программы*, а не тем, чем приложению приходится управлять шаг за шагом."

@@ -1,0 +1,256 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:2
+msgid "Pitfalls"
+msgstr "Подводные камни"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:4
+msgid ""
+"The same patterns that make asyncio nice -- no preemption, explicit "
+"``await``\\ s -- give it its own set of shapes that bite. This page is the "
+"catalogue of the ones that come up often enough to be worth knowing about."
+msgstr ""
+"Те же паттерны, которые делают asyncio приятным -- отсутствие вытеснения, "
+"явные ``await``\\ s -- порождают собственный набор ситуаций, которые могут "
+"навредить. Эта страница -- каталог тех из них, что встречаются достаточно "
+"часто, чтобы о них стоило знать."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:10
+msgid "Forgetting to ``await``"
+msgstr "Забытый ``await``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:12
+msgid ""
+"Calling an ``async def`` function returns a *coroutine object*. It does not "
+"run the body of the function. To actually execute it, the coroutine has to "
+"be ``await``\\ ed or wrapped in a task::"
+msgstr ""
+"Вызов функции ``async def`` возвращает *объект корутины*. Он не выполняет "
+"тело функции. Чтобы действительно его выполнить, корутину нужно ``await``\\ "
+"ить или обернуть в задачу::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:22
+msgid ""
+"The bug is silent -- the coroutine object is created, discarded, and never "
+"executed. The application proceeds as if everything worked. MicroPython will"
+" sometimes log a warning that a coroutine was *never awaited*; sometimes it "
+"will not. Audit for missing ``await``\\ s at every call site that looks like"
+" a function call."
+msgstr ""
+"Ошибка молчаливая -- объект корутины создаётся, отбрасывается и никогда не "
+"выполняется. Приложение продолжает работу так, будто всё сработало. "
+"MicroPython иногда выводит предупреждение о том, что корутина *так и не была"
+" ожидаема*; иногда нет. Проверяйте на пропущенные ``await``\\ s каждое место"
+" вызова, которое выглядит как вызов функции."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:30
+msgid "Tight loops without ``await``"
+msgstr "Плотные циклы без ``await``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:32
+msgid ""
+"A coroutine that runs in a loop and never ``await``\\ s monopolises the "
+"event loop. No other task makes progress until the loop exits or yields::"
+msgstr ""
+"Корутина, которая работает в цикле и никогда не ``await``\\ s, "
+"монополизирует цикл событий. Ни одна другая задача не продвигается, пока "
+"цикл не завершится или не уступит управление::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:41
+msgid ""
+"The fix is a yield inside the loop -- usually ``await asyncio.sleep_ms(0)`` "
+"-- so other ready tasks get a chance to run. Computation-heavy work belongs "
+"inside that shape too: an image-processing loop that runs for hundreds of "
+"milliseconds per iteration should yield at least once per iteration so the "
+"rest of the program does not stall."
+msgstr ""
+"Решение -- уступка управления внутри цикла -- обычно ``await "
+"asyncio.sleep_ms(0)`` -- чтобы другие готовые задачи получили шанс "
+"выполниться. Вычислительно тяжёлая работа тоже относится к этой форме: цикл "
+"обработки изображений, выполняющийся сотни миллисекунд за итерацию, должен "
+"уступать управление хотя бы раз за итерацию, чтобы остальная часть программы"
+" не зависала."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:49
+msgid "Swallowing ``CancelledError``"
+msgstr "Проглатывание ``CancelledError``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:51
+msgid ""
+"The :doc:`cancellation page <coordination/timeouts-and-cancellation>` "
+"already covered this in detail. Repeating it here because it is the most "
+"common cause of \"my application will not shut down\": a coroutine catches "
+":exc:`asyncio.CancelledError` for cleanup purposes and forgets to re-raise "
+"it. The task continues to run; the caller that asked for the cancellation "
+"hangs forever waiting for it to finish. Always re-raise after cleanup, or "
+"use a ``try``/``finally`` block instead of an explicit ``except``."
+msgstr ""
+"На странице :doc:`об отмене <coordination/timeouts-and-cancellation>` это "
+"уже подробно рассматривалось. Повторяем здесь, потому что это самая частая "
+"причина проблемы «моё приложение не завершается»: корутина перехватывает "
+":exc:`asyncio.CancelledError` для целей очистки и забывает повторно его "
+"возбудить. Задача продолжает работать; вызывающая сторона, запросившая "
+"отмену, бесконечно ждёт её завершения. Всегда повторно возбуждайте "
+"исключение после очистки или используйте блок ``try``/``finally`` вместо "
+"явного ``except``."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:63
+msgid "Mutating shared state across awaits"
+msgstr "Изменение общего состояния между await"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:65
+msgid ""
+"Cooperative scheduling guarantees that a coroutine has the CPU to itself "
+"*between* awaits, but as soon as it ``await``\\ s, another coroutine can "
+"run. If two coroutines modify the same data structure in steps that include "
+"``await``, their operations can interleave in ways that corrupt the "
+"structure::"
+msgstr ""
+"Кооперативное планирование гарантирует, что корутина владеет процессором "
+"единолично *между* await, но как только она ``await``\\ s, может выполниться"
+" другая корутина. Если две корутины изменяют одну и ту же структуру данных "
+"шагами, включающими ``await``, их операции могут чередоваться так, что это "
+"повредит структуру::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:79
+msgid ""
+"For state that is *only* mutated between awaits inside one coroutine, no "
+"synchronisation is needed. For state mutated across awaits and accessed from"
+" more than one coroutine, wrap the critical section in an "
+":class:`~asyncio.Lock`."
+msgstr ""
+"Для состояния, которое изменяется *только* между await внутри одной "
+"корутины, синхронизация не нужна. Для состояния, изменяемого через await и "
+"доступного из более чем одной корутины, оберните критическую секцию в "
+":class:`~asyncio.Lock`."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:85
+msgid "Module-level ``await``"
+msgstr "``await`` на уровне модуля"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:87
+msgid ""
+"``await`` is only valid inside an ``async def`` body. Writing it at module "
+"level -- outside any coroutine -- is a syntax error::"
+msgstr ""
+"``await`` допустим только внутри тела ``async def``. Запись его на уровне "
+"модуля -- вне какой-либо корутины -- является синтаксической ошибкой::"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:94
+msgid ""
+"The fix is to put the work in a coroutine and call it from the program's "
+":func:`asyncio.run` entry point."
+msgstr ""
+"Решение -- поместить работу в корутину и вызвать её из точки входа программы"
+" :func:`asyncio.run`."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:98
+msgid "Multiple ``asyncio.run`` calls"
+msgstr "Несколько вызовов ``asyncio.run``"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:100
+msgid ""
+"MicroPython has *one* event loop. Calling :func:`asyncio.run` twice in a row"
+" -- once for setup, once for the main work -- still uses the same loop. "
+"Calling it *from inside* a running coroutine is an error: the loop is "
+"already running. Both cases come up most often when a script grows "
+"organically and the author tries to extend it by adding more "
+":func:`~asyncio.run` calls instead of folding the new work into the existing"
+" ``main``."
+msgstr ""
+"В MicroPython *один* цикл событий. Вызов :func:`asyncio.run` дважды подряд "
+"-- один раз для настройки, один раз для основной работы -- всё равно "
+"использует тот же цикл. Вызов его *изнутри* работающей корутины является "
+"ошибкой: цикл уже запущен. Оба случая чаще всего возникают, когда скрипт "
+"растёт органически, и автор пытается расширить его, добавляя новые вызовы "
+":func:`~asyncio.run` вместо того, чтобы влить новую работу в существующий "
+"``main``."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:110
+msgid "Use of :class:`~asyncio.Event` from an interrupt"
+msgstr "Использование :class:`~asyncio.Event` из прерывания"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:112
+msgid ""
+":meth:`asyncio.Event.set` is only safe to call from inside the event loop. "
+"Calling it from a GPIO interrupt handler is a corruption hazard. For waking "
+"a task from an interrupt, use :class:`~asyncio.ThreadSafeFlag` instead -- "
+"the :doc:`page on it <primitives/threadsafe-flag>` covers the shape."
+msgstr ""
+":meth:`asyncio.Event.set` безопасно вызывать только изнутри цикла событий. "
+"Вызов его из обработчика прерывания GPIO создаёт опасность повреждения. Для "
+"пробуждения задачи из прерывания используйте вместо этого "
+":class:`~asyncio.ThreadSafeFlag` -- :doc:`страница о нём "
+"<primitives/threadsafe-flag>` описывает эту форму."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:120
+msgid "Long synchronous calls"
+msgstr "Длительные синхронные вызовы"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:122
+msgid ""
+"A coroutine can await asyncio's own waiting primitives; anything else it "
+"calls runs synchronously and blocks the loop until it returns. A 200 ms "
+"blocking :func:`time.sleep`, an SD-card write that takes 80 ms to flush, a "
+"large JPEG compression, a :meth:`csi.CSI.snapshot` call -- each of those "
+"holds the event loop for its full duration. The fix depends on the call:"
+msgstr ""
+"Корутина может ожидать собственные примитивы ожидания asyncio; всё "
+"остальное, что она вызывает, выполняется синхронно и блокирует цикл до "
+"своего возврата. Блокирующий :func:`time.sleep` на 200 мс, запись на SD-"
+"карту, на сброс которой уходит 80 мс, сжатие большого JPEG, вызов "
+":meth:`csi.CSI.snapshot` -- каждый из них удерживает цикл событий на всё "
+"своё время. Решение зависит от вызова:"
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:130
+msgid ""
+"For ``time.sleep``: replace it with ``await asyncio.sleep`` or ``await "
+"asyncio.sleep_ms``."
+msgstr ""
+"Для ``time.sleep``: замените его на ``await asyncio.sleep`` или ``await "
+"asyncio.sleep_ms``."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:132
+msgid ""
+"For ``csi.CSI.snapshot``: use the :doc:`async snapshot wrapper "
+"<capstone/snapshot-loop>` the capture page builds."
+msgstr ""
+"Для ``csi.CSI.snapshot``: используйте :doc:`асинхронную обёртку snapshot "
+"<capstone/snapshot-loop>`, которую строит страница о захвате."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:135
+msgid ""
+"For long compute (image processing, JPEG encode): accept the cost or break "
+"the work into chunks that ``await`` between iterations."
+msgstr ""
+"Для длительных вычислений (обработка изображений, кодирование JPEG): примите"
+" эту цену или разбейте работу на части, которые ``await`` между итерациями."
+
+#: ../../openmvcam/tutorial/asyncio/pitfalls.rst:139
+msgid ""
+"Asyncio cannot make a synchronous call non-blocking. It can only let other "
+"coroutines run *while* something else is awaiting."
+msgstr ""
+"Asyncio не может сделать синхронный вызов неблокирующим. Он может лишь "
+"позволить другим корутинам выполняться, *пока* что-то иное ожидается."

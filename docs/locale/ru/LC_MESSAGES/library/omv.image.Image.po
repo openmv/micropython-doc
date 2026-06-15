@@ -1,0 +1,3112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.image.Image.rst:4
+msgid "class Image -- Image object"
+msgstr "class Image -- объект Image"
+
+#: ../../library/omv.image.Image.rst:6
+msgid ""
+":class:`Image` is the central data type of the :mod:`image` module -- an in-"
+"memory pixel buffer that every drawing routine, every filter, every "
+"geometric transform, and every feature-extraction routine operates on. Every"
+" frame coming out of `csi.CSI.snapshot()` is an :class:`Image`; so is every "
+"frame loaded from disk, decoded from JPEG or PNG, allocated from a numpy-"
+"style ``ndarray``, or constructed as an empty drawing canvas."
+msgstr ""
+":class:`Image` -- центральный тип данных модуля :mod:`image`: буфер пикселей"
+" в памяти, с которым работают все процедуры рисования, все фильтры, все "
+"геометрические преобразования и все процедуры извлечения признаков. Каждый "
+"кадр, поступающий из `csi.CSI.snapshot()`, является объектом :class:`Image`;"
+" то же относится к каждому кадру, загруженному с диска, декодированному из "
+"JPEG или PNG, выделенному из массива ``ndarray`` в стиле numpy или "
+"созданному как пустой холст для рисования."
+
+#: ../../library/omv.image.Image.rst:14
+msgid ""
+"An :class:`Image` is described by three numbers -- ``width``, ``height``, "
+"and ``pixformat`` -- plus a contiguous pixel buffer. The pixel format "
+"determines both the in-memory layout and which operations are available:"
+msgstr ""
+"Объект :class:`Image` описывается тремя числами -- ``width``, ``height`` и "
+"``pixformat`` -- плюс непрерывным буфером пикселей. Формат пикселей "
+"определяет как размещение в памяти, так и доступные операции:"
+
+#: ../../library/omv.image.Image.rst:19
+msgid ""
+"**BINARY (1 bpp)** -- 1 bit per pixel; used by morphology and thresholding."
+msgstr ""
+"**BINARY (1 bpp)** -- 1 бит на пиксель; используется для морфологии и "
+"порогового разделения."
+
+#: ../../library/omv.image.Image.rst:21
+msgid ""
+"**GRAYSCALE (8 bpp)** -- 1 byte per pixel; the canonical format for most CV "
+"(AprilTag, edges, ORB, optical flow)."
+msgstr ""
+"**GRAYSCALE (8 bpp)** -- 1 байт на пиксель; канонический формат для "
+"большинства задач машинного зрения (AprilTag, границы, ORB, оптический "
+"поток)."
+
+#: ../../library/omv.image.Image.rst:23
+msgid ""
+"**RGB565 (16 bpp)** -- 2 bytes per pixel (5R/6G/5B); the default colour "
+"format."
+msgstr ""
+"**RGB565 (16 bpp)** -- 2 байта на пиксель (5R/6G/5B); цветовой формат по "
+"умолчанию."
+
+#: ../../library/omv.image.Image.rst:25
+msgid ""
+"**BAYER (8 bpp)** -- raw Bayer-mosaic data straight off the sensor. Most CV "
+"methods are not available on Bayer images; debayer to GRAYSCALE / RGB565 "
+"first."
+msgstr ""
+"**BAYER (8 bpp)** -- сырые данные мозаики Байера непосредственно с датчика. "
+"Большинство методов машинного зрения недоступны для изображений Байера; "
+"сначала выполните дебайеризацию в GRAYSCALE / RGB565."
+
+#: ../../library/omv.image.Image.rst:28
+msgid ""
+"**YUV422 (16 bpp)** -- 4:2:2 chroma-subsampled colour, two bytes per pixel. "
+"Only some methods work directly on YUV422."
+msgstr ""
+"**YUV422 (16 bpp)** -- цвет с цветовой субдискретизацией 4:2:2, два байта на"
+" пиксель. Только некоторые методы работают напрямую с YUV422."
+
+#: ../../library/omv.image.Image.rst:30
+msgid ""
+"**JPEG / PNG** -- compressed buffers. Pixel-level operations require "
+":meth:`to_grayscale` or :meth:`to_rgb565` first."
+msgstr ""
+"**JPEG / PNG** -- сжатые буферы. Операции на уровне пикселей требуют "
+"предварительного вызова :meth:`to_grayscale` или :meth:`to_rgb565`."
+
+#: ../../library/omv.image.Image.rst:34
+msgid "Where Image objects come from"
+msgstr "Откуда берутся объекты Image"
+
+#: ../../library/omv.image.Image.rst:36
+msgid "There are four ways to obtain an :class:`Image`:"
+msgstr "Существует четыре способа получить объект :class:`Image`:"
+
+#: ../../library/omv.image.Image.rst:38
+msgid ""
+"**From the camera frame buffer** -- ``csi.CSI().snapshot()`` returns the "
+"next captured frame. The returned object is a thin wrapper around the "
+"camera's frame-buffer memory, so any draw / filter operation on it changes "
+"what gets sent to the IDE preview and the display."
+msgstr ""
+"**Из буфера кадра камеры** -- ``csi.CSI().snapshot()`` возвращает следующий "
+"захваченный кадр. Возвращаемый объект является тонкой оболочкой над памятью "
+"буфера кадра камеры, поэтому любая операция рисования / фильтрации над ним "
+"изменяет то, что отправляется в предпросмотр IDE и на дисплей."
+
+#: ../../library/omv.image.Image.rst:43
+msgid ""
+"**From a file** -- pass a path string to the :class:`Image` constructor. "
+"BMP, PGM, PPM, JPEG and PNG are decoded directly into RAM (or into the "
+"camera frame buffer if ``copy_to_fb=True``)."
+msgstr ""
+"**Из файла** -- передайте строку пути в конструктор :class:`Image`. BMP, "
+"PGM, PPM, JPEG и PNG декодируются непосредственно в ОЗУ (или в буфер кадра "
+"камеры, если ``copy_to_fb=True``)."
+
+#: ../../library/omv.image.Image.rst:46
+msgid ""
+"**From an ndarray** -- pass a ``(h, w)`` or ``(h, w, 3)`` float32 array. The"
+" pixels are scaled from ``0.0 -- 255.0`` into GRAYSCALE or RGB565 "
+"respectively."
+msgstr ""
+"**Из ndarray** -- передайте массив float32 формы ``(h, w)`` или ``(h, w, "
+"3)``. Пиксели масштабируются из диапазона ``0.0 -- 255.0`` в GRAYSCALE или "
+"RGB565 соответственно."
+
+#: ../../library/omv.image.Image.rst:49
+msgid ""
+"**Empty** -- pass ``(width, height, pixformat)`` to allocate a zero-filled "
+"drawing surface. For compressed pixel formats (``JPEG`` / ``PNG``) a "
+"``buffer=`` argument is required and holds the compressed byte stream."
+msgstr ""
+"**Пустое** -- передайте ``(width, height, pixformat)``, чтобы выделить "
+"заполненную нулями поверхность для рисования. Для сжатых форматов пикселей "
+"(``JPEG`` / ``PNG``) требуется аргумент ``buffer=``, который содержит сжатый"
+" поток байтов."
+
+#: ../../library/omv.image.Image.rst:55
+msgid "Typical capture-process-display loop"
+msgstr "Типичный цикл захвата-обработки-вывода"
+
+#: ../../library/omv.image.Image.rst:75
+msgid "Indexing, length, iteration, and bytes-like access"
+msgstr "Индексация, длина, итерация и доступ как к bytes-объекту"
+
+#: ../../library/omv.image.Image.rst:77
+msgid ""
+"**Indexing** -- ``img[i]`` reads pixel ``i`` (linearly, row-major). ``img[i]"
+" = value`` writes it. Grayscale / Bayer pixels are 8-bit integers, RGB565 / "
+"YUV422 pixels are 16-bit packed integers, binary pixels are 0 / 1. For JPEG "
+"/ PNG images the index space is the compressed byte stream, not pixels."
+msgstr ""
+"**Индексация** -- ``img[i]`` читает пиксель ``i`` (линейно, построчно). "
+"``img[i] = value`` записывает его. Пиксели grayscale / Bayer являются "
+"8-битными целыми числами, пиксели RGB565 / YUV422 -- 16-битными упакованными"
+" целыми числами, бинарные пиксели равны 0 / 1. Для изображений JPEG / PNG "
+"пространство индексов -- это сжатый поток байтов, а не пиксели."
+
+#: ../../library/omv.image.Image.rst:82
+msgid ""
+"**Length** -- ``len(img)`` returns the number of pixels for uncompressed "
+"formats or the byte count for compressed formats."
+msgstr ""
+"**Длина** -- ``len(img)`` возвращает количество пикселей для несжатых "
+"форматов или количество байтов для сжатых форматов."
+
+#: ../../library/omv.image.Image.rst:84
+msgid ""
+"**Iteration** -- ``for px in img: ...`` walks the pixel array in the same "
+"order as ``[]`` indexing."
+msgstr ""
+"**Итерация** -- ``for px in img: ...`` проходит по массиву пикселей в том же"
+" порядке, что и индексация через ``[]``."
+
+#: ../../library/omv.image.Image.rst:86
+msgid ""
+"**Bytes-like** -- :class:`Image` exposes the read buffer protocol, so you "
+"can pass it directly to anything that takes a ``bytes`` / ``bytearray`` "
+"(e.g. ``uart.write(img)``, ``socket.send(img)``, ``hashlib.sha256(img)``). "
+"Use :meth:`bytearray` instead to obtain a read/write view."
+msgstr ""
+"**Bytes-подобный** -- :class:`Image` предоставляет протокол буфера чтения, "
+"поэтому вы можете передавать его напрямую всему, что принимает объект "
+"``bytes`` / ``bytearray`` (например, ``uart.write(img)``, "
+"``socket.send(img)``, ``hashlib.sha256(img)``). Используйте "
+":meth:`bytearray` вместо этого, чтобы получить представление для "
+"чтения/записи."
+
+#: ../../library/omv.image.Image.rst:95
+msgid "Hint flags"
+msgstr "Флаги-подсказки"
+
+#: ../../library/omv.image.Image.rst:97
+msgid ""
+"Many `Image` methods accept a ``hint`` argument which is a logical OR of the"
+" following flags:"
+msgstr ""
+"Многие методы `Image` принимают аргумент ``hint``, который является "
+"логическим ИЛИ следующих флагов:"
+
+#: ../../library/omv.image.Image.rst:99
+msgid ""
+"`image.AREA`: Use area scaling when downscaling versus the default of "
+"nearest neighbor."
+msgstr ""
+"`image.AREA`: использовать масштабирование по площади при уменьшении вместо "
+"метода ближайшего соседа по умолчанию."
+
+#: ../../library/omv.image.Image.rst:100
+msgid ""
+"`image.BILINEAR`: Use bilinear scaling versus the default of nearest "
+"neighbor scaling."
+msgstr ""
+"`image.BILINEAR`: использовать билинейное масштабирование вместо "
+"масштабирования методом ближайшего соседа по умолчанию."
+
+#: ../../library/omv.image.Image.rst:101
+msgid ""
+"`image.BICUBIC`: Use bicubic scaling versus the default of nearest neighbor "
+"scaling."
+msgstr ""
+"`image.BICUBIC`: использовать бикубическое масштабирование вместо "
+"масштабирования методом ближайшего соседа по умолчанию."
+
+#: ../../library/omv.image.Image.rst:102
+msgid ""
+"`image.CENTER`: Center the image being drawn on the display. This is applied"
+" after scaling."
+msgstr ""
+"`image.CENTER`: центрировать рисуемое изображение на дисплее. Применяется "
+"после масштабирования."
+
+#: ../../library/omv.image.Image.rst:103
+msgid "`image.HMIRROR`: Horizontally mirror the image."
+msgstr "`image.HMIRROR`: горизонтально отразить изображение."
+
+#: ../../library/omv.image.Image.rst:104
+msgid "`image.VFLIP`: Vertically flip the image."
+msgstr "`image.VFLIP`: вертикально перевернуть изображение."
+
+#: ../../library/omv.image.Image.rst:105
+msgid "`image.TRANSPOSE`: Transpose the image (swap x/y)."
+msgstr ""
+"`image.TRANSPOSE`: транспонировать изображение (поменять местами x/y)."
+
+#: ../../library/omv.image.Image.rst:106
+msgid ""
+"`image.EXTRACT_RGB_CHANNEL_FIRST`: Do rgb_channel extraction before scaling."
+msgstr ""
+"`image.EXTRACT_RGB_CHANNEL_FIRST`: выполнить извлечение rgb_channel до "
+"масштабирования."
+
+#: ../../library/omv.image.Image.rst:107
+msgid "`image.APPLY_COLOR_PALETTE_FIRST`: Apply color palette before scaling."
+msgstr ""
+"`image.APPLY_COLOR_PALETTE_FIRST`: применить цветовую палитру до "
+"масштабирования."
+
+#: ../../library/omv.image.Image.rst:108
+msgid ""
+"`image.SCALE_ASPECT_KEEP`: Scale the image being drawn to fit inside the "
+"display."
+msgstr ""
+"`image.SCALE_ASPECT_KEEP`: масштабировать рисуемое изображение так, чтобы "
+"оно поместилось внутри дисплея."
+
+#: ../../library/omv.image.Image.rst:109
+msgid ""
+"`image.SCALE_ASPECT_EXPAND`: Scale the image being drawn to fill the display"
+" (results in cropping)"
+msgstr ""
+"`image.SCALE_ASPECT_EXPAND`: масштабировать рисуемое изображение так, чтобы "
+"оно заполнило дисплей (приводит к обрезке)."
+
+#: ../../library/omv.image.Image.rst:110
+msgid ""
+"`image.SCALE_ASPECT_IGNORE`: Scale the image being drawn to fill the display"
+" (results in stretching)."
+msgstr ""
+"`image.SCALE_ASPECT_IGNORE`: масштабировать рисуемое изображение так, чтобы "
+"оно заполнило дисплей (приводит к растяжению)."
+
+#: ../../library/omv.image.Image.rst:111
+msgid ""
+"`image.ROTATE_90`: Rotate the image by 90 degrees (this is just VFLIP | "
+"TRANSPOSE)."
+msgstr ""
+"`image.ROTATE_90`: повернуть изображение на 90 градусов (это просто VFLIP | "
+"TRANSPOSE)."
+
+#: ../../library/omv.image.Image.rst:112
+msgid ""
+"`image.ROTATE_180`: Rotate the image by 180 degrees (this is just HMIRROR | "
+"VFLIP)."
+msgstr ""
+"`image.ROTATE_180`: повернуть изображение на 180 градусов (это просто "
+"HMIRROR | VFLIP)."
+
+#: ../../library/omv.image.Image.rst:113
+msgid ""
+"`image.ROTATE_270`: Rotate the image by 270 degrees (this is just HMIRROR | "
+"TRANSPOSE)."
+msgstr ""
+"`image.ROTATE_270`: повернуть изображение на 270 градусов (это просто "
+"HMIRROR | TRANSPOSE)."
+
+#: ../../library/omv.image.Image.rst:114
+msgid ""
+"`image.BLACK_BACKGROUND`: Assume the background image being drawn on is "
+"black speeding up blending. Only supported by `Image.draw_image()` and "
+"`Image.get_similarity()`."
+msgstr ""
+"`image.BLACK_BACKGROUND`: предполагать, что фоновое изображение, на котором "
+"происходит рисование, чёрное, что ускоряет смешивание. Поддерживается только"
+" методами `Image.draw_image()` и `Image.get_similarity()`."
+
+#: ../../library/omv.image.Image.rst:118
+msgid ""
+"If ``arg`` is a string then this creates a new image object from a file at "
+"``arg`` path. Supports loading bmp/pgm/ppm/jpg/jpeg/png image files from "
+"disk. If ``copy_to_fb`` is true the image is copied to the frame buffer "
+"verus being allocated on the heap."
+msgstr ""
+"Если ``arg`` -- строка, то создаётся новый объект изображения из файла по "
+"пути ``arg``. Поддерживается загрузка файлов изображений "
+"bmp/pgm/ppm/jpg/jpeg/png с диска. Если ``copy_to_fb`` равно true, "
+"изображение копируется в буфер кадра вместо выделения в куче."
+
+#: ../../library/omv.image.Image.rst:122
+msgid ""
+"If ``arg`` is an ``ndarray`` then this creates a new image object from the "
+"``ndarray``. ``ndarray`` objects with a shape of ``(w, h)`` are treated as "
+"grayscale images, ``(w, h, 3)`` are treated as RGB565 images. Only float32 "
+"point ``ndarrays`` are supported at this time. When creating an image this "
+"way if you pass a ``buffer`` argument it will be used to store the image "
+"data versus allocating space on the heap. If ``copy_to_fb`` is true the "
+"image is copied to the frame buffer verus being allocated on the heap or "
+"using the ``buffer``."
+msgstr ""
+"Если ``arg`` -- это ``ndarray``, то создаётся новый объект изображения из "
+"``ndarray``. Объекты ``ndarray`` формы ``(w, h)`` трактуются как изображения"
+" в оттенках серого, ``(w, h, 3)`` -- как изображения RGB565. В настоящее "
+"время поддерживаются только ``ndarrays`` с типом float32. При создании "
+"изображения таким способом, если вы передаёте аргумент ``buffer``, он будет "
+"использован для хранения данных изображения вместо выделения места в куче. "
+"Если ``copy_to_fb`` равно true, изображение копируется в буфер кадра вместо "
+"выделения в куче или использования ``buffer``."
+
+#: ../../library/omv.image.Image.rst:129
+msgid ""
+"If ``arg`` is an ``int`` it is then considered the width of a new image and "
+"a ``height`` value and a ``format`` value must follow to create a new blank "
+"image object. ``format`` can be be any image pixformat value like "
+"`image.GRAYSCALE`. The image will be initialized to all zeros. Note that a "
+"``buffer`` value is expected for compressed image formats. ``buffer`` is "
+"considered as the source of image data for creating images this way. If used"
+" with ``copy_to_fb`` the data from ``buffer`` is copied to the frame buffer."
+" If you'd like to create a JPEG image from a JPEG `bytes()` or `bytearray()`"
+" object you can pass the ``width``, ``height``, ``image.JPEG`` for the JPEG "
+"along with setting ``buffer`` to the JPEG byte stream to create a JPEG "
+"image."
+msgstr ""
+"Если ``arg`` -- это ``int``, то он считается шириной нового изображения, и "
+"за ним должны следовать значение ``height`` и значение ``format`` для "
+"создания нового пустого объекта изображения. ``format`` может быть любым "
+"значением pixformat изображения, например `image.GRAYSCALE`. Изображение "
+"будет инициализировано нулями. Обратите внимание, что для сжатых форматов "
+"изображений ожидается значение ``buffer``. ``buffer`` рассматривается как "
+"источник данных изображения при создании изображений таким способом. При "
+"использовании вместе с ``copy_to_fb`` данные из ``buffer`` копируются в "
+"буфер кадра. Если вы хотите создать изображение JPEG из объекта JPEG "
+"`bytes()` или `bytearray()`, вы можете передать ``width``, ``height``, "
+"``image.JPEG`` для JPEG вместе с установкой ``buffer`` в поток байтов JPEG, "
+"чтобы создать изображение JPEG."
+
+#: ../../library/omv.image.Image.rst:139
+msgid ""
+"Images support \"[]\" notation. Do ``image[index] = 8/16-bit value`` to "
+"assign an image pixel or ``image[index]`` to get an image pixel which will "
+"be either an 8-bit value for grayscale/bayer images of a 16-bit value for "
+"RGB565/YUV images. Binary images return a 1-bit value."
+msgstr ""
+"Изображения поддерживают нотацию \"[]\". Используйте ``image[index] = "
+"8/16-bit value`` для присвоения пикселя изображения или ``image[index]`` для"
+" получения пикселя изображения, который будет либо 8-битным значением для "
+"изображений grayscale/bayer, либо 16-битным значением для изображений "
+"RGB565/YUV. Бинарные изображения возвращают 1-битное значение."
+
+#: ../../library/omv.image.Image.rst:144
+msgid ""
+"For JPEG images the \"[]\" allows you to access the compressed JPEG image "
+"blob as a byte-array. Reading and writing to the data array is opaque "
+"however as JPEG images are compressed byte streams."
+msgstr ""
+"Для изображений JPEG нотация \"[]\" позволяет получить доступ к сжатому "
+"блобу изображения JPEG как к байтовому массиву. Однако чтение и запись в "
+"массив данных непрозрачны, поскольку изображения JPEG являются сжатыми "
+"потоками байтов."
+
+#: ../../library/omv.image.Image.rst:148
+msgid ""
+"Images also support read buffer operations. You can pass images to all sorts"
+" of MicroPython functions like as if the image were a byte-array object. In "
+"particular, if you'd like to transmit an image you can just pass it to the "
+"UART/SPI/I2C write functions to be transmitted automatically."
+msgstr ""
+"Изображения также поддерживают операции буфера чтения. Вы можете передавать "
+"изображения во всевозможные функции MicroPython, как если бы изображение "
+"было объектом байтового массива. В частности, если вы хотите передать "
+"изображение, вы можете просто передать его в функции записи UART/SPI/I2C для"
+" автоматической передачи."
+
+#: ../../library/omv.image.Image.rst:154
+msgid "Basic Methods"
+msgstr "Базовые методы"
+
+#: ../../library/omv.image.Image.rst:158
+msgid "Returns the image width in pixels."
+msgstr "Возвращает ширину изображения в пикселях."
+
+#: ../../library/omv.image.Image.rst:162
+msgid "Returns the image height in pixels."
+msgstr "Возвращает высоту изображения в пикселях."
+
+#: ../../library/omv.image.Image.rst:166
+msgid ""
+"Returns `image.GRAYSCALE` for grayscale images, `image.RGB565` for RGB565 "
+"images, `image.BAYER` for bayer pattern images, and `image.JPEG` for JPEG "
+"images."
+msgstr ""
+"Возвращает `image.GRAYSCALE` для изображений в оттенках серого, "
+"`image.RGB565` для изображений RGB565, `image.BAYER` для изображений с "
+"паттерном Байера и `image.JPEG` для изображений JPEG."
+
+#: ../../library/omv.image.Image.rst:172
+msgid "Returns the image size in bytes."
+msgstr "Возвращает размер изображения в байтах."
+
+#: ../../library/omv.image.Image.rst:176
+msgid ""
+"Returns a `bytearray` object that points to the image data for byte-level "
+"read/write access."
+msgstr ""
+"Возвращает объект `bytearray`, указывающий на данные изображения, для "
+"доступа к чтению/записи на уровне байтов."
+
+#: ../../library/omv.image.Image.rst:180
+msgid ""
+"Image objects are automatically cast as `bytes` objects when passed to "
+"MicroPython driver that requires a `bytes` like object. This is read-only "
+"access. Call `bytearray()` to get read/write access."
+msgstr ""
+"Объекты изображений автоматически приводятся к объектам `bytes` при передаче"
+" в драйвер MicroPython, который требует объект, подобный `bytes`. Это доступ"
+" только для чтения. Вызовите `bytearray()`, чтобы получить доступ для "
+"чтения/записи."
+
+#: ../../library/omv.image.Image.rst:186
+msgid ""
+"For grayscale images: Returns the grayscale pixel value at location (x, y). "
+"For RGB565 images: Returns the RGB888 pixel tuple (r, g, b) at location (x, "
+"y). For bayer pattern images: Returns the the pixel value at the location "
+"(x, y)."
+msgstr ""
+"Для изображений в оттенках серого: возвращает значение пикселя в оттенках "
+"серого в позиции (x, y). Для изображений RGB565: возвращает кортеж пикселя "
+"RGB888 (r, g, b) в позиции (x, y). Для изображений с паттерном Байера: "
+"возвращает значение пикселя в позиции (x, y)."
+
+#: ../../library/omv.image.Image.rst:190
+msgid "Returns None if ``x`` or ``y`` is outside of the image."
+msgstr ""
+"Возвращает None, если ``x`` или ``y`` находится за пределами изображения."
+
+#: ../../library/omv.image.Image.rst:192 ../../library/omv.image.Image.rst:217
+msgid "``x`` and ``y`` may either be passed independently or as a tuple."
+msgstr ""
+"``x`` и ``y`` могут передаваться либо независимо, либо в виде кортежа."
+
+#: ../../library/omv.image.Image.rst:194
+msgid ""
+"``rgbtuple`` if True causes this method to return an RGB888 tuple. "
+"Otherwise, this method returns the integer value of the underlying pixel. "
+"I.e. for RGB565 images this method returns a RGB565 value. Defaults to True "
+"for RGB565 images and False otherwise."
+msgstr ""
+"``rgbtuple`` если True, заставляет этот метод возвращать кортеж RGB888. В "
+"противном случае этот метод возвращает целочисленное значение базового "
+"пикселя. То есть для изображений RGB565 этот метод возвращает значение "
+"RGB565. По умолчанию True для изображений RGB565 и False в остальных "
+"случаях."
+
+#: ../../library/omv.image.Image.rst:199 ../../library/omv.image.Image.rst:223
+#: ../../library/omv.image.Image.rst:997
+#: ../../library/omv.image.Image.rst:2208
+msgid "Not supported on compressed images."
+msgstr "Не поддерживается для сжатых изображений."
+
+#: ../../library/omv.image.Image.rst:203
+msgid ""
+"`Image.get_pixel()` and `Image.set_pixel()` are the only methods that allow "
+"you to manipulate bayer pattern images. Bayer pattern images are literal "
+"images where pixels in the image are R/G/R/G/etc. for even rows and "
+"G/B/G/B/etc. for odd rows. Each pixel is 8-bits. If you call this method "
+"with ``rgbtuple`` set then `Image.get_pixel()` will debayer the source image"
+" at that pixel location and return a valid RGB888 tuple for the pixel "
+"location."
+msgstr ""
+"`Image.get_pixel()` и `Image.set_pixel()` -- единственные методы, которые "
+"позволяют манипулировать изображениями с паттерном Байера. Изображения с "
+"паттерном Байера -- это буквальные изображения, в которых пиксели "
+"расположены R/G/R/G/и т.д. для чётных строк и G/B/G/B/и т.д. для нечётных "
+"строк. Каждый пиксель 8-битный. Если вы вызовете этот метод с установленным "
+"``rgbtuple``, то `Image.get_pixel()` выполнит дебайеризацию исходного "
+"изображения в этой позиции пикселя и вернёт корректный кортеж RGB888 для "
+"данной позиции пикселя."
+
+#: ../../library/omv.image.Image.rst:211
+msgid ""
+"For grayscale images: Sets the pixel at location (x, y) to the grayscale "
+"value ``pixel``. For RGB565 images: Sets the pixel at location (x, y) to the"
+" RGB888 tuple (r, g, b) ``pixel``. For bayer pattern images: Sets the pixel "
+"value at the location (x, y) to the value ``pixel``."
+msgstr ""
+"Для изображений в оттенках серого: устанавливает пиксель в позиции (x, y) в "
+"значение оттенка серого ``pixel``. Для изображений RGB565: устанавливает "
+"пиксель в позиции (x, y) в кортеж RGB888 (r, g, b) ``pixel``. Для "
+"изображений с паттерном Байера: устанавливает значение пикселя в позиции (x,"
+" y) в значение ``pixel``."
+
+#: ../../library/omv.image.Image.rst:215 ../../library/omv.image.Image.rst:315
+#: ../../library/omv.image.Image.rst:363 ../../library/omv.image.Image.rst:411
+#: ../../library/omv.image.Image.rst:459 ../../library/omv.image.Image.rst:507
+#: ../../library/omv.image.Image.rst:555 ../../library/omv.image.Image.rst:603
+#: ../../library/omv.image.Image.rst:651 ../../library/omv.image.Image.rst:708
+#: ../../library/omv.image.Image.rst:756 ../../library/omv.image.Image.rst:813
+#: ../../library/omv.image.Image.rst:861 ../../library/omv.image.Image.rst:909
+#: ../../library/omv.image.Image.rst:957 ../../library/omv.image.Image.rst:977
+#: ../../library/omv.image.Image.rst:995
+#: ../../library/omv.image.Image.rst:1010
+#: ../../library/omv.image.Image.rst:1027
+#: ../../library/omv.image.Image.rst:1044
+#: ../../library/omv.image.Image.rst:1061
+#: ../../library/omv.image.Image.rst:1104
+#: ../../library/omv.image.Image.rst:1121
+#: ../../library/omv.image.Image.rst:1136
+#: ../../library/omv.image.Image.rst:1153
+#: ../../library/omv.image.Image.rst:1172
+#: ../../library/omv.image.Image.rst:1220
+#: ../../library/omv.image.Image.rst:1239
+#: ../../library/omv.image.Image.rst:1269
+#: ../../library/omv.image.Image.rst:1304
+#: ../../library/omv.image.Image.rst:1313
+#: ../../library/omv.image.Image.rst:1322
+#: ../../library/omv.image.Image.rst:1352
+#: ../../library/omv.image.Image.rst:1361
+#: ../../library/omv.image.Image.rst:1375
+#: ../../library/omv.image.Image.rst:1389
+#: ../../library/omv.image.Image.rst:1403
+#: ../../library/omv.image.Image.rst:1417
+#: ../../library/omv.image.Image.rst:1431
+#: ../../library/omv.image.Image.rst:1445
+#: ../../library/omv.image.Image.rst:1460
+#: ../../library/omv.image.Image.rst:1474
+#: ../../library/omv.image.Image.rst:1489
+#: ../../library/omv.image.Image.rst:1530
+#: ../../library/omv.image.Image.rst:1565
+#: ../../library/omv.image.Image.rst:1579
+#: ../../library/omv.image.Image.rst:1593
+#: ../../library/omv.image.Image.rst:1617
+#: ../../library/omv.image.Image.rst:1634
+#: ../../library/omv.image.Image.rst:1648
+#: ../../library/omv.image.Image.rst:1702
+#: ../../library/omv.image.Image.rst:1723
+#: ../../library/omv.image.Image.rst:1742
+#: ../../library/omv.image.Image.rst:1764
+#: ../../library/omv.image.Image.rst:1791
+#: ../../library/omv.image.Image.rst:1816
+#: ../../library/omv.image.Image.rst:1841
+#: ../../library/omv.image.Image.rst:1865
+#: ../../library/omv.image.Image.rst:1919
+#: ../../library/omv.image.Image.rst:1953
+msgid ""
+"Returns the image object so you can call another method using ``.`` "
+"notation."
+msgstr ""
+"Возвращает объект изображения, чтобы вы могли вызвать другой метод, "
+"используя нотацию ``.``."
+
+#: ../../library/omv.image.Image.rst:219
+msgid ""
+"``pixel`` may either be an RGB888 tuple (r, g, b) or the underlying pixel "
+"value (i.e. a RGB565 value for RGB565 images or an 8-bit value for grayscale"
+" images."
+msgstr ""
+"``pixel`` может быть либо кортежем RGB888 (r, g, b), либо базовым значением "
+"пикселя (то есть значением RGB565 для изображений RGB565 или 8-битным "
+"значением для изображений в оттенках серого)."
+
+#: ../../library/omv.image.Image.rst:227
+msgid ""
+"`Image.get_pixel()` and `Image.set_pixel()` are the only methods that allow "
+"you to manipulate bayer pattern images. Bayer pattern images are literal "
+"images where pixels in the image are R/G/R/G/etc. for even rows and "
+"G/B/G/B/etc. for odd rows. Each pixel is 8-bits. If you call this method "
+"with an RGB888 tuple the grayscale value of that RGB888 tuple is extracted "
+"and set to the pixel location."
+msgstr ""
+"`Image.get_pixel()` и `Image.set_pixel()` -- единственные методы, которые "
+"позволяют манипулировать изображениями с паттерном Байера. Изображения с "
+"паттерном Байера -- это буквальные изображения, в которых пиксели "
+"расположены R/G/R/G/и т.д. для чётных строк и G/B/G/B/и т.д. для нечётных "
+"строк. Каждый пиксель 8-битный. Если вы вызовете этот метод с кортежем "
+"RGB888, значение оттенка серого этого кортежа RGB888 извлекается и "
+"устанавливается в позицию пикселя."
+
+#: ../../library/omv.image.Image.rst:234
+msgid "Conversion Methods"
+msgstr "Методы преобразования"
+
+#: ../../library/omv.image.Image.rst:238
+msgid ""
+"Returns a ``ndarray`` object created from the image. This only works for "
+"GRAYSCALE or RGB565 images currently."
+msgstr ""
+"Возвращает объект ``ndarray``, созданный из изображения. В настоящее время "
+"это работает только для изображений GRAYSCALE или RGB565."
+
+#: ../../library/omv.image.Image.rst:241
+msgid ""
+"``dtype`` can be ``b``, ``B``, or ``f`` for creating a signed 8-bit, "
+"unsigned 8-bit, or 32-bit floating point ``ndarray``. GRAYSCALE images are "
+"directly converted to unsigned 8-bit ``ndarray`` objects. For signed 8-bit "
+"``ndarray`` objects the values (0:255) are mapped to (-127:128). For float "
+"32-bit ``ndarray`` objects the values are mapped to (0.0:255.0). RGB565 "
+"images are converted to 3-channel ``ndarray`` objects and the same process "
+"described above for GRAYSCALE images is applied to each channel depending on"
+" ``dtype``. Note that ``dtype`` also accepts the integer values (e.g. "
+"`ord()`) of ``b``, ``B``, and ``f`` respectively."
+msgstr ""
+"``dtype`` может быть ``b``, ``B`` или ``f`` для создания знакового "
+"8-битного, беззнакового 8-битного или 32-битного ``ndarray`` с плавающей "
+"точкой. Изображения GRAYSCALE напрямую преобразуются в беззнаковые 8-битные "
+"объекты ``ndarray``. Для знаковых 8-битных объектов ``ndarray`` значения "
+"(0:255) отображаются в (-127:128). Для 32-битных объектов ``ndarray`` с "
+"плавающей точкой значения отображаются в (0.0:255.0). Изображения RGB565 "
+"преобразуются в 3-канальные объекты ``ndarray``, и тот же процесс, описанный"
+" выше для изображений GRAYSCALE, применяется к каждому каналу в зависимости "
+"от ``dtype``. Обратите внимание, что ``dtype`` также принимает целочисленные"
+" значения (например, через `ord()`) для ``b``, ``B`` и ``f`` соответственно."
+
+#: ../../library/omv.image.Image.rst:248
+msgid ""
+"``buffer`` if not ``None`` is a ``bytearray`` object to use as the buffer "
+"for the ``ndarray``. If ``None`` a new buffer is allocated on the heap to "
+"store the ``ndarray`` image data. You can use the ``buffer`` argument to "
+"directly allocate the ``ndarray`` in a pre-allocated buffer saving a heap "
+"allocation and a copy operation."
+msgstr ""
+"``buffer`` если не ``None``, является объектом ``bytearray`` для "
+"использования в качестве буфера для ``ndarray``. Если ``None``, новый буфер "
+"выделяется в куче для хранения данных изображения ``ndarray``. Вы можете "
+"использовать аргумент ``buffer``, чтобы напрямую выделить ``ndarray`` в "
+"предварительно выделенном буфере, экономя выделение в куче и операцию "
+"копирования."
+
+#: ../../library/omv.image.Image.rst:253
+msgid ""
+"The ``ndarray`` returned has the shape of ``(height, width)`` for GRAYSCALE "
+"images and ``(height, width, 3)`` for RGB565 images."
+msgstr ""
+"Возвращаемый ``ndarray`` имеет форму ``(height, width)`` для изображений "
+"GRAYSCALE и ``(height, width, 3)`` для изображений RGB565."
+
+#: ../../library/omv.image.Image.rst:258
+msgid "Converts an image to a bitmap image (1 bit per pixel)."
+msgstr "Преобразует изображение в растровое изображение (1 бит на пиксель)."
+
+#: ../../library/omv.image.Image.rst:260 ../../library/omv.image.Image.rst:321
+#: ../../library/omv.image.Image.rst:369 ../../library/omv.image.Image.rst:417
+#: ../../library/omv.image.Image.rst:465 ../../library/omv.image.Image.rst:513
+#: ../../library/omv.image.Image.rst:561 ../../library/omv.image.Image.rst:609
+#: ../../library/omv.image.Image.rst:657 ../../library/omv.image.Image.rst:714
+#: ../../library/omv.image.Image.rst:762 ../../library/omv.image.Image.rst:823
+#: ../../library/omv.image.Image.rst:867 ../../library/omv.image.Image.rst:915
+#: ../../library/omv.image.Image.rst:1185
+msgid ""
+"``x_scale`` controls how much the displayed image is scaled by in the x "
+"direction (float). If this value is negative the image will be flipped "
+"horizontally. Note that if ``y_scale`` is not specified then it will match "
+"``x_scale`` to maintain the aspect ratio."
+msgstr ""
+"``x_scale`` управляет тем, насколько отображаемое изображение масштабируется"
+" в направлении x (float). Если это значение отрицательное, изображение будет"
+" отражено по горизонтали. Обратите внимание, что если ``y_scale`` не указан,"
+" он будет соответствовать ``x_scale`` для сохранения соотношения сторон."
+
+#: ../../library/omv.image.Image.rst:264 ../../library/omv.image.Image.rst:325
+#: ../../library/omv.image.Image.rst:373 ../../library/omv.image.Image.rst:421
+#: ../../library/omv.image.Image.rst:469 ../../library/omv.image.Image.rst:517
+#: ../../library/omv.image.Image.rst:565 ../../library/omv.image.Image.rst:613
+#: ../../library/omv.image.Image.rst:661 ../../library/omv.image.Image.rst:718
+#: ../../library/omv.image.Image.rst:766 ../../library/omv.image.Image.rst:827
+#: ../../library/omv.image.Image.rst:871 ../../library/omv.image.Image.rst:919
+#: ../../library/omv.image.Image.rst:1189
+msgid ""
+"``y_scale`` controls how much the displayed image is scaled by in the y "
+"direction (float). If this value is negative the image will be flipped "
+"vertically. Note that if ``x_scale`` is not specified then it will match "
+"``x_scale`` to maintain the aspect ratio."
+msgstr ""
+"``y_scale`` управляет тем, насколько отображаемое изображение масштабируется"
+" в направлении y (float). Если это значение отрицательное, изображение будет"
+" перевёрнуто по вертикали. Обратите внимание, что если ``x_scale`` не "
+"указан, он будет соответствовать ``x_scale`` для сохранения соотношения "
+"сторон."
+
+#: ../../library/omv.image.Image.rst:268 ../../library/omv.image.Image.rst:329
+#: ../../library/omv.image.Image.rst:377 ../../library/omv.image.Image.rst:425
+#: ../../library/omv.image.Image.rst:473 ../../library/omv.image.Image.rst:521
+#: ../../library/omv.image.Image.rst:569 ../../library/omv.image.Image.rst:617
+#: ../../library/omv.image.Image.rst:665 ../../library/omv.image.Image.rst:722
+#: ../../library/omv.image.Image.rst:770 ../../library/omv.image.Image.rst:831
+#: ../../library/omv.image.Image.rst:875 ../../library/omv.image.Image.rst:923
+#: ../../library/omv.image.Image.rst:1193
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h) of the source"
+" image to draw. This allows you to extract just the pixels in the ROI to "
+"scale and draw on the destination image."
+msgstr ""
+"``roi`` -- это кортеж прямоугольника области интереса (x, y, w, h) исходного"
+" изображения для рисования. Это позволяет извлечь только пиксели в ROI для "
+"масштабирования и рисования на изображении назначения."
+
+#: ../../library/omv.image.Image.rst:271 ../../library/omv.image.Image.rst:332
+#: ../../library/omv.image.Image.rst:380 ../../library/omv.image.Image.rst:428
+#: ../../library/omv.image.Image.rst:476 ../../library/omv.image.Image.rst:524
+#: ../../library/omv.image.Image.rst:572 ../../library/omv.image.Image.rst:620
+#: ../../library/omv.image.Image.rst:668 ../../library/omv.image.Image.rst:725
+#: ../../library/omv.image.Image.rst:773 ../../library/omv.image.Image.rst:834
+#: ../../library/omv.image.Image.rst:878 ../../library/omv.image.Image.rst:926
+#: ../../library/omv.image.Image.rst:1196
+msgid ""
+"``rgb_channel`` is the RGB channel (0=R, G=1, B=2) to extract from an RGB565"
+" image (if passed) and to render onto the destination image. For example, if"
+" you pass ``rgb_channel=1`` this will extract the green channel of the "
+"source RGB565 image and draw that in grayscale on the destination image."
+msgstr ""
+"``rgb_channel`` -- это RGB-канал (0=R, G=1, B=2) для извлечения из "
+"изображения RGB565 (если передано) и отрисовки на изображении назначения. "
+"Например, если вы передадите ``rgb_channel=1``, это извлечёт зелёный канал "
+"исходного изображения RGB565 и нарисует его в оттенках серого на изображении"
+" назначения."
+
+#: ../../library/omv.image.Image.rst:276 ../../library/omv.image.Image.rst:337
+#: ../../library/omv.image.Image.rst:385 ../../library/omv.image.Image.rst:433
+#: ../../library/omv.image.Image.rst:481 ../../library/omv.image.Image.rst:529
+#: ../../library/omv.image.Image.rst:577 ../../library/omv.image.Image.rst:625
+#: ../../library/omv.image.Image.rst:673 ../../library/omv.image.Image.rst:730
+#: ../../library/omv.image.Image.rst:778 ../../library/omv.image.Image.rst:839
+#: ../../library/omv.image.Image.rst:883 ../../library/omv.image.Image.rst:931
+#: ../../library/omv.image.Image.rst:1201
+msgid ""
+"``alpha`` controls how much of the source image to blend into the "
+"destination image. A value of 255 draws an opaque source image while a value"
+" lower than 255 produces a blend between the source and destination image. 0"
+" results in no modification to the destination image."
+msgstr ""
+"``alpha`` управляет тем, какая часть исходного изображения смешивается с "
+"изображением назначения. Значение 255 рисует непрозрачное исходное "
+"изображение, а значение ниже 255 создаёт смешение между исходным "
+"изображением и изображением назначения. 0 приводит к отсутствию изменений "
+"изображения назначения."
+
+#: ../../library/omv.image.Image.rst:280 ../../library/omv.image.Image.rst:341
+#: ../../library/omv.image.Image.rst:389 ../../library/omv.image.Image.rst:437
+#: ../../library/omv.image.Image.rst:485 ../../library/omv.image.Image.rst:581
+#: ../../library/omv.image.Image.rst:629 ../../library/omv.image.Image.rst:677
+#: ../../library/omv.image.Image.rst:734 ../../library/omv.image.Image.rst:782
+#: ../../library/omv.image.Image.rst:843 ../../library/omv.image.Image.rst:887
+#: ../../library/omv.image.Image.rst:935
+#: ../../library/omv.image.Image.rst:1205
+msgid ""
+"``color_palette`` if not ``None`` can be an a color palette enum or a 256 "
+"pixel in total RGB565 image to use as a color lookup table on the grayscale "
+"value of whatever the source image is. This is applied after ``rgb_channel``"
+" extraction if used."
+msgstr ""
+"``color_palette`` если не ``None``, может быть перечислением цветовой "
+"палитры или изображением RGB565 размером 256 пикселей в общей сложности для "
+"использования в качестве таблицы поиска цвета по значению оттенка серого "
+"исходного изображения. Применяется после извлечения ``rgb_channel``, если "
+"оно используется."
+
+#: ../../library/omv.image.Image.rst:284 ../../library/omv.image.Image.rst:345
+#: ../../library/omv.image.Image.rst:393 ../../library/omv.image.Image.rst:441
+#: ../../library/omv.image.Image.rst:489 ../../library/omv.image.Image.rst:537
+#: ../../library/omv.image.Image.rst:585 ../../library/omv.image.Image.rst:633
+#: ../../library/omv.image.Image.rst:681 ../../library/omv.image.Image.rst:738
+#: ../../library/omv.image.Image.rst:786 ../../library/omv.image.Image.rst:847
+#: ../../library/omv.image.Image.rst:891 ../../library/omv.image.Image.rst:939
+#: ../../library/omv.image.Image.rst:1209
+msgid ""
+"``alpha_palette`` if not ``None`` can be a 256 pixel in total GRAYSCALE "
+"image to use as a alpha palette which modulates the ``alpha`` value of the "
+"source image being drawn at a pixel pixel level allowing you to precisely "
+"control the alpha value of pixels based on their grayscale value. A pixel "
+"value of 255 in the alpha lookup table is opaque which anything less than "
+"255 becomes more transparent until 0. This is applied after ``rgb_channel`` "
+"extraction if used."
+msgstr ""
+"``alpha_palette`` если не ``None``, может быть изображением GRAYSCALE "
+"размером 256 пикселей в общей сложности для использования в качестве альфа-"
+"палитры, которая модулирует значение ``alpha`` рисуемого исходного "
+"изображения на уровне отдельных пикселей, позволяя точно управлять альфа-"
+"значением пикселей на основе их значения оттенка серого. Значение пикселя "
+"255 в альфа-таблице поиска непрозрачно, а всё, что меньше 255, становится "
+"более прозрачным вплоть до 0. Применяется после извлечения ``rgb_channel``, "
+"если оно используется."
+
+#: ../../library/omv.image.Image.rst:290 ../../library/omv.image.Image.rst:351
+#: ../../library/omv.image.Image.rst:399 ../../library/omv.image.Image.rst:447
+#: ../../library/omv.image.Image.rst:495 ../../library/omv.image.Image.rst:543
+#: ../../library/omv.image.Image.rst:591 ../../library/omv.image.Image.rst:639
+#: ../../library/omv.image.Image.rst:687 ../../library/omv.image.Image.rst:744
+#: ../../library/omv.image.Image.rst:792 ../../library/omv.image.Image.rst:853
+#: ../../library/omv.image.Image.rst:897 ../../library/omv.image.Image.rst:945
+msgid ""
+"``hint`` is a logical OR of the flags listed in :ref:`Hint flags "
+"<image.Image.hint>` (excluding `image.BLACK_BACKGROUND` which is not "
+"supported here)."
+msgstr ""
+"``hint`` -- это логическое ИЛИ флагов, перечисленных в :ref:`Флаги-подсказки"
+" <image.Image.hint>` (за исключением `image.BLACK_BACKGROUND`, который здесь"
+" не поддерживается)."
+
+#: ../../library/omv.image.Image.rst:292 ../../library/omv.image.Image.rst:353
+#: ../../library/omv.image.Image.rst:401 ../../library/omv.image.Image.rst:449
+#: ../../library/omv.image.Image.rst:497 ../../library/omv.image.Image.rst:545
+#: ../../library/omv.image.Image.rst:593 ../../library/omv.image.Image.rst:641
+#: ../../library/omv.image.Image.rst:689 ../../library/omv.image.Image.rst:746
+#: ../../library/omv.image.Image.rst:794 ../../library/omv.image.Image.rst:855
+#: ../../library/omv.image.Image.rst:899 ../../library/omv.image.Image.rst:947
+#: ../../library/omv.image.Image.rst:1217
+msgid ""
+"``transform`` is 3x3 ``ndarray`` that is used to perform a persepective "
+"transformation on the image. Only supported on the OpenMV Cam N6 currently "
+"as it has a GPU that can do this in hardware."
+msgstr ""
+"``transform`` -- это ``ndarray`` 3x3, который используется для выполнения "
+"перспективного преобразования изображения. В настоящее время поддерживается "
+"только на OpenMV Cam N6, так как у неё есть GPU, способный делать это "
+"аппаратно."
+
+#: ../../library/omv.image.Image.rst:295 ../../library/omv.image.Image.rst:356
+#: ../../library/omv.image.Image.rst:404 ../../library/omv.image.Image.rst:452
+#: ../../library/omv.image.Image.rst:500 ../../library/omv.image.Image.rst:548
+#: ../../library/omv.image.Image.rst:596 ../../library/omv.image.Image.rst:644
+#: ../../library/omv.image.Image.rst:692 ../../library/omv.image.Image.rst:749
+#: ../../library/omv.image.Image.rst:797 ../../library/omv.image.Image.rst:902
+#: ../../library/omv.image.Image.rst:950
+msgid ""
+"``copy`` if True create a deep-copy on the heap of the image that's been "
+"converted versus converting the original image in-place."
+msgstr ""
+"``copy`` если True, создаёт глубокую копию преобразованного изображения в "
+"куче вместо преобразования исходного изображения на месте."
+
+#: ../../library/omv.image.Image.rst:298 ../../library/omv.image.Image.rst:359
+#: ../../library/omv.image.Image.rst:407 ../../library/omv.image.Image.rst:455
+#: ../../library/omv.image.Image.rst:503 ../../library/omv.image.Image.rst:551
+#: ../../library/omv.image.Image.rst:599 ../../library/omv.image.Image.rst:647
+#: ../../library/omv.image.Image.rst:695 ../../library/omv.image.Image.rst:752
+#: ../../library/omv.image.Image.rst:800 ../../library/omv.image.Image.rst:905
+#: ../../library/omv.image.Image.rst:953
+msgid ""
+"``copy_to_fb`` if True the image is loaded directly into the frame buffer. "
+"``copy_to_fb`` has priority over ``copy``. This has no special effect if the"
+" image is already in the frame buffer."
+msgstr ""
+"``copy_to_fb`` если True, изображение загружается непосредственно в буфер "
+"кадра. ``copy_to_fb`` имеет приоритет над ``copy``. Это не имеет особого "
+"эффекта, если изображение уже находится в буфере кадра."
+
+#: ../../library/omv.image.Image.rst:304
+msgid ""
+"Bitmap images are like grayscale images with only two pixels values - 0 and "
+"1. Additionally, bitmap images are packed such that they only store 1 bit "
+"per pixel making them very small. The OpenMV image library allows bitmap "
+"images to be used in all places `sensor.GRAYSCALE` and `sensor.RGB565` "
+"images can be used. However, many operations when applied on bitmap images "
+"don't make any sense becuase bitmap images only have 2 values. OpenMV "
+"recommends using bitmap images for ``mask`` values in operations and such as"
+" they fit on the MicroPython heap quite easily. Finally, bitmap image pixel "
+"values 0 and 1 are interpreted as black and white when being applied to "
+"`sensor.GRAYSCALE` or `sensor.RGB565` images. The library automatically "
+"handles conversion."
+msgstr ""
+"Растровые изображения подобны изображениям в оттенках серого, но имеют "
+"только два значения пикселей -- 0 и 1. Кроме того, растровые изображения "
+"упакованы так, что хранят только 1 бит на пиксель, что делает их очень "
+"компактными. Библиотека изображений OpenMV позволяет использовать растровые "
+"изображения везде, где могут использоваться изображения `sensor.GRAYSCALE` и"
+" `sensor.RGB565`. Однако многие операции при применении к растровым "
+"изображениям не имеют смысла, поскольку растровые изображения имеют только 2"
+" значения. OpenMV рекомендует использовать растровые изображения для "
+"значений ``mask`` в операциях и т.п., так как они довольно легко помещаются "
+"в куче MicroPython. Наконец, значения пикселей растрового изображения 0 и 1 "
+"интерпретируются как чёрный и белый при применении к изображениям "
+"`sensor.GRAYSCALE` или `sensor.RGB565`. Библиотека автоматически "
+"обрабатывает преобразование."
+
+#: ../../library/omv.image.Image.rst:319
+msgid "Converts an image to a grayscale image (8-bits per pixel)."
+msgstr ""
+"Преобразует изображение в изображение в оттенках серого (8 бит на пиксель)."
+
+#: ../../library/omv.image.Image.rst:367
+msgid "Converts an image to an RGB565 image (16-bits per pixel)."
+msgstr "Преобразует изображение в изображение RGB565 (16 бит на пиксель)."
+
+#: ../../library/omv.image.Image.rst:415
+msgid "Converts an image to an RGB565 rainbow image (16-bits per pixel)."
+msgstr ""
+"Преобразует изображение в радужное изображение RGB565 (16 бит на пиксель)."
+
+#: ../../library/omv.image.Image.rst:463
+msgid "Converts an image to an RGB565 ironbow image (16-bits per pixel)."
+msgstr ""
+"Преобразует изображение в изображение RGB565 в палитре ironbow (16 бит на "
+"пиксель)."
+
+#: ../../library/omv.image.Image.rst:511
+msgid "Converts an image to an RGB565 Depth Image (16-bits per pixel)."
+msgstr ""
+"Преобразует изображение в изображение глубины RGB565 (16 бит на пиксель)."
+
+#: ../../library/omv.image.Image.rst:533
+msgid ""
+"``color_palette`` if not ``None`` can be `image.PALETTE_DEPTH` or a 256 "
+"pixel in total RGB565 image to use as a color lookup table on the grayscale "
+"value of whatever the source image is. This is applied after ``rgb_channel``"
+" extraction if used."
+msgstr ""
+"``color_palette`` если не ``None``, может быть `image.PALETTE_DEPTH` или "
+"изображением RGB565 размером 256 пикселей в общей сложности для "
+"использования в качестве таблицы поиска цвета по значению оттенка серого "
+"исходного изображения. Применяется после извлечения ``rgb_channel``, если "
+"оно используется."
+
+#: ../../library/omv.image.Image.rst:559
+msgid "Converts an image to an RGB565 Dark Event Image (16-bits per pixel)."
+msgstr ""
+"Преобразует изображение в изображение тёмных событий RGB565 (16 бит на "
+"пиксель)."
+
+#: ../../library/omv.image.Image.rst:607
+msgid "Converts an image to an RGB565 Light Event Image (16-bits per pixel)."
+msgstr ""
+"Преобразует изображение в изображение светлых событий RGB565 (16 бит на "
+"пиксель)."
+
+#: ../../library/omv.image.Image.rst:655 ../../library/omv.image.Image.rst:760
+msgid "Converts an image to a JPEG image."
+msgstr "Преобразует изображение в изображение JPEG."
+
+#: ../../library/omv.image.Image.rst:699 ../../library/omv.image.Image.rst:804
+msgid ""
+"``quality`` controls the jpeg image compression quality. The value can be "
+"between 0 and 100."
+msgstr ""
+"``quality`` управляет качеством сжатия изображения jpeg. Значение может быть"
+" от 0 до 100."
+
+#: ../../library/omv.image.Image.rst:701 ../../library/omv.image.Image.rst:806
+msgid "``subsampling`` can be:"
+msgstr "``subsampling`` может быть:"
+
+#: ../../library/omv.image.Image.rst:703 ../../library/omv.image.Image.rst:808
+msgid ""
+"`image.JPEG_SUBSAMPLING_AUTO`: Use the best subsampling for the image based "
+"on the quality."
+msgstr ""
+"`image.JPEG_SUBSAMPLING_AUTO`: использовать наилучшую субдискретизацию для "
+"изображения на основе качества."
+
+#: ../../library/omv.image.Image.rst:704 ../../library/omv.image.Image.rst:809
+msgid "`image.JPEG_SUBSAMPLING_444`: Use 4:4:4 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_444`: использовать субдискретизацию 4:4:4."
+
+#: ../../library/omv.image.Image.rst:705 ../../library/omv.image.Image.rst:810
+msgid "`image.JPEG_SUBSAMPLING_422`: Use 4:2:2 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_422`: использовать субдискретизацию 4:2:2."
+
+#: ../../library/omv.image.Image.rst:706 ../../library/omv.image.Image.rst:811
+msgid "`image.JPEG_SUBSAMPLING_420`: Use 4:2:0 subsampling."
+msgstr "`image.JPEG_SUBSAMPLING_420`: использовать субдискретизацию 4:2:0."
+
+#: ../../library/omv.image.Image.rst:712
+msgid "Converts an image to a PNG image."
+msgstr "Преобразует изображение в изображение PNG."
+
+#: ../../library/omv.image.Image.rst:817
+msgid "`Image.compress` is an alias for `Image.to_jpeg`."
+msgstr "`Image.compress` является псевдонимом для `Image.to_jpeg`."
+
+#: ../../library/omv.image.Image.rst:821
+msgid "Creates a deep copy of the image object."
+msgstr "Создаёт глубокую копию объекта изображения."
+
+#: ../../library/omv.image.Image.rst:858
+msgid ""
+"``copy_to_fb`` if True the image is loaded directly into the frame buffer. "
+"This has no special effect if the image is already in the frame buffer."
+msgstr ""
+"``copy_to_fb`` если True, изображение загружается непосредственно в буфер "
+"кадра. Это не имеет особого эффекта, если изображение уже находится в буфере"
+" кадра."
+
+#: ../../library/omv.image.Image.rst:865 ../../library/omv.image.Image.rst:913
+msgid "Modifies an image in-place without changing the underlying image type."
+msgstr ""
+"Изменяет изображение на месте без изменения базового типа изображения."
+
+#: ../../library/omv.image.Image.rst:961
+msgid "`Image.scale` is an alias for `Image.crop`."
+msgstr "`Image.scale` является псевдонимом для `Image.crop`."
+
+#: ../../library/omv.image.Image.rst:965
+msgid "Saves a copy of the image to the filesystem at ``path``."
+msgstr "Сохраняет копию изображения в файловой системе по пути ``path``."
+
+#: ../../library/omv.image.Image.rst:967
+msgid ""
+"Supports bmp/pgm/ppm/jpg/jpeg image files. Note that you cannot save jpeg "
+"compressed images to an uncompressed format."
+msgstr ""
+"Поддерживает файлы изображений bmp/pgm/ppm/jpg/jpeg. Обратите внимание, что "
+"вы не можете сохранить сжатые jpeg-изображения в несжатый формат."
+
+#: ../../library/omv.image.Image.rst:970
+msgid ""
+"``roi`` is the region-of-interest rectangle (x, y, w, h) to save from. If "
+"not specified, it is equal to the image rectangle which copies the entire "
+"image. This argument is not applicable for JPEG images."
+msgstr ""
+"``roi`` -- это прямоугольник области интереса (x, y, w, h) для сохранения. "
+"Если не указан, он равен прямоугольнику изображения, что копирует всё "
+"изображение. Этот аргумент неприменим для изображений JPEG."
+
+#: ../../library/omv.image.Image.rst:974
+msgid ""
+"``quality`` is the jpeg compression quality to use to save the image to jpeg"
+" format if the image is not already compressed (0-100) (int)."
+msgstr ""
+"``quality`` -- это качество сжатия jpeg, используемое для сохранения "
+"изображения в формате jpeg, если изображение ещё не сжато (0-100) (int)."
+
+#: ../../library/omv.image.Image.rst:981
+msgid ""
+"Updates the frame buffer in the IDE with the image in the frame buffer on "
+"the camera."
+msgstr "Обновляет буфер кадра в IDE изображением из буфера кадра на камере."
+
+#: ../../library/omv.image.Image.rst:984
+msgid "Drawing Methods"
+msgstr "Методы рисования"
+
+#: ../../library/omv.image.Image.rst:988
+msgid "Sets all pixels in the image to zero (very fast)."
+msgstr "Устанавливает все пиксели изображения в ноль (очень быстро)."
+
+#: ../../library/omv.image.Image.rst:990
+msgid ""
+"``mask`` is another image to use as a pixel level mask for the operation. "
+"The mask should be an image with just black or white pixels and should be "
+"the same size as the image being operated on. Only pixels set in the mask "
+"are modified."
+msgstr ""
+"``mask`` -- это другое изображение, используемое в качестве маски на уровне "
+"пикселей для операции. Маска должна быть изображением только с чёрными или "
+"белыми пикселями и должна быть того же размера, что и обрабатываемое "
+"изображение. Изменяются только пиксели, установленные в маске."
+
+#: ../../library/omv.image.Image.rst:1001
+msgid ""
+"Draws a line from (x0, y0) to (x1, y1) on the image. You may either pass x0,"
+" y0, x1, y1 separately or as a tuple (x0, y0, x1, y1)."
+msgstr ""
+"Рисует линию от (x0, y0) до (x1, y1) на изображении. Вы можете передать x0, "
+"y0, x1, y1 по отдельности или в виде кортежа (x0, y0, x1, y1)."
+
+#: ../../library/omv.image.Image.rst:1004
+#: ../../library/omv.image.Image.rst:1019
+#: ../../library/omv.image.Image.rst:1036
+#: ../../library/omv.image.Image.rst:1053
+#: ../../library/omv.image.Image.rst:1073
+#: ../../library/omv.image.Image.rst:1113
+#: ../../library/omv.image.Image.rst:1130
+#: ../../library/omv.image.Image.rst:1162
+#: ../../library/omv.image.Image.rst:1229
+#: ../../library/omv.image.Image.rst:1254
+msgid ""
+"``color`` is an RGB888 tuple for Grayscale or RGB565 images. Defaults to "
+"white. However, you may also pass the underlying pixel value (0-255) for "
+"grayscale images or a RGB565 value for RGB565 images."
+msgstr ""
+"``color`` -- это кортеж RGB888 для изображений Grayscale или RGB565. По "
+"умолчанию белый. Однако вы также можете передать базовое значение пикселя "
+"(0-255) для изображений в оттенках серого или значение RGB565 для "
+"изображений RGB565."
+
+#: ../../library/omv.image.Image.rst:1008
+#: ../../library/omv.image.Image.rst:1134
+#: ../../library/omv.image.Image.rst:1168
+#: ../../library/omv.image.Image.rst:1235
+msgid "``thickness`` controls how thick the line is in pixels."
+msgstr "``thickness`` управляет толщиной линии в пикселях."
+
+#: ../../library/omv.image.Image.rst:1012
+#: ../../library/omv.image.Image.rst:1029
+#: ../../library/omv.image.Image.rst:1046
+#: ../../library/omv.image.Image.rst:1063
+#: ../../library/omv.image.Image.rst:1106
+#: ../../library/omv.image.Image.rst:1123
+#: ../../library/omv.image.Image.rst:1138
+#: ../../library/omv.image.Image.rst:1155
+#: ../../library/omv.image.Image.rst:1174
+#: ../../library/omv.image.Image.rst:1241
+#: ../../library/omv.image.Image.rst:1271
+#: ../../library/omv.image.Image.rst:1306
+#: ../../library/omv.image.Image.rst:1315
+#: ../../library/omv.image.Image.rst:1324
+#: ../../library/omv.image.Image.rst:1354
+#: ../../library/omv.image.Image.rst:1377
+#: ../../library/omv.image.Image.rst:1391
+#: ../../library/omv.image.Image.rst:1405
+#: ../../library/omv.image.Image.rst:1419
+#: ../../library/omv.image.Image.rst:1433
+#: ../../library/omv.image.Image.rst:1447
+#: ../../library/omv.image.Image.rst:1532
+#: ../../library/omv.image.Image.rst:1548
+#: ../../library/omv.image.Image.rst:1567
+#: ../../library/omv.image.Image.rst:1581
+#: ../../library/omv.image.Image.rst:1595
+#: ../../library/omv.image.Image.rst:1619
+#: ../../library/omv.image.Image.rst:1884
+#: ../../library/omv.image.Image.rst:1901
+#: ../../library/omv.image.Image.rst:1921
+#: ../../library/omv.image.Image.rst:1955
+#: ../../library/omv.image.Image.rst:2000
+#: ../../library/omv.image.Image.rst:2025
+#: ../../library/omv.image.Image.rst:2050
+#: ../../library/omv.image.Image.rst:2093
+#: ../../library/omv.image.Image.rst:2112
+msgid "Not supported on compressed images or bayer images."
+msgstr "Не поддерживается для сжатых изображений или изображений bayer."
+
+#: ../../library/omv.image.Image.rst:1016
+msgid ""
+"Draws a rectangle on the image. You may either pass x, y, w, h separately or"
+" as a tuple (x, y, w, h)."
+msgstr ""
+"Рисует прямоугольник на изображении. Вы можете передать x, y, w, h по "
+"отдельности или в виде кортежа (x, y, w, h)."
+
+#: ../../library/omv.image.Image.rst:1023
+msgid "``thickness`` controls how thick the lines are in pixels."
+msgstr "``thickness`` управляет толщиной линий в пикселях."
+
+#: ../../library/omv.image.Image.rst:1025
+msgid "Pass ``fill`` set to True to fill the rectangle."
+msgstr "Передайте ``fill`` равным True, чтобы заполнить прямоугольник."
+
+#: ../../library/omv.image.Image.rst:1033
+msgid ""
+"Draws a circle on the image. You may either pass x, y, radius separately or "
+"as a tuple (x, y, radius)."
+msgstr ""
+"Рисует окружность на изображении. Вы можете передать x, y, radius по "
+"отдельности или в виде кортежа (x, y, radius)."
+
+#: ../../library/omv.image.Image.rst:1040
+#: ../../library/omv.image.Image.rst:1057
+#: ../../library/omv.image.Image.rst:1119
+msgid "``thickness`` controls how thick the edges are in pixels."
+msgstr "``thickness`` управляет толщиной краёв в пикселях."
+
+#: ../../library/omv.image.Image.rst:1042
+msgid "Pass ``fill`` set to True to fill the circle."
+msgstr "Передайте ``fill`` равным True, чтобы заполнить окружность."
+
+#: ../../library/omv.image.Image.rst:1050
+msgid ""
+"Draws an ellipse on the image. You may either pass cx, cy, rx, ry, and the "
+"rotation (in degrees) separately or as a tuple (cx, yc, rx, ry, rotation)."
+msgstr ""
+"Рисует эллипс на изображении. Вы можете передать cx, cy, rx, ry и поворот (в"
+" градусах) по отдельности или в виде кортежа (cx, yc, rx, ry, rotation)."
+
+#: ../../library/omv.image.Image.rst:1059
+msgid "Pass ``fill`` set to True to fill the ellipse."
+msgstr "Передайте ``fill`` равным True, чтобы заполнить эллипс."
+
+#: ../../library/omv.image.Image.rst:1067
+msgid ""
+"Draws 8x10 text starting at location (x, y) in the image. You may either "
+"pass x, y separately or as a tuple (x, y)."
+msgstr ""
+"Рисует текст 8x10, начиная с позиции (x, y) на изображении. Вы можете "
+"передать x, y по отдельности или в виде кортежа (x, y)."
+
+#: ../../library/omv.image.Image.rst:1070
+msgid ""
+"``text`` is a string to write to the image. ``\\n``, ``\\r``, and ``\\r\\n``"
+" line endings move the cursor to the next line."
+msgstr ""
+"``text`` -- это строка для записи на изображение. Окончания строк ``\\n``, "
+"``\\r`` и ``\\r\\n`` перемещают курсор на следующую строку."
+
+#: ../../library/omv.image.Image.rst:1077
+msgid ""
+"``scale`` may be increased to increase/decrease the size of the text on the "
+"image. You can pass greater than 0 integer or floating point values."
+msgstr ""
+"``scale`` может быть увеличен, чтобы увеличить/уменьшить размер текста на "
+"изображении. Вы можете передавать целочисленные значения больше 0 или "
+"значения с плавающей точкой."
+
+#: ../../library/omv.image.Image.rst:1080
+msgid ""
+"``x_spacing`` allows you to add (if positive) or subtract (if negative) x "
+"pixels between cahracters."
+msgstr ""
+"``x_spacing`` позволяет добавить (если положительное) или вычесть (если "
+"отрицательное) x пикселей между символами."
+
+#: ../../library/omv.image.Image.rst:1083
+msgid ""
+"``y_spacing`` allows you to add (if positive) or subtract (if negative) y "
+"pixels between cahracters (for multi-line text)."
+msgstr ""
+"``y_spacing`` позволяет добавить (если положительное) или вычесть (если "
+"отрицательное) y пикселей между символами (для многострочного текста)."
+
+#: ../../library/omv.image.Image.rst:1086
+msgid ""
+"``mono_space`` defaults to True which forces text to be fixed spaced. For "
+"large text scales this looks terrible. Set the False to get non-fixed width "
+"character spacing which looks A LOT better."
+msgstr ""
+"``mono_space`` по умолчанию True, что заставляет текст иметь фиксированное "
+"расстояние между символами. Для крупных масштабов текста это выглядит "
+"ужасно. Установите False, чтобы получить нефиксированное расстояние между "
+"символами, что выглядит ГОРАЗДО лучше."
+
+#: ../../library/omv.image.Image.rst:1090
+msgid ""
+"``char_rotation`` may be 0, 90, 180, 270 to rotate each character in the "
+"string by this amount."
+msgstr ""
+"``char_rotation`` может быть 0, 90, 180, 270 для поворота каждого символа в "
+"строке на эту величину."
+
+#: ../../library/omv.image.Image.rst:1093
+msgid ""
+"``char_hmirror`` if True horizontally mirrors all characters in the string."
+msgstr ""
+"``char_hmirror`` если True, горизонтально отражает все символы в строке."
+
+#: ../../library/omv.image.Image.rst:1095
+msgid "``char_vflip`` if True vertically flips all characters in the string."
+msgstr ""
+"``char_vflip`` если True, вертикально переворачивает все символы в строке."
+
+#: ../../library/omv.image.Image.rst:1097
+msgid ""
+"``string_rotation`` may be 0, 90, 180, 270 to rotate the string by this "
+"amount."
+msgstr ""
+"``string_rotation`` может быть 0, 90, 180, 270 для поворота строки на эту "
+"величину."
+
+#: ../../library/omv.image.Image.rst:1100
+msgid "``string_hmirror`` if True horizontally mirrors the string."
+msgstr "``string_hmirror`` если True, горизонтально отражает строку."
+
+#: ../../library/omv.image.Image.rst:1102
+msgid "``string_vflip`` if True vertically flips the string."
+msgstr "``string_vflip`` если True, вертикально переворачивает строку."
+
+#: ../../library/omv.image.Image.rst:1110
+msgid ""
+"Draws a cross at location x, y. You may either pass x, y separately or as a "
+"tuple (x, y)."
+msgstr ""
+"Рисует крест в позиции x, y. Вы можете передать x, y по отдельности или в "
+"виде кортежа (x, y)."
+
+#: ../../library/omv.image.Image.rst:1117
+msgid "``size`` controls how long the lines of the cross extend."
+msgstr "``size`` управляет длиной линий креста."
+
+#: ../../library/omv.image.Image.rst:1127
+msgid ""
+"Draws an arrow from (x0, y0) to (x1, y1) on the image. You may either pass "
+"x0, y0, x1, y1 separately or as a tuple (x0, y0, x1, y1)."
+msgstr ""
+"Рисует стрелку от (x0, y0) до (x1, y1) на изображении. Вы можете передать "
+"x0, y0, x1, y1 по отдельности или в виде кортежа (x0, y0, x1, y1)."
+
+#: ../../library/omv.image.Image.rst:1142
+msgid ""
+"Draws a detection result onto the image. ``detection`` is a 6-tuple ``(rx, "
+"ry, rw, rh, cx, cy)`` describing a bounding rectangle and a centroid "
+"(typically returned by NN or color tracking code)."
+msgstr ""
+"Рисует результат обнаружения на изображении. ``detection`` -- это "
+"6-элементный кортеж ``(rx, ry, rw, rh, cx, cy)``, описывающий ограничивающий"
+" прямоугольник и центроид (обычно возвращается кодом NN или цветового "
+"отслеживания)."
+
+#: ../../library/omv.image.Image.rst:1146
+msgid ""
+"``color1`` is the rectangle color and ``color2`` is the centroid cross "
+"color. ``size`` is the centroid cross size, ``thickness`` controls outline "
+"width, and ``fill`` fills the rectangle."
+msgstr ""
+"``color1`` -- цвет прямоугольника, а ``color2`` -- цвет креста центроида. "
+"``size`` -- размер креста центроида, ``thickness`` управляет шириной "
+"контура, а ``fill`` заполняет прямоугольник."
+
+#: ../../library/omv.image.Image.rst:1150
+msgid ""
+"``label`` if provided is drawn near the rectangle, offset by "
+"``label_offset`` ``(x, y)``."
+msgstr ""
+"``label`` если задан, рисуется рядом с прямоугольником со смещением "
+"``label_offset`` ``(x, y)``."
+
+#: ../../library/omv.image.Image.rst:1159
+msgid ""
+"Draws line edges between a corner list returned by methods like "
+"`blob.corners`. Coners is a four valued tuple of two valued x/y tuples. E.g."
+" [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]."
+msgstr ""
+"Рисует линии-границы между точками списка углов, возвращаемого методами "
+"вроде `blob.corners`. Углы -- это кортеж из четырёх значений, каждое из "
+"которых является кортежем из двух значений x/y. Например, "
+"[(x1,y1),(x2,y2),(x3,y3),(x4,y4)]."
+
+#: ../../library/omv.image.Image.rst:1166
+msgid ""
+"``size`` if greater than 0 causes the corners to be drawn as circles of "
+"radius ``size``."
+msgstr ""
+"``size`` если больше 0, заставляет углы рисоваться в виде окружностей "
+"радиусом ``size``."
+
+#: ../../library/omv.image.Image.rst:1170
+msgid "Pass ``fill`` set to True to fill the corner circles if drawn."
+msgstr ""
+"Передайте ``fill`` равным True, чтобы заполнить окружности углов, если они "
+"рисуются."
+
+#: ../../library/omv.image.Image.rst:1178
+msgid ""
+"Draws an ``image`` whose top-left corner starts at location x, y. You may "
+"either pass x, y separately or as a tuple (x, y). This method automatically "
+"handles rendering the image passed into the correct pixel format for the "
+"destination image while also handling clipping seamlessly."
+msgstr ""
+"Рисует изображение ``image``, левый верхний угол которого начинается в "
+"позиции x, y. Вы можете передать x, y по отдельности или в виде кортежа (x, "
+"y). Этот метод автоматически обрабатывает отрисовку переданного изображения "
+"в правильном формате пикселей для изображения назначения, а также бесшовно "
+"обрабатывает обрезку."
+
+#: ../../library/omv.image.Image.rst:1182
+msgid ""
+"You may also pass a path instead of an image object for this method to "
+"automatically load the image from disk and use it in one step. E.g. "
+"``draw_image(\"test.jpg\")``."
+msgstr ""
+"Вы также можете передать путь вместо объекта изображения, чтобы этот метод "
+"автоматически загрузил изображение с диска и использовал его за один шаг. "
+"Например, ``draw_image(\"test.jpg\")``."
+
+#: ../../library/omv.image.Image.rst:1215
+msgid ""
+"``hint`` is a logical OR of the flags listed in :ref:`Hint flags "
+"<image.Image.hint>` (including `image.BLACK_BACKGROUND` which is supported "
+"here)."
+msgstr ""
+"``hint`` -- это логическое ИЛИ флагов, перечисленных в :ref:`Флаги-подсказки"
+" <image.Image.hint>` (включая `image.BLACK_BACKGROUND`, который здесь "
+"поддерживается)."
+
+#: ../../library/omv.image.Image.rst:1224
+msgid ""
+"Draws the keypoints of a keypoints object on the image. You may also pass a "
+"list of three value tuples containing the (x, y, rotation_angle_in_degrees) "
+"to re-use this method for drawing keypoint glyphs which are a cirle with a "
+"line pointing in a particular direction."
+msgstr ""
+"Рисует ключевые точки объекта keypoints на изображении. Вы также можете "
+"передать список кортежей из трёх значений, содержащих (x, y, "
+"rotation_angle_in_degrees), чтобы повторно использовать этот метод для "
+"рисования глифов ключевых точек, которые представляют собой окружность с "
+"линией, указывающей в определённом направлении."
+
+#: ../../library/omv.image.Image.rst:1233
+msgid "``size`` controls how large the keypoints are."
+msgstr "``size`` управляет тем, насколько большими являются ключевые точки."
+
+#: ../../library/omv.image.Image.rst:1237
+msgid "Pass ``fill`` set to True to fill the keypoints."
+msgstr "Передайте ``fill`` равным True, чтобы заполнить ключевые точки."
+
+#: ../../library/omv.image.Image.rst:1245
+msgid ""
+"Flood fills a region of the image starting from location x, y. You may "
+"either pass x, y separately or as a tuple (x, y)."
+msgstr ""
+"Выполняет заливку области изображения, начиная с позиции x, y. Вы можете "
+"передать x, y по отдельности или в виде кортежа (x, y)."
+
+#: ../../library/omv.image.Image.rst:1248
+msgid ""
+"``seed_threshold`` controls how different any pixel in the fill area may be "
+"from the original starting pixel."
+msgstr ""
+"``seed_threshold`` управляет тем, насколько любой пиксель в области заливки "
+"может отличаться от исходного начального пикселя."
+
+#: ../../library/omv.image.Image.rst:1251
+msgid ""
+"``floating_threshold`` controls how different any pixel in the fill area may"
+" be from any neighbor pixels."
+msgstr ""
+"``floating_threshold`` управляет тем, насколько любой пиксель в области "
+"заливки может отличаться от любых соседних пикселей."
+
+#: ../../library/omv.image.Image.rst:1258
+msgid ""
+"Pass ``invert`` as True to re-color everything outside of the flood-fill "
+"connected area."
+msgstr ""
+"Передайте ``invert`` равным True, чтобы перекрасить всё за пределами связной"
+" области заливки."
+
+#: ../../library/omv.image.Image.rst:1261
+msgid ""
+"Pass ``clear_background`` as True to zero the rest of the pixels that flood-"
+"fill did not re-color."
+msgstr ""
+"Передайте ``clear_background`` равным True, чтобы обнулить остальные "
+"пиксели, которые заливка не перекрасила."
+
+#: ../../library/omv.image.Image.rst:1264
+msgid ""
+"``mask`` is another image to use as a pixel level mask for the operation. "
+"The mask should be an image with just black or white pixels and should be "
+"the same size as the image being operated on. Only pixels set in the mask "
+"are evaluated when flood filling."
+msgstr ""
+"``mask`` -- это другое изображение, используемое в качестве маски на уровне "
+"пикселей для операции. Маска должна быть изображением только с чёрными или "
+"белыми пикселями и должна быть того же размера, что и обрабатываемое "
+"изображение. При заливке оцениваются только пиксели, установленные в маске."
+
+#: ../../library/omv.image.Image.rst:1273
+#: ../../library/omv.image.Image.rst:1886
+#: ../../library/omv.image.Image.rst:1903
+#: ../../library/omv.image.Image.rst:1957
+#: ../../library/omv.image.Image.rst:2114
+#: ../../library/omv.image.Image.rst:2129
+#: ../../library/omv.image.Image.rst:2154
+#: ../../library/omv.image.Image.rst:2167
+#: ../../library/omv.image.Image.rst:2177
+#: ../../library/omv.image.Image.rst:2210
+#: ../../library/omv.image.Image.rst:2225
+#: ../../library/omv.image.Image.rst:2241
+#: ../../library/omv.image.Image.rst:2373
+msgid "This method is not available on the OpenMV Cam M4."
+msgstr "Этот метод недоступен на OpenMV Cam M4."
+
+#: ../../library/omv.image.Image.rst:1277
+msgid ""
+"Rasterizes an event ndarray (as filled by `csi.IOCTL_GENX320_READ_EVENTS`) "
+"onto an `Image` for visualization. The image buffer must be a 320x320 "
+"GRAYSCALE image."
+msgstr ""
+"Растеризует ndarray событий (заполненный с помощью "
+"`csi.IOCTL_GENX320_READ_EVENTS`) на `Image` для визуализации. Буфер "
+"изображения должен быть изображением GRAYSCALE 320x320."
+
+#: ../../library/omv.image.Image.rst:1280
+msgid ""
+"For each `csi.PIX_ON_EVENT` row the event's pixel gets ``+contrast`` added; "
+"for each `csi.PIX_OFF_EVENT` row the pixel gets ``-contrast``. Trigger "
+"events are ignored. Pixel values are clamped to 0-255."
+msgstr ""
+"Для каждой строки `csi.PIX_ON_EVENT` к пикселю события добавляется "
+"``+contrast``; для каждой строки `csi.PIX_OFF_EVENT` из пикселя вычитается "
+"``-contrast``. События-триггеры игнорируются. Значения пикселей "
+"ограничиваются диапазоном 0-255."
+
+#: ../../library/omv.image.Image.rst:1284
+msgid ""
+"``clear`` if True resets the image buffer to ``brightness`` before drawing "
+"--- every frame becomes a fresh event-only render. Set to False to "
+"accumulate events across multiple calls (useful for long-exposure motion "
+"trails)."
+msgstr ""
+"``clear`` если True, сбрасывает буфер изображения в ``brightness`` перед "
+"рисованием --- каждый кадр становится свежей отрисовкой только событий. "
+"Установите в False, чтобы накапливать события в нескольких вызовах (полезно "
+"для следов движения с длинной выдержкой)."
+
+#: ../../library/omv.image.Image.rst:1288
+msgid ""
+"``brightness`` controls the mid-gray baseline the buffer is reset to when "
+"``clear`` is True. The default 128 puts ON events at the bright end and OFF "
+"events at the dark end with equal headroom."
+msgstr ""
+"``brightness`` управляет средне-серым базовым уровнем, в который "
+"сбрасывается буфер, когда ``clear`` равно True. По умолчанию 128 помещает "
+"события ON на яркий конец, а события OFF на тёмный конец с равным запасом."
+
+#: ../../library/omv.image.Image.rst:1292
+msgid ""
+"``contrast`` controls how much each event shifts its pixel --- higher values"
+" make events pop, at the cost of saturating quickly when many events land on"
+" the same pixel."
+msgstr ""
+"``contrast`` управляет тем, насколько каждое событие сдвигает свой пиксель "
+"--- более высокие значения делают события заметнее ценой быстрого насыщения,"
+" когда много событий попадает в один и тот же пиксель."
+
+#: ../../library/omv.image.Image.rst:1297
+msgid "Masking Methods"
+msgstr "Методы маскирования"
+
+#: ../../library/omv.image.Image.rst:1301
+msgid ""
+"Zeros a rectangular part of the image. If no arguments are supplied this "
+"method zeros the center of the image."
+msgstr ""
+"Обнуляет прямоугольную часть изображения. Если аргументы не предоставлены, "
+"этот метод обнуляет центр изображения."
+
+#: ../../library/omv.image.Image.rst:1310
+msgid ""
+"Zeros a circular part of the image. If no arguments are supplied this method"
+" zeros the center of the image."
+msgstr ""
+"Обнуляет круглую часть изображения. Если аргументы не предоставлены, этот "
+"метод обнуляет центр изображения."
+
+#: ../../library/omv.image.Image.rst:1319
+msgid ""
+"Zeros an ellipsed shaped part of the image. If no arguments are supplied "
+"this method zeros the center of the image."
+msgstr ""
+"Обнуляет эллиптическую часть изображения. Если аргументы не предоставлены, "
+"этот метод обнуляет центр изображения."
+
+#: ../../library/omv.image.Image.rst:1327
+msgid "Binary Methods"
+msgstr "Бинарные методы"
+
+#: ../../library/omv.image.Image.rst:1331
+msgid ""
+"Sets all pixels in the image to black or white depending on whether each "
+"pixel is inside one of the threshold tuples in ``thresholds``."
+msgstr ""
+"Устанавливает все пиксели изображения в чёрный или белый цвет в зависимости "
+"от того, находится ли каждый пиксель внутри одного из кортежей порогов в "
+"``thresholds``."
+
+#: ../../library/omv.image.Image.rst:1334
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. Swapped "
+"min/max values are auto-fixed; missing components default to maximum range."
+msgstr ""
+"``thresholds`` -- это список кортежей ``(lo, hi)`` для изображений в "
+"оттенках серого или кортежей ``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` для "
+"изображений RGB565. Перепутанные значения min/max исправляются "
+"автоматически; отсутствующие компоненты по умолчанию принимают максимальный "
+"диапазон."
+
+#: ../../library/omv.image.Image.rst:1339
+#: ../../library/omv.image.Image.rst:1988
+#: ../../library/omv.image.Image.rst:2013
+#: ../../library/omv.image.Image.rst:2035
+#: ../../library/omv.image.Image.rst:2065
+msgid "``invert`` inverts the threshold matching."
+msgstr "``invert`` инвертирует сопоставление порогов."
+
+#: ../../library/omv.image.Image.rst:1341
+msgid ""
+"``zero`` if True, zeros thresholded pixels and leaves others untouched."
+msgstr ""
+"``zero`` если True, обнуляет пиксели, прошедшие порог, и оставляет остальные"
+" нетронутыми."
+
+#: ../../library/omv.image.Image.rst:1343
+#: ../../library/omv.image.Image.rst:1372
+#: ../../library/omv.image.Image.rst:1386
+#: ../../library/omv.image.Image.rst:1400
+#: ../../library/omv.image.Image.rst:1414
+#: ../../library/omv.image.Image.rst:1428
+#: ../../library/omv.image.Image.rst:1442
+#: ../../library/omv.image.Image.rst:1527
+#: ../../library/omv.image.Image.rst:1541
+#: ../../library/omv.image.Image.rst:1562
+#: ../../library/omv.image.Image.rst:1576
+#: ../../library/omv.image.Image.rst:1590
+#: ../../library/omv.image.Image.rst:1614
+#: ../../library/omv.image.Image.rst:1631
+#: ../../library/omv.image.Image.rst:1645
+#: ../../library/omv.image.Image.rst:1656
+#: ../../library/omv.image.Image.rst:1665
+#: ../../library/omv.image.Image.rst:1674
+#: ../../library/omv.image.Image.rst:1683
+#: ../../library/omv.image.Image.rst:1699
+#: ../../library/omv.image.Image.rst:1720
+#: ../../library/omv.image.Image.rst:1739
+#: ../../library/omv.image.Image.rst:1761
+#: ../../library/omv.image.Image.rst:1788
+#: ../../library/omv.image.Image.rst:1813
+#: ../../library/omv.image.Image.rst:1838
+#: ../../library/omv.image.Image.rst:1862
+msgid ""
+"``mask`` is a binary image used as a pixel-level mask; only pixels set in "
+"the mask are modified."
+msgstr ""
+"``mask`` -- это бинарное изображение, используемое в качестве маски на "
+"уровне пикселей; изменяются только пиксели, установленные в маске."
+
+#: ../../library/omv.image.Image.rst:1346
+msgid ""
+"``to_bitmap`` if True, converts the image data to a 1-bit-per-pixel bitmap. "
+"For very small images this may require ``copy=True``."
+msgstr ""
+"``to_bitmap`` если True, преобразует данные изображения в растровое "
+"изображение с 1 битом на пиксель. Для очень маленьких изображений это может "
+"потребовать ``copy=True``."
+
+#: ../../library/omv.image.Image.rst:1349
+msgid ""
+"``copy`` if True, returns a new image on the heap instead of modifying the "
+"source image."
+msgstr ""
+"``copy`` если True, возвращает новое изображение в куче вместо изменения "
+"исходного изображения."
+
+#: ../../library/omv.image.Image.rst:1358
+msgid ""
+"Inverts all pixel values in the image (each pixel becomes ``255 - pixel`` "
+"for 8-bit channels)."
+msgstr ""
+"Инвертирует все значения пикселей в изображении (каждый пиксель становится "
+"``255 - pixel`` для 8-битных каналов)."
+
+#: ../../library/omv.image.Image.rst:1363
+#: ../../library/omv.image.Image.rst:1476
+#: ../../library/omv.image.Image.rst:1636
+#: ../../library/omv.image.Image.rst:1650
+#: ../../library/omv.image.Image.rst:1659
+#: ../../library/omv.image.Image.rst:1668
+#: ../../library/omv.image.Image.rst:1677
+#: ../../library/omv.image.Image.rst:1686
+#: ../../library/omv.image.Image.rst:1704
+#: ../../library/omv.image.Image.rst:1725
+#: ../../library/omv.image.Image.rst:1744
+#: ../../library/omv.image.Image.rst:1766
+#: ../../library/omv.image.Image.rst:1793
+#: ../../library/omv.image.Image.rst:1818
+#: ../../library/omv.image.Image.rst:1843
+#: ../../library/omv.image.Image.rst:1867
+msgid "Not supported on compressed images or bayer/yuv images."
+msgstr "Не поддерживается для сжатых изображений или изображений bayer/yuv."
+
+#: ../../library/omv.image.Image.rst:1367
+msgid "Logically ANDs this image with another image."
+msgstr "Выполняет логическое И этого изображения с другим изображением."
+
+#: ../../library/omv.image.Image.rst:1369
+#: ../../library/omv.image.Image.rst:1383
+#: ../../library/omv.image.Image.rst:1397
+#: ../../library/omv.image.Image.rst:1411
+#: ../../library/omv.image.Image.rst:1425
+#: ../../library/omv.image.Image.rst:1439
+#: ../../library/omv.image.Image.rst:1524
+#: ../../library/omv.image.Image.rst:1559
+#: ../../library/omv.image.Image.rst:1573
+#: ../../library/omv.image.Image.rst:1587
+msgid ""
+"``image`` can be an image object, a path to an uncompressed image file "
+"(bmp/pgm/ppm), or a scalar value (RGB888 tuple or underlying pixel value)."
+msgstr ""
+"``image`` может быть объектом изображения, путём к несжатому файлу "
+"изображения (bmp/pgm/ppm) или скалярным значением (кортеж RGB888 или базовое"
+" значение пикселя)."
+
+#: ../../library/omv.image.Image.rst:1381
+msgid "Logically NANDs this image with another image."
+msgstr "Выполняет логическое И-НЕ этого изображения с другим изображением."
+
+#: ../../library/omv.image.Image.rst:1395
+msgid "Logically ORs this image with another image."
+msgstr "Выполняет логическое ИЛИ этого изображения с другим изображением."
+
+#: ../../library/omv.image.Image.rst:1409
+msgid "Logically NORs this image with another image."
+msgstr "Выполняет логическое ИЛИ-НЕ этого изображения с другим изображением."
+
+#: ../../library/omv.image.Image.rst:1423
+msgid "Logically XORs this image with another image."
+msgstr ""
+"Выполняет логическое исключающее ИЛИ этого изображения с другим "
+"изображением."
+
+#: ../../library/omv.image.Image.rst:1437
+msgid "Logically XNORs this image with another image."
+msgstr ""
+"Выполняет логическое исключающее ИЛИ-НЕ этого изображения с другим "
+"изображением."
+
+#: ../../library/omv.image.Image.rst:1450
+msgid "ISP Methods"
+msgstr "Методы ISP"
+
+#: ../../library/omv.image.Image.rst:1454
+msgid ""
+"Performs automatic white balance on the image using the gray-world "
+"algorithm. Operates on RAW Bayer or RGB565 images. Has no effect on "
+"binary/grayscale images."
+msgstr ""
+"Выполняет автоматический баланс белого на изображении, используя алгоритм "
+"gray-world. Работает с изображениями RAW Bayer или RGB565. Не влияет на "
+"бинарные изображения / изображения в оттенках серого."
+
+#: ../../library/omv.image.Image.rst:1458
+msgid "``max`` if True, uses the white-patch algorithm instead."
+msgstr "``max`` если True, вместо этого использует алгоритм white-patch."
+
+#: ../../library/omv.image.Image.rst:1462
+msgid "Not supported on compressed or yuv images."
+msgstr "Не поддерживается для сжатых изображений или изображений yuv."
+
+#: ../../library/omv.image.Image.rst:1466
+msgid ""
+"Multiplies the passed floating-point color-correction-matrix with the image."
+" Matrices may be 3x3 or 3x4 (with offset column), in nested list or flat "
+"list form::"
+msgstr ""
+"Умножает переданную матрицу цветокоррекции с плавающей точкой на "
+"изображение. Матрицы могут быть 3x3 или 3x4 (со столбцом смещения), во "
+"вложенном списке или плоском списке::"
+
+#: ../../library/omv.image.Image.rst:1480
+msgid "Adjusts the image gamma, contrast, and brightness."
+msgstr "Регулирует гамму, контраст и яркость изображения."
+
+#: ../../library/omv.image.Image.rst:1482
+msgid ""
+"``gamma`` applies ``pow(pixel, 1/gamma)`` after normalization. Values "
+"greater than 1.0 brighten; less than 1.0 darken."
+msgstr ""
+"``gamma`` применяет ``pow(pixel, 1/gamma)`` после нормализации. Значения "
+"больше 1.0 осветляют; меньше 1.0 затемняют."
+
+#: ../../library/omv.image.Image.rst:1485
+msgid "``contrast`` applies ``pixel * contrast`` after normalization."
+msgstr "``contrast`` применяет ``pixel * contrast`` после нормализации."
+
+#: ../../library/omv.image.Image.rst:1487
+msgid "``brightness`` applies ``pixel + brightness`` after normalization."
+msgstr "``brightness`` применяет ``pixel + brightness`` после нормализации."
+
+#: ../../library/omv.image.Image.rst:1491
+msgid "Not supported on compressed or bayer/yuv images."
+msgstr "Не поддерживается для сжатых изображений или изображений bayer/yuv."
+
+#: ../../library/omv.image.Image.rst:1495
+msgid "Alias for `Image.gamma`."
+msgstr "Псевдоним для `Image.gamma`."
+
+#: ../../library/omv.image.Image.rst:1498
+msgid "Math Methods"
+msgstr "Математические методы"
+
+#: ../../library/omv.image.Image.rst:1502
+msgid "Alias for `Image.invert`."
+msgstr "Псевдоним для `Image.invert`."
+
+#: ../../library/omv.image.Image.rst:1506
+msgid ""
+"Alias for `Image.draw_image()`. Replaces this image with ``image`` (or "
+"transforms this image in place if ``image`` is omitted) using the standard "
+"`draw_image` keyword arguments. The ``transform`` argument is a 3x3 "
+"``ndarray`` describing a perspective transformation (only supported on "
+"OpenMV cameras with ULAB enabled)."
+msgstr ""
+"Псевдоним для `Image.draw_image()`. Заменяет это изображение на ``image`` "
+"(или преобразует это изображение на месте, если ``image`` опущен), используя"
+" стандартные именованные аргументы `draw_image`. Аргумент ``transform`` -- "
+"это ``ndarray`` 3x3, описывающий перспективное преобразование "
+"(поддерживается только на камерах OpenMV с включённым ULAB)."
+
+#: ../../library/omv.image.Image.rst:1514
+#: ../../library/omv.image.Image.rst:1518
+msgid "Alias for `Image.replace()`."
+msgstr "Псевдоним для `Image.replace()`."
+
+#: ../../library/omv.image.Image.rst:1522
+msgid "Adds an image pixel-wise to this one."
+msgstr "Добавляет изображение к этому попиксельно."
+
+#: ../../library/omv.image.Image.rst:1536
+msgid "Subtracts ``image`` pixel-wise from this image (``self - image``)."
+msgstr ""
+"Вычитает ``image`` попиксельно из этого изображения (``self - image``)."
+
+#: ../../library/omv.image.Image.rst:1538
+msgid ""
+"``image`` can either be an image object, a path to an uncompressed image "
+"file (bmp/pgm/ppm), or a scalar value (RGB888 tuple or underlying pixel "
+"value)."
+msgstr ""
+"``image`` может быть либо объектом изображения, путём к несжатому файлу "
+"изображения (bmp/pgm/ppm), либо скалярным значением (кортеж RGB888 или "
+"базовое значение пикселя)."
+
+#: ../../library/omv.image.Image.rst:1544
+msgid ""
+"This method also accepts the full set of `Image.draw_image()` keyword "
+"arguments (``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, ``rgb_channel``,"
+" ``alpha``, ``color_palette``, ``alpha_palette``, ``hint``, ``transform``)."
+msgstr ""
+"Этот метод также принимает полный набор именованных аргументов "
+"`Image.draw_image()` (``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, "
+"``rgb_channel``, ``alpha``, ``color_palette``, ``alpha_palette``, ``hint``, "
+"``transform``)."
+
+#: ../../library/omv.image.Image.rst:1552
+msgid ""
+"Reverse subtract: replaces this image with ``image - self`` pixel-wise. "
+"Otherwise identical to `Image.sub()`."
+msgstr ""
+"Обратное вычитание: заменяет это изображение на ``image - self`` "
+"попиксельно. В остальном идентично `Image.sub()`."
+
+#: ../../library/omv.image.Image.rst:1557
+msgid "Returns the minimum image of two images pixel-wise."
+msgstr "Возвращает попиксельно минимальное изображение из двух изображений."
+
+#: ../../library/omv.image.Image.rst:1571
+msgid "Returns the maximum image of two images pixel-wise."
+msgstr "Возвращает попиксельно максимальное изображение из двух изображений."
+
+#: ../../library/omv.image.Image.rst:1585
+msgid ""
+"Returns the absolute difference image between two images (e.g. ||a-b||)."
+msgstr ""
+"Возвращает изображение абсолютной разности между двумя изображениями "
+"(например, ||a-b||)."
+
+#: ../../library/omv.image.Image.rst:1599
+msgid ""
+"Alias for `Image.draw_image()`. Alpha-blends ``image`` into this image. "
+"``alpha`` is an integer 0-256; values closer to 256 favor the source image. "
+"Accepts all `Image.draw_image()` keyword arguments."
+msgstr ""
+"Псевдоним для `Image.draw_image()`. Выполняет альфа-смешение ``image`` с "
+"этим изображением. ``alpha`` -- это целое число 0-256; значения ближе к 256 "
+"отдают предпочтение исходному изображению. Принимает все именованные "
+"аргументы `Image.draw_image()`."
+
+#: ../../library/omv.image.Image.rst:1605
+msgid ""
+"Runs histogram equalization on the image to normalize contrast and "
+"brightness."
+msgstr ""
+"Выполняет выравнивание гистограммы на изображении для нормализации контраста"
+" и яркости."
+
+#: ../../library/omv.image.Image.rst:1608
+msgid ""
+"``adaptive`` if True, runs adaptive histogram equalization (slower but "
+"generally better)."
+msgstr ""
+"``adaptive`` если True, выполняет адаптивное выравнивание гистограммы "
+"(медленнее, но обычно лучше)."
+
+#: ../../library/omv.image.Image.rst:1611
+msgid ""
+"``clip_limit`` limits contrast in the adaptive variant (a small value like "
+"10 produces good CLAHE results)."
+msgstr ""
+"``clip_limit`` ограничивает контраст в адаптивном варианте (небольшое "
+"значение вроде 10 даёт хорошие результаты CLAHE)."
+
+#: ../../library/omv.image.Image.rst:1622
+msgid "Filtering Methods"
+msgstr "Методы фильтрации"
+
+#: ../../library/omv.image.Image.rst:1626
+msgid ""
+"Removes pixels from the edges of segmented areas. Convolves a "
+"``((size*2)+1)x((size*2)+1)`` kernel across the image, clearing the center "
+"pixel if more than ``threshold`` neighbors are clear (acts as standard erode"
+" if ``threshold`` is None)."
+msgstr ""
+"Удаляет пиксели с краёв сегментированных областей. Свёртывает ядро "
+"``((size*2)+1)x((size*2)+1)`` по изображению, очищая центральный пиксель, "
+"если более ``threshold`` соседей очищены (действует как стандартная эрозия, "
+"если ``threshold`` равно None)."
+
+#: ../../library/omv.image.Image.rst:1640
+msgid ""
+"Adds pixels to the edges of segmented areas. Convolves a "
+"``((size*2)+1)x((size*2)+1)`` kernel across the image, setting the center "
+"pixel if more than ``threshold`` neighbors are set (acts as standard dilate "
+"if ``threshold`` is None)."
+msgstr ""
+"Добавляет пиксели к краям сегментированных областей. Свёртывает ядро "
+"``((size*2)+1)x((size*2)+1)`` по изображению, устанавливая центральный "
+"пиксель, если более ``threshold`` соседей установлены (действует как "
+"стандартная дилатация, если ``threshold`` равно None)."
+
+#: ../../library/omv.image.Image.rst:1654
+msgid ""
+"Performs erosion then dilation. See `Image.erode()` and `Image.dilate()`."
+msgstr ""
+"Выполняет эрозию, затем дилатацию. См. `Image.erode()` и `Image.dilate()`."
+
+#: ../../library/omv.image.Image.rst:1663
+msgid ""
+"Performs dilation then erosion. See `Image.dilate()` and `Image.erode()`."
+msgstr ""
+"Выполняет дилатацию, затем эрозию. См. `Image.dilate()` и `Image.erode()`."
+
+#: ../../library/omv.image.Image.rst:1672
+msgid ""
+"Returns the image difference of the image and the `Image.open()`-ed image."
+msgstr "Возвращает разность изображения и изображения после `Image.open()`."
+
+#: ../../library/omv.image.Image.rst:1681
+msgid ""
+"Returns the image difference of the image and the `Image.close()`-ed image."
+msgstr "Возвращает разность изображения и изображения после `Image.close()`."
+
+#: ../../library/omv.image.Image.rst:1690
+msgid "Standard mean blurring filter using a box filter."
+msgstr "Стандартный фильтр усреднения с использованием блочного фильтра."
+
+#: ../../library/omv.image.Image.rst:1692
+#: ../../library/omv.image.Image.rst:1710
+#: ../../library/omv.image.Image.rst:1732
+#: ../../library/omv.image.Image.rst:1751
+#: ../../library/omv.image.Image.rst:1799
+#: ../../library/omv.image.Image.rst:1824
+#: ../../library/omv.image.Image.rst:1849
+msgid "``size`` is the kernel size. Use 1 (3x3 kernel), 2 (5x5 kernel), etc."
+msgstr ""
+"``size`` -- это размер ядра. Используйте 1 (ядро 3x3), 2 (ядро 5x5) и т.д."
+
+#: ../../library/omv.image.Image.rst:1694
+#: ../../library/omv.image.Image.rst:1715
+#: ../../library/omv.image.Image.rst:1734
+#: ../../library/omv.image.Image.rst:1756
+#: ../../library/omv.image.Image.rst:1783
+#: ../../library/omv.image.Image.rst:1808
+#: ../../library/omv.image.Image.rst:1833
+#: ../../library/omv.image.Image.rst:1857
+msgid ""
+"``threshold`` if True, adaptively thresholds the filter output to a binary "
+"image. ``offset`` shifts the binarization (negative makes more pixels white,"
+" positive makes fewer). ``invert`` inverts the binary output."
+msgstr ""
+"``threshold`` если True, адаптивно применяет пороговое разделение к выходу "
+"фильтра для получения бинарного изображения. ``offset`` сдвигает бинаризацию"
+" (отрицательное делает больше пикселей белыми, положительное делает меньше)."
+" ``invert`` инвертирует бинарный выход."
+
+#: ../../library/omv.image.Image.rst:1708
+msgid "Runs a percentile filter on the image (median by default)."
+msgstr ""
+"Выполняет процентильный фильтр на изображении (по умолчанию медианный)."
+
+#: ../../library/omv.image.Image.rst:1712
+msgid ""
+"``percentile`` is the percentile to select from each kernel (0 = min, 0.5 = "
+"median, 1.0 = max). Defaults to 0.5."
+msgstr ""
+"``percentile`` -- это процентиль для выбора из каждого ядра (0 = min, 0.5 = "
+"медиана, 1.0 = max). По умолчанию 0.5."
+
+#: ../../library/omv.image.Image.rst:1729
+msgid ""
+"Replaces each pixel with the mode of its neighbors. May produce artifacts on"
+" RGB image edges due to the non-linear operation."
+msgstr ""
+"Заменяет каждый пиксель модой его соседей. Может создавать артефакты на "
+"краях RGB-изображений из-за нелинейной операции."
+
+#: ../../library/omv.image.Image.rst:1748
+msgid ""
+"Runs the midpoint filter on the image. This filter finds the midpoint ((max-"
+"min)/2) of each pixel neighborhood in the image."
+msgstr ""
+"Выполняет фильтр среднего значения (midpoint) на изображении. Этот фильтр "
+"находит среднюю точку ((max-min)/2) каждой окрестности пикселя в "
+"изображении."
+
+#: ../../library/omv.image.Image.rst:1753
+msgid ""
+"``bias`` controls the min/max mixing. 0 for min filtering only, 1.0 for max "
+"filtering only. By using the ``bias`` you can min/max filter the image."
+msgstr ""
+"``bias`` управляет смешением min/max. 0 для фильтрации только по min, 1.0 "
+"для фильтрации только по max. Используя ``bias``, вы можете применять "
+"min/max-фильтрацию к изображению."
+
+#: ../../library/omv.image.Image.rst:1770
+msgid "Convolves the image with an arbitrary filter kernel."
+msgstr "Свёртывает изображение с произвольным ядром фильтра."
+
+#: ../../library/omv.image.Image.rst:1772
+msgid ""
+"``size`` controls the kernel size, which must be "
+"``((size*2)+1)x((size*2)+1)`` elements."
+msgstr ""
+"``size`` управляет размером ядра, которое должно содержать "
+"``((size*2)+1)x((size*2)+1)`` элементов."
+
+#: ../../library/omv.image.Image.rst:1775
+msgid ""
+"``kernel`` is the kernel to convolve with, as a flat 1D list/tuple of "
+"``((size*2)+1)*((size*2)+1)`` elements, or as a 2D list/tuple with "
+"``((size*2)+1)`` rows of ``((size*2)+1)`` elements."
+msgstr ""
+"``kernel`` -- это ядро для свёртки, в виде плоского одномерного "
+"списка/кортежа из ``((size*2)+1)*((size*2)+1)`` элементов или в виде "
+"двумерного списка/кортежа с ``((size*2)+1)`` строками по ``((size*2)+1)`` "
+"элементов."
+
+#: ../../library/omv.image.Image.rst:1779
+#: ../../library/omv.image.Image.rst:1804
+#: ../../library/omv.image.Image.rst:1829
+msgid "``mul`` is a multiplicative contrast scale (default 1.0)."
+msgstr ""
+"``mul`` -- это мультипликативный масштаб контраста (по умолчанию 1.0)."
+
+#: ../../library/omv.image.Image.rst:1781
+#: ../../library/omv.image.Image.rst:1806
+#: ../../library/omv.image.Image.rst:1831
+msgid "``add`` is an additive brightness offset (default 0.0)."
+msgstr "``add`` -- это аддитивное смещение яркости (по умолчанию 0.0)."
+
+#: ../../library/omv.image.Image.rst:1797
+msgid "Convolves the image with a smoothing gaussian kernel."
+msgstr "Свёртывает изображение со сглаживающим гауссовым ядром."
+
+#: ../../library/omv.image.Image.rst:1801
+msgid ""
+"``unsharp`` if True, performs an unsharp mask operation (sharpens edges) "
+"instead of a plain gaussian."
+msgstr ""
+"``unsharp`` если True, выполняет операцию нерезкого маскирования (резкость "
+"краёв) вместо обычного гауссова сглаживания."
+
+#: ../../library/omv.image.Image.rst:1822
+msgid "Convolves the image with an edge-detecting laplacian kernel."
+msgstr "Свёртывает изображение с лапласовым ядром обнаружения границ."
+
+#: ../../library/omv.image.Image.rst:1826
+msgid ""
+"``sharpen`` if True, sharpens the image instead of outputting the raw "
+"unthresholded edge response."
+msgstr ""
+"``sharpen`` если True, повышает резкость изображения вместо вывода сырого "
+"отклика границ без порогового разделения."
+
+#: ../../library/omv.image.Image.rst:1847
+msgid ""
+"Convolves the image with a bilateral filter (edge-preserving smoothing)."
+msgstr ""
+"Свёртывает изображение с билатеральным фильтром (сглаживание с сохранением "
+"границ)."
+
+#: ../../library/omv.image.Image.rst:1851
+msgid ""
+"``color_sigma`` controls color matching tolerance; larger values produce "
+"more color blurring."
+msgstr ""
+"``color_sigma`` управляет допуском сопоставления цветов; большие значения "
+"дают больше размытия цвета."
+
+#: ../../library/omv.image.Image.rst:1854
+msgid ""
+"``space_sigma`` controls spatial blurring; larger values produce more pixel "
+"blurring."
+msgstr ""
+"``space_sigma`` управляет пространственным размытием; большие значения дают "
+"больше размытия пикселей."
+
+#: ../../library/omv.image.Image.rst:1870
+msgid "Geometric Methods"
+msgstr "Геометрические методы"
+
+#: ../../library/omv.image.Image.rst:1874
+msgid ""
+"Re-projects an image from Cartesian coordinates to linear polar coordinates."
+msgstr ""
+"Перепроецирует изображение из декартовых координат в линейные полярные "
+"координаты."
+
+#: ../../library/omv.image.Image.rst:1876
+#: ../../library/omv.image.Image.rst:1892
+msgid "Set ``reverse=True`` to re-project in the opposite direction."
+msgstr ""
+"Установите ``reverse=True`` для перепроецирования в противоположном "
+"направлении."
+
+#: ../../library/omv.image.Image.rst:1878
+#: ../../library/omv.image.Image.rst:1894
+msgid ""
+"``x`` and ``y`` specify the center coordinate of the transform in image "
+"pixels. If ``x`` is ``None`` (the default) it is set to half the image "
+"width; likewise ``y`` defaults to half the image height."
+msgstr ""
+"``x`` и ``y`` задают координату центра преобразования в пикселях "
+"изображения. Если ``x`` равно ``None`` (по умолчанию), он устанавливается в "
+"половину ширины изображения; аналогично ``y`` по умолчанию равен половине "
+"высоты изображения."
+
+#: ../../library/omv.image.Image.rst:1882
+msgid ""
+"Linear polar re-projection turns rotation of an image into x-translation."
+msgstr ""
+"Линейное полярное перепроецирование превращает вращение изображения в "
+"смещение по x."
+
+#: ../../library/omv.image.Image.rst:1890
+msgid ""
+"Re-projects an image from Cartesian coordinates to log polar coordinates."
+msgstr ""
+"Перепроецирует изображение из декартовых координат в логарифмические "
+"полярные координаты."
+
+#: ../../library/omv.image.Image.rst:1898
+msgid ""
+"Log polar re-projection turns rotation of an image into x-translation and "
+"scaling/zooming into y-translation."
+msgstr ""
+"Логарифмическое полярное перепроецирование превращает вращение изображения в"
+" смещение по x, а масштабирование/зум в смещение по y."
+
+#: ../../library/omv.image.Image.rst:1907
+msgid ""
+"Performs lens correction to un-fisheye the image due to the lens distortion."
+msgstr ""
+"Выполняет коррекцию объектива для устранения эффекта рыбьего глаза на "
+"изображении, вызванного искажением объектива."
+
+#: ../../library/omv.image.Image.rst:1909
+msgid ""
+"``strength`` is a float defining how much to un-fisheye the image. Try 1.8 "
+"out by default and then increase or decrease from there until the image "
+"looks good."
+msgstr ""
+"``strength`` -- это float, определяющий, насколько устранять эффект рыбьего "
+"глаза на изображении. Попробуйте 1.8 по умолчанию, а затем увеличивайте или "
+"уменьшайте, пока изображение не будет выглядеть хорошо."
+
+#: ../../library/omv.image.Image.rst:1913
+#: ../../library/omv.image.Image.rst:1942
+msgid "``zoom`` is the amount to zoom in on the image by. 1.0 by default."
+msgstr "``zoom`` -- это величина приближения изображения. По умолчанию 1.0."
+
+#: ../../library/omv.image.Image.rst:1915
+msgid ""
+"``x_corr`` floating point pixel offset from center. Can be negative or "
+"positive."
+msgstr ""
+"``x_corr`` смещение пикселей с плавающей точкой от центра. Может быть "
+"отрицательным или положительным."
+
+#: ../../library/omv.image.Image.rst:1917
+msgid ""
+"``y_corr`` floating point pixel offset from center. Can be negative or "
+"positive."
+msgstr ""
+"``y_corr`` смещение пикселей с плавающей точкой от центра. Может быть "
+"отрицательным или положительным."
+
+#: ../../library/omv.image.Image.rst:1925
+msgid ""
+"Corrects perspective issues in the image by doing a 3D rotation of the frame"
+" buffer."
+msgstr ""
+"Исправляет проблемы перспективы на изображении путём выполнения 3D-поворота "
+"буфера кадра."
+
+#: ../../library/omv.image.Image.rst:1927
+msgid ""
+"``x_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the x axis (i.e. this spins the image up and down)."
+msgstr ""
+"``x_rotation`` -- это количество градусов для поворота изображения в буфере "
+"кадра вокруг оси x (то есть это вращает изображение вверх и вниз)."
+
+#: ../../library/omv.image.Image.rst:1930
+msgid ""
+"``y_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the y axis (i.e. this spins the image left and right)."
+msgstr ""
+"``y_rotation`` -- это количество градусов для поворота изображения в буфере "
+"кадра вокруг оси y (то есть это вращает изображение влево и вправо)."
+
+#: ../../library/omv.image.Image.rst:1933
+msgid ""
+"``z_rotation`` is the number of degrees to rotation the image in the frame "
+"buffer around the z axis (i.e. this spins the image in place)."
+msgstr ""
+"``z_rotation`` -- это количество градусов для поворота изображения в буфере "
+"кадра вокруг оси z (то есть это вращает изображение на месте)."
+
+#: ../../library/omv.image.Image.rst:1936
+msgid ""
+"``x_translation`` is the number of units to move the image to the left or "
+"right after rotation. Because this translation is applied in 3D space the "
+"units aren't pixels..."
+msgstr ""
+"``x_translation`` -- это количество единиц для перемещения изображения влево"
+" или вправо после поворота. Поскольку это перемещение применяется в "
+"3D-пространстве, единицы не являются пикселями..."
+
+#: ../../library/omv.image.Image.rst:1939
+msgid ""
+"``y_translation`` is the number of units to move the image to the up or down"
+" after rotation. Because this translation is applied in 3D space the units "
+"aren't pixels..."
+msgstr ""
+"``y_translation`` -- это количество единиц для перемещения изображения вверх"
+" или вниз после поворота. Поскольку это перемещение применяется в "
+"3D-пространстве, единицы не являются пикселями..."
+
+#: ../../library/omv.image.Image.rst:1944
+msgid ""
+"``fov`` is the field-of-view used for the internal 2D->3D projection. As "
+"``fov`` approaches 0 the image is placed at infinity; as it approaches 180 "
+"the image is placed within the viewport."
+msgstr ""
+"``fov`` -- это поле зрения, используемое для внутреннего проецирования "
+"2D->3D. По мере приближения ``fov`` к 0 изображение помещается в "
+"бесконечность; по мере приближения к 180 изображение помещается внутри "
+"области просмотра."
+
+#: ../../library/omv.image.Image.rst:1948
+msgid ""
+"``corners`` is a list of four (x, y) tuples used to build a 4-point "
+"homography mapping the corners to (0, 0), (image_width-1, 0), "
+"(image_width-1, image_height-1), and (0, image_height-1) before applying the"
+" 3D rotation. Useful for birds-eye-view transforms."
+msgstr ""
+"``corners`` -- это список из четырёх кортежей (x, y), используемых для "
+"построения 4-точечной гомографии, отображающей углы в (0, 0), "
+"(image_width-1, 0), (image_width-1, image_height-1) и (0, image_height-1) "
+"перед применением 3D-поворота. Полезно для преобразований вида с высоты "
+"птичьего полёта."
+
+#: ../../library/omv.image.Image.rst:1960
+msgid "Get Methods"
+msgstr "Методы получения данных"
+
+#: ../../library/omv.image.Image.rst:1964
+msgid ""
+"Computes the similarity between two images using the Structural Similarity "
+"Index (SSIM). SSIM ranges from -1 (opposite) to 1 (identical). Returns an "
+"`image.similarity` object."
+msgstr ""
+"Вычисляет сходство между двумя изображениями, используя индекс структурного "
+"сходства (SSIM). SSIM находится в диапазоне от -1 (противоположные) до 1 "
+"(идентичные). Возвращает объект `image.similarity`."
+
+#: ../../library/omv.image.Image.rst:1968
+msgid ""
+"``image`` is the image to compare to (an image object or a path string, e.g."
+" ``\"test.jpg\"``)."
+msgstr ""
+"``image`` -- это изображение для сравнения (объект изображения или строка "
+"пути, например ``\"test.jpg\"``)."
+
+#: ../../library/omv.image.Image.rst:1971
+msgid ""
+"``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, ``rgb_channel``, ``alpha``,"
+" ``color_palette``, ``alpha_palette``, ``hint``, and ``transform`` accept "
+"the same values as `Image.draw_image()`."
+msgstr ""
+"``x``, ``y``, ``x_scale``, ``y_scale``, ``roi``, ``rgb_channel``, ``alpha``,"
+" ``color_palette``, ``alpha_palette``, ``hint`` и ``transform`` принимают те"
+" же значения, что и `Image.draw_image()`."
+
+#: ../../library/omv.image.Image.rst:1975
+msgid ""
+"``dssim`` if True, returns the Structural Dissimilarity Index (DSSIM) "
+"instead, where 0 means identical and 1 means completely different."
+msgstr ""
+"``dssim`` если True, вместо этого возвращает индекс структурного несходства "
+"(DSSIM), где 0 означает идентичность, а 1 означает полное различие."
+
+#: ../../library/omv.image.Image.rst:1980
+msgid ""
+"Computes the normalized histogram on all color channels for an ``roi`` and "
+"returns an `image.histogram` object. Also available as ``Image.get_hist()`` "
+"or ``Image.histogram()``."
+msgstr ""
+"Вычисляет нормализованную гистограмму по всем цветовым каналам для ``roi`` и"
+" возвращает объект `image.histogram`. Также доступно как "
+"``Image.get_hist()`` или ``Image.histogram()``."
+
+#: ../../library/omv.image.Image.rst:1984
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. If "
+"passed, the histogram is computed only over pixels within the thresholds."
+msgstr ""
+"``thresholds`` -- это список кортежей ``(lo, hi)`` для изображений в "
+"оттенках серого или кортежей ``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` для "
+"изображений RGB565. Если передан, гистограмма вычисляется только по пикселям"
+" в пределах порогов."
+
+#: ../../library/omv.image.Image.rst:1990
+#: ../../library/omv.image.Image.rst:2015
+#: ../../library/omv.image.Image.rst:2037
+#: ../../library/omv.image.Image.rst:2067
+#: ../../library/omv.image.Image.rst:2100
+#: ../../library/omv.image.Image.rst:2120
+#: ../../library/omv.image.Image.rst:2136
+#: ../../library/omv.image.Image.rst:2161
+#: ../../library/omv.image.Image.rst:2174
+#: ../../library/omv.image.Image.rst:2184
+#: ../../library/omv.image.Image.rst:2217
+#: ../../library/omv.image.Image.rst:2238
+#: ../../library/omv.image.Image.rst:2278
+#: ../../library/omv.image.Image.rst:2303
+#: ../../library/omv.image.Image.rst:2332
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h). Defaults to "
+"the image rectangle."
+msgstr ""
+"``roi`` -- это кортеж прямоугольника области интереса (x, y, w, h). По "
+"умолчанию равен прямоугольнику изображения."
+
+#: ../../library/omv.image.Image.rst:1993
+#: ../../library/omv.image.Image.rst:2018
+msgid ""
+"``bins`` (grayscale) or ``l_bins``/``a_bins``/``b_bins`` (RGB565) set the "
+"number of histogram bins per channel. Must be greater than 2. Defaults to "
+"the maximum bins per channel."
+msgstr ""
+"``bins`` (grayscale) или ``l_bins``/``a_bins``/``b_bins`` (RGB565) задают "
+"количество интервалов гистограммы на канал. Должно быть больше 2. По "
+"умолчанию равно максимальному количеству интервалов на канал."
+
+#: ../../library/omv.image.Image.rst:1997
+#: ../../library/omv.image.Image.rst:2022
+msgid ""
+"``difference`` may be set to an image object to operate on the difference "
+"between the current image and that image without an extra buffer."
+msgstr ""
+"``difference`` может быть установлен в объект изображения для работы с "
+"разностью между текущим изображением и этим изображением без дополнительного"
+" буфера."
+
+#: ../../library/omv.image.Image.rst:2004
+msgid ""
+"Computes the mean, median, mode, standard deviation, min, max, lower "
+"quartile, and upper quartile for all color channels for an ``roi`` and "
+"returns an `image.statistics` object. Also available as "
+"``Image.get_stats()`` or ``Image.statistics()``."
+msgstr ""
+"Вычисляет среднее, медиану, моду, стандартное отклонение, min, max, нижний "
+"квартиль и верхний квартиль для всех цветовых каналов для ``roi`` и "
+"возвращает объект `image.statistics`. Также доступно как "
+"``Image.get_stats()`` или ``Image.statistics()``."
+
+#: ../../library/omv.image.Image.rst:2009
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images. If "
+"passed, statistics are computed only over pixels within the thresholds."
+msgstr ""
+"``thresholds`` -- это список кортежей ``(lo, hi)`` для изображений в "
+"оттенках серого или кортежей ``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` для "
+"изображений RGB565. Если передан, статистика вычисляется только по пикселям "
+"в пределах порогов."
+
+#: ../../library/omv.image.Image.rst:2029
+msgid ""
+"Computes a linear regression (Theil-Sen) on all the thresholded pixels in "
+"the image. Returns an `image.line` object, or None if no line was found."
+msgstr ""
+"Вычисляет линейную регрессию (Theil-Sen) по всем пикселям изображения, "
+"прошедшим пороговое разделение. Возвращает объект `image.line` или None, "
+"если линия не найдена."
+
+#: ../../library/omv.image.Image.rst:2032
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images."
+msgstr ""
+"``thresholds`` -- это список кортежей ``(lo, hi)`` для изображений в "
+"оттенках серого или кортежей ``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` для "
+"изображений RGB565."
+
+#: ../../library/omv.image.Image.rst:2040
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped over while"
+" evaluating the image."
+msgstr ""
+"``x_stride`` и ``y_stride`` управляют тем, сколько пикселей пропускается при"
+" оценке изображения."
+
+#: ../../library/omv.image.Image.rst:2043
+msgid ""
+"``area_threshold`` minimum bounding box area; smaller results return None."
+msgstr ""
+"``area_threshold`` минимальная площадь ограничивающей рамки; меньшие "
+"результаты возвращают None."
+
+#: ../../library/omv.image.Image.rst:2045
+msgid ""
+"``pixels_threshold`` minimum thresholded pixel count; smaller results return"
+" None."
+msgstr ""
+"``pixels_threshold`` минимальное количество пикселей, прошедших порог; "
+"меньшие результаты возвращают None."
+
+#: ../../library/omv.image.Image.rst:2047
+msgid ""
+"``target_size`` is a ``(w, h)`` tuple. The ROI is area-scaled down to fit "
+"inside this size before running the O(N^2) algorithm. Defaults to ``(80, "
+"60)``."
+msgstr ""
+"``target_size`` -- это кортеж ``(w, h)``. ROI масштабируется по площади до "
+"размера, помещающегося внутри этого размера, перед запуском алгоритма "
+"O(N^2). По умолчанию ``(80, 60)``."
+
+#: ../../library/omv.image.Image.rst:2053
+msgid "Detection Methods"
+msgstr "Методы обнаружения"
+
+#: ../../library/omv.image.Image.rst:2057
+msgid ""
+"Finds all blobs (connected pixel regions that pass a threshold test) in the "
+"image and returns a list of `image.blob` objects."
+msgstr ""
+"Находит все блобы (связные области пикселей, прошедшие пороговый тест) на "
+"изображении и возвращает список объектов `image.blob`."
+
+#: ../../library/omv.image.Image.rst:2060
+msgid ""
+"``thresholds`` is a list of ``(lo, hi)`` tuples for grayscale images, or "
+"``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` tuples for RGB565 images (LAB "
+"channels). Up to 32 tuples may be passed. Swapped min/max values are auto-"
+"fixed; missing components default to maximum range."
+msgstr ""
+"``thresholds`` -- это список кортежей ``(lo, hi)`` для изображений в "
+"оттенках серого или кортежей ``(l_lo, l_hi, a_lo, a_hi, b_lo, b_hi)`` для "
+"изображений RGB565 (каналы LAB). Может быть передано до 32 кортежей. "
+"Перепутанные значения min/max исправляются автоматически; отсутствующие "
+"компоненты по умолчанию принимают максимальный диапазон."
+
+#: ../../library/omv.image.Image.rst:2070
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped while "
+"searching for a blob. Increase if blobs are known to be large."
+msgstr ""
+"``x_stride`` и ``y_stride`` управляют тем, сколько пикселей пропускается при"
+" поиске блоба. Увеличьте, если известно, что блобы большие."
+
+#: ../../library/omv.image.Image.rst:2073
+msgid ""
+"``area_threshold`` minimum bounding box area; smaller blobs are filtered."
+msgstr ""
+"``area_threshold`` минимальная площадь ограничивающей рамки; меньшие блобы "
+"отфильтровываются."
+
+#: ../../library/omv.image.Image.rst:2075
+msgid ""
+"``pixels_threshold`` minimum thresholded pixel count; smaller blobs are "
+"filtered."
+msgstr ""
+"``pixels_threshold`` минимальное количество пикселей, прошедших порог; "
+"меньшие блобы отфильтровываются."
+
+#: ../../library/omv.image.Image.rst:2077
+msgid ""
+"``merge`` if True merges blobs whose bounding rectangles intersect. "
+"``margin`` grows/shrinks the bounding rectangles used for intersection. "
+"Merged blobs OR their ``code`` bit vectors together (one bit per threshold)."
+msgstr ""
+"``merge`` если True, объединяет блобы, чьи ограничивающие прямоугольники "
+"пересекаются. ``margin`` увеличивает/уменьшает ограничивающие "
+"прямоугольники, используемые для пересечения. Объединённые блобы выполняют "
+"логическое ИЛИ своих битовых векторов ``code`` (один бит на порог)."
+
+#: ../../library/omv.image.Image.rst:2081
+msgid ""
+"``threshold_cb`` is called per blob after thresholding; return True to keep,"
+" False to filter."
+msgstr ""
+"``threshold_cb`` вызывается для каждого блоба после порогового разделения; "
+"верните True для сохранения, False для фильтрации."
+
+#: ../../library/omv.image.Image.rst:2084
+msgid ""
+"``merge_cb`` is called per pair of blobs about to be merged; return True to "
+"allow the merge, False to prevent it."
+msgstr ""
+"``merge_cb`` вызывается для каждой пары блобов, которые собираются "
+"объединить; верните True для разрешения объединения, False для его "
+"предотвращения."
+
+#: ../../library/omv.image.Image.rst:2087
+msgid ""
+"``x_hist_bins_max`` if non-zero, populates each blob with an x_histogram "
+"projection using this many bins."
+msgstr ""
+"``x_hist_bins_max`` если ненулевое, заполняет каждый блоб проекцией "
+"x_histogram с этим количеством интервалов."
+
+#: ../../library/omv.image.Image.rst:2090
+msgid ""
+"``y_hist_bins_max`` if non-zero, populates each blob with a y_histogram "
+"projection using this many bins."
+msgstr ""
+"``y_hist_bins_max`` если ненулевое, заполняет каждый блоб проекцией "
+"y_histogram с этим количеством интервалов."
+
+#: ../../library/omv.image.Image.rst:2097
+msgid ""
+"Finds all infinite lines in the image using the hough transform. Returns a "
+"list of `image.line` objects."
+msgstr ""
+"Находит все бесконечные линии на изображении, используя преобразование Хафа."
+" Возвращает список объектов `image.line`."
+
+#: ../../library/omv.image.Image.rst:2103
+#: ../../library/omv.image.Image.rst:2139
+msgid ""
+"``x_stride`` and ``y_stride`` control how many pixels are skipped during the"
+" hough transform."
+msgstr ""
+"``x_stride`` и ``y_stride`` управляют тем, сколько пикселей пропускается во "
+"время преобразования Хафа."
+
+#: ../../library/omv.image.Image.rst:2106
+msgid ""
+"``threshold`` minimum line magnitude (sum of sobel magnitudes along the "
+"line); lines below this are filtered out."
+msgstr ""
+"``threshold`` минимальная величина линии (сумма величин Собеля вдоль линии);"
+" линии ниже этого значения отфильтровываются."
+
+#: ../../library/omv.image.Image.rst:2109
+msgid ""
+"``theta_margin`` and ``rho_margin`` control merging: lines within these "
+"thresholds are merged."
+msgstr ""
+"``theta_margin`` и ``rho_margin`` управляют объединением: линии в пределах "
+"этих порогов объединяются."
+
+#: ../../library/omv.image.Image.rst:2118
+msgid ""
+"Finds line segments in the image. Returns a list of `image.line` objects."
+msgstr ""
+"Находит сегменты линий на изображении. Возвращает список объектов "
+"`image.line`."
+
+#: ../../library/omv.image.Image.rst:2123
+msgid ""
+"``merge_distance`` is the maximum pixel separation between two segments to "
+"be merged."
+msgstr ""
+"``merge_distance`` -- это максимальное расстояние в пикселях между двумя "
+"сегментами для их объединения."
+
+#: ../../library/omv.image.Image.rst:2126
+msgid ""
+"``max_theta_difference`` is the maximum theta difference in degrees between "
+"segments to be merged."
+msgstr ""
+"``max_theta_difference`` -- это максимальная разница theta в градусах между "
+"сегментами для их объединения."
+
+#: ../../library/omv.image.Image.rst:2133
+msgid ""
+"Finds circles in the image using the hough transform. Returns a list of "
+"`image.circle` objects."
+msgstr ""
+"Находит окружности на изображении, используя преобразование Хафа. Возвращает"
+" список объектов `image.circle`."
+
+#: ../../library/omv.image.Image.rst:2142
+msgid ""
+"``threshold`` minimum circle magnitude (sum of sobel magnitudes along the "
+"circle); circles below this are filtered out."
+msgstr ""
+"``threshold`` минимальная величина окружности (сумма величин Собеля вдоль "
+"окружности); окружности ниже этого значения отфильтровываются."
+
+#: ../../library/omv.image.Image.rst:2145
+msgid ""
+"``x_margin``, ``y_margin``, and ``r_margin`` control merging: circles within"
+" these thresholds are merged."
+msgstr ""
+"``x_margin``, ``y_margin`` и ``r_margin`` управляют объединением: окружности"
+" в пределах этих порогов объединяются."
+
+#: ../../library/omv.image.Image.rst:2148
+msgid "``r_min`` minimum circle radius. Defaults to 2."
+msgstr "``r_min`` минимальный радиус окружности. По умолчанию 2."
+
+#: ../../library/omv.image.Image.rst:2150
+msgid ""
+"``r_max`` maximum circle radius. Defaults to ``min(roi.w/2, roi.h/2)``."
+msgstr ""
+"``r_max`` максимальный радиус окружности. По умолчанию ``min(roi.w/2, "
+"roi.h/2)``."
+
+#: ../../library/omv.image.Image.rst:2152
+msgid "``r_step`` radius step size. Defaults to 2."
+msgstr "``r_step`` размер шага радиуса. По умолчанию 2."
+
+#: ../../library/omv.image.Image.rst:2158
+msgid ""
+"Finds rectangles in the image using the apriltag quad detection algorithm. "
+"Returns a list of `image.rect` objects."
+msgstr ""
+"Находит прямоугольники на изображении, используя алгоритм обнаружения "
+"четырёхугольников apriltag. Возвращает список объектов `image.rect`."
+
+#: ../../library/omv.image.Image.rst:2164
+msgid ""
+"``threshold`` minimum edge magnitude (sum of sobel magnitudes along the "
+"rectangle edges); rectangles below this are filtered out."
+msgstr ""
+"``threshold`` минимальная величина границы (сумма величин Собеля вдоль "
+"границ прямоугольника); прямоугольники ниже этого значения "
+"отфильтровываются."
+
+#: ../../library/omv.image.Image.rst:2171
+msgid ""
+"Finds all qrcodes within the ``roi`` and returns a list of `image.qrcode` "
+"objects."
+msgstr ""
+"Находит все qrcode в пределах ``roi`` и возвращает список объектов "
+"`image.qrcode`."
+
+#: ../../library/omv.image.Image.rst:2181
+msgid ""
+"Finds all apriltags within the ``roi`` and returns a list of "
+"`image.apriltag` objects."
+msgstr ""
+"Находит все apriltag в пределах ``roi`` и возвращает список объектов "
+"`image.apriltag`."
+
+#: ../../library/omv.image.Image.rst:2187
+msgid ""
+"``families`` is a bitmask of tag families to decode. It is the logical OR "
+"of:"
+msgstr ""
+"``families`` -- это битовая маска семейств тегов для декодирования. Это "
+"логическое ИЛИ:"
+
+#: ../../library/omv.image.Image.rst:2190
+msgid "`image.TAG16H5`"
+msgstr "`image.TAG16H5`"
+
+#: ../../library/omv.image.Image.rst:2191
+msgid "`image.TAG25H9`"
+msgstr "`image.TAG25H9`"
+
+#: ../../library/omv.image.Image.rst:2192
+msgid "`image.TAG36H10`"
+msgstr "`image.TAG36H10`"
+
+#: ../../library/omv.image.Image.rst:2193
+msgid "`image.TAG36H11`"
+msgstr "`image.TAG36H11`"
+
+#: ../../library/omv.image.Image.rst:2194
+msgid "`image.TAGCIRCLE21H7`"
+msgstr "`image.TAGCIRCLE21H7`"
+
+#: ../../library/omv.image.Image.rst:2195
+msgid "`image.TAGCIRCLE49H12`"
+msgstr "`image.TAGCIRCLE49H12`"
+
+#: ../../library/omv.image.Image.rst:2196
+msgid "`image.TAGCUSTOM48H12`"
+msgstr "`image.TAGCUSTOM48H12`"
+
+#: ../../library/omv.image.Image.rst:2197
+msgid "`image.TAGSTANDARD41H12`"
+msgstr "`image.TAGSTANDARD41H12`"
+
+#: ../../library/omv.image.Image.rst:2198
+msgid "`image.TAGSTANDARD52H13`"
+msgstr "`image.TAGSTANDARD52H13`"
+
+#: ../../library/omv.image.Image.rst:2200
+msgid ""
+"Defaults to `image.TAG36H11`. Detection time scales with the number of "
+"enabled families."
+msgstr ""
+"По умолчанию `image.TAG36H11`. Время обнаружения масштабируется с "
+"количеством включённых семейств."
+
+#: ../../library/omv.image.Image.rst:2203
+msgid "``fx`` and ``fy`` are the camera X and Y focal lengths in pixels."
+msgstr ""
+"``fx`` и ``fy`` -- это фокусные расстояния камеры по X и Y в пикселях."
+
+#: ../../library/omv.image.Image.rst:2205
+msgid ""
+"``cx`` and ``cy`` are the image center, typically ``image.width()/2`` and "
+"``image.height()/2``."
+msgstr ""
+"``cx`` и ``cy`` -- это центр изображения, обычно ``image.width()/2`` и "
+"``image.height()/2``."
+
+#: ../../library/omv.image.Image.rst:2214
+msgid ""
+"Finds all datamatrices within the ``roi`` and returns a list of "
+"`image.datamatrix` objects."
+msgstr ""
+"Находит все datamatrix в пределах ``roi`` и возвращает список объектов "
+"`image.datamatrix`."
+
+#: ../../library/omv.image.Image.rst:2220
+msgid ""
+"``effort`` controls how much time to spend trying to find data matrix "
+"matches. Higher values improve detection at the cost of frame rate. Values "
+"below ~160 fail to detect; values above ~240 yield diminishing returns. "
+"Defaults to 200."
+msgstr ""
+"``effort`` управляет тем, сколько времени тратить на попытки найти "
+"совпадения data matrix. Более высокие значения улучшают обнаружение ценой "
+"частоты кадров. Значения ниже ~160 не обнаруживают; значения выше ~240 дают "
+"убывающую отдачу. По умолчанию 200."
+
+#: ../../library/omv.image.Image.rst:2229
+msgid ""
+"Finds all 1D barcodes within the ``roi`` and returns a list of "
+"`image.barcode` objects. Scans both horizontally and vertically."
+msgstr ""
+"Находит все 1D-штрихкоды в пределах ``roi`` и возвращает список объектов "
+"`image.barcode`. Сканирует как горизонтально, так и вертикально."
+
+#: ../../library/omv.image.Image.rst:2232
+msgid ""
+"Supported barcode types: `image.EAN2`, `image.EAN5`, `image.EAN8`, "
+"`image.UPCE`, `image.ISBN10`, `image.UPCA`, `image.EAN13`, `image.ISBN13`, "
+"`image.I25`, `image.DATABAR` (RSS-14), `image.DATABAR_EXP` (RSS-Expanded), "
+"`image.CODABAR`, `image.CODE39`, `image.PDF417`, `image.CODE93`, "
+"`image.CODE128`."
+msgstr ""
+"Поддерживаемые типы штрихкодов: `image.EAN2`, `image.EAN5`, `image.EAN8`, "
+"`image.UPCE`, `image.ISBN10`, `image.UPCA`, `image.EAN13`, `image.ISBN13`, "
+"`image.I25`, `image.DATABAR` (RSS-14), `image.DATABAR_EXP` (RSS-Expanded), "
+"`image.CODABAR`, `image.CODE39`, `image.PDF417`, `image.CODE93`, "
+"`image.CODE128`."
+
+#: ../../library/omv.image.Image.rst:2245
+msgid ""
+"Find the translation offset of this image from ``template`` using phase "
+"correlation. Returns an `image.displacement` object."
+msgstr ""
+"Находит смещение трансляции этого изображения от ``template``, используя "
+"фазовую корреляцию. Возвращает объект `image.displacement`."
+
+#: ../../library/omv.image.Image.rst:2248
+msgid ""
+"``roi`` is the region-of-interest rectangle (x, y, w, h). Defaults to the "
+"image rectangle."
+msgstr ""
+"``roi`` -- это прямоугольник области интереса (x, y, w, h). По умолчанию "
+"равен прямоугольнику изображения."
+
+#: ../../library/omv.image.Image.rst:2251
+msgid ""
+"``template_roi`` is the template's region-of-interest. Defaults to the "
+"template image rectangle. ``roi`` and ``template_roi`` must have the same "
+"width and height."
+msgstr ""
+"``template_roi`` -- это область интереса шаблона. По умолчанию равна "
+"прямоугольнику изображения шаблона. ``roi`` и ``template_roi`` должны иметь "
+"одинаковую ширину и высоту."
+
+#: ../../library/omv.image.Image.rst:2255
+msgid ""
+"``logpolar`` if True returns rotation/scale change instead of x/y "
+"translation."
+msgstr ""
+"``logpolar`` если True, возвращает изменение поворота/масштаба вместо "
+"смещения по x/y."
+
+#: ../../library/omv.image.Image.rst:2258
+msgid ""
+"``fix_rotation_scale`` if True, computes displacement after aligning "
+"rotation and scale (only meaningful when ``logpolar=False``)."
+msgstr ""
+"``fix_rotation_scale`` если True, вычисляет смещение после выравнивания "
+"поворота и масштаба (имеет смысл только при ``logpolar=False``)."
+
+#: ../../library/omv.image.Image.rst:2263
+msgid "Use this method on power-of-2 image sizes (e.g. `sensor.B64X64`)."
+msgstr ""
+"Используйте этот метод на размерах изображения, являющихся степенью 2 "
+"(например, `sensor.B64X64`)."
+
+#: ../../library/omv.image.Image.rst:2265
+msgid ""
+"Not supported on compressed images or bayer images. Not available on the "
+"OpenMV Cam M4."
+msgstr ""
+"Не поддерживается для сжатых изображений или изображений bayer. Недоступно "
+"на OpenMV Cam M4."
+
+#: ../../library/omv.image.Image.rst:2269
+msgid ""
+"Tries to find the first location in the image where ``template`` matches "
+"using Normalized Cross Correlation. Returns a bounding box tuple (x, y, w, "
+"h), or None."
+msgstr ""
+"Пытается найти первое местоположение на изображении, где ``template`` "
+"совпадает, используя нормализованную взаимную корреляцию. Возвращает кортеж "
+"ограничивающей рамки (x, y, w, h) или None."
+
+#: ../../library/omv.image.Image.rst:2273
+msgid "``template`` is a grayscale image to match against this image."
+msgstr ""
+"``template`` -- это изображение в оттенках серого для сопоставления с этим "
+"изображением."
+
+#: ../../library/omv.image.Image.rst:2275
+msgid ""
+"``threshold`` is a value (0.0-1.0). Higher values reduce false positives and"
+" detections; lower values do the opposite."
+msgstr ""
+"``threshold`` -- это значение (0.0-1.0). Более высокие значения уменьшают "
+"ложные срабатывания и обнаружения; более низкие значения делают обратное."
+
+#: ../../library/omv.image.Image.rst:2281
+msgid ""
+"``step`` is the number of pixels to skip while searching (only used in "
+"``image.SEARCH_EX`` mode)."
+msgstr ""
+"``step`` -- это количество пикселей для пропуска во время поиска "
+"(используется только в режиме ``image.SEARCH_EX``)."
+
+#: ../../library/omv.image.Image.rst:2284
+msgid ""
+"``search`` is ``image.SEARCH_DS`` (faster diamond search) or "
+"``image.SEARCH_EX`` (exhaustive search)."
+msgstr ""
+"``search`` -- это ``image.SEARCH_DS`` (более быстрый алмазный поиск) или "
+"``image.SEARCH_EX`` (исчерпывающий поиск)."
+
+#: ../../library/omv.image.Image.rst:2287
+#: ../../library/omv.image.Image.rst:2314
+#: ../../library/omv.image.Image.rst:2324
+#: ../../library/omv.image.Image.rst:2347
+#: ../../library/omv.image.Image.rst:2360
+#: ../../library/omv.image.Image.rst:2371
+msgid "Only works on grayscale images."
+msgstr "Работает только с изображениями в оттенках серого."
+
+#: ../../library/omv.image.Image.rst:2291
+msgid ""
+"Searches the image for areas matching the passed Haar cascade and returns a "
+"list of bounding box tuples (x, y, w, h). Returns an empty list if no "
+"features are found."
+msgstr ""
+"Ищет на изображении области, соответствующие переданному каскаду Хаара, и "
+"возвращает список кортежей ограничивающих рамок (x, y, w, h). Возвращает "
+"пустой список, если признаки не найдены."
+
+#: ../../library/omv.image.Image.rst:2295
+msgid "``cascade`` is a Haar Cascade object (see `image.HaarCascade()`)."
+msgstr "``cascade`` -- это объект Haar Cascade (см. `image.HaarCascade()`)."
+
+#: ../../library/omv.image.Image.rst:2297
+msgid ""
+"``threshold`` (0.0-1.0). Lower values raise the detection rate and the "
+"false-positive rate."
+msgstr ""
+"``threshold`` (0.0-1.0). Более низкие значения повышают частоту обнаружения "
+"и частоту ложных срабатываний."
+
+#: ../../library/omv.image.Image.rst:2300
+msgid ""
+"``scale`` must be greater than 1.0. Higher values run faster but produce "
+"poorer matches."
+msgstr ""
+"``scale`` должен быть больше 1.0. Более высокие значения работают быстрее, "
+"но дают худшие совпадения."
+
+#: ../../library/omv.image.Image.rst:2308
+msgid ""
+"Searches for the pupil in a region-of-interest (x, y, w, h) tuple around an "
+"eye. Returns the (x, y) location of the pupil, or (0, 0) if none is found."
+msgstr ""
+"Ищет зрачок в кортеже области интереса (x, y, w, h) вокруг глаза. Возвращает"
+" местоположение (x, y) зрачка или (0, 0), если ничего не найдено."
+
+#: ../../library/omv.image.Image.rst:2312
+#: ../../library/omv.image.Image.rst:2322
+msgid "``roi`` is the region-of-interest rectangle tuple (x, y, w, h)."
+msgstr "``roi`` -- это кортеж прямоугольника области интереса (x, y, w, h)."
+
+#: ../../library/omv.image.Image.rst:2318
+msgid ""
+"Extracts LBP (local-binary-patterns) keypoints from the region-of-interest. "
+"Use `image.match_descriptor()` to compare two descriptors."
+msgstr ""
+"Извлекает ключевые точки LBP (local-binary-patterns) из области интереса. "
+"Используйте `image.match_descriptor()` для сравнения двух дескрипторов."
+
+#: ../../library/omv.image.Image.rst:2328
+msgid ""
+"Extracts ORB keypoints from the region-of-interest. Use "
+"`image.match_descriptor()` to compare two descriptors. Returns None if no "
+"keypoints were found."
+msgstr ""
+"Извлекает ключевые точки ORB из области интереса. Используйте "
+"`image.match_descriptor()` для сравнения двух дескрипторов. Возвращает None,"
+" если ключевые точки не найдены."
+
+#: ../../library/omv.image.Image.rst:2335
+msgid ""
+"``threshold`` (0-255) controls the number of extracted corners. Lower "
+"thresholds produce more corners. Use ~20 for AGAST, ~60-80 for FAST."
+msgstr ""
+"``threshold`` (0-255) управляет количеством извлекаемых углов. Более низкие "
+"пороги дают больше углов. Используйте ~20 для AGAST, ~60-80 для FAST."
+
+#: ../../library/omv.image.Image.rst:2338
+msgid "``normalized`` if True, disables multi-resolution keypoint extraction."
+msgstr ""
+"``normalized`` если True, отключает многоразрешающее извлечение ключевых "
+"точек."
+
+#: ../../library/omv.image.Image.rst:2340
+msgid ""
+"``scale_factor`` must be greater than 1.0. Higher values run faster but "
+"produce poorer matches."
+msgstr ""
+"``scale_factor`` должен быть больше 1.0. Более высокие значения работают "
+"быстрее, но дают худшие совпадения."
+
+#: ../../library/omv.image.Image.rst:2343
+msgid "``max_keypoints`` is the maximum number of keypoints to retain."
+msgstr ""
+"``max_keypoints`` -- это максимальное количество ключевых точек для "
+"сохранения."
+
+#: ../../library/omv.image.Image.rst:2345
+msgid "``corner_detector`` is `image.CORNER_FAST` or `image.CORNER_AGAST`."
+msgstr ""
+"``corner_detector`` -- это `image.CORNER_FAST` или `image.CORNER_AGAST`."
+
+#: ../../library/omv.image.Image.rst:2351
+msgid ""
+"Turns the image to black and white leaving only the edges as white pixels."
+msgstr ""
+"Превращает изображение в чёрно-белое, оставляя только границы в виде белых "
+"пикселей."
+
+#: ../../library/omv.image.Image.rst:2353
+msgid "image.EDGE_SIMPLE - Simple thresholded high pass filter algorithm."
+msgstr ""
+"image.EDGE_SIMPLE - Простой алгоритм высокочастотного фильтра с пороговым "
+"разделением."
+
+#: ../../library/omv.image.Image.rst:2354
+msgid "image.EDGE_CANNY - Canny edge detection algorithm."
+msgstr "image.EDGE_CANNY - Алгоритм обнаружения границ Канни."
+
+#: ../../library/omv.image.Image.rst:2356
+msgid ""
+"``threshold`` is a two valued tuple containing a low threshold and high "
+"threshold. You can control the quality of edges by adjusting these values. "
+"It defaults to (100, 200)."
+msgstr ""
+"``threshold`` -- это кортеж из двух значений, содержащий нижний и верхний "
+"порог. Вы можете управлять качеством границ, регулируя эти значения. По "
+"умолчанию (100, 200)."
+
+#: ../../library/omv.image.Image.rst:2364
+msgid ""
+"Replaces the pixels in the ROI with HOG (histogram of orientated graidients)"
+" lines."
+msgstr ""
+"Заменяет пиксели в ROI линиями HOG (histogram of orientated gradients)."
+
+#: ../../library/omv.image.Image.rst:2367
+msgid ""
+"``roi`` is the region-of-interest rectangle tuple (x, y, w, h). If not "
+"specified, it is equal to the image rectangle. Only pixels within the "
+"``roi`` are operated on."
+msgstr ""
+"``roi`` -- это кортеж прямоугольника области интереса (x, y, w, h). Если не "
+"указан, он равен прямоугольнику изображения. Операции выполняются только над"
+" пикселями в пределах ``roi``."
+
+#: ../../library/omv.image.Image.rst:2377
+msgid ""
+"Takes a double-wide grayscale image containing the output of two side-by-"
+"side camera sensors and replaces one half with the stereo disparity image "
+"(each pixel represents depth). E.g. for two 320x240 cameras pass a 640x240 "
+"image."
+msgstr ""
+"Принимает изображение двойной ширины в оттенках серого, содержащее вывод "
+"двух расположенных рядом датчиков камеры, и заменяет одну половину "
+"изображением стереодиспаратности (каждый пиксель представляет глубину). "
+"Например, для двух камер 320x240 передайте изображение 640x240."
+
+#: ../../library/omv.image.Image.rst:2381
+msgid ""
+"``reversed`` By default the left image is compared to the right and the "
+"right image is replaced. Set True to compare right->left and replace the "
+"left image."
+msgstr ""
+"``reversed`` По умолчанию левое изображение сравнивается с правым, и правое "
+"изображение заменяется. Установите True, чтобы сравнивать справа->налево и "
+"заменять левое изображение."
+
+#: ../../library/omv.image.Image.rst:2384
+msgid ""
+"``max_disparity`` is the maximum distance (1-255) to search for a matching "
+"pixel block using sum-of-absolute differences. Larger values take "
+"exponentially longer but produce higher quality output."
+msgstr ""
+"``max_disparity`` -- это максимальное расстояние (1-255) для поиска "
+"совпадающего блока пикселей с использованием суммы абсолютных разностей. "
+"Большие значения занимают экспоненциально больше времени, но дают более "
+"качественный вывод."
+
+#: ../../library/omv.image.Image.rst:2388
+msgid ""
+"``threshold`` if the sum-of-absolute differences between two blocks is less "
+"than or equal to this threshold they are considered matching."
+msgstr ""
+"``threshold`` если сумма абсолютных разностей между двумя блоками меньше или"
+" равна этому порогу, они считаются совпадающими."
+
+#: ../../library/omv.image.Image.rst:2393
+msgid ""
+"Runs selective search on the image and returns a list of bounding box tuples"
+" (x, y, w, h) of object proposals."
+msgstr ""
+"Выполняет выборочный поиск на изображении и возвращает список кортежей "
+"ограничивающих рамок (x, y, w, h) предложений объектов."
+
+#: ../../library/omv.image.Image.rst:2396
+msgid ""
+"``threshold`` is the segmentation threshold; higher values produce "
+"fewer/larger regions."
+msgstr ""
+"``threshold`` -- это порог сегментации; более высокие значения дают "
+"меньше/больше областей."
+
+#: ../../library/omv.image.Image.rst:2399
+msgid "``size`` is the minimum region size after merging."
+msgstr "``size`` -- это минимальный размер области после объединения."
+
+#: ../../library/omv.image.Image.rst:2401
+msgid ""
+"``a1``, ``a2``, ``a3`` are the color/texture/size similarity weights used "
+"when merging regions."
+msgstr ""
+"``a1``, ``a2``, ``a3`` -- это веса сходства цвета/текстуры/размера, "
+"используемые при объединении областей."

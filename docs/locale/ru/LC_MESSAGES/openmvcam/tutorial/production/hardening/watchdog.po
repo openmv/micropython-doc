@@ -1,0 +1,258 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:2
+msgid "The watchdog"
+msgstr "Сторожевой таймер"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:4
+msgid ""
+"The hardware watchdog is the floor every other hardening choice sits on. It "
+"is a tiny independent timer that resets the processor when it has not been "
+"told otherwise for too long. A script that wedges on a flaky sensor, a "
+"network call that blocks past its timeout, a memory allocator stuck in a "
+"corner of the heap, an exception that escaped the loop -- none of them stop "
+"the watchdog. The timer counts down regardless, and the cam reboots."
+msgstr ""
+"Аппаратный сторожевой таймер -- это основа, на которой держится любой другой"
+" выбор в области защиты. Это крошечный независимый таймер, который "
+"сбрасывает процессор, когда ему слишком долго не сообщали обратного. Скрипт,"
+" который застрял на ненадёжном датчике, сетевой вызов, который блокируется "
+"дольше своего таймаута, аллокатор памяти, застрявший в углу кучи, "
+"исключение, ускользнувшее из цикла -- ни одно из них не останавливает "
+"сторожевой таймер. Таймер отсчитывает независимо, и камера перезагружается."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:13
+msgid ""
+"For a shipped product, a watchdog is not optional. Without it, any of the "
+"failure modes above leaves the cam dead until someone notices and power-"
+"cycles it. With it, the cam comes back up by itself and the only evidence of"
+" the failure is one line in the log."
+msgstr ""
+"Для выпускаемого продукта сторожевой таймер не является опциональным. Без "
+"него любой из вышеперечисленных режимов отказа оставляет камеру мёртвой до "
+"тех пор, пока кто-то не заметит и не выключит и снова не включит питание. С "
+"ним камера сама возвращается к работе, и единственное свидетельство отказа "
+"-- одна строка в журнале."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:21
+msgid ""
+"The hardware chapter's :doc:`watchdog timer "
+"</openmvcam/tutorial/hardware/production/watchdog>` page covers what a "
+"watchdog is at the hardware level and the basics of the :class:`machine.WDT`"
+" API. This page covers what changes for a production deployment."
+msgstr ""
+"Страница :doc:`сторожевой таймер "
+"</openmvcam/tutorial/hardware/production/watchdog>` в главе об оборудовании "
+"рассказывает, что такое сторожевой таймер на аппаратном уровне, и об основах"
+" API :class:`machine.WDT`. Эта страница рассказывает о том, что меняется для"
+" производственного развёртывания."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:28
+msgid "Starting the watchdog"
+msgstr "Запуск сторожевого таймера"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:30
+msgid ""
+":class:`machine.WDT` is the API. It is hardware-backed: once constructed, "
+"the timer runs until the next reset. There is no ``stop()``, no "
+"``deinit()``, no Ctrl-C escape. That is the point."
+msgstr ""
+":class:`machine.WDT` -- это API. Он реализован аппаратно: после создания "
+"таймер работает до следующего сброса. Нет ``stop()``, нет ``deinit()``, нет "
+"выхода по Ctrl-C. В этом и суть."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:35
+msgid ""
+"A typical setup at the top of ``main.py``, immediately before the loop it "
+"protects::"
+msgstr ""
+"Типичная настройка в начале ``main.py``, непосредственно перед циклом, "
+"который он защищает::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:42
+msgid ""
+"``main.py`` is the right home for the watchdog because that is where the "
+"loop lives. A watchdog reset is a hardware reset, so the cold-boot path re-"
+"runs and ``main.py`` re-enters the loop on its own -- recovery works without"
+" any wiring in ``boot.py``. Starting the watchdog in ``boot.py`` instead "
+"means every soft reset (a developer's Ctrl-D, for instance) hands the "
+"application a hardware timer it has no way to stop, which is an annoyance at"
+" the bench and a trap in production setup code that runs before the loop is "
+"ready."
+msgstr ""
+"``main.py`` -- правильное место для сторожевого таймера, потому что именно "
+"там находится цикл. Сброс сторожевого таймера -- это аппаратный сброс, "
+"поэтому путь холодной загрузки выполняется заново, и ``main.py`` сам "
+"повторно входит в цикл -- восстановление работает без какой-либо настройки в"
+" ``boot.py``. Запуск сторожевого таймера в ``boot.py`` вместо этого "
+"означает, что каждый программный сброс (например, Ctrl-D разработчика) "
+"передаёт приложению аппаратный таймер, который оно не может остановить, что "
+"является неприятностью на рабочем столе и ловушкой в производственном коде "
+"настройки, который выполняется до того, как цикл будет готов."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:52
+msgid ""
+"Pick the timeout to be 2 to 3 times longer than the worst observed iteration"
+" time of the main loop. Frame-rate jitter, a slow sensor read on a cold "
+"sensor, a brief Wi-Fi hiccup -- none of those should trip the watchdog. A "
+"real hang (an infinite loop, a blocked I/O call) should. Too-short timeouts "
+"turn the watchdog into a source of false resets; too-long timeouts let the "
+"cam sit unresponsive for minutes before recovery fires."
+msgstr ""
+"Выберите таймаут в 2-3 раза больше, чем худшее наблюдаемое время итерации "
+"основного цикла. Колебания частоты кадров, медленное чтение с холодного "
+"датчика, кратковременный сбой Wi-Fi -- ничто из этого не должно срабатывать "
+"на сторожевом таймере. Реальное зависание (бесконечный цикл, заблокированный"
+" вызов ввода-вывода) должно. Слишком короткие таймауты превращают сторожевой"
+" таймер в источник ложных сбросов; слишком длинные таймауты позволяют камере"
+" оставаться неотзывчивой в течение минут, прежде чем сработает "
+"восстановление."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:62
+msgid "Feeding it"
+msgstr "Кормление"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:64
+msgid ""
+"``wdt.feed()`` resets the countdown. Call it once per iteration of the main "
+"loop, at the **top** of the loop body so the feed happens unconditionally "
+"before any work that might hang::"
+msgstr ""
+"``wdt.feed()`` сбрасывает обратный отсчёт. Вызывайте его один раз за "
+"итерацию основного цикла, в **начале** тела цикла, чтобы кормление "
+"происходило безусловно перед любой работой, которая может зависнуть::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:75
+msgid "Surviving exceptions"
+msgstr "Выживание после исключений"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:77
+msgid ""
+"The watchdog handles hangs. Exceptions are a different failure mode. An "
+"unhandled exception bubbles up to the script's top level, ``main.py`` exits,"
+" and the cam drops to the REPL. The watchdog then trips after its timeout "
+"because nothing is feeding it from the REPL, the cam resets, and ``main.py``"
+" runs again -- so recovery does work, but the field pays a full timeout-"
+"plus-reboot for every crash, the traceback goes to USB stdout that nothing "
+"reads, and any in-memory state the application was keeping is gone."
+msgstr ""
+"Сторожевой таймер обрабатывает зависания. Исключения -- это другой режим "
+"отказа. Необработанное исключение всплывает на верхний уровень скрипта, "
+"``main.py`` завершается, и камера переходит к REPL. Сторожевой таймер затем "
+"срабатывает после своего таймаута, потому что ничто не кормит его из REPL, "
+"камера сбрасывается, и ``main.py`` запускается снова -- так что "
+"восстановление работает, но в полевых условиях за каждый сбой приходится "
+"платить полным таймаутом плюс перезагрузкой, трассировка стека идёт в USB "
+"stdout, который никто не читает, а любое состояние в памяти, которое хранило"
+" приложение, теряется."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:87
+msgid ""
+"Wrapping the main loop in a top-level ``try`` / ``except`` turns a crash "
+"into a logged event the application continues through, without paying for a "
+"reset::"
+msgstr ""
+"Оборачивание основного цикла в ``try`` / ``except`` верхнего уровня "
+"превращает сбой в зарегистрированное событие, через которое приложение "
+"продолжает работу, не платя за сброс::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:103
+msgid ""
+"Catching ``Exception`` (not ``BaseException``) keeps ``KeyboardInterrupt`` "
+"and :class:`SystemExit` working, which is what a developer attached over USB"
+" wants."
+msgstr ""
+"Перехват ``Exception`` (а не ``BaseException``) сохраняет работу "
+"``KeyboardInterrupt`` и :class:`SystemExit`, что и нужно разработчику, "
+"подключённому через USB."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:107
+msgid ""
+"This pattern is the software half of liveness: the watchdog catches the "
+"hangs, the wrapper catches the crashes, and the log records what either of "
+"them caught."
+msgstr ""
+"Этот шаблон -- программная половина живучести: сторожевой таймер ловит "
+"зависания, обёртка ловит сбои, а журнал записывает то, что поймал любой из "
+"них."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:112
+msgid "Knowing why a boot happened"
+msgstr "Понимание, почему произошла загрузка"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:114
+msgid ""
+"Every soft reset and every watchdog reset eventually shows up as a fresh "
+"boot. The boot-time diagnostics helper logs :func:`machine.reset_cause` on "
+"every cold start; the ``reset cause`` line is what tells the field whether "
+"recovery actually fired versus the cam just power-cycling normally."
+msgstr ""
+"Каждый программный сброс и каждый сброс сторожевого таймера в конечном итоге"
+" проявляется как новая загрузка. Помощник диагностики во время загрузки "
+"регистрирует :func:`machine.reset_cause` при каждом холодном запуске; строка"
+" ``reset cause`` -- это то, что говорит полевой команде, действительно ли "
+"сработало восстановление, или камера просто нормально перезапитывалась."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:120
+msgid ""
+"The reset-cause line is what makes the watchdog's work visible in the log. A"
+" log full of ``watchdog timeout`` resets says the application has been "
+"hanging and the watchdog has been recovering it. A log without them says the"
+" watchdog has not had to fire -- which usually means the application is "
+"healthy, but can also mean the timeout is set too long to catch the hangs "
+"that are actually happening."
+msgstr ""
+"Строка причины сброса -- это то, что делает работу сторожевого таймера "
+"видимой в журнале. Журнал, полный сбросов ``watchdog timeout``, говорит о "
+"том, что приложение зависало, а сторожевой таймер его восстанавливал. Журнал"
+" без них говорит о том, что сторожевому таймеру не приходилось срабатывать "
+"-- что обычно означает, что приложение исправно, но также может означать, "
+"что таймаут установлен слишком длинным, чтобы ловить реально происходящие "
+"зависания."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:129
+msgid "A complete starter"
+msgstr "Полный стартовый шаблон"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:131
+msgid ""
+"A ``main.py`` that pulls watchdog, logging setup, boot-time diagnostics, and"
+" the wrapper together looks like::"
+msgstr ""
+"``main.py``, который объединяет сторожевой таймер, настройку журналирования,"
+" диагностику во время загрузки и обёртку, выглядит так::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:153
+msgid ""
+"``step()`` is the application's per-iteration work; the rest of this "
+"scaffold does not change between products. Hardening is one watchdog, one "
+"wrapper, and a logged boot every cold start -- not much code, and the "
+"difference between a cam that recovers on its own and one that needs a "
+"service call."
+msgstr ""
+"``step()`` -- это работа приложения за одну итерацию; остальная часть этого "
+"каркаса не меняется между продуктами. Защита -- это один сторожевой таймер, "
+"одна обёртка и одна зарегистрированная загрузка при каждом холодном запуске "
+"-- не так много кода, и разница между камерой, которая восстанавливается "
+"сама, и той, которая требует выезда сервиса."

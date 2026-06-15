@@ -1,0 +1,401 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:2
+msgid "Debouncing"
+msgstr "Подавление дребезга"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:4
+msgid ""
+"A switch is drawn as a perfect open-or-closed contact, but a real switch's "
+"contacts do not snap cleanly between the two states. They *chatter* -- make "
+"and break electrical contact many times within a few milliseconds before "
+"settling. A GPIO input reading the pin sees that as a burst of edges; a "
+"careless polling loop counts several \"presses\" for one real press, and an "
+"interrupt handler runs several times per actual press."
+msgstr ""
+"Переключатель изображают как идеальный замкнуто-разомкнутый контакт, но "
+"контакты реального переключателя не переходят между двумя состояниями чисто."
+" Они *дребезжат* -- замыкают и размыкают электрический контакт множество раз"
+" в течение нескольких миллисекунд, прежде чем установиться. GPIO-вход, "
+"считывающий вывод, видит это как пачку фронтов; неаккуратный цикл опроса "
+"насчитывает несколько \"нажатий\" на одно реальное нажатие, а обработчик "
+"прерывания срабатывает несколько раз на каждое фактическое нажатие."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:12
+msgid ""
+"An idealised scope trace showing a switch input\n"
+"signal. The signal starts high (open switch), drops\n"
+"low, bounces back and forth several times within a\n"
+"few milliseconds, then settles low (closed switch)."
+msgstr ""
+"Идеализированная осциллограмма входного сигнала\n"
+"переключателя. Сигнал начинается с высокого уровня\n"
+"(разомкнутый переключатель), падает до низкого,\n"
+"несколько раз колеблется в течение нескольких\n"
+"миллисекунд, затем устанавливается на низком уровне\n"
+"(замкнутый переключатель)."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:18
+msgid ""
+"A bouncing switch produces a burst of fast transitions before settling."
+msgstr ""
+"Дребезжащий переключатель создаёт пачку быстрых переходов перед тем, как "
+"установиться."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:21
+msgid ""
+"*Debouncing* is the practice of filtering the chatter so that each physical "
+"press registers as a single event. Two approaches solve this -- software (a "
+"timing rule in firmware) or hardware (a small filter on the wire). They are "
+"not mutually exclusive."
+msgstr ""
+"*Подавление дребезга* -- это практика фильтрации дребезга так, чтобы каждое "
+"физическое нажатие регистрировалось как одно событие. Эту задачу решают два "
+"подхода -- программный (правило тайминга в прошивке) или аппаратный "
+"(небольшой фильтр на проводе). Они не являются взаимоисключающими."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:27
+msgid "Software debouncing"
+msgstr "Программное подавление дребезга"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:29
+msgid ""
+"The idea is to remember when the input last changed and reject further "
+"changes within a short window of that timestamp. Contact bounce typically "
+"lasts under 10 ms; a real press takes 50 -- 100 ms; a 30 -- 50 ms window "
+"catches all bounces without blocking real presses."
+msgstr ""
+"Идея состоит в том, чтобы запоминать, когда вход последний раз менялся, и "
+"отклонять дальнейшие изменения в течение короткого окна после этой метки "
+"времени. Дребезг контактов обычно длится менее 10 мс; реальное нажатие "
+"занимает 50 -- 100 мс; окно в 30 -- 50 мс улавливает весь дребезг, не "
+"блокируя реальные нажатия."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:35
+msgid ""
+"In a polling loop, read the pin, compare to the last stable value, and only "
+"accept a change after the debounce window has elapsed:"
+msgstr ""
+"В цикле опроса считайте вывод, сравните с последним стабильным значением и "
+"принимайте изменение только после того, как истекло окно подавления "
+"дребезга:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:59
+msgid ""
+"For interrupt-driven reads, apply the same timing rule inside the handler, "
+"then hand the real press off to main context via "
+":func:`micropython.schedule` (see :doc:`gpio-input`):"
+msgstr ""
+"Для считывания по прерыванию примените то же правило тайминга внутри "
+"обработчика, а затем передайте реальное нажатие в основной контекст через "
+":func:`micropython.schedule` (см. :doc:`gpio-input`):"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:86
+msgid ""
+"The ISR filters bounces by timestamp and queues the callback; "
+"``handle_press`` runs back in main context, where allocation and slow I/O "
+"are safe."
+msgstr ""
+"ISR фильтрует дребезг по метке времени и ставит функцию обратного вызова в "
+"очередь; ``handle_press`` выполняется уже в основном контексте, где "
+"выделение памяти и медленный ввод-вывод безопасны."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:91
+msgid "Hardware debouncing"
+msgstr "Аппаратное подавление дребезга"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:93
+msgid ""
+"Hardware debouncing filters the chatter electrically, before it ever reaches"
+" the pin. The standard tool is a capacitor."
+msgstr ""
+"Аппаратное подавление дребезга фильтрует дребезг электрически, ещё до того, "
+"как он достигнет вывода. Стандартный инструмент для этого -- конденсатор."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:96
+msgid ""
+"A capacitor is a two-terminal component that stores electric charge. "
+"Physically, it is two conductive plates held a short distance apart, "
+"separated by an insulator (the *dielectric*)."
+msgstr ""
+"Конденсатор -- это двухполюсный компонент, который накапливает электрический"
+" заряд. Физически это две проводящие пластины, расположенные на небольшом "
+"расстоянии друг от друга и разделённые изолятором (*диэлектриком*)."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:100
+msgid ""
+"A capacitor drawn as two parallel horizontal plates\n"
+"with a dielectric (insulator) between them. A lead\n"
+"connects each plate to an external terminal -- A on\n"
+"top, B on bottom. Equal and opposite charges +Q and\n"
+"-Q accumulate on the two plates when a voltage V is\n"
+"applied across the terminals."
+msgstr ""
+"Конденсатор, изображённый как две параллельные\n"
+"горизонтальные пластины с диэлектриком (изолятором)\n"
+"между ними. Вывод соединяет каждую пластину с внешним\n"
+"терминалом -- A сверху, B снизу. На двух пластинах\n"
+"накапливаются равные и противоположные заряды +Q и\n"
+"-Q, когда к терминалам приложено напряжение V."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:108
+msgid ""
+"A parallel-plate capacitor: two conductors separated by an insulating layer."
+msgstr "Плоский конденсатор: два проводника, разделённые изолирующим слоем."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:111
+msgid ""
+"Applying a voltage across its terminals drives equal and opposite charges "
+"onto the two plates; the relationship is"
+msgstr ""
+"Приложение напряжения к его терминалам перемещает равные и противоположные "
+"заряды на две пластины; зависимость такова:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:118
+msgid ""
+"where ``Q`` is the stored charge (coulombs), ``V`` is the voltage across the"
+" capacitor, and ``C`` is its *capacitance* (farads). Capacitance is fixed by"
+" the device's construction; more capacitance means more charge stored at the"
+" same voltage."
+msgstr ""
+"где ``Q`` -- накопленный заряд (кулоны), ``V`` -- напряжение на "
+"конденсаторе, а ``C`` -- его *ёмкость* (фарады). Ёмкость определяется "
+"конструкцией устройства; большая ёмкость означает больший накопленный заряд "
+"при том же напряжении."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:123
+msgid ""
+"The consequence: a capacitor cannot change its voltage instantly. Charge "
+"flowing in or out has to pass through whatever resistance is in the path, "
+"and that resistance sets how fast the voltage can change."
+msgstr ""
+"Следствие: конденсатор не может мгновенно изменить своё напряжение. Заряд, "
+"втекающий или вытекающий, должен пройти через любое сопротивление на своём "
+"пути, и это сопротивление задаёт, насколько быстро может меняться "
+"напряжение."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:129
+msgid "RC time constant"
+msgstr "Постоянная времени RC"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:131
+msgid ""
+"Charging a capacitor through a resistor produces a smooth exponential rise "
+"toward the supply voltage, not a step. The characteristic time of that rise "
+"is the RC time constant:"
+msgstr ""
+"Зарядка конденсатора через резистор даёт плавный экспоненциальный рост к "
+"напряжению питания, а не скачок. Характеристическое время этого роста -- "
+"постоянная времени RC:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:139
+#, python-format
+msgid ""
+"After one ``τ``, the capacitor has reached about 63 % of the supply voltage."
+" After 5 ``τ``, it is over 99 % -- \"fully charged\" for practical purposes."
+msgstr ""
+"По истечении одного ``τ`` конденсатор достигает примерно 63 % напряжения "
+"питания. После 5 ``τ`` он заряжен более чем на 99 % -- \"полностью заряжен\""
+" для практических целей."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:143
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage rising along\n"
+"an exponential curve from 0 V toward the supply rail.\n"
+"The time τ = RC is marked on the x-axis where the\n"
+"curve reaches 63 % of the supply voltage."
+msgstr ""
+"График, показывающий рост напряжения конденсатора по\n"
+"экспоненциальной кривой от 0 В к шине питания. Время\n"
+"τ = RC отмечено на оси x там, где кривая достигает\n"
+"63 % напряжения питания."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:149
+#, python-format
+msgid ""
+"A capacitor charges along an exponential curve. ``τ = RC`` is the time to "
+"reach 63 % of the final voltage."
+msgstr ""
+"Конденсатор заряжается по экспоненциальной кривой. ``τ = RC`` -- это время "
+"достижения 63 % конечного напряжения."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:152
+#, python-format
+msgid ""
+"Discharging through a resistor follows the mirror image: the voltage falls "
+"exponentially from its initial value toward zero, dropping to 37 % of the "
+"starting voltage after one ``τ``, and to under 1 % after 5 ``τ``."
+msgstr ""
+"Разрядка через резистор повторяет зеркальную картину: напряжение "
+"экспоненциально падает от своего начального значения к нулю, снижаясь до 37 "
+"% начального напряжения после одного ``τ`` и до менее 1 % после 5 ``τ``."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:157
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage falling along\n"
+"an exponential curve from Vmax toward 0 V. The time\n"
+"τ = RC is marked on the x-axis where the curve drops\n"
+"to 37 % of the starting voltage."
+msgstr ""
+"График, показывающий падение напряжения конденсатора\n"
+"по экспоненциальной кривой от Vmax к 0 В. Время\n"
+"τ = RC отмечено на оси x там, где кривая падает\n"
+"до 37 % начального напряжения."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:163
+#, python-format
+msgid ""
+"A capacitor discharges along an exponential decay. ``τ = RC`` is the time to"
+" fall to 37 % of the starting voltage."
+msgstr ""
+"Конденсатор разряжается по экспоненциальному спаду. ``τ = RC`` -- это время "
+"падения до 37 % начального напряжения."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:168
+msgid "The debounce circuit"
+msgstr "Схема подавления дребезга"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:170
+msgid ""
+"A capacitor between an input pin and ground, fed through a series resistor, "
+"forms a *low-pass filter*. Fast spikes do not have time to charge or "
+"discharge the capacitor through that resistor; the pin stays close to "
+"whatever voltage it was at before the spike. Slow changes -- a deliberate "
+"press -- charge or discharge the capacitor and the reading follows."
+msgstr ""
+"Конденсатор между входным выводом и землёй, подключённый через "
+"последовательный резистор, образует *фильтр нижних частот*. Быстрые всплески"
+" не успевают зарядить или разрядить конденсатор через этот резистор; вывод "
+"остаётся близким к тому напряжению, на котором он был до всплеска. Медленные"
+" изменения -- осознанное нажатие -- заряжают или разряжают конденсатор, и "
+"считываемое значение следует за ними."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:177
+msgid ""
+"``R1`` pulls the switch's high side up to Vcc, producing a raw switch signal"
+" that bounces. ``R2`` and ``C`` then low-pass-filter that signal into the "
+"pin:"
+msgstr ""
+"``R1`` подтягивает верхнюю сторону переключателя к Vcc, формируя "
+"необработанный сигнал переключателя, который дребезжит. ``R2`` и ``C`` затем"
+" фильтруют этот сигнал по нижним частотам на пути к выводу:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:181
+msgid ""
+"A switch input with hardware debouncing. Vcc connects\n"
+"through a 10 kΩ pull-up resistor down to a junction.\n"
+"That junction connects to ground through the switch\n"
+"on one branch, and through a 10 kΩ series resistor to\n"
+"the Pin on the other branch. A 100 nF capacitor\n"
+"between Pin and ground completes the low-pass filter."
+msgstr ""
+"Вход переключателя с аппаратным подавлением дребезга.\n"
+"Vcc соединяется через подтягивающий резистор 10 кΩ\n"
+"вниз к узлу. Этот узел соединяется с землёй через\n"
+"переключатель в одной ветви и через последовательный\n"
+"резистор 10 кΩ к выводу в другой ветви. Конденсатор\n"
+"100 нФ между выводом и землёй завершает фильтр нижних\n"
+"частот."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:189
+msgid ""
+"Hardware debouncing: ``R2`` and ``C`` low-pass-filter the raw switch signal "
+"before it reaches the pin."
+msgstr ""
+"Аппаратное подавление дребезга: ``R2`` и ``C`` фильтруют необработанный "
+"сигнал переключателя по нижним частотам перед тем, как он достигнет вывода."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:192
+msgid ""
+"Typical values: ``R1 = 10 kΩ`` (pull-up), ``R2 = 10 kΩ`` (series), ``C = 100"
+" nF``."
+msgstr ""
+"Типовые значения: ``R1 = 10 kΩ`` (подтягивающий), ``R2 = 10 kΩ`` "
+"(последовательный), ``C = 100 nF``."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:195
+msgid ""
+"When the switch is open, current flows Vcc → ``R1`` → ``R2`` → cap (in "
+"series), charging the cap to Vcc with ``τ_charge = (R1 + R2) × C = 2 ms``."
+msgstr ""
+"Когда переключатель разомкнут, ток течёт по пути Vcc → ``R1`` → ``R2`` → "
+"конденсатор (последовательно), заряжая конденсатор до Vcc с ``τ_charge = (R1"
+" + R2) × C = 2 ms``."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:199
+msgid ""
+"When the switch closes, the switch node clamps to ground and the cap drains "
+"through ``R2`` alone to that ground with ``τ_discharge = R2 × C = 1 ms``."
+msgstr ""
+"Когда переключатель замыкается, узел переключателя фиксируется на земле, и "
+"конденсатор разряжается через один лишь ``R2`` на эту землю с ``τ_discharge "
+"= R2 × C = 1 ms``."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:203
+msgid ""
+"Both edges are RC-filtered. Because the cap sits on its own node, downstream"
+" of ``R2`` from the switch, it swings cleanly between Vcc (open) and 0 V "
+"(closed) -- no current has to flow through ``R1`` at steady state in either "
+"case."
+msgstr ""
+"Оба фронта фильтруются RC-цепью. Поскольку конденсатор находится на "
+"собственном узле, ниже по цепи от ``R2`` относительно переключателя, он "
+"чисто переключается между Vcc (разомкнуто) и 0 В (замкнуто) -- в "
+"установившемся режиме ни в одном из случаев через ``R1`` не должен течь ток."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:209
+msgid "Choosing between them"
+msgstr "Выбор между ними"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:211
+msgid ""
+"**Software** is the default. It costs nothing in components, the threshold "
+"is easy to tune, and it works on any pin that the CPU reads."
+msgstr ""
+"**Программный** способ используется по умолчанию. Он ничего не стоит в "
+"компонентах, порог легко настраивается, и он работает на любом выводе, "
+"который считывает CPU."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:214
+msgid ""
+"**Hardware** is worth the parts when the bounce reaches something other than"
+" the CPU's polling code -- an interrupt that must not double-fire, a "
+"hardware counter, a peripheral with no filter of its own."
+msgstr ""
+"**Аппаратный** способ оправдывает затраты на детали, когда дребезг достигает"
+" чего-то иного, нежели код опроса CPU -- прерывания, которое не должно "
+"срабатывать дважды, аппаратного счётчика, периферийного устройства без "
+"собственного фильтра."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:219
+msgid ""
+"Software and hardware debouncing also coexist peacefully: a small RC filter "
+"suppresses the worst spikes, and a software debounce window covers what is "
+"left."
+msgstr ""
+"Программное и аппаратное подавление дребезга также мирно сосуществуют: "
+"небольшой RC-фильтр подавляет самые сильные всплески, а программное окно "
+"подавления дребезга охватывает то, что осталось."

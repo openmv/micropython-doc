@@ -1,0 +1,238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ru <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:2
+msgid "Uploading triggered frames to the cloud"
+msgstr "Загрузка кадров по триггеру в облако"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:4
+msgid ""
+"When motion fires the cam now lights up the dashboard. That's enough for "
+"live use, but the owner also wants a permanent archive of every triggered "
+"frame, stored somewhere outside the cam. That's an outbound HTTP call -- the"
+" cam acting as a *client*."
+msgstr ""
+"Теперь при срабатывании движения камера подсвечивает панель управления. "
+"Этого достаточно для живого использования, но владельцу также нужен "
+"постоянный архив каждого кадра, снятого по триггеру, который хранится где-то"
+" за пределами камеры. Это исходящий HTTP-вызов -- камера выступает в роли "
+"*клиента*."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:10
+msgid "The cam as a client"
+msgstr "Камера как клиент"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:12
+msgid ""
+"The :mod:`requests` module is the cam's outbound HTTP client. Its surface is"
+" a deliberate copy of CPython's ``requests`` -- the same verb-named module "
+"functions, the same ``files=``, ``json=``, ``headers=``, ``auth=`` keyword "
+"arguments. If you've made HTTP calls from CPython you already know the API:"
+msgstr ""
+"Модуль :mod:`requests` -- это исходящий HTTP-клиент камеры. Его интерфейс "
+"намеренно повторяет ``requests`` из CPython -- те же функции модуля, "
+"названные по HTTP-глаголам, те же именованные аргументы ``files=``, "
+"``json=``, ``headers=``, ``auth=``. Если вы уже делали HTTP-вызовы из "
+"CPython, этот API вам знаком:"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:44
+msgid ""
+":func:`requests.post` opens a TCP connection, sends the request, and returns"
+" a :class:`~requests.Response` with ``status_code``, ``reason``, "
+"``headers``, ``content``, ``json()``, and the rest of the familiar "
+"properties."
+msgstr ""
+":func:`requests.post` открывает TCP-соединение, отправляет запрос и "
+"возвращает :class:`~requests.Response` со свойствами ``status_code``, "
+"``reason``, ``headers``, ``content``, ``json()`` и прочими привычными."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:49
+#, python-brace-format
+msgid ""
+"``files={...}`` builds a ``multipart/form-data`` body. The value is a "
+"``(filename, file-like)`` tuple; :func:`requests.post` reads the file-like "
+"in chunks so the whole JPEG doesn't have to be re-buffered into a string "
+"first. :class:`io.BytesIO` wraps the already-in-memory JPEG bytes so they "
+"expose a read-as-file interface."
+msgstr ""
+"``files={...}`` формирует тело ``multipart/form-data``. Значение -- это "
+"кортеж ``(filename, file-like)``; :func:`requests.post` читает файлоподобный"
+" объект порциями, так что весь JPEG не приходится заранее перезагружать в "
+"строку. :class:`io.BytesIO` оборачивает уже находящиеся в памяти байты JPEG,"
+" чтобы они предоставляли интерфейс чтения как у файла."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:55
+#, python-brace-format
+msgid ""
+"``headers={...}`` is a straight dict that gets sent as request headers -- "
+"here, a bearer token in the standard ``Authorization`` position. The archive"
+" provider documents what token format they want; the example is the most "
+"common form."
+msgstr ""
+"``headers={...}`` -- это обычный словарь, который отправляется как заголовки"
+" запроса; здесь это bearer-токен в стандартной позиции ``Authorization``. "
+"Поставщик архива документирует, какой формат токена ему нужен; в примере "
+"приведена самая распространённая форма."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:61
+msgid "Wiring it into the motion detector"
+msgstr "Подключение к детектору движения"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:63
+msgid ""
+"The motion-detector coroutine introduced earlier already runs on every new "
+"frame and fires when ``change > state['threshold']``. Add the upload there, "
+"but fire it as a *background* task so the detector doesn't stop watching "
+"while the upload is in flight:"
+msgstr ""
+"Корутина детектора движения, представленная ранее, уже выполняется на каждом"
+" новом кадре и срабатывает, когда ``change > state['threshold']``. Добавьте "
+"сюда загрузку, но запускайте её как *фоновую* задачу, чтобы детектор не "
+"прекращал наблюдение, пока загрузка в процессе:"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:87
+msgid ""
+":func:`asyncio.create_task` schedules the upload coroutine and returns "
+"immediately. The detector keeps grabbing frames; the upload runs alongside "
+"it; the cam never stalls."
+msgstr ""
+":func:`asyncio.create_task` планирует корутину загрузки и сразу же "
+"возвращает управление. Детектор продолжает захватывать кадры; загрузка "
+"выполняется параллельно с ним; камера никогда не останавливается."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:92
+msgid "Failure modes"
+msgstr "Режимы отказа"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:94
+msgid ""
+"Network code fails. The cam might be offline, the archive might be down, the"
+" bearer token might have expired. The categories worth catching:"
+msgstr ""
+"Сетевой код даёт сбои. Камера может быть офлайн, архив может быть "
+"недоступен, bearer-токен может истечь. Категории, которые стоит "
+"перехватывать:"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:98
+msgid ""
+":exc:`OSError` -- the TCP connection couldn't be opened or was closed mid-"
+"transfer. DNS failure, no route, connection reset. ``requests`` raises this "
+"exact exception."
+msgstr ""
+":exc:`OSError` -- TCP-соединение не удалось открыть или оно закрылось в "
+"середине передачи. Сбой DNS, нет маршрута, сброс соединения. ``requests`` "
+"возбуждает именно это исключение."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:101
+msgid ""
+"``status_code >= 400`` -- the server received the request and rejected it. "
+"401 for an expired token, 403 for a revoked one, 413 for a too-large body, "
+"5xx for the archive being unhealthy."
+msgstr ""
+"``status_code >= 400`` -- сервер получил запрос и отклонил его. 401 для "
+"истёкшего токена, 403 для отозванного, 413 для слишком большого тела, 5xx "
+"если архив нездоров."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:104
+msgid ""
+"Silent timeout -- ``requests`` uses a default socket timeout (a few "
+"seconds); past that it raises :exc:`OSError` with :data:`errno.ETIMEDOUT`."
+msgstr ""
+"Тихий тайм-аут -- ``requests`` использует тайм-аут сокета по умолчанию "
+"(несколько секунд); по его истечении возбуждается :exc:`OSError` с "
+":data:`errno.ETIMEDOUT`."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:108
+msgid ""
+"For an archive that genuinely matters, you'd queue rejected frames to "
+"``/sdcard/pending/`` and retry on a slower loop -- that's a few more lines "
+"per case, on top of what's shown."
+msgstr ""
+"Для архива, который действительно важен, вы поставили бы отклонённые кадры в"
+" очередь в ``/sdcard/pending/`` и повторяли бы попытки в более медленном "
+"цикле -- это ещё несколько строк на каждый случай, помимо показанного."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:113
+msgid "What :mod:`requests` doesn't do"
+msgstr "Чего :mod:`requests` не делает"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:115
+msgid ""
+"The MicroPython port is deliberately small. A few things the CPython "
+"``requests`` does that this one doesn't:"
+msgstr ""
+"Порт для MicroPython намеренно сделан небольшим. Несколько вещей, которые "
+"CPython-овский ``requests`` делает, а этот -- нет:"
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:118
+msgid "Connection pooling. Every call opens a new TCP connection."
+msgstr "Пул соединений. Каждый вызов открывает новое TCP-соединение."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:119
+msgid "Automatic retries on transient errors. Wrap the call yourself."
+msgstr ""
+"Автоматические повторы при временных ошибках. Оберните вызов самостоятельно."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:120
+msgid ""
+"Streaming responses. ``r.content`` is read into RAM in full; there's no "
+"``stream=True`` equivalent."
+msgstr ""
+"Потоковые ответы. ``r.content`` целиком читается в ОЗУ; эквивалента "
+"``stream=True`` нет."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:122
+msgid ""
+"Automatic decompression of gzipped responses. Set the ``Accept-Encoding`` "
+"header explicitly only if the server is configured for it."
+msgstr ""
+"Автоматическая распаковка ответов, сжатых gzip. Устанавливайте заголовок "
+"``Accept-Encoding`` явно только если сервер настроен на это."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:126
+msgid ""
+"See :doc:`/library/omv.requests` for the full method list and what's in / "
+"out of scope."
+msgstr ""
+"Полный список методов и того, что входит и не входит в область применения, "
+"см. в :doc:`/library/omv.requests`."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:129
+msgid ""
+"HTTPS works out of the box -- the URL scheme drives it, and the default SSL "
+"context is created on the fly. For verifying the archive's cert against a CA"
+" bundle you've loaded onto the cam, see the *as a client* section of "
+":doc:`/openmvcam/tutorial/production/tls/as-client`."
+msgstr ""
+"HTTPS работает из коробки -- его задаёт схема URL, а SSL-контекст по "
+"умолчанию создаётся на лету. О проверке сертификата архива по набору CA, "
+"загруженному на камеру, см. раздел *как клиент* в "
+":doc:`/openmvcam/tutorial/production/tls/as-client`."
+
+#: ../../openmvcam/tutorial/webservers/cloud-uploads.rst:134
+msgid ""
+"The app is fully shipped: live preview, motion detection, dashboard with "
+"login, HTTPS, CORS/CSRF, cloud archive."
+msgstr ""
+"Приложение полностью готово: живой предпросмотр, обнаружение движения, "
+"панель управления с авторизацией, HTTPS, CORS/CSRF, облачный архив."
