@@ -1,0 +1,618 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ar <LL@li.org>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "التسجيل (Logging)"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"لا يمكن لمنتج تم شحنه أن يتصل بالمنزل عبر :func:`print`\\ . تكتب ``print()``"
+" إلى مخرج USB القياسي (stdout)، وهو موجود فقط عندما تكون الكاميرا على طاولة "
+"المطور مع فتح طرفية. أما في الميدان فلا شيء يقرأه؛ فكل سطر يُلقى ويُهدر. "
+"مكتبة :mod:`logging` هي البديل -- مرشّح مستوى، ووجهة من اختيار التطبيق، "
+"وتنسيق يوضّح ما حدث ومتى."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"وحدة :mod:`logging` على الكاميرا هي نسخة مبسّطة من نسخة CPython -- النموذج "
+"الذهني نفسه، بسطح أصغر، مع بعض الاختلافات التي لها أهميتها عند إعداد بيئة "
+"الإنتاج."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "النموذج الذهني"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr ""
+"يُبنى التسجيل من أربعة أجزاء. لكل جزء مهمة واحدة؛ وهذا الفصل هو ما يتيح "
+"لمسجّل واحد أن يتفرّع إلى وجهات متعددة، لكلٍّ منها تنسيقه ومستواه الخاص:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+"**المسجّل (Logger)** هو ما يستدعيه التطبيق. تقول الشيفرة ``log.info(\"frame "
+"%d\", n)``\\ ؛ والمسجّل هو الكائن الذي يصل إليه ذلك الاستدعاء. تُسترجع "
+"المسجّلات بالاسم عبر :func:`logging.getLogger`\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+"**المعالِج (Handler)** يقرّر *أين* يذهب السجل. يكتب "
+":class:`~logging.StreamHandler` إلى تدفّق (\\ :data:`sys.stderr` افتراضيًا)؛"
+" ويُلحق :class:`~logging.FileHandler` بملف على القرص. ويمكن للمسجّل أن يملك "
+"أي عدد من المعالِجات."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"على الكاميرا، يكون ``sys.stdout`` و ``sys.stderr`` موصولين بأنبوب USB CDC "
+"نفسه -- فالكتابة إلى أيٍّ منهما تظهر على الطرفية نفسها التي فتحها المطور عبر"
+" USB. والمعالِج الذي يكتب إلى ``sys.stderr`` هو عمليًا معالِج يكتب إلى "
+"المكان نفسه الذي تكتب إليه ``print()``\\ . لا يزال تجريد المعالِج يوفّر لك "
+"ترشيحًا وتنسيقًا لكل وجهة؛ لكنه لا يمنحك قناة منفصلة فيزيائيًا."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+"**المنسّق (Formatter)** يقرّر *كيف* يُعرض السجل كنص. يأخذ سجلًا ويعيد السطر "
+"الذي يُكتب. سلسلة تنسيق واحدة لكل منسّق؛ ومنسّق واحد لكل معالِج."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"**مرشّح المستوى** يجلس على كل مسجّل وكل معالِج. تحمل السجلات مستوى (\\ "
+"``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``\\ ). ولا يمر "
+"سوى السجلات التي تكون عند مستوى المرشّح أو أعلى منه."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"هذا الفصل مهم لأن إعداد الإنتاج النموذجي يملك أكثر من وجهة واحدة: ملف على "
+"بطاقة SD يحتفظ بكل شيء حتى مستوى ``DEBUG`` لتحليل ما بعد الفشل، وتدفّق إلى "
+"USB يُظهر فقط مستوى ``WARNING`` وما هو أسوأ منه كي يرى المطور الموصول "
+"بالكاميرا أهم النقاط دون أن يغرق في التفاصيل. الشيفرة نفسها، ووجهتان، "
+"ومرشّحان."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "المستويات ومعنى كلٍّ منها"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr ""
+"المستويات الخمسة هي مقياس مرتّب. تحمل السجلات مستوى كي يتمكّن المرشّح على كل"
+" معالِج من إسقاط تلك التي لا يكترث لها."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr ""
+"``DEBUG`` -- التتبّع، والعدّادات لكل إطار، وتفريغ الحالة الداخلية. هو "
+"المستوى الأدنى؛ وحجمه مرتفع."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr ""
+"``INFO`` -- الأحداث التشغيلية الطبيعية. اتصال Wi-Fi، وتحميل نموذج، وبدء "
+"مراقب التشغيل، ودوران ملف سجل جديد."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr ""
+"``WARNING`` -- شيء غير متوقع لكن التطبيق تعامل معه. إطار مُسقَط، أو طلب شبكة"
+" أُعيدت محاولته."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr ""
+"``ERROR`` -- فشلت عملية ولم يتمكّن التطبيق من إتمامها. ملف نموذج مفقود، أو "
+"رفض كتابة على بطاقة SD."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr ""
+"``CRITICAL`` -- لا يمكن للتطبيق المتابعة على الإطلاق. نفاد الذاكرة، أو نقطة "
+"وصل إلزامية مفقودة."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"إعداد افتراضي مهم يجب تذكّره: تبدأ وحدة :mod:`logging` في الكاميرا كل مسجّل "
+"عند مستوى ``WARNING``\\ . وتُسقَط السجلات عند مستويي ``DEBUG`` و ``INFO`` "
+"بصمت ما لم تُستدعَ :meth:`Logger.setLevel` -- عادةً كجزء من استدعاء "
+":func:`basicConfig` أدناه. ومن أوّل الأعراض الشائعة لإعداد تسجيل \"لا يعمل\""
+" أن التطبيق أصدر عند مستوى ``INFO`` فابتلع المرشّح الافتراضي السجل."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"المستوى هو المرشّح الوحيد الذي تقدّمه :mod:`logging` في الكاميرا. ولا توجد "
+"كائنات :class:`Filter` لقواعد أغنى لكل سجل؛ فإن اجتاز مستوى السجل، صدر."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig: البدء السريع"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ""
+"تُهيّئ :func:`logging.basicConfig` المسجّل الجذري في استدعاء واحد. وتظهر "
+"صيغتان أكثر من غيرهما:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr ""
+"إعداد للتطوير، كل شيء إلى مخرج USB القياسي للأخطاء (stderr) عند مستوى "
+"``INFO``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr ""
+"إعداد للإنتاج، كل شيء إلى ملف على بطاقة SD بتنسيق يحمل طابعًا زمنيًا::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+"مرّر إما ``filename=`` لـ :class:`FileHandler` أو ``stream=`` لـ "
+":class:`StreamHandler`\\ ؛ والاثنان متنافيان في :func:`basicConfig`\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr ""
+"سلسلة التنسيق هي قالب على نمط ``%(field)s``\\ . الحقول التي يدعمها منسّق "
+"الكاميرا:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s`` -- طابع زمني منسّق من :func:`time.localtime`\\ . التنسيق "
+"الافتراضي هو ``%Y-%m-%d %H:%M:%S``\\ ؛ مرّر ``datefmt=`` لتجاوزه."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s`` -- اسم المسجّل (انظر القسم التالي)."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s`` -- رسالة السجل المنسّقة."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d`` -- الجزء بالميلي ثانية من الطابع الزمني للسجل."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"التنسيق الافتراضي إن لم يُعطَ أي تنسيق هو "
+"``%(levelname)s:%(name)s:%(message)s`` -- وهو ملائم لإعداد التطوير وغير كافٍ"
+" لسجل ميداني، حيث يكون الطابع الزمني هو ما يجعل الملف مفيدًا بعد أسابيع."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+":func:`basicConfig` لا تفعل شيئًا عند الاستدعاءات اللاحقة ما لم يُمرَّر "
+"``force=True``\\ . هيّئ مرة واحدة عند بدء التشغيل؛ ولا تستدعِها مجددًا "
+"\"لتبديل الوجهات\" في منتصف التشغيل."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"لا تملك :mod:`logging` في الكاميرا :func:`dictConfig` ولا "
+":func:`fileConfig`\\ . التهيئة برمجية دائمًا -- والعُرف هو دالة مساعِدة "
+"``setup_logging()`` واحدة تُستدعى مرة واحدة من ``main.py``\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "مسجّلات مسمّاة لكل وحدة"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"لا ينبغي لشيفرة التطبيق أن تستدعي الاختصارات على مستوى الوحدة (\\ "
+":func:`logging.info` و :func:`logging.warning` وهكذا). فكلها تمر عبر المسجّل"
+" الجذري، وتحمل سجلات النتيجة الاسم ``root`` -- وهو عديم الفائدة في معرفة "
+"*مصدر* السجل."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "العُرف هو مسجّل واحد لكل وحدة، مسمّى باسم الوحدة::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr ""
+"عندئذٍ يحمل كل سجل ``app.detector`` في ``%(name)s`` ويقول سطر السجل من الذي "
+"أصدره."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"تختلف :mod:`logging` في الكاميرا عن CPython باختلاف مهم واحد: فضاء أسماء "
+"المسجّلات **مسطّح**\\ . فـ ``getLogger('app')`` و "
+"``getLogger('app.detector')`` مسجّلان مستقلان دون علاقة أب/ابن بينهما -- "
+"وضبط مستوى على ``app`` *لا* ينتشر إلى ``app.detector``\\ . الآلية التي تعمل "
+"فعلًا: مسجّل مسمّى لا يملك معالِجات خاصة به يستعير معالِجات المسجّل الجذري "
+"ومستواه. وهكذا يُهيّئ استدعاء :func:`basicConfig` واحد على الجذر كل استدعاء "
+":func:`getLogger` في أي مكان آخر من التطبيق."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "تنسيق وسائط %- الكسول"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "اكتب::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "وليس::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"تتيح صيغة وسيط ``%`` للمسجّل أن يُدرج الوسائط *بعد* أن يقرّر مرشّح المستوى "
+"ما إذا كان سيصدر السجل. فاستدعاء ``DEBUG`` مُرشَّح خارجًا في حلقة ساخنة لا "
+"يدفع شيئًا مقابل سلسلة تنسيقه. أما سلسلة f-string فتُقيَّم أولًا، في كل مرة،"
+" قبل أن يصل الاستدعاء حتى إلى المسجّل."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr ""
+"الكلمة المفتاحية ``extra=`` في CPython للحقول المهيكلة غير مدعومة على "
+"الكاميرا؛ مرّر القيم كوسائط للرسالة بدلًا من ذلك."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "تسجيل الاستثناءات"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+"داخل كتلة :keyword:`except`\\ ، تسجّل :meth:`Logger.exception` الرسالة عند "
+"مستوى ``ERROR`` *و* تُلحق تتبّع المكدّس للاستثناء الحالي بالسجل::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"يُلتقط تتبّع المكدّس عبر :func:`sys.print_exception`\\ ، وهي ما يمنح سجل "
+"الاستثناء كتلة ``Traceback (most recent call last):`` متعددة الأسطر. وهذه هي"
+" الأداة الصحيحة لمعالجة الاستثناءات على المستوى الأعلى -- التقاط، وتسجيل، "
+"ومتابعة."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "معالِجات متعددة"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"التقسيم الإنتاجي المذكور في الأعلى -- كل شيء إلى ملف عند ``DEBUG``\\ ، وأهم "
+"النقاط إلى stderr عند ``WARNING`` -- هو معالِجان مرفقان بالمسجّل نفسه، لكلٍّ"
+" منهما مستواه ومنسّقه الخاص::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"مستوى المسجّل الجذري هو *أول* مرشّح يصطدم به كل سجل. اضبطه على أدنى مستوى "
+"يريد أي معالِج رؤيته -- ``DEBUG`` هنا -- كي لا يُحرَم أيٌّ من المعالِجَين من"
+" قِبَل المسجّل نفسه. ثم تقرّر مستويات كل معالِج أي السجلات تصدر فعلًا إلى أي"
+" وجهة."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "تدوير ملفات السجل"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"لا تملك :mod:`logging` في الكاميرا :class:`RotatingFileHandler` ولا "
+":class:`TimedRotatingFileHandler`\\ . فالتدوير مهمة التطبيق."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"النمط هو الاحتفاظ بـ :class:`FileHandler` الحالي في مكان معروف، وتبديله بآخر"
+" جديد عند تحقّق معيار الدوران، والسماح لمسار مؤرّخ بتوفير حدود الملف "
+"الطبيعية. لدوران كل ساعة إلى "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"استدعِ ``rotate_if_needed()`` مرة واحدة لكل تكرار للحلقة الرئيسية؛ فحص "
+"المسار رخيص ولا يحدث التبديل إلا عند حدود الساعة. يجب أن تكون شجرة الأدلة "
+"موجودة قبل أن يتمكّن :class:`FileHandler` من فتح الملف."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "الإفراغ في عمليات النشر الحسّاسة للطاقة"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+"تمر كتابات :class:`FileHandler` عبر التخزين المؤقت في بايثون لكائن الملف "
+"الأساسي. وفقدان الطاقة بين كتابة وإفراغ يفقد السجلات الأخيرة. وفي عمليات "
+"النشر التي تعمل بالبطارية أو التي يُنزع فيها القابس، استدعِ ``flush()`` على "
+"تدفّق المعالِج بعد السجلات الحرجة، أو بمؤقّت."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr "دالة مساعِدة صغيرة تُفرغ كل معالِج مرفق بالمسجّل الجذري::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr ""
+"استدعِ ``flush_handlers()`` مباشرةً بعد سجل لا يمكن للتطبيق تحمّل فقدانه::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"للأمان في الخلفية، استدعِها من الحلقة الرئيسية بأي وتيرة توازن بين حداثة "
+"السجل وتآكل ذاكرة الفلاش -- مرة في الثانية عادةً ما تكون كافية تمامًا. لا "
+"تُطلق :meth:`Logger.critical` إفراغًا بمفردها."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "تشخيصات وقت الإقلاع"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"سجل ميداني بلا سياق عديم الفائدة تقريبًا. فالسجلات الأولى عند كل إقلاع بارد "
+"ينبغي أن تحدّد *أيّ* كاميرا، و\\ *أيّ* إصدار يعمل، و\\ *كيف* وصلت الكاميرا "
+"إلى هذا الإقلاع. وثلاثة مصادر على الجهاز تغطّي كل ذلك فيما بينها:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv` -- إصدار البرنامج الثابت لـ OpenMV."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ""
+":func:`os.uname` -- إصدار MicroPython، واسم اللوحة + وحدة المعالجة الدقيقة "
+"(MCU)، ووسم git وتاريخ بناء المصدر الذي بُني منه البرنامج الثابت."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ""
+":mod:`machine` -- معرّف السيليكون الفريد للـ MCU وسبب إعادة الضبط الذي أطلق "
+"هذا الإقلاع."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr ":func:`os.listdir` على كل نقطة وصل -- أنظمة الملفات التي ظهرت فعلًا."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr "دالة مساعِدة تسحب كل واحد من هذه إلى السجلات الأولى من السجل::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "يبدأ السجل النموذجي بشيء مثل::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"بعد ثمانية أسطر في كل ملف سجل، يعرف المشغّل الوحدة الفيزيائية، وسلالة "
+"البرنامج الثابت، وسبب إقلاع الكاميرا، وأي وحدة تخزين ظهرت. ``unique id`` هو "
+"الرقم التسلسلي السيليكوني المبرمج في المصنع للـ MCU؛ وهو نفسه عبر عمليات "
+"إعادة الفلاش وعبر عمليات تبديل بطاقة SD. ``build`` هو وسم git وتاريخ شجرة "
+"البرنامج الثابت التي بُنيت منها الصورة -- الحقل الوحيد الذي يقول \"هذه "
+"بالضبط الثنائية التي شُحنت إلى هذه الوحدة في هذه اللحظة الزمنية.\""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "تجميع كل ذلك معًا"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr ""
+"إعداد تسجيل إنتاجي كامل، مُجمّع في دالة مساعِدة يستدعيها ``main.py`` مرة "
+"واحدة عند بدء التشغيل::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "ثم في أعلى ``main.py``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "وكل وحدة في أي مكان آخر من التطبيق تفعل ببساطة::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr ""
+"وتحصل على المخرج المهيّأ مجانًا -- ملف بتفاصيل كاملة، وتدفّق بالتحذيرات، "
+"وسجلات مسمّاة، ومنسّق يحمل طابعًا زمنيًا، وإقلاع موثّق في كل بدء تشغيل بارد."
