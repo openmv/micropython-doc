@@ -1,0 +1,258 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: he <LL@li.org>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:2
+msgid "Frame differencing"
+msgstr "השוואת פריימים"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:4
+msgid ""
+"Frame differencing compares each new frame against a stored reference frame "
+"to find the parts of the scene that have changed. It is the workhorse of "
+"camera applications that watch for something happening -- motion-triggered "
+"capture, intrusion alerts, \"save a video when something moves\" -- and it "
+"is built entirely from the pixel-wise operations covered earlier: an "
+"absolute difference, a threshold, and a region search, run on every frame."
+msgstr ""
+"השוואת פריימים משווה כל פריים חדש מול פריים ייחוס שמור כדי לאתר את החלקים "
+"בסצנה שהשתנו. זהו סוס העבודה של יישומי מצלמה שמשגיחים שמשהו קורה -- צילום "
+"מופעל-תנועה, התרעות פריצה, \"שמור וידאו כשמשהו זז\" -- והוא בנוי כולו "
+"מהפעולות ברמת הפיקסל שכוסו קודם לכן: הפרש מוחלט, סף, וחיפוש אזורים, שרצים על"
+" כל פריים."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:16
+msgid "The basic pipeline"
+msgstr "צינור העיבוד הבסיסי"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:18
+msgid ""
+"The first stage is to *acquire a reference*. At some point near startup -- "
+"ideally when the scene is in the state that \"no change\" means -- the "
+"application captures a frame and keeps it. The frame becomes the baseline "
+"that every subsequent capture will be compared against."
+msgstr ""
+"השלב הראשון הוא *לרכוש פריים ייחוס*\\ . בנקודה כלשהי סמוך להפעלה -- באופן "
+"אידיאלי כשהסצנה נמצאת במצב ש\"אין שינוי\" משמעו -- היישום לוכד פריים ושומר "
+"אותו. הפריים הופך לקו הבסיס שכל לכידה עוקבת תושווה אליו."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:29
+msgid ""
+"The ``.copy()`` matters. ``csi0.snapshot()`` by itself returns an "
+":class:`Image` whose buffer lives in the frame buffer, where the *next* call"
+" to ``snapshot`` will overwrite it. ``.copy()`` allocates a separate buffer "
+"for the reference and lets the pixels of *this* frame survive past the next "
+"capture."
+msgstr ""
+"ה-\\ ``.copy()`` חשובה. ``csi0.snapshot()`` כשלעצמה מחזירה :class:`Image` "
+"שהחוצץ שלה חי בחוצץ הפריימים (frame buffer), שם הקריאה *הבאה* ל-\\ "
+"``snapshot`` תדרוס אותה. ``.copy()`` מקצה חוצץ נפרד עבור הייחוס ומאפשרת "
+"לפיקסלים של פריים *זה* לשרוד מעבר ללכידה הבאה."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:37
+msgid ""
+"The second stage runs on every frame: capture a fresh image, then compute "
+"the absolute difference between it and the reference. That is exactly what "
+":meth:`~image.Image.difference` does:"
+msgstr ""
+"השלב השני רץ על כל פריים: לכוד תמונה חדשה, ואז חשב את ההפרש המוחלט בינה לבין"
+" הייחוס. זה בדיוק מה ש\\ :meth:`~image.Image.difference` עושה:"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:48
+msgid ""
+"After this call, ``current`` holds an image whose non-zero pixels mark every"
+" position where the scene changed since the reference was taken, with the "
+"magnitude of each pixel proportional to how much it changed at that "
+"position."
+msgstr ""
+"לאחר קריאה זו, ``current`` מכיל תמונה שהפיקסלים השונים מאפס שלה מסמנים כל "
+"מיקום שבו הסצנה השתנתה מאז שנלקח הייחוס, כשעוצמת כל פיקסל פרופורציונלית "
+"למידת השינוי באותו מיקום."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:55
+msgid ""
+"The third stage *thresholds* the difference image. The raw difference always"
+" contains some noise: small brightness variations from sensor shot noise, "
+"gradient changes from lighting drift, sub-pixel jitter from slight camera "
+"motion. A threshold pass -- :meth:`~image.Image.binary` with a threshold set"
+" above that noise floor -- keeps only the changes large enough to count as "
+"real motion and discards the rest, producing a binary image whose non-zero "
+"pixels are the actually-changed positions."
+msgstr ""
+"השלב השלישי *מסניף* את תמונת ההפרש. ההפרש הגולמי תמיד מכיל רעש מסוים: שינויי"
+" בהירות קטנים מרעש ירייה של החיישן, שינויי מדרון מסחיפת תאורה, רעידות תת-"
+"פיקסליות מתנועת מצלמה קלה. מעבר סף -- :meth:`~image.Image.binary` עם סף "
+"שנקבע מעל רצפת הרעש הזו -- שומר רק את השינויים הגדולים מספיק כדי להיחשב "
+"כתנועה אמיתית ומשליך את השאר, ומפיק תמונה בינארית שהפיקסלים השונים מאפס שלה "
+"הם המיקומים שהשתנו בפועל."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:68
+msgid ""
+"The fourth stage extracts *connected regions* of that binary mask -- groups "
+"of adjacent non-zero pixels that form contiguous patches. "
+":meth:`~image.Image.find_blobs` does that in one call, returning a list of "
+"motion regions, each with a bounding box and a pixel count, that the rest of"
+" the application can act on."
+msgstr ""
+"השלב הרביעי מחלץ *אזורים מחוברים* של אותה מסכה בינארית -- קבוצות של פיקסלים "
+"סמוכים שונים מאפס שיוצרים מקטעים רציפים. :meth:`~image.Image.find_blobs` "
+"עושה זאת בקריאה אחת, ומחזיר רשימה של אזורי תנועה, שלכל אחד תיבה תוחמת וספירת"
+" פיקסלים, שעליהם שאר היישום יכול לפעול."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:76
+msgid ""
+"A horizontal pipeline diagram. The\n"
+"leftmost two panels are a reference\n"
+"frame and a current frame side by\n"
+"side, with a plus mark between them.\n"
+"An arrow leads from the pair to a\n"
+"third panel labelled difference, in\n"
+"which a few patches are bright against\n"
+"a dark background. An arrow leads from\n"
+"there to a fourth panel showing a\n"
+"binary thresholded version of the\n"
+"difference, with the same patches now\n"
+"solid white. A final arrow leads to a\n"
+"fifth panel showing the binary mask\n"
+"annotated with rectangular bounding\n"
+"boxes drawn around each patch."
+msgstr ""
+"תרשים צינור עיבוד אופקי. שני הפאנלים\n"
+"השמאליים ביותר הם פריים ייחוס\n"
+"ופריים נוכחי זה לצד זה, עם סימן\n"
+"חיבור ביניהם. חץ מוביל מהזוג\n"
+"לפאנל שלישי המסומן הפרש, שבו\n"
+"כמה מקטעים בהירים על רקע\n"
+"כהה. חץ מוביל משם\n"
+"לפאנל רביעי המציג גרסה\n"
+"בינארית מסוננת-סף של ההפרש,\n"
+"כשאותם מקטעים כעת\n"
+"לבנים מלאים. חץ אחרון מוביל\n"
+"לפאנל חמישי המציג את המסכה הבינארית\n"
+"מסומנת בתיבות תוחמות\n"
+"מלבניות המצוירות סביב כל מקטע."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:93
+msgid ""
+"The *frame-differencing* pipeline: a reference frame plus a current frame "
+"become a difference image; thresholding turns the difference into a binary "
+"mask of changed positions; a connected-region step turns the mask into a "
+"list of motion regions."
+msgstr ""
+"צינור *השוואת הפריימים*\\ : פריים ייחוס בתוספת פריים נוכחי הופכים לתמונת "
+"הפרש; מעבר סף הופך את ההפרש למסכה בינארית של מיקומים שהשתנו; שלב אזור-מחובר "
+"הופך את המסכה לרשימה של אזורי תנועה."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:101
+msgid "In-memory and on-disk references"
+msgstr "ייחוסים בזיכרון ועל הדיסק"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:103
+msgid ""
+"The basic pipeline keeps the reference frame in RAM. That is the right "
+"answer when the reference is captured *this* run of the script and only has "
+"to survive for as long as the script keeps running."
+msgstr ""
+"צינור העיבוד הבסיסי שומר את פריים הייחוס ב-RAM. זו התשובה הנכונה כאשר הייחוס"
+" נלכד בהרצה *הנוכחית* של הסקריפט ועליו לשרוד רק כל עוד הסקריפט ממשיך לרוץ."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:109
+msgid ""
+"For a long-running application -- a cam that should resume change detection "
+"after a power cycle, an intermittent script that needs to detect *any* "
+"change since some earlier moment -- the reference frame has to outlive the "
+"running script. The pattern is to *save* the reference to disk:"
+msgstr ""
+"עבור יישום רץ-לאורך-זמן -- מצלמה שאמורה לחדש זיהוי שינויים לאחר מחזור הפעלה,"
+" סקריפט לסירוגין שצריך לזהות *כל* שינוי מאז רגע מוקדם יותר -- פריים הייחוס "
+"חייב לשרוד את הסקריפט הרץ. הדפוס הוא *לשמור* את הייחוס לדיסק:"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:121
+msgid "and to load it back at the start of each run:"
+msgstr "ולטעון אותו בחזרה בתחילת כל הרצה:"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:127
+msgid ""
+"The differencing logic does not change; only where the reference lives "
+"between captures does. A few refinements naturally extend this on-disk "
+"variant -- automatic re-capture of the reference on a timer, optional "
+"rolling averages to track slow lighting drift -- but the substitution at the"
+" centre is the same."
+msgstr ""
+"לוגיקת ההשוואה אינה משתנה; רק היכן שהייחוס חי בין לכידות. כמה שיפורים "
+"מרחיבים באופן טבעי את הווריאנט הזה שעל-הדיסק -- לכידה-מחדש אוטומטית של "
+"הייחוס בטיימר, ממוצעים מתגלגלים אופציונליים למעקב אחר סחיפת תאורה איטית -- "
+"אך ההחלפה במרכז זהה."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:136
+msgid "Light-source isolation"
+msgstr "בידוד מקור אור"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:138
+msgid ""
+"The same subtraction pattern shows up in a slightly different setting: "
+"isolating a *light source* against the rest of the scene. The trick is to "
+"capture a \"lights-off\" reference -- a frame taken when whatever is being "
+"detected (an IR beacon, a screen pixel, a status indicator) is *not* "
+"illuminated -- and to subtract that reference from each subsequent frame. "
+"The result has zero brightness everywhere the scene was the same in both "
+"captures, and non-zero brightness only where the light source actually lit "
+"up."
+msgstr ""
+"אותו דפוס חיסור מופיע במסגרת מעט שונה: בידוד *מקור אור* מול שאר הסצנה. הטריק"
+" הוא ללכוד ייחוס \"כבוי-אורות\" -- פריים שנלקח כאשר מה שמזוהה (משואת IR, "
+"פיקסל מסך, מחוון מצב) *אינו* מואר -- ולחסר ייחוס זה מכל פריים עוקב. לתוצאה "
+"יש בהירות אפס בכל מקום שבו הסצנה הייתה זהה בשתי הלכידות, ובהירות שונה מאפס "
+"רק היכן שמקור האור הואר בפועל."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:152
+msgid "Choosing difference or sub"
+msgstr "בחירה בין difference ל-sub"
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:154
+msgid ""
+"A practical note about which arithmetic operation to pick. "
+":meth:`~image.Image.difference` returns the absolute value of the change -- "
+"sign-free -- which makes it sensitive to change in either direction "
+"(brightening or darkening) at the cost of not telling the application "
+"*which* direction the change went. For pure motion detection that is the "
+"right answer: anything that moved is interesting, regardless of which way "
+"the brightness shifted."
+msgstr ""
+"הערה מעשית לגבי איזו פעולה אריתמטית לבחור. :meth:`~image.Image.difference` "
+"מחזירה את הערך המוחלט של השינוי -- חסר-סימן -- מה שהופך אותה לרגישה לשינוי "
+"בכל כיוון (התבהרות או התכהות) במחיר של אי-יידוע היישום *באיזה* כיוון הלך "
+"השינוי. עבור זיהוי תנועה טהור זו התשובה הנכונה: כל דבר שזז מעניין, ללא קשר "
+"לכיוון שבו השתנתה הבהירות."
+
+#: ../../openmvcam/tutorial/image/pixel-math/frame-differencing.rst:166
+msgid ""
+"For light-source detection, the lit pixel is always *brighter* than the "
+"lights-off reference, so :meth:`~image.Image.sub` (with its clipping at "
+"zero) is the more honest choice. Anywhere the current frame is darker than "
+"the reference (which would be sensor noise around the unlit value) clips to "
+"zero rather than reporting a spurious \"the light was on\" signal."
+msgstr ""
+"עבור זיהוי מקור אור, הפיקסל המואר תמיד *בהיר יותר* מהייחוס כבוי-האורות, ולכן"
+" :meth:`~image.Image.sub` (עם הגזימה שלה לאפס) היא הבחירה ההגונה יותר. בכל "
+"מקום שבו הפריים הנוכחי כהה יותר מהייחוס (מה שיהיה רעש חיישן סביב הערך הכבוי)"
+" נגזם לאפס במקום לדווח על אות שגוי של \"האור היה דלוק\"."
