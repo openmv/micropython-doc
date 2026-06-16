@@ -1,0 +1,570 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: tr <LL@li.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Seri protokoller, çerçeveleme ve CRC'ler"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` baytları iki uç arasında taşıyordu. Tek başına bu, "
+"güvenilir bir bağlantı kurmak için yeterli değildir. Telin diğer ucunda "
+"gerçek bir cihaz olduğu anda üç sorun ortaya çıkar:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Bir mesaj nerede başlar ve nerede biter?** Baytlar, yerleşik bir ayraç "
+"olmaksızın bir akış halinde gelir. Alıcı ilk baytı kaçırırsa (göndericiden "
+"sonra açılmıştır; hatta kısa bir elektriksel arıza olmuştur), alıcı yeni bir"
+" yeniden senkronizasyon noktası bulana kadar ondan sonraki her bayt bir "
+"kayar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Her mesaj ne kadar uzun?** 32 baytlık bir sensör okuması ile 4 baytlık bir"
+" durum yanıtı bayt düzeyinde aynı görünür. Alıcının, geçerli mesaja kaç "
+"baytın ait olduğunu bilmesi için bir yola ihtiyacı vardır."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Baytlar bozulmadan geldi mi?** Gürültü tek tek bitleri ters çevirebilir. "
+"Bir kontrol olmadan, alıcı bozuk veriyi gönül rahatlığıyla işler."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Bu üçünün de standart yanıtı, veriyi bir paket çerçevesine sarmaktır: başta "
+"bilinen bir bayt dizisi, bir uzunluk alanı, yükün kendisi ve sonda bir "
+"sağlama toplamı."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Paket çerçeveleme"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Tipik bir çerçeveleme biçimi:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Sırayla çizilmiş altı alan: 0xAA 0x55 olarak\n"
+"etiketlenmiş iki baytlık bir HEADER, bu paketin hangi\n"
+"komutu taşıdığını seçen bir baytlık bir CMD alanı, yük\n"
+"boyutunu veren iki baytlık bir LEN alanı, HEADER artı\n"
+"CMD artı LEN'i kapsayan bir baytlık bir HCRC alanı,\n"
+"biçimi CMD'ye bağlı olan LEN baytlık değişken uzunlukta\n"
+"bir PAYLOAD ve yükü kapsayan dört baytlık bir DCRC alanı."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Ayrı başlık ve veri CRC'lerine sahip çerçevelenmiş bir paket: başlık "
+"(sihirli baytlar), komut, uzunluk, başlık CRC'si, yük, veri CRC'si."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Her alan tek bir iş yapar:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Başlık (sihirli baytlar).** Alıcının gelen akışta taradığı, sabit ve sıra "
+"dışı bir bayt dizisi -- çoğu zaman ``0xAA 0x55`` gibi iki bayt. Bu diziyi "
+"bulduğunda, yeni bir paketin başladığını anlar ve daha önce gelen her türlü "
+"çöpü atabilir."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Komut.** Paketin *ne* olduğunu söyleyen tek bir bayt. Farklı komut "
+"değerleri farklı yük biçimleri kullanır -- bir komut iki yük baytı ile "
+"\"servo açısını ayarla\" anlamına gelebilir, bir başkası yüksüz olarak "
+"\"sensörü oku\" anlamına gelebilir, bir başkası ise bir dize ile \"mesaj "
+"kaydet\" olabilir. Alıcı, paketin geri kalanını nasıl yorumlayacağını bilmek"
+" için komut baytına göre dağıtım yapar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Uzunluk.** Yükün boyutunu bayt cinsinden veren iki bayt (burada little-"
+"endian), yaklaşık 64 KiB'ye kadar yüklere izin verir. Başlık CRC'si "
+"doğrulandıktan sonra alıcı tam olarak bu kadar bayt okur."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**Başlık CRC'si.** HEADER, CMD ve LEN alanları üzerinde bir baytlık bir "
+"sağlama toplamı. Alıcı, herhangi bir yük okumadan önce bunu kontrol eder, "
+"böylece bozuk bir LEN yalnızca birkaç baytın ardından yakalanır (bunun neden"
+" önemli olduğu için aşağıdaki CRC bölümüne bakın)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Yük.** Komuta özgü uygulama verisi, tam olarak LEN bayt uzunluğunda. "
+"Biçim, komut baytı tarafından belirlenir: sabit genişlikli alanlardan oluşan"
+" :mod:`struct` ile paketlenmiş bir kayıt, bir dize, ham bellek -- her iki "
+"tarafın da o komut için üzerinde anlaştığı her ne ise."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**Veri CRC'si.** Yük baytları üzerinde dört baytlık bir CRC. Alıcı, az önce "
+"okuduğu baytlardan bunu yeniden hesaplar ve eşleşmezse paketi atar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC'ler"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"En basit \"sağlama toplamı\", tüm baytların 256 ya da 65536'ya göre "
+"modülünün toplamıdır. Çoğu tek bit ters dönmesini yakalar ancak birçok çok "
+"bitli hatayı kaçırır ve bayt sırasını göz ardı eder."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"Bir *döngüsel artıklık denetimi* (CRC) standart bir yükseltmedir. Girdiyi "
+"tek bir uzun ikili sayı olarak ele alır ve onu (özel bir şekilde) sabit bir "
+"*polinoma* böler; bölme işleminin kalanı CRC'dir. Farklı polinomlar farklı "
+"hata sınıflarını yakalar; yaygın 8, 16 ve 32 bitlik polinomların her biri, "
+"genişliklerinden daha kısa her hata patlamasını ve daha uzun patlamaların "
+"büyük bir bölümünü yakalar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Neden iki CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"Yukarıdaki paket diyagramı *iki* ayrı CRC taşır -- biri başlık (HEADER, CMD,"
+" LEN) üzerinde, diğeri yük üzerinde. Sağlam bir çerçevelemenin gerçekten "
+"ihtiyaç duyduğu şey budur, çünkü LEN alanının kendisi iletim sırasında "
+"bozulduğunda tek bir kuyruk CRC'si şu şekilde başarısız olur:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Alıcı bozuk LEN'e göre hareket eder ve telden o kadar bayt okur -- "
+"muhtemelen göndericinin amaçladığından çok daha fazlasını."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Sonunda alıcıya bir şeylerin yanlış gittiğini ancak kuyruk CRC'si söyler, ve"
+" yalnızca tüm o baytlar tüketildikten sonra."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Ayrıştırıcı yanlış sayıda bayt beklerken takılıp kaldığı sürece, bozuk "
+"paketin arkasından gelen gerçek paketler yük olarak yutulur ve alıcı "
+"yalnızca birini değil, birkaç paketi kaybeder."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "CRC'yi bölmek bunu düzeltir:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**Başlık CRC'si** HEADER, CMD ve LEN'i kapsar. Alıcı, herhangi bir yük "
+"okumadan önce bunu kontrol eder, böylece bozuk bir LEN birkaç baytın "
+"ardından yakalanır ve ayrıştırıcı yalnızca tek bir hatalı paketi devre dışı "
+"bırakarak hemen yeniden senkronize olur."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**Veri CRC'si** yükü kapsar. Başlık CRC'si geçtikten sonra, alıcı LEN'e "
+"güvenebileceğini bilir, tam olarak o kadar yük baytı okur ve bunları veri "
+"CRC'sine karşı doğrular."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"Yaygın bir boyutlandırma -- ve bu sayfanın kullandığı şey -- başlık CRC'si "
+"için bir bayt (beş baytlık bir başlık için bir CRC-8 fazlasıyla yeterlidir) "
+"ve veri CRC'si için dört bayttır (bir CRC-32, birçok kilobaytlık yükü "
+"neredeyse sıfır çakışma oranıyla kapsar)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Yardımcılar"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython, dört baytlık CRC için doğrudan :func:`binascii.crc32` sağlar. "
+"Bir baytlık başlık CRC'si için, Maxim'in 1-wire cihazlarının kullandığı "
+"polinomu (yansıtılmış biçimde ``0x8C``\\ ) kullanan küçük bir yardımcı, "
+"satır içinde yazılacak kadar kısadır:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "Eksiksiz bir kodlayıcı iki CRC'yi tek bir işlevde birleştirir:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Ters işlev, komut ve yükü eksiksiz bir paketten kurtarır veya CRC "
+"kontrollerinden herhangi biri başarısız olursa ``None`` döndürür:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"Pratikte alıcıya tüm bir paket teslim edilmez -- baytlar UART üzerinden "
+"birer birer gelir ve paketin ortasında duraklayan bir gönderici (ya da bir "
+"bayt kaybeden gürültülü bir hat) basitçe doğru boyutta bir arabelleğe "
+"``read()`` ile okunamaz. Bir sonraki bölüm, aynı çözme mantığını bir durum "
+"makinesi olarak bayt bayt çalıştırır."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "Durum makinesi tabanlı bir alıcı"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Alıcı, sabit bir ``N`` için yalnızca ``uart.read(N)`` çağıramaz -- bir "
+"sonraki paketin kaç bayt olacağını bilmez ve hattaki herhangi bir çöp "
+"hizalamayı bozar. Çözüm, baytları birer birer tüketen ve paketin neresinde "
+"olduğuna göre tepki veren küçük bir durum makinesidir. Ana döngü, kaç baytın"
+" arabelleğe alındığını görmek için :meth:`~machine.UART.any` ile yoklama "
+"yapar, bunları tek bir :meth:`~machine.UART.read` çağrısında boşaltır ve her"
+" baytı durum makinesinden geçirir:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Her bayt durum makinesini bir adım ilerletir ya da eksiksiz bir paketten, "
+"hatalı bir başlık CRC'sinden veya hatalı bir veri CRC'sinden sonra "
+"``HUNT_FOR_HEADER`` durumuna geri döner. Hatta başlıkla eşleşmeyen çöp "
+"sessizce atılır; bir sonraki geçerli başlık alıcıyı yeniden senkronize eder."
+" Anahtar güvenlik özelliği başlık CRC'sinden gelir: LEN alanı bozulmuşsa, "
+"ayrıştırıcı bunu çılgınca yanlış sayıda yük baytı okumaya başlamadan değil, "
+"başlık CRC kontrolünden sonra (birkaç bayt) yakalar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Temel düzeyin ötesi"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Yukarıdaki çerçeveleme, bir seri bağlantının hat gürültüsünden kurtulmak "
+"için ihtiyaç duyduğu *asgari* şeydir: başlık sihirli baytları, uzunluk, "
+"komut ve iki CRC. Bozulmayı tespit eder ve karışmış baytlardan sonra yeniden"
+" senkronize olur, ancak hasarlı paketleri geçirmek yerine onlardan vazgeçer "
+"ve göndericiyi, alıcının gerçekte ne duyduğu konusunda habersiz bırakır."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Gerçek dünyadaki seri protokoller bu temel düzeyin üzerine özellikler "
+"katmanlandırır. Her gömülü bağlantının bunların hepsine ihtiyacı yoktur -- "
+"uygulamanın gerçekte gerektirdiğini seçin:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Sıra numaraları.** Her gönderimde artan küçük bir sayaç. Alıcı boşlukları "
+"(bir paket kaybolmuştur), kopyaları (gönderici yeniden iletmiştir ancak "
+"alıcı ilk kopyayı zaten kabul etmiştir) ve -- kanalın yeniden "
+"sıralayabildiği durumlarda -- sıra dışı gelişleri tespit eder."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Onaylar.** Alıcının her paketi onaylamak için geri gönderdiği özel bir ACK"
+" paketi (ya da yanıttaki sırtlanmış bir bit). ACK'ler olmadan göndericinin, "
+"verisinin ulaştığını bilmesinin hiçbir yolu yoktur."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Olumsuz onaylar.** Alıcı bir CRC başarısızlığı ya da bir sıra boşluğu "
+"gördüğünde gönderilen bir NACK. Gönderici, bir ACK zaman aşımının dolmasını "
+"beklemek yerine hemen yeniden iletir."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Yeniden iletim.** Gönderici, onaylanmamış her paketi küçük bir kuyrukta "
+"tutar ve bir zaman aşımından sonra (veya bir NACK üzerine) yeniden gönderir."
+" Bir yeniden deneme sınırı ve denemeler arasında biraz geri çekilme, kalıcı "
+"olarak bozuk bir bağlantının sonsuza kadar döngüye girmesini durdurur."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Kayan pencereler.** Bir ACK gerektirmeden önce uçuşta birkaç pakete izin "
+"vermek, gidiş-dönüş süresinin paket başına gönderim süresine kıyasla uzun "
+"olduğu bağlantılarda iş hacmini yüksek tutar. Bunun bedeli, daha fazla "
+"gönderici tarafı durumudur -- uçuşta olan her paket için bir yuva."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Akış denetimi.** Arabelleği dolmaya başladığında göndericiye yavaşlamasını"
+" ya da durmasını söyleyen, alıcıdan gelen bir sinyal. Uygulamalar değişir --"
+" açık XON / XOFF baytları, alıcının her seferinde N paket daha lisansladığı "
+"kredi tabanlı tahsisler veya telin kendisindeki RTS / CTS donanım hatları. "
+"Akış denetimi olmadan hızlı bir gönderici eninde sonunda yavaş bir alıcıyı "
+"aşırı yükler ve paketler düşer."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Protokol sürümü.** Paketin başlarındaki bir sürüm alanı biçimin "
+"evrilmesine olanak tanır. Her taraf, başlangıçta her ikisinin de "
+"desteklediği en yüksek sürümü müzakere edebilir ya da uyumsuz eşlerden gelen"
+" paketleri reddedebilir."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Parçalama ve yeniden birleştirme.** İki baytlık bir LEN paketi 64 KiB ile "
+"sınırlar; bundan büyük mesajlar birden çok pakete bölünür ve diğer tarafta "
+"yeniden birleştirilir. Parçalama meta verisi (parça indeksi, toplam sayı ya "
+"da bir \"daha fazla parça\" bayrağı) yükün içinde yer alır."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Kalp atışları.** \"Hâlâ buradayım\" diyen küçük, periyodik bir paket. "
+"Diğer taraf, kalp atışları durduğunda sessizce askıda kalmak yerine bunu "
+"fark eder ve yeniden bağlanır (ya da sesli bir şekilde başarısız olur)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Kanallar.** Tek bir fiziksel bağlantının birkaç mantıksal akışı -- bir "
+"kontrol kanalı, bir telemetri kanalı, bir kayıt kanalı -- taşıması için "
+"başlıktaki bir kanal ya da akış kimliği, yalnızca bu alanla ayırt edilir."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Kimlik doğrulama.** Yalnızca meşru gönderici ve alıcının bildiği yük ve "
+"gizli bir değerden hesaplanan kısa bir etiket. Alıcı, etiketi aldığı "
+"baytlardan yeniden hesaplar ve ikisi eşleşmezse paketi reddeder. Bu, hem "
+"kurcalamayı (bir saldırgan baytları değiştirmiştir) hem de -- bir sıra "
+"numarası ya da zaman damgası, etiketin kapsadığı şeyin bir parçasıysa -- bir"
+" saldırganın gerçek bir paketi telden kaydedip alıcının üzerinde iki kez "
+"işlem yapması için daha sonra yeniden gönderdiği yeniden oynatmayı yakalar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Şifreleme.** Yük baytlarını paylaşılan gizli bir anahtarla karıştırarak o "
+"anahtar olmadan hattı okuyan herkesin yalnızca gürültü görmesini sağlamak. "
+"Genellikle yukarıdaki kimlik doğrulama etiketiyle birleştirilir -- onsuz, "
+"bir saldırgan CRC'yi geçen rastgele çöp besleyebilir ve alıcı saçmalığı "
+"çözmeye çalışırken döngülerini boşa harcar."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Endüstriyel ekipman için tipik bir \"iyi\" protokol; çerçeveleme, çift CRC, "
+"sıra numaraları, yeniden iletimli ACK / NACK ve kalp atışlarıyla sonuçlanır."
+" Göz atmaya değer gerçek dünya örnekleri: *MAVLink* (drone telemetrisi; sıra"
+" numaraları, sistem / bileşen kimlikleri ve isteğe bağlı paket imzalarıyla),"
+" *Modbus* (endüstriyel PLC'ler; işlev kodları ve CRC ile) ve *NMEA 0183* "
+"(her tüketici GPS alıcısının konuştuğu ASCII protokolü -- bir yıldız "
+"ayracından sonra sağlama toplamı bulunan satır tabanlı mesajlar)."

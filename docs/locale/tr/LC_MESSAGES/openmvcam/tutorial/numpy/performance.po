@@ -1,0 +1,303 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: tr <LL@li.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:2
+msgid "Performance"
+msgstr "Performans"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:4
+msgid ""
+"The same design decisions that make :mod:`numpy` fast on the camera -- "
+"whole-array library calls, packed typed buffers, views that share data with "
+"their source -- also expose a set of habits that are worth knowing about. "
+"The :doc:`shape/shape-and-strides` page already covered the last-axis layout"
+" rule; this page catalogues the allocation and dtype habits that matter most"
+" in a streaming loop."
+msgstr ""
+":mod:`numpy` kütüphanesini kamerada hızlı kılan tasarım kararları -- tüm "
+"dizi üzerinde çalışan kütüphane çağrıları, sıkıştırılmış tipli arabellekler,"
+" kaynağıyla veri paylaşan görünümler -- aynı zamanda bilinmesi faydalı bir "
+"dizi alışkanlığı da ortaya çıkarır. :doc:`shape/shape-and-strides` sayfası "
+"son eksen yerleşim kuralını zaten ele almıştı; bu sayfa ise akışlı "
+"(streaming) bir döngüde en çok önem taşıyan ayırma ve dtype alışkanlıklarını"
+" listeler."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:14
+msgid "Pick a reasonable dtype"
+msgstr "Makul bir dtype seçin"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:16
+msgid ""
+"The default dtype of every constructor is ``float``. For data that is "
+"naturally 8-bit or 16-bit -- ADC samples, image pixels, sensor readings -- "
+"pass ``dtype=`` explicitly to one of the integer types::"
+msgstr ""
+"Her kurucunun varsayılan dtype değeri ``float`` türüdür. Doğal olarak 8 bit "
+"veya 16 bit olan veriler için -- ADC örnekleri, görüntü pikselleri, sensör "
+"okumaları -- ``dtype=`` parametresini açıkça tamsayı türlerinden birine "
+"ayarlayın::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:23
+msgid ""
+"The RAM saving is 2x for ``uint16`` and 4x for ``uint8`` against the 4-byte "
+"``float`` default. The math also runs faster because the integer code paths "
+"inside :mod:`numpy` are tighter than the generic float ones. The integer "
+"overflow rule covered on :doc:`basics/dtypes` applies -- cast to a wider "
+"type before arithmetic that might overflow."
+msgstr ""
+"RAM tasarrufu, 4 baytlık varsayılan ``float`` türüne kıyasla ``uint16`` için"
+" 2 kat, ``uint8`` için 4 kattır. Ayrıca işlemler daha hızlı çalışır, çünkü "
+":mod:`numpy` içindeki tamsayı kod yolları genel float yollarına göre daha "
+"sıkıdır. :doc:`basics/dtypes` sayfasında ele alınan tamsayı taşması kuralı "
+"geçerlidir -- taşma olasılığı olan aritmetikten önce daha geniş bir türe "
+"dönüştürün."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:32
+msgid "Prefer an ndarray to an iterable"
+msgstr "Yinelenebilir yerine ndarray tercih edin"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:34
+msgid ""
+"Most reductions and universal functions accept either an iterable or an "
+":class:`~numpy.ndarray`::"
+msgstr ""
+"Çoğu indirgeme ve evrensel fonksiyon, ya bir yinelenebilir nesneyi ya da bir"
+" :class:`~numpy.ndarray` nesnesini kabul eder::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:40
+msgid ""
+"The iterable form forces :mod:`numpy` to step through the input one Python "
+"object at a time, converting each to a number before it can use it. Against "
+"an :class:`~numpy.ndarray` the conversion is already done and the call runs "
+"straight through the packed buffer."
+msgstr ""
+"Yinelenebilir biçim, :mod:`numpy` kütüphanesini girişte her seferinde tek "
+"bir Python nesnesi üzerinden ilerlemeye ve kullanmadan önce her birini bir "
+"sayıya dönüştürmeye zorlar. Bir :class:`~numpy.ndarray` karşısında bu "
+"dönüşüm zaten yapılmıştır ve çağrı, sıkıştırılmış arabellek üzerinden "
+"doğrudan ilerler."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:47
+msgid ""
+"When the same data is used more than once, build the :class:`~numpy.ndarray`"
+" once and pass it around. When the data exists only as a Python list and is "
+"consumed once, the conversion cost can outweigh the speedup -- the "
+":func:`~numpy.array` constructor itself has to walk the list and allocate."
+msgstr ""
+"Aynı veri birden fazla kez kullanıldığında, :class:`~numpy.ndarray` "
+"nesnesini bir kez oluşturun ve dolaştırın. Veri yalnızca bir Python listesi "
+"olarak var olduğunda ve bir kez tüketildiğinde, dönüşüm maliyeti hız "
+"kazancından ağır basabilir -- :func:`~numpy.array` kurucusunun kendisi de "
+"listeyi dolaşmak ve bellek ayırmak zorundadır."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:55
+msgid "Prefer views to copies"
+msgstr "Kopya yerine görünüm tercih edin"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:57
+msgid ""
+"Slicing, single-axis indexing of a higher-rank array, "
+":meth:`~numpy.ndarray.reshape`, :meth:`~numpy.ndarray.transpose`, and "
+":func:`~numpy.frombuffer` all return *views* that share data with the "
+"source. They are essentially free."
+msgstr ""
+"Dilimleme, daha yüksek dereceli bir dizinin tek eksenli indekslenmesi, "
+":meth:`~numpy.ndarray.reshape`\\ , :meth:`~numpy.ndarray.transpose` ve "
+":func:`~numpy.frombuffer` işlemlerinin tümü, kaynakla veri paylaşan "
+"*görünümler* döndürür. Bunlar esasen bedavadır."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:63
+msgid ""
+":meth:`~numpy.ndarray.copy`, :meth:`~numpy.ndarray.flatten`, boolean "
+"indexing (``a[mask]``), and any arithmetic expression allocate a *copy*. "
+"Reach for them only when an independent buffer is genuinely needed."
+msgstr ""
+":meth:`~numpy.ndarray.copy`\\ , :meth:`~numpy.ndarray.flatten`\\ , mantıksal"
+" indeksleme (\\ ``a[mask]``\\ ) ve herhangi bir aritmetik ifade bir *kopya* "
+"ayırır. Bunlara yalnızca gerçekten bağımsız bir arabelleğe ihtiyaç "
+"duyulduğunda başvurun."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:69
+msgid ""
+"When in doubt, :func:`~numpy.ndinfo` prints the location of the underlying "
+"buffer; two arrays that report the same address share their data. The "
+"complete view-vs-copy table is on :doc:`shape/views-and-copies`."
+msgstr ""
+"Şüpheye düştüğünüzde, :func:`~numpy.ndinfo` alttaki arabelleğin konumunu "
+"yazdırır; aynı adresi bildiren iki dizi verisini paylaşır. Tam görünüm-kopya"
+" tablosu :doc:`shape/views-and-copies` sayfasındadır."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:76
+msgid "Allocate once, then write"
+msgstr "Bir kez ayırın, sonra yazın"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:78
+msgid ""
+"The single biggest performance pitfall on the camera is allocating fresh "
+"arrays inside a loop that runs many times a second. Each new "
+":class:`~numpy.ndarray` asks the cam for RAM, and frequent fresh allocations"
+" waste it."
+msgstr ""
+"Kameradaki en büyük tek performans tuzağı, saniyede birçok kez çalışan bir "
+"döngünün içinde her seferinde yeni diziler ayırmaktır. Her yeni "
+":class:`~numpy.ndarray` kameradan RAM ister ve sık sık yeni ayırmalar yapmak"
+" bunu boşa harcar."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:84
+msgid ""
+"Most universal functions accept ``out=`` so the result can be written into "
+"an array that already exists::"
+msgstr ""
+"Çoğu evrensel fonksiyon ``out=`` parametresini kabul eder, böylece sonuç "
+"zaten var olan bir diziye yazılabilir::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:94
+msgid ""
+":meth:`image.Image.to_ndarray` accepts ``buffer=`` for the same reason; "
+":func:`~ulab.utils.spectrogram` and the "
+":func:`~ulab.utils.from_int32_buffer`-style converters accept both ``out=`` "
+"and ``scratchpad=``. Allocate everything once and reuse it."
+msgstr ""
+":meth:`image.Image.to_ndarray` aynı nedenle ``buffer=`` parametresini kabul "
+"eder; :func:`~ulab.utils.spectrogram` ve "
+":func:`~ulab.utils.from_int32_buffer` tarzı dönüştürücüler hem ``out=`` hem "
+"de ``scratchpad=`` parametrelerini kabul eder. Her şeyi bir kez ayırın ve "
+"yeniden kullanın."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:101
+msgid "Use in-place operators"
+msgstr "Yerinde operatörler kullanın"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:103
+msgid ""
+"``b = b + 1`` allocates a temporary the size of ``b``, copies, and re-"
+"assigns. ``b += 1`` modifies ``b`` directly::"
+msgstr ""
+"``b = b + 1`` ifadesi ``b`` boyutunda geçici bir alan ayırır, kopyalar ve "
+"yeniden atar. ``b += 1`` ise ``b`` nesnesini doğrudan değiştirir::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:113
+msgid ""
+"The same idea applies to compound expressions. ``a + b * c`` allocates a "
+"temporary for ``b * c``. Splitting the expression into simple sub-"
+"assignments writing into a pre-allocated buffer eliminates the temporaries::"
+msgstr ""
+"Aynı fikir bileşik ifadeler için de geçerlidir. ``a + b * c`` ifadesi ``b * "
+"c`` için geçici bir alan ayırır. İfadeyi, önceden ayrılmış bir arabelleğe "
+"yazan basit alt atamalara bölmek bu geçici alanları ortadan kaldırır::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:128
+msgid "Build the result, do not append to it"
+msgstr "Sonucu oluşturun, ona ekleme yapmayın"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:130
+msgid ""
+":class:`~numpy.ndarray` has no ``append`` -- on purpose. Growing an array "
+"would mean allocating a fresh, larger buffer and copying the old contents "
+"into it. On a microcontroller, pre-allocate the final size and *fill* it::"
+msgstr ""
+":class:`~numpy.ndarray` nesnesinin bilinçli olarak bir ``append`` yöntemi "
+"yoktur. Bir diziyi büyütmek, yeni ve daha büyük bir arabellek ayırmak ve "
+"eski içeriği ona kopyalamak anlamına gelirdi. Bir mikrodenetleyicide, son "
+"boyutu önceden ayırın ve onu *doldurun*\\ ::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:140
+msgid ""
+"When ``N`` genuinely is not known in advance, write to a Python "
+":class:`list` and convert once at the end with :func:`~numpy.array`."
+msgstr ""
+"``N`` gerçekten önceden bilinmediğinde, bir Python :class:`list` nesnesine "
+"yazın ve sonunda :func:`~numpy.array` ile bir kez dönüştürün."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:145
+msgid "Slice assignment instead of new arrays"
+msgstr "Yeni diziler yerine dilim ataması"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:147
+msgid ""
+"Many \"build a new array from pieces of others\" patterns can be expressed "
+"as slice assignments into a pre-allocated buffer instead of a fresh "
+"allocation each call."
+msgstr ""
+"\"Başkalarının parçalarından yeni bir dizi oluştur\" desenlerinin çoğu, her "
+"çağrıda yeni bir ayırma yerine önceden ayrılmış bir arabelleğe dilim ataması"
+" olarak ifade edilebilir."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:152
+msgid ""
+"A rolling window over a stream of samples -- the foundation of a moving-"
+"average filter -- is the canonical case. The buffer holds the last ``N`` "
+"samples; every iteration drops the oldest and appends the newest. The "
+"obvious form rebuilds the buffer each iteration::"
+msgstr ""
+"Bir örnek akışı üzerindeki kayan pencere -- bir hareketli ortalama "
+"filtresinin temeli -- bu durumun klasik örneğidir. Arabellek son ``N`` "
+"örneği tutar; her yineleme en eskisini düşürür ve en yenisini ekler. Bariz "
+"biçim her yinelemede arabelleği yeniden oluşturur::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:165
+msgid ""
+"That is a fresh allocation -- and a copy of ``N - 1`` elements -- per "
+"sample. The slice-assignment form shifts in place::"
+msgstr ""
+"Bu, örnek başına yeni bir ayırma -- ve ``N - 1`` öğenin bir kopyası -- "
+"demektir. Dilim atama biçimi ise yerinde kaydırma yapar::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:178
+msgid ""
+"``buf[:-1] = buf[1:]`` is the interesting line: two overlapping views into "
+"the same buffer, the right-hand slice read from one end and written to the "
+"other. :mod:`numpy` walks the underlying memory in the order that makes the "
+"in-place shift safe. No new array is ever allocated inside the loop."
+msgstr ""
+"``buf[:-1] = buf[1:]`` ilginç olan satırdır: aynı arabelleğe iki örtüşen "
+"görünüm, sağ taraftaki dilim bir uçtan okunup diğer uca yazılır. "
+":mod:`numpy`\\ , alttaki belleği yerinde kaydırmayı güvenli kılacak sırada "
+"dolaşır. Döngünün içinde hiçbir zaman yeni bir dizi ayrılmaz."
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:186
+msgid "Watch out for boolean masks in streaming loops"
+msgstr "Akışlı döngülerde mantıksal maskelere dikkat edin"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:188
+msgid ""
+"Boolean indexing and :func:`~numpy.where` produce a new array on each call "
+"-- the size of the result depends on the data, so no pre-allocated buffer "
+"can absorb the allocation. Repeated mask building in a streaming loop fills "
+"RAM with throwaway arrays. A periodic ``gc.collect()`` reclaims the space::"
+msgstr ""
+"Mantıksal indeksleme ve :func:`~numpy.where`\\ , her çağrıda yeni bir dizi "
+"üretir -- sonucun boyutu veriye bağlı olduğundan, önceden ayrılmış hiçbir "
+"arabellek bu ayırmayı emecek nitelikte değildir. Akışlı bir döngüde tekrar "
+"tekrar maske oluşturmak RAM'i atılacak dizilerle doldurur. Periyodik bir "
+"``gc.collect()`` çağrısı bu alanı geri kazanır::"
+
+#: ../../openmvcam/tutorial/numpy/performance.rst:203
+msgid ""
+"The same caveat applies to compound boolean expressions like ``(a > lo) & (a"
+" < hi)`` -- each operator allocates a new bool array. When a mask is reused,"
+" build it once and keep it::"
+msgstr ""
+"Aynı uyarı, ``(a > lo) & (a < hi)`` gibi bileşik mantıksal ifadeler için de "
+"geçerlidir -- her operatör yeni bir bool dizisi ayırır. Bir maske yeniden "
+"kullanıldığında, onu bir kez oluşturun ve saklayın::"

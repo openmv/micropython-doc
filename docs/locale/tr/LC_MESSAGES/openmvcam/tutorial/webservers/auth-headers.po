@@ -1,0 +1,198 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: tr <LL@li.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:2
+msgid "Auth for programmatic clients"
+msgstr "Programatik istemciler için kimlik doğrulama"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:4
+msgid ""
+"Bearer tokens are how phones, companion microcontrollers, and cloud workers "
+"authenticate to a server -- the client puts a token in the ``Authorization``"
+" header on every request and the server checks it. The companion phone app "
+"POSTs an \"ack\" when the owner taps \"seen\" on a motion notification; "
+"those requests need a token."
+msgstr ""
+"Bearer token'ları, telefonların, eşlik eden mikrodenetleyicilerin ve bulut "
+"çalışanlarının bir sunucuda kimlik doğrulaması yapma şeklidir -- istemci, "
+"her istekte ``Authorization`` başlığına bir token koyar ve sunucu bunu "
+"denetler. Eşlik eden telefon uygulaması, sahibi bir hareket bildiriminde "
+"\"görüldü\" simgesine dokunduğunda bir \"ack\" gönderir (POST); bu istekler "
+"bir token gerektirir."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:11
+msgid "The signing secret"
+msgstr "İmzalama gizli anahtarı"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:13
+msgid ""
+"The secret is the cam's private key for signing and verifying tokens. "
+"Generate 32 random bytes from the hardware RNG on the cam's first boot, "
+"persist them to the filesystem, and reuse the same bytes on every subsequent"
+" boot:"
+msgstr ""
+"Gizli anahtar, kameranın token'ları imzalamak ve doğrulamak için kullandığı "
+"özel anahtarıdır. Kameranın ilk açılışında donanım RNG'sinden 32 rastgele "
+"bayt üretin, bunları dosya sistemine kalıcı olarak kaydedin ve sonraki her "
+"açılışta aynı baytları yeniden kullanın:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:31
+msgid ""
+":func:`os.urandom` is the cryptographically suitable random source on each "
+"cam port -- on most ports it reads the chip's hardware random-number "
+"generator directly. The file lives in the cam's working directory "
+"(``/sdcard`` if an SD card is mounted, ``/flash`` otherwise) and never "
+"leaves the cam. Deleting ``secret.bin`` and rebooting rotates the secret and"
+" invalidates every token issued under the old one."
+msgstr ""
+":func:`os.urandom`\\ , her kamera portunda kriptografik olarak uygun "
+"rastgele kaynaktır -- çoğu portta yongun donanım rastgele sayı üretecini "
+"doğrudan okur. Dosya, kameranın çalışma dizininde (bir SD kart takılıysa "
+"``/sdcard``\\ , aksi takdirde ``/flash``\\ ) bulunur ve kameradan asla "
+"ayrılmaz. ``secret.bin`` dosyasını silip yeniden başlatmak, gizli anahtarı "
+"döndürür ve eski anahtar altında verilen her token'ı geçersiz kılar."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:41
+msgid ""
+":func:`machine.unique_id` is *not* a substitute. On some cam ports it is "
+"also used to derive the network MAC address, which means its value travels "
+"with every packet the cam sends -- not the property a signing secret needs."
+msgstr ""
+":func:`machine.unique_id` bir alternatif *değildir*\\ . Bazı kamera "
+"portlarında ağ MAC adresini türetmek için de kullanılır; bu da değerinin "
+"kameranın gönderdiği her paketle birlikte gittiği anlamına gelir -- bir "
+"imzalama gizli anahtarının ihtiyaç duyduğu bir özellik değil."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:47
+msgid "Issuing tokens"
+msgstr "Token verme"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:49
+msgid ""
+"The phone needs a way to *get* a token in the first place. A short-lived "
+"*JSON Web Token* (JWT) -- a base64-encoded JSON payload with a signature "
+"appended -- is enough for a first pass: the owner trades a password for a "
+"token, then uses the token until it expires:"
+msgstr ""
+"Telefonun öncelikle bir token *almak* için bir yola ihtiyacı vardır. Kısa "
+"ömürlü bir *JSON Web Token* (JWT) -- imzası eklenmiş base64 kodlanmış bir "
+"JSON yükü -- ilk geçiş için yeterlidir: sahip, bir parolayı bir token ile "
+"takas eder, ardından token'ı süresi dolana kadar kullanır:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:71
+#, python-brace-format
+msgid ""
+"The phone POSTs ``{user, pass}`` once, stores the returned token in local "
+"storage, and includes it as ``Authorization: Bearer <token>`` on every "
+"subsequent request."
+msgstr ""
+"Telefon, bir kez ``{user, pass}`` gönderir (POST), dönen token'ı yerel "
+"depolamada saklar ve sonraki her istekte onu ``Authorization: Bearer "
+"<token>`` olarak ekler."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:75
+msgid ""
+"The ``exp`` claim is a Unix timestamp. The verifier on the next section "
+"relies on this claim to reject expired tokens automatically -- which means "
+"the cam's wall clock has to be set, because otherwise every token will look "
+"either far in the future or already expired. See "
+":doc:`/openmvcam/tutorial/networking/names/ntp` for the NTP-sync recipe."
+msgstr ""
+"``exp`` talebi (claim) bir Unix zaman damgasıdır. Bir sonraki bölümdeki "
+"doğrulayıcı, süresi dolmuş token'ları otomatik olarak reddetmek için bu "
+"talebe dayanır -- bu da kameranın duvar saatinin ayarlanması gerektiği "
+"anlamına gelir, çünkü aksi takdirde her token ya çok ileri bir tarihteymiş "
+"ya da çoktan süresi dolmuş gibi görünecektir. NTP eşitleme tarifi için bkz. "
+":doc:`/openmvcam/tutorial/networking/names/ntp`\\ ."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:83
+msgid "Verifying tokens with TokenAuth"
+msgstr "Token'ları TokenAuth ile doğrulama"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:85
+msgid ""
+":class:`microdot.auth.TokenAuth` is the decorator factory for routes that "
+"require an ``Authorization: Bearer <token>`` header. The verifier callback "
+"receives the token string and returns whatever identity object should be "
+"attached to the request -- or :data:`None` to reject:"
+msgstr ""
+":class:`microdot.auth.TokenAuth`\\ , ``Authorization: Bearer <token>`` "
+"başlığı gerektiren rotalar için dekoratör fabrikasıdır. Doğrulayıcı geri "
+"çağırması (callback), token dizesini alır ve isteğe eklenecek kimlik "
+"nesnesini -- ya da reddetmek için :data:`None` -- döndürür:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:113
+msgid ""
+":func:`jwt.decode` raises :exc:`jwt.exceptions.PyJWTError` (or a subclass) "
+"when the signature is wrong, the token is malformed, or the ``exp`` claim "
+"has passed. The verifier swallows all of those and returns :data:`None`, so "
+"microdot responds 401 without the handler seeing anything."
+msgstr ""
+":func:`jwt.decode`\\ , imza yanlış olduğunda, token bozuk olduğunda ya da "
+"``exp`` talebinin (claim) süresi dolduğunda :exc:`jwt.exceptions.PyJWTError`"
+" (ya da bir alt sınıfını) yükseltir. Doğrulayıcı bunların tümünü yutar ve "
+":data:`None` döndürür, böylece microdot, işleyicinin hiçbir şey görmesine "
+"gerek kalmadan 401 yanıtı verir."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:119
+msgid ""
+"When the verifier returns a non-:data:`None` value, microdot stores it on "
+":attr:`request.g.current_user` so the handler can read it -- in this case "
+"it's the JWT ``sub`` (subject) claim."
+msgstr ""
+"Doğrulayıcı :data:`None` olmayan bir değer döndürdüğünde, microdot bunu "
+":attr:`request.g.current_user` üzerinde saklar, böylece işleyici onu "
+"okuyabilir -- bu durumda bu, JWT ``sub`` (subject) talebidir (claim)."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:124
+msgid "BasicAuth for closed networks"
+msgstr "Kapalı ağlar için BasicAuth"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:126
+msgid ""
+"For an admin endpoint that's only ever hit from a trusted network, "
+":class:`microdot.auth.BasicAuth` is simpler -- the browser pops a native "
+"username/password dialog and sends them in the ``Authorization: Basic ...`` "
+"header on every request:"
+msgstr ""
+"Yalnızca güvenilir bir ağdan erişilen bir yönetici uç noktası için, "
+":class:`microdot.auth.BasicAuth` daha basittir -- tarayıcı yerel bir "
+"kullanıcı adı/parola iletişim kutusu açar ve bunları her istekte "
+"``Authorization: Basic ...`` başlığında gönderir:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:148
+msgid ""
+"The credentials travel in the clear unless the connection is HTTPS, so this "
+"approach only makes sense on a trusted network or with HTTPS in place."
+msgstr ""
+"Kimlik bilgileri, bağlantı HTTPS olmadıkça açık metin olarak gider, "
+"dolayısıyla bu yaklaşım yalnızca güvenilir bir ağda ya da HTTPS devredeyken "
+"anlamlıdır."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:152
+msgid ""
+"``/api/ack`` and ``/api/login`` now understand tokens; ``/admin`` requires "
+"Basic auth."
+msgstr ""
+"``/api/ack`` ve ``/api/login`` artık token'ları anlıyor; ``/admin`` ise "
+"Basic auth gerektiriyor."
