@@ -1,0 +1,335 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:2
+msgid "CAN bus in code"
+msgstr "CAN busz a kódban"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:4
+msgid ""
+":class:`machine.CAN` wraps a hardware CAN controller. Bring it up with the "
+"bus id and a bit rate:"
+msgstr ""
+"A :class:`machine.CAN` egy hardveres CAN vezérlőt csomagol be. Hozd létre a "
+"busz azonosítójával és egy bitsebességgel:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:14
+msgid ""
+"The bit rate must match every other node on the bus exactly -- ``125_000``, "
+"``250_000``, ``500_000`` and ``1_000_000`` are the common values. "
+":meth:`~machine.CAN.set_filters` configures which IDs the controller will "
+"pass through; ``None`` means accept everything (useful while bringing up a "
+"link, less useful once the bus is busy)."
+msgstr ""
+"A bitsebességnek pontosan egyeznie kell a buszon lévő összes többi "
+"csomóponttal -- a ``125_000``\\ , ``250_000``\\ , ``500_000`` és "
+"``1_000_000`` a szokásos értékek. A :meth:`~machine.CAN.set_filters` "
+"beállítja, hogy a vezérlő mely azonosítókat engedi át; a ``None`` azt "
+"jelenti, hogy mindent elfogad (hasznos egy kapcsolat felállításakor, kevésbé"
+" hasznos, ha a busz már forgalmas)."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:22
+msgid "Inside the controller"
+msgstr "A vezérlő belsejében"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:24
+msgid ""
+"Three pieces of hardware sit between the camera's Python code and the bus --"
+" the *TX mailboxes*, an *acceptance filter*, and the *RX FIFO*. Each one "
+"maps to a piece of the :class:`~machine.CAN` API used below."
+msgstr ""
+"Három hardverelem helyezkedik el a kamera Python kódja és a busz között -- a"
+" *TX postaládák*\\ , egy *elfogadási szűrő* és az *RX FIFO*\\ . Mindegyik "
+"megfelel a :class:`~machine.CAN` API alább használt egy-egy darabjának."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:29
+msgid ""
+"Block diagram of the CAN controller. On the TX side\n"
+"(top), can.send() drops frames into one of three TX\n"
+"mailboxes, and an arbitrate block picks which mailbox\n"
+"goes to the bus next. On the RX side (bottom),\n"
+"incoming frames pass through an acceptance filter;\n"
+"accepted frames land in the RX FIFO and can.recv()\n"
+"reads the FIFO from its oldest end."
+msgstr ""
+"A CAN vezérlő blokkdiagramja. A TX oldalon\n"
+"(felül) a can.send() a képkockákat a három TX\n"
+"postaláda egyikébe ejti, és egy arbitrációs blokk választja ki, melyik postaláda\n"
+"kerül legközelebb a buszra. Az RX oldalon (alul)\n"
+"a beérkező képkockák áthaladnak egy elfogadási szűrőn;\n"
+"az elfogadott képkockák az RX FIFO-ba kerülnek, és a can.recv()\n"
+"a FIFO-t a legrégebbi végéről olvassa."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:38
+msgid ""
+"The controller's TX mailboxes, acceptance filter, and RX FIFO between the "
+"software and the bus."
+msgstr ""
+"A vezérlő TX postaládái, elfogadási szűrője és RX FIFO-ja a szoftver és a "
+"busz között."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:41
+msgid ""
+"**TX mailboxes.** A small set of hardware slots (typically three) that hold "
+"outgoing frames the camera has handed off via :meth:`~machine.CAN.send` but "
+"that have not yet reached the bus. When the bus is idle, the controller "
+"picks the mailbox with the lowest-numbered ID (highest priority) and "
+"arbitrates for the bus on its behalf. The camera does not pick the mailbox; "
+"the controller assigns one and returns its index from "
+":meth:`~machine.CAN.send`."
+msgstr ""
+"**TX postaládák.** Hardveres rekeszek kis halmaza (jellemzően három), "
+"amelyek a kimenő képkockákat tartják, amelyeket a kamera a "
+":meth:`~machine.CAN.send` segítségével adott át, de amelyek még nem jutottak"
+" el a buszra. Amikor a busz tétlen, a vezérlő kiválasztja a legalacsonyabb "
+"számú azonosítóval (legmagasabb prioritással) rendelkező postaládát, és a "
+"nevében arbitrál a buszért. A kamera nem választja ki a postaládát; a "
+"vezérlő rendel hozzá egyet, és visszaadja annak indexét a "
+":meth:`~machine.CAN.send`\\ -ből."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:50
+msgid ""
+"**Acceptance filter.** Configurable hardware that compares each incoming "
+"frame's ID against a list of patterns and discards anything that does not "
+"match. Frames that pass continue into the RX FIFO; rejected frames are "
+"thrown away by the controller without ever reaching Python. "
+":meth:`~machine.CAN.set_filters` configures these patterns."
+msgstr ""
+"**Elfogadási szűrő.** Konfigurálható hardver, amely minden beérkező képkocka"
+" azonosítóját összehasonlítja egy mintalistával, és eldob mindent, ami nem "
+"illeszkedik. Az átjutó képkockák tovább haladnak az RX FIFO-ba; az "
+"elutasított képkockákat a vezérlő eldobja, anélkül hogy valaha is elérnék a "
+"Pythont. A :meth:`~machine.CAN.set_filters` konfigurálja ezeket a mintákat."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:57
+msgid ""
+"**RX FIFO.** A *first-in, first-out* queue -- the first frame in is also the"
+" first frame out, like a line at a ticket counter. The controller appends "
+"received frames to the back of the queue as they arrive, and "
+":meth:`~machine.CAN.recv` pulls them off the front in the same order. The "
+"queue matters because the bus catches frames in the background while Python "
+"is busy elsewhere; the camera then drains them one at a time without losing "
+"any, as long as the FIFO has not overflowed."
+msgstr ""
+"**RX FIFO.** Egy *first-in, first-out* (először be, először ki) sor -- az "
+"elsőként bekerült képkocka egyben az elsőként kikerülő is, mint egy sor a "
+"jegypénztárnál. A vezérlő a beérkező képkockákat a sor végéhez fűzi, ahogy "
+"megérkeznek, a :meth:`~machine.CAN.recv` pedig az elejéről húzza le őket "
+"ugyanabban a sorrendben. A sor azért számít, mert a busz a háttérben kapja "
+"el a képkockákat, miközben a Python máshol van elfoglalva; a kamera ezután "
+"egyesével lecsapolja őket anélkül, hogy bármelyik elveszne, amíg a FIFO nem "
+"csordul túl."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:68
+msgid "Sending a frame"
+msgstr "Egy képkocka küldése"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:70
+msgid ":meth:`~machine.CAN.send` queues a frame for transmission:"
+msgstr "A :meth:`~machine.CAN.send` adásra sorba állít egy képkockát:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:76
+msgid ""
+"The first argument is the ID (an 11-bit integer for a standard frame); the "
+"second is the payload (0 to 8 bytes for CAN Classic). The call returns a "
+"small integer index identifying the hardware mailbox the frame went into. "
+"The controller arbitrates with any other transmitters on the bus and re-"
+"transmits as needed without further help from software."
+msgstr ""
+"Az első argumentum az azonosító (egy 11 bites egész szám szabványos képkocka"
+" esetén); a második a hasznos adat (0–8 bájt CAN Classic esetén). A hívás "
+"egy kis egész szám indexet ad vissza, amely azonosítja azt a hardveres "
+"postaládát, amelybe a képkocka került. A vezérlő arbitrál a buszon lévő "
+"bármely más adóval, és szükség szerint újraküld, a szoftver további "
+"segítsége nélkül."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:83
+msgid ""
+"For extended (29-bit) IDs, OR the :data:`CAN.FLAG_EXT_ID` flag into the "
+"third argument:"
+msgstr ""
+"Kiterjesztett (29 bites) azonosítók esetén OR-old a :data:`CAN.FLAG_EXT_ID` "
+"jelzőt a harmadik argumentumba:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:91
+msgid "Receiving frames"
+msgstr "Képkockák fogadása"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:93
+msgid ""
+"The controller starts up with no filter installed and drops every incoming "
+"frame. Before :meth:`~machine.CAN.recv` will return anything, call "
+":meth:`~machine.CAN.set_filters` once -- the simplest form is ``None``, "
+"which accepts every ID:"
+msgstr ""
+"A vezérlő telepített szűrő nélkül indul, és minden beérkező képkockát eldob."
+" Mielőtt a :meth:`~machine.CAN.recv` bármit visszaadna, hívd meg egyszer a "
+":meth:`~machine.CAN.set_filters`\\ -t -- a legegyszerűbb forma a ``None``\\ "
+", amely minden azonosítót elfogad:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:102
+msgid ""
+":meth:`~machine.CAN.recv` then returns the next frame in the receive FIFO, "
+"or ``None`` if nothing is waiting:"
+msgstr ""
+"A :meth:`~machine.CAN.recv` ezután a fogadási FIFO következő képkockáját "
+"adja vissza, vagy ``None``\\ -t, ha semmi sem vár:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:112
+msgid ""
+"The bus fills the RX FIFO in the background, so the main loop just drains it"
+" as fast as it iterates. As long as the FIFO is deeper than the longest gap "
+"between drains, no frames are lost."
+msgstr ""
+"A busz a háttérben tölti fel az RX FIFO-t, így a fő ciklus csak olyan "
+"gyorsan csapolja le, ahogy iterál. Amíg a FIFO mélyebb, mint a lecsapolások "
+"közötti leghosszabb szünet, egyetlen képkocka sem vész el."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:118
+msgid "Filters"
+msgstr "Szűrők"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:120
+msgid ""
+"A real bus is usually busy with frames the camera does not care about. "
+"Hardware filters let the controller drop unwanted IDs before they reach the "
+"FIFO. :meth:`~machine.CAN.set_filters` takes a list of ``(id, mask, flags)``"
+" tuples; a frame passes the filter if its ID, masked by ``mask``, matches "
+"the configured ``id``:"
+msgstr ""
+"Egy valódi busz általában tele van olyan képkockákkal, amelyekkel a kamera "
+"nem törődik. A hardveres szűrők lehetővé teszik, hogy a vezérlő eldobja a "
+"nem kívánt azonosítókat, mielőtt elérnék a FIFO-t. A "
+":meth:`~machine.CAN.set_filters` egy ``(id, mask, flags)`` tuple-ökből álló "
+"listát vár; egy képkocka átjut a szűrőn, ha az azonosítója a ``mask``\\ -kal"
+" maszkolva megegyezik a beállított ``id``\\ -vel:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:136
+msgid ""
+"Unmatched frames are discarded by the controller and never appear at "
+":meth:`~machine.CAN.recv`, which saves both buffer space and CPU time."
+msgstr ""
+"A nem illeszkedő képkockákat a vezérlő eldobja, és soha nem jelennek meg a "
+":meth:`~machine.CAN.recv`\\ -nél, ami pufferhelyet és CPU-időt is "
+"megtakarít."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:141
+msgid "Error states and recovery"
+msgstr "Hibaállapotok és helyreállítás"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:143
+msgid ""
+"A real CAN bus picks up transmission errors -- shorts to ground, missing "
+"nodes, electrical noise corrupting bits. The controller keeps two counters "
+"that track this behaviour: a Transmit Error Counter (TEC) and a Receive "
+"Error Counter (REC), each incremented when the controller detects an error "
+"and decremented after a successful transfer. The counter values put the "
+"controller into one of four states:"
+msgstr ""
+"Egy valódi CAN busz adási hibákat szed fel -- földzárlatokat, hiányzó "
+"csomópontokat, biteket megrontó elektromos zajt. A vezérlő két számlálót "
+"tart, amelyek ezt a viselkedést követik: egy adáshiba-számlálót (Transmit "
+"Error Counter, TEC) és egy vételihiba-számlálót (Receive Error Counter, "
+"REC), mindkettő növekszik, amikor a vezérlő hibát észlel, és csökken egy "
+"sikeres átvitel után. A számlálók értékei a vezérlőt négy állapot egyikébe "
+"helyezik:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:151
+msgid ""
+"**Error Active** (TEC and REC both below 96). Normal operation. When the "
+"node detects a bus error it transmits a dominant *active error frame*, which"
+" forces every other node to discard the in-progress frame so the sender can "
+"retry."
+msgstr ""
+"**Error Active** (a TEC és a REC is 96 alatt van). Normál működés. Amikor a "
+"csomópont busz-hibát észlel, egy dominant *aktív hibakockát* ad, ami minden "
+"más csomópontot arra kényszerít, hogy eldobja a folyamatban lévő képkockát, "
+"így a küldő újra próbálkozhat."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:157
+msgid ""
+"**Error Warning** (either counter reaches 96). Still fully active on the bus"
+" -- the warning state is a software signal that errors are accumulating, not"
+" a behaviour change."
+msgstr ""
+"**Error Warning** (valamelyik számláló eléri a 96-ot). Még teljesen aktív a "
+"buszon -- a figyelmeztető állapot egy szoftveres jelzés, hogy a hibák "
+"halmozódnak, nem pedig viselkedésbeli változás."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:162
+msgid ""
+"**Error Passive** (either counter reaches 128). The node is still on the bus"
+" but stops sending dominant error frames; errors are now signalled with "
+"*passive* (recessive) error frames so a faulty node cannot keep tearing up "
+"the bus for everyone else."
+msgstr ""
+"**Error Passive** (valamelyik számláló eléri a 128-at). A csomópont még a "
+"buszon van, de abbahagyja a dominant hibakockák küldését; a hibákat most "
+"*passzív* (recessive) hibakockákkal jelzi, így egy hibás csomópont nem tudja"
+" folyamatosan szétzilálni a buszt mindenki más számára."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:168
+msgid ""
+"**Bus Off** (TEC reaches 256). The controller has decided this node is too "
+"unreliable to participate. It disconnects from the bus, stops transmitting "
+"and acknowledging, and stays out until software explicitly restarts it."
+msgstr ""
+"**Bus Off** (a TEC eléri a 256-ot). A vezérlő úgy döntött, hogy ez a "
+"csomópont túl megbízhatatlan a részvételhez. Lecsatlakozik a buszról, "
+"abbahagyja az adást és a nyugtázást, és addig kívül marad, amíg a szoftver "
+"kifejezetten újra nem indítja."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:173
+msgid ""
+"The first three transitions are entirely automatic -- as the counters "
+"decrement after successful frames, the controller moves itself back toward "
+"Error Active without intervention."
+msgstr ""
+"Az első három átmenet teljesen automatikus -- ahogy a számlálók a sikeres "
+"képkockák után csökkennek, a vezérlő beavatkozás nélkül halad vissza az "
+"Error Active felé."
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:177
+msgid ""
+"Bus Off is the one state that requires software action. "
+":meth:`~machine.CAN.restart` resets the controller and returns it to Error "
+"Active. A typical pattern is to check the state from the main loop and "
+"restart after a short delay to give the bus time to settle:"
+msgstr ""
+"A Bus Off az egyetlen állapot, amely szoftveres beavatkozást igényel. A "
+":meth:`~machine.CAN.restart` visszaállítja a vezérlőt, és visszaadja Error "
+"Active állapotba. Tipikus minta, hogy a fő ciklusból ellenőrzöd az "
+"állapotot, és egy rövid késleltetés után újraindítod, hogy a busznak legyen "
+"ideje lecsillapodni:"
+
+#: ../../openmvcam/tutorial/hardware/can/can-code.rst:197
+msgid ""
+"The current counter values are available from "
+":meth:`~machine.CAN.get_counters` for diagnostics -- a TEC that climbs "
+"steadily on an otherwise-quiet bus usually points at wiring, termination, or"
+" a misconfigured bit rate."
+msgstr ""
+"Az aktuális számlálóértékek diagnosztikai célból a "
+":meth:`~machine.CAN.get_counters`\\ -ből érhetők el -- egy egyébként csendes"
+" buszon egyenletesen kúszó TEC általában a kábelezésre, a lezárásra vagy egy"
+" rosszul beállított bitsebességre utal."

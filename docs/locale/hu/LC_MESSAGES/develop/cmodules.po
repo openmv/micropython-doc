@@ -1,0 +1,621 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../develop/cmodules.rst:4
+msgid "MicroPython external C modules"
+msgstr "Külső C modulok a MicroPython számára"
+
+#: ../../develop/cmodules.rst:6
+msgid ""
+"When developing modules for use with MicroPython you may find you run into "
+"limitations with the Python environment, often due to an inability to access"
+" certain hardware resources or Python speed limitations."
+msgstr ""
+"Amikor a MicroPython rendszerhez modulokat fejlesztesz, előfordulhat, hogy a"
+" Python környezet korlátaiba ütközöl, gyakran amiatt, hogy bizonyos "
+"hardvererőforrásokhoz nem lehet hozzáférni, vagy a Python sebességi korlátai"
+" miatt."
+
+#: ../../develop/cmodules.rst:10
+msgid ""
+"If your limitations can't be resolved with suggestions in "
+":ref:`speed_python`, writing some or all of your module in C (and/or "
+":ref:`C++ if implemented for your port<cxx_support>`) is a viable option."
+msgstr ""
+"Ha a korlátaid nem oldhatók fel a :ref:`speed_python` szakaszban található "
+"javaslatokkal, akkor életképes megoldás lehet a modulod egy részének vagy "
+"egészének C-ben (és/vagy :ref:`C++ nyelven, ha az a portodhoz implementálva "
+"van<cxx_support>`\\ ) történő megírása."
+
+#: ../../develop/cmodules.rst:14
+msgid ""
+"If your module is designed to access or work with commonly available "
+"hardware or libraries please consider implementing it inside the MicroPython"
+" source tree alongside similar modules and submitting it as a pull request. "
+"If however you're targeting obscure or proprietary systems it may make more "
+"sense to keep this external to the main MicroPython repository."
+msgstr ""
+"Ha a modulod gyakran elérhető hardver vagy könyvtárak elérésére, illetve "
+"azokkal való együttműködésre készült, fontold meg, hogy a MicroPython "
+"forrásfájában, hasonló modulok mellé implementálod, és pull requestként "
+"beküldöd. Ha azonban kevéssé ismert vagy zárt rendszereket célzol meg, "
+"érdemesebb lehet ezt a fő MicroPython repository-n kívül tartani."
+
+#: ../../develop/cmodules.rst:20
+msgid ""
+"This chapter describes how to compile such external modules into the "
+"MicroPython executable or firmware image.  Both Make and CMake build tools "
+"are supported, and when writing an external module it's a good idea to add "
+"the build files for both of these tools so the module can be used on all "
+"ports.  But when compiling a particular port you will only need to use one "
+"method of building, either Make or CMake."
+msgstr ""
+"Ez a fejezet leírja, hogyan fordíthatók le az ilyen külső modulok a "
+"MicroPython futtatható állományába vagy firmware-képébe.  Mind a Make, mind "
+"a CMake build eszköz támogatott, és külső modul írásakor jó ötlet mindkét "
+"eszköz build fájljait hozzáadni, hogy a modul minden porton használható "
+"legyen.  Egy adott port fordításakor azonban csak az egyik build módszert, "
+"vagy a Make-et, vagy a CMake-et kell használnod."
+
+#: ../../develop/cmodules.rst:27
+msgid ""
+"An alternative approach is to use :ref:`natmod` which allows writing custom "
+"C code that is placed in a .mpy file, which can be imported dynamically into"
+" a running MicroPython system without the need to recompile the main "
+"firmware."
+msgstr ""
+"Egy másik megközelítés a :ref:`natmod` használata, amely lehetővé teszi "
+"egyedi C kód írását, amely egy .mpy fájlba kerül, és amely dinamikusan "
+"importálható egy futó MicroPython rendszerbe anélkül, hogy a fő firmware-t "
+"újra kellene fordítani."
+
+#: ../../develop/cmodules.rst:33
+msgid "Structure of an external C module"
+msgstr "Egy külső C modul felépítése"
+
+#: ../../develop/cmodules.rst:35
+msgid "A MicroPython user C module is a directory with the following files:"
+msgstr ""
+"Egy MicroPython felhasználói C modul egy könyvtár, amely a következő "
+"fájlokat tartalmazza:"
+
+#: ../../develop/cmodules.rst:37
+msgid "``*.c`` / ``*.cpp`` / ``*.h`` source code files for your module."
+msgstr "``*.c`` / ``*.cpp`` / ``*.h`` forráskódfájlok a modulodhoz."
+
+#: ../../develop/cmodules.rst:39
+msgid ""
+"These will typically include the low level functionality being implemented "
+"and the MicroPython binding functions to expose the functions and module(s)."
+msgstr ""
+"Ezek jellemzően az implementált alacsony szintű funkcionalitást, valamint a "
+"MicroPython kötőfüggvényeket tartalmazzák, amelyek elérhetővé teszik a "
+"függvényeket és a modul(oka)t."
+
+#: ../../develop/cmodules.rst:42
+msgid ""
+"Currently the best reference for writing these functions/modules is to find "
+"similar modules within the MicroPython tree and use them as examples."
+msgstr ""
+"Jelenleg a legjobb referencia ezeknek a függvényeknek/moduloknak a "
+"megírásához az, hogy hasonló modulokat keresel a MicroPython fájban, és "
+"azokat használod példaként."
+
+#: ../../develop/cmodules.rst:45
+msgid "``micropython.mk`` contains the Makefile fragment for this module."
+msgstr ""
+"A ``micropython.mk`` tartalmazza az ehhez a modulhoz tartozó Makefile-"
+"részletet."
+
+#: ../../develop/cmodules.rst:47
+msgid ""
+"``$(USERMOD_DIR)`` is available in ``micropython.mk`` as the path to your "
+"module directory. As it's redefined for each C module, it should be expanded"
+" in your ``micropython.mk`` to a local make variable, eg ``EXAMPLE_MOD_DIR "
+":= $(USERMOD_DIR)``"
+msgstr ""
+"A ``$(USERMOD_DIR)`` elérhető a ``micropython.mk`` fájlban a modulkönyvtárad"
+" útvonalaként. Mivel ez minden C modulhoz újra van definiálva, a "
+"``micropython.mk`` fájlban egy helyi make változóba kell kibontanod, pl. "
+"``EXAMPLE_MOD_DIR := $(USERMOD_DIR)``"
+
+#: ../../develop/cmodules.rst:52
+msgid ""
+"Your ``micropython.mk`` must add your modules source files to the "
+"``SRC_USERMOD_C`` or ``SRC_USERMOD_LIB_C`` variables. The former will be "
+"processed for ``MP_QSTR_`` and ``MP_REGISTER_MODULE`` definitions, the "
+"latter will not (e.g. helpers and library code that isn't MicroPython-"
+"specific). These paths should include your expanded copy of "
+"``$(USERMOD_DIR)``, e.g.::"
+msgstr ""
+"A ``micropython.mk`` fájlnak hozzá kell adnia a moduljaid forrásfájljait a "
+"``SRC_USERMOD_C`` vagy a ``SRC_USERMOD_LIB_C`` változóhoz. Az előbbit "
+"``MP_QSTR_`` és ``MP_REGISTER_MODULE`` definíciókra dolgozzák fel, az "
+"utóbbit nem (pl. segédfüggvények és olyan könyvtári kód, amely nem "
+"MicroPython-specifikus). Ezeknek az útvonalaknak tartalmazniuk kell a "
+"``$(USERMOD_DIR)`` kibontott másolatát, pl.::"
+
+#: ../../develop/cmodules.rst:61
+msgid ""
+"Similarly, use ``SRC_USERMOD_CXX`` and ``SRC_USERMOD_LIB_CXX`` for C++ "
+"source files. If you want to include assembly files use "
+"``SRC_USERMOD_LIB_ASM``."
+msgstr ""
+"Hasonlóképpen, C++ forrásfájlokhoz használd a ``SRC_USERMOD_CXX`` és "
+"``SRC_USERMOD_LIB_CXX`` változókat. Ha assembly fájlokat szeretnél "
+"belefoglalni, használd a ``SRC_USERMOD_LIB_ASM`` változót."
+
+#: ../../develop/cmodules.rst:64
+msgid ""
+"If you have custom compiler options (like ``-I`` to add directories to "
+"search for header files), these should be added to ``CFLAGS_USERMOD`` for C "
+"code and to ``CXXFLAGS_USERMOD`` for C++ code."
+msgstr ""
+"Ha egyedi fordítói opcióid vannak (mint a ``-I``\\ , amellyel könyvtárakat "
+"adhatsz hozzá a header fájlok kereséséhez), ezeket C kódhoz a "
+"``CFLAGS_USERMOD``\\ , C++ kódhoz pedig a ``CXXFLAGS_USERMOD`` változóhoz "
+"kell hozzáadni."
+
+#: ../../develop/cmodules.rst:68
+msgid ""
+"``micropython.cmake`` contains the CMake configuration for this module."
+msgstr ""
+"A ``micropython.cmake`` tartalmazza az ehhez a modulhoz tartozó CMake "
+"konfigurációt."
+
+#: ../../develop/cmodules.rst:70
+#, python-brace-format
+msgid ""
+"In ``micropython.cmake``, you may use ``${CMAKE_CURRENT_LIST_DIR}`` as the "
+"path to the current module."
+msgstr ""
+"A ``micropython.cmake`` fájlban az aktuális modul útvonalaként a "
+"``${CMAKE_CURRENT_LIST_DIR}`` használható."
+
+#: ../../develop/cmodules.rst:73
+msgid ""
+"Your ``micropython.cmake`` should define an ``INTERFACE`` library and "
+"associate your source files, compile definitions and include directories "
+"with it. The library should then be linked to the ``usermod`` target."
+msgstr ""
+"A ``micropython.cmake`` fájlodnak definiálnia kell egy ``INTERFACE`` "
+"könyvtárat, és hozzá kell rendelnie a forrásfájljaidat, a fordítási "
+"definíciókat és az include könyvtárakat. A könyvtárat ezután a ``usermod`` "
+"célhoz kell linkelni."
+
+#: ../../develop/cmodules.rst:92
+msgid "See below for full usage example."
+msgstr "A teljes használati példát lásd alább."
+
+#: ../../develop/cmodules.rst:96
+msgid "Basic example"
+msgstr "Alapvető példa"
+
+#: ../../develop/cmodules.rst:98
+msgid ""
+"The ``cexample`` module provides examples for a function and a class. The "
+"``cexample.add_ints(a, b)`` function adds two integer args together and "
+"returns the result. The ``cexample.Timer()`` type creates timers that can be"
+" used to measure the elapsed time since the object is instantiated."
+msgstr ""
+"A ``cexample`` modul egy függvényre és egy osztályra mutat példát. A "
+"``cexample.add_ints(a, b)`` függvény összead két egész argumentumot, és "
+"visszaadja az eredményt. A ``cexample.Timer()`` típus olyan időzítőket hoz "
+"létre, amelyekkel mérhető az objektum példányosítása óta eltelt idő."
+
+#: ../../develop/cmodules.rst:103
+msgid ""
+"The module can be found in the MicroPython source tree `in the examples "
+"directory "
+"<https://github.com/micropython/micropython/tree/master/examples/usercmodule/cexample>`_"
+" and has a source file and a Makefile fragment with content as described "
+"above::"
+msgstr ""
+"A modul megtalálható a MicroPython forrásfájban `a példák könyvtárában "
+"<https://github.com/micropython/micropython/tree/master/examples/usercmodule/cexample>`_\\"
+" , és van egy forrásfájlja, valamint egy Makefile-részlete, a fentebb leírt "
+"tartalommal::"
+
+#: ../../develop/cmodules.rst:116
+msgid ""
+"Refer to the comments in these files for additional explanation. Next to the"
+" ``cexample`` module there's also ``cppexample`` which works in the same way"
+" but shows one way of mixing C and C++ code in MicroPython."
+msgstr ""
+"A további magyarázatért lásd az ezekben a fájlokban lévő megjegyzéseket. A "
+"``cexample`` modul mellett található egy ``cppexample`` is, amely ugyanígy "
+"működik, de a C és C++ kód MicroPython-ban való vegyítésének egy módját "
+"mutatja be."
+
+#: ../../develop/cmodules.rst:123
+msgid "Compiling the cmodule into MicroPython"
+msgstr "A cmodule lefordítása a MicroPython-ba"
+
+#: ../../develop/cmodules.rst:125
+msgid ""
+"To build such a module, compile MicroPython (see `getting started "
+"<https://github.com/micropython/micropython/wiki/Getting-Started>`_), "
+"applying 2 modifications:"
+msgstr ""
+"Egy ilyen modul felépítéséhez fordítsd le a MicroPython-t (lásd a `kezdeti "
+"lépéseket <https://github.com/micropython/micropython/wiki/Getting-"
+"Started>`_\\ ), 2 módosítást alkalmazva:"
+
+#: ../../develop/cmodules.rst:129
+msgid ""
+"Set the build-time flag ``USER_C_MODULES`` to point to the modules you want "
+"to include.  For ports that use Make this variable should be a directory "
+"which is searched automatically for modules.  For ports that use CMake this "
+"variable should be a file which includes the modules to build.  See below "
+"for details."
+msgstr ""
+"Állítsd be a ``USER_C_MODULES`` build-időbeli kapcsolót úgy, hogy a "
+"belefoglalni kívánt modulokra mutasson.  A Make-et használó portoknál ennek "
+"a változónak egy könyvtárnak kell lennie, amelyben automatikusan keresik a "
+"modulokat.  A CMake-et használó portoknál ennek a változónak egy fájlnak "
+"kell lennie, amely tartalmazza a felépítendő modulokat.  A részletekért lásd"
+" alább."
+
+#: ../../develop/cmodules.rst:135
+msgid ""
+"Enable the modules by setting the corresponding C preprocessor macro to 1.  "
+"This is only needed if the modules you are building are not automatically "
+"enabled."
+msgstr ""
+"Engedélyezd a modulokat a megfelelő C előfeldolgozó makró 1-re állításával."
+"  Erre csak akkor van szükség, ha a felépítendő modulok nem engedélyezettek "
+"automatikusan."
+
+#: ../../develop/cmodules.rst:139
+msgid ""
+"For building the example modules which come with MicroPython, set "
+"``USER_C_MODULES`` to the ``examples/usercmodule`` directory for Make, or to"
+" ``examples/usercmodule/micropython.cmake`` for CMake."
+msgstr ""
+"A MicroPython-nal érkező példamodulok felépítéséhez állítsd a "
+"``USER_C_MODULES`` változót az ``examples/usercmodule`` könyvtárra Make "
+"esetén, vagy az ``examples/usercmodule/micropython.cmake`` fájlra CMake "
+"esetén."
+
+#: ../../develop/cmodules.rst:143
+msgid ""
+"For example, here's how to build the unix port with the example modules:"
+msgstr "Például így építhető fel a unix port a példamodulokkal:"
+
+#: ../../develop/cmodules.rst:150
+msgid ""
+"You may need to run ``make clean`` once at the start when including new user"
+" modules in the build.  The build output will show the modules found::"
+msgstr ""
+"Előfordulhat, hogy egyszer le kell futtatnod a ``make clean`` parancsot az "
+"elején, amikor új felhasználói modulokat foglalsz a build-be.  A build "
+"kimenete megmutatja a megtalált modulokat::"
+
+#: ../../develop/cmodules.rst:158
+msgid ""
+"For a CMake-based port such as rp2, this will look a little different (note "
+"that CMake is actually invoked by ``make``):"
+msgstr ""
+"Egy CMake-alapú portnál, mint az rp2, ez kissé másképp néz ki (vedd "
+"figyelembe, hogy a CMake-et valójában a ``make`` hívja meg):"
+
+#: ../../develop/cmodules.rst:166
+msgid ""
+"Again, you may need to run ``make clean`` first for CMake to pick up the "
+"user modules.  The CMake build output lists the modules by name::"
+msgstr ""
+"Ismét, lehet, hogy először le kell futtatnod a ``make clean`` parancsot, "
+"hogy a CMake felvegye a felhasználói modulokat.  A CMake build kimenete név "
+"szerint felsorolja a modulokat::"
+
+#: ../../develop/cmodules.rst:174
+msgid ""
+"The contents of the top-level ``micropython.cmake`` can be used to control "
+"which modules are enabled."
+msgstr ""
+"A legfelső szintű ``micropython.cmake`` tartalma használható annak "
+"szabályozására, hogy mely modulok legyenek engedélyezve."
+
+#: ../../develop/cmodules.rst:177
+msgid ""
+"For your own projects it's more convenient to keep custom code out of the "
+"main MicroPython source tree, so a typical project directory structure will "
+"look like this::"
+msgstr ""
+"A saját projektjeidnél kényelmesebb az egyedi kódot a fő MicroPython "
+"forrásfán kívül tartani, így egy tipikus projektkönyvtár-struktúra így néz "
+"ki::"
+
+#: ../../develop/cmodules.rst:197
+msgid ""
+"When building with Make set ``USER_C_MODULES`` to the ``my_project/modules``"
+" directory.  For example, building the stm32 port:"
+msgstr ""
+"Make-kel való építéskor állítsd a ``USER_C_MODULES`` változót a "
+"``my_project/modules`` könyvtárra.  Például az stm32 port felépítése:"
+
+#: ../../develop/cmodules.rst:205
+msgid ""
+"When building with CMake the top level ``micropython.cmake`` -- found "
+"directly in the ``my_project/modules`` directory -- should ``include`` all "
+"of the modules you want to have available:"
+msgstr ""
+"CMake-kel való építéskor a legfelső szintű ``micropython.cmake`` fájlnak -- "
+"amely közvetlenül a ``my_project/modules`` könyvtárban található -- "
+"``include`` paranccsal kell betöltenie az összes elérhetővé tenni kívánt "
+"modult:"
+
+#: ../../develop/cmodules.rst:214
+msgid "Then build with:"
+msgstr "Majd építsd fel a következővel:"
+
+#: ../../develop/cmodules.rst:221
+msgid "You can also specify absolute paths to ``USER_C_MODULES``."
+msgstr "A ``USER_C_MODULES`` változóhoz abszolút útvonalakat is megadhatsz."
+
+#: ../../develop/cmodules.rst:223
+msgid ""
+"All modules specified by the ``USER_C_MODULES`` variable (either found in "
+"this directory when using Make, or added via ``include`` when using CMake) "
+"will be compiled, but only those which are enabled will be available for "
+"importing. User modules are usually enabled by default (this is decided by "
+"the developer of the module), in which case there is nothing more to do than"
+" set ``USER_C_MODULES`` as described above."
+msgstr ""
+"A ``USER_C_MODULES`` változó által megadott összes modul (akár ebben a "
+"könyvtárban található Make használatakor, akár ``include`` paranccsal "
+"hozzáadva CMake használatakor) lefordításra kerül, de csak azok lesznek "
+"importálhatók, amelyek engedélyezve vannak. A felhasználói modulok általában"
+" alapértelmezetten engedélyezettek (ezt a modul fejlesztője dönti el), ebben"
+" az esetben nincs más teendő, mint beállítani a ``USER_C_MODULES`` változót "
+"a fentebb leírtak szerint."
+
+#: ../../develop/cmodules.rst:230
+msgid ""
+"If a module is not enabled by default then the corresponding C preprocessor "
+"macro must be enabled.  This macro name can be found by searching for the "
+"``MP_REGISTER_MODULE`` line in the module's source code (it usually appears "
+"at the end of the main source file). This macro should be surrounded by a "
+"``#if X`` / ``#endif`` pair, and the configuration option ``X`` must be set "
+"to 1 using ``CFLAGS_EXTRA`` to make the module available.  If there is no "
+"``#if X`` / ``#endif`` pair then the module is enabled by default."
+msgstr ""
+"Ha egy modul nincs alapértelmezetten engedélyezve, akkor a megfelelő C "
+"előfeldolgozó makrót kell engedélyezni.  Ez a makrónév a modul "
+"forráskódjában a ``MP_REGISTER_MODULE`` sor keresésével található meg "
+"(általában a fő forrásfájl végén szerepel). Ezt a makrót egy ``#if X`` / "
+"``#endif`` párnak kell körülvennie, és az ``X`` konfigurációs opciót a "
+"``CFLAGS_EXTRA`` segítségével 1-re kell állítani, hogy a modul elérhetővé "
+"váljon.  Ha nincs ``#if X`` / ``#endif`` pár, akkor a modul "
+"alapértelmezetten engedélyezett."
+
+#: ../../develop/cmodules.rst:237
+msgid ""
+"For example, the ``examples/usercmodule/cexample`` module is enabled by "
+"default so has the following line in its source code:"
+msgstr ""
+"Például az ``examples/usercmodule/cexample`` modul alapértelmezetten "
+"engedélyezett, ezért a következő sor szerepel a forráskódjában:"
+
+#: ../../develop/cmodules.rst:244
+msgid ""
+"Alternatively, to make this module disabled by default but selectable "
+"through a preprocessor configuration option, it would be:"
+msgstr ""
+"Alternatívaként, ha ezt a modult alapértelmezetten letiltottá, de egy "
+"előfeldolgozó konfigurációs opcióval kiválaszthatóvá szeretnéd tenni, ez így"
+" nézne ki:"
+
+#: ../../develop/cmodules.rst:253
+msgid ""
+"In this case the module is enabled by adding "
+"``CFLAGS_EXTRA=-DMODULE_CEXAMPLE_ENABLED=1`` to the ``make`` command, or "
+"editing ``mpconfigport.h`` or ``mpconfigboard.h`` to add"
+msgstr ""
+"Ebben az esetben a modul engedélyezhető a "
+"``CFLAGS_EXTRA=-DMODULE_CEXAMPLE_ENABLED=1`` hozzáadásával a ``make`` "
+"parancshoz, vagy az ``mpconfigport.h`` vagy ``mpconfigboard.h`` "
+"szerkesztésével a következő hozzáadásával"
+
+#: ../../develop/cmodules.rst:260
+msgid ""
+"Note that the exact method depends on the port as they have different "
+"structures.  If not done correctly it will compile but importing will fail "
+"to find the module."
+msgstr ""
+"Vedd figyelembe, hogy a pontos módszer a porttól függ, mivel azok eltérő "
+"struktúrájúak.  Ha nem helyesen történik, akkor le fog fordulni, de az "
+"importálás nem fogja megtalálni a modult."
+
+#: ../../develop/cmodules.rst:266
+msgid "Module usage in MicroPython"
+msgstr "Modulhasználat a MicroPython-ban"
+
+#: ../../develop/cmodules.rst:268
+msgid ""
+"Once built into your copy of MicroPython, the module can now be accessed in "
+"Python just like any other builtin module, e.g."
+msgstr ""
+"Miután beépítetted a MicroPython másolatodba, a modul mostantól Python-ban "
+"éppúgy elérhető, mint bármely más beépített modul, pl."
+
+#: ../../develop/cmodules.rst:291
+msgid "C Dynamic Memory Allocation"
+msgstr "C dinamikus memóriafoglalás"
+
+#: ../../develop/cmodules.rst:293
+msgid ""
+"MicroPython uses its own \"Python heap\" for `memorymanagement`, which is "
+"not the same as the \"C heap\" used by C library functions ``malloc()``, "
+"``free()``, etc. Not every MicroPython port comes with a \"C heap\" at all."
+msgstr ""
+"A MicroPython a saját „Python heap”-jét használja a `memorymanagement` "
+"célokra, amely nem azonos a C könyvtárfüggvények, mint a ``malloc()``\\ , "
+"``free()`` stb. által használt „C heap”-pel. Nem minden MicroPython port "
+"rendelkezik egyáltalán „C heap”-pel."
+
+#: ../../develop/cmodules.rst:297
+msgid ""
+"Tier 1 & 2 ports have varying support for C dynamic memory allocation via a "
+"\"C heap\":"
+msgstr ""
+"Az 1. és 2. szintű portok eltérő mértékben támogatják a C dinamikus "
+"memóriafoglalást egy „C heap”-en keresztül:"
+
+#: ../../develop/cmodules.rst:300
+msgid ""
+"unix, windows, esp32 and webassembly ports support C dynamic memory "
+"allocation."
+msgstr ""
+"A unix, windows, esp32 és webassembly portok támogatják a C dinamikus "
+"memóriafoglalást."
+
+#: ../../develop/cmodules.rst:302
+msgid ""
+"rp2 port will fail to allocate any memory at runtime unless the firmware is "
+"built with ``MICROPY_C_HEAP_SIZE=n`` to reserve ``n`` bytes of memory for a "
+"C heap. This memory will not be available for Python code to use."
+msgstr ""
+"Az rp2 port futásidőben nem tud memóriát foglalni, hacsak a firmware nem a "
+"``MICROPY_C_HEAP_SIZE=n`` beállítással van felépítve, hogy ``n`` bájt "
+"memóriát foglaljon le egy C heap számára. Ez a memória nem lesz elérhető a "
+"Python kód számára."
+
+#: ../../develop/cmodules.rst:305
+msgid ""
+"alif, mimxrt, nrf, renesas-ra, samd, and stm32 port builds that include "
+"dynamic C allocation will fail at link-time with errors such as ``undefined "
+"reference to `malloc'``. MicroPython has no built-in support for dynamic C "
+"allocation on these ports. Any solution requires manually adding a C heap "
+"implementation to the custom build."
+msgstr ""
+"Az alif, mimxrt, nrf, renesas-ra, samd és stm32 portok dinamikus C foglalást"
+" tartalmazó buildjei linkeléskor olyan hibákkal fognak elbukni, mint az "
+"``undefined reference to `malloc'``\\ . A MicroPython ezeken a portokon nem "
+"tartalmaz beépített támogatást a dinamikus C foglaláshoz. Bármilyen megoldás"
+" megköveteli egy C heap implementáció kézi hozzáadását az egyedi build-hez."
+
+#: ../../develop/cmodules.rst:310
+msgid "zephyr port currently does not support building with user modules."
+msgstr ""
+"A zephyr port jelenleg nem támogatja a felhasználói modulokkal való "
+"felépítést."
+
+#: ../../develop/cmodules.rst:313
+msgid "Python heap as C heap"
+msgstr "Python heap mint C heap"
+
+#: ../../develop/cmodules.rst:315
+msgid ""
+"It may be practical for C code to call \"Python heap\" dynamic allocation "
+"functions such as ``m_malloc()``, ``m_malloc0()`` and ``m_free()`` instead."
+msgstr ""
+"A C kód számára gyakorlatias lehet, ha helyette „Python heap” dinamikus "
+"foglalási függvényeket hív meg, mint a ``m_malloc()``\\ , ``m_malloc0()`` és"
+" ``m_free()``\\ ."
+
+#: ../../develop/cmodules.rst:318
+msgid "See `python_memory_from_c` for more information about this approach."
+msgstr ""
+"Erről a megközelítésről további információért lásd a `python_memory_from_c` "
+"szakaszt."
+
+#: ../../develop/cmodules.rst:323
+msgid "C++ Modules"
+msgstr "C++ modulok"
+
+#: ../../develop/cmodules.rst:325
+msgid ""
+"Most Tier 1 & 2 MicroPython ports (and some Tier 3) support building C++ "
+"user modules, using the C++-specific environment variables described above."
+msgstr ""
+"A legtöbb 1. és 2. szintű MicroPython port (és néhány 3. szintű is) "
+"támogatja a C++ felhasználói modulok felépítését a fentebb leírt "
+"C++-specifikus környezeti változók használatával."
+
+#: ../../develop/cmodules.rst:328
+msgid ""
+"Integrating C++ and MicroPython successfully involves some additional "
+"considerations:"
+msgstr ""
+"A C++ és a MicroPython sikeres integrálása néhány további szempontot is "
+"magában foglal:"
+
+#: ../../develop/cmodules.rst:332
+msgid "C++ Dynamic Memory Allocation"
+msgstr "C++ dinamikus memóriafoglalás"
+
+#: ../../develop/cmodules.rst:334
+msgid ""
+"C++ programs (as well as C++ Standard Library features) typically use "
+"dynamic memory allocation. The C++ default memory allocator (i.e. operators "
+"``new`` and ``delete``) is typically implemented as a layer on top of "
+"`c_heap`."
+msgstr ""
+"A C++ programok (valamint a C++ szabványos könyvtár jellemzői) jellemzően "
+"dinamikus memóriafoglalást használnak. A C++ alapértelmezett "
+"memóriafoglalója (azaz a ``new`` és ``delete`` operátorok) jellemzően a "
+"`c_heap` tetejére épülő rétegként van implementálva."
+
+#: ../../develop/cmodules.rst:338
+msgid ""
+"For MicroPython ports which don't include C dynamic memory allocation "
+"support, C++ dynamic memory allocation can be supported in one of two ways:"
+msgstr ""
+"Azoknál a MicroPython portoknál, amelyek nem tartalmaznak C dinamikus "
+"memóriafoglalási támogatást, a C++ dinamikus memóriafoglalás kétféleképpen "
+"támogatható:"
+
+#: ../../develop/cmodules.rst:341
+msgid "Implement C dynamic memory allocation in your custom build."
+msgstr "Implementálj C dinamikus memóriafoglalást az egyedi build-edben."
+
+#: ../../develop/cmodules.rst:342
+msgid "Implement a custom C++ allocator in your custom build."
+msgstr "Implementálj egy egyedi C++ memóriafoglalót az egyedi build-edben."
+
+#: ../../develop/cmodules.rst:345
+msgid "Linkage Considerations"
+msgstr "Linkelési szempontok"
+
+#: ../../develop/cmodules.rst:347
+msgid ""
+"Because MicroPython is a C-based project, any symbols which link to or from "
+"MicroPython need to be qualified ``extern \"C\"`` in C++ code."
+msgstr ""
+"Mivel a MicroPython egy C-alapú projekt, minden olyan szimbólumot, amely a "
+"MicroPython-hoz vagy onnan linkelődik, ``extern \"C\"`` minősítéssel kell "
+"ellátni a C++ kódban."
+
+#: ../../develop/cmodules.rst:350
+msgid ""
+"It's strongly recommended to follow the pattern demonstrated in "
+"`examples/usercmodule/cppexample "
+"<https://github.com/micropython/micropython/blob/master/examples/usercmodule/cppexample>`_,"
+" where the Python module is implemented in a minimal C file wrapper around "
+"the C++ code."
+msgstr ""
+"Erősen ajánlott a `examples/usercmodule/cppexample "
+"<https://github.com/micropython/micropython/blob/master/examples/usercmodule/cppexample>`_"
+" példában bemutatott minta követése, ahol a Python modul egy minimális C "
+"fájlban van implementálva, amely a C++ kódot burkolja."

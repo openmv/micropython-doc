@@ -1,0 +1,200 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:2
+msgid "Auth for programmatic clients"
+msgstr "Hitelesítés programozott klienseknek"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:4
+msgid ""
+"Bearer tokens are how phones, companion microcontrollers, and cloud workers "
+"authenticate to a server -- the client puts a token in the ``Authorization``"
+" header on every request and the server checks it. The companion phone app "
+"POSTs an \"ack\" when the owner taps \"seen\" on a motion notification; "
+"those requests need a token."
+msgstr ""
+"A bearer tokenek azok, amelyekkel a telefonok, a kísérő mikrovezérlők és a "
+"felhőbeli munkavégzők hitelesítik magukat egy szerver felé -- a kliens "
+"minden kérésben elhelyez egy tokent az ``Authorization`` fejlécben, a "
+"szerver pedig ellenőrzi azt. A kísérő telefonos alkalmazás egy \"ack\" "
+"üzenetet POST-ol, amikor a tulajdonos egy mozgásértesítésnél a \"látott\" "
+"gombra koppint; ezek a kérések tokent igényelnek."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:11
+msgid "The signing secret"
+msgstr "Az aláíró titok"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:13
+msgid ""
+"The secret is the cam's private key for signing and verifying tokens. "
+"Generate 32 random bytes from the hardware RNG on the cam's first boot, "
+"persist them to the filesystem, and reuse the same bytes on every subsequent"
+" boot:"
+msgstr ""
+"A titok a kamera privát kulcsa a tokenek aláírásához és ellenőrzéséhez. A "
+"kamera első indításakor generálj 32 véletlenszerű bájtot a hardveres RNG-"
+"ből, tartsd meg azokat a fájlrendszerben, és minden későbbi indításkor "
+"használd újra ugyanazokat a bájtokat:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:31
+msgid ""
+":func:`os.urandom` is the cryptographically suitable random source on each "
+"cam port -- on most ports it reads the chip's hardware random-number "
+"generator directly. The file lives in the cam's working directory "
+"(``/sdcard`` if an SD card is mounted, ``/flash`` otherwise) and never "
+"leaves the cam. Deleting ``secret.bin`` and rebooting rotates the secret and"
+" invalidates every token issued under the old one."
+msgstr ""
+"Az :func:`os.urandom` a kriptográfiailag megfelelő véletlenforrás minden "
+"kamera porton -- a legtöbb porton közvetlenül a chip hardveres véletlenszám-"
+"generátorát olvassa. A fájl a kamera munkakönyvtárában található (\\ "
+"``/sdcard``\\ , ha SD-kártya van csatlakoztatva, egyébként ``/flash``\\ ), "
+"és soha nem hagyja el a kamerát. A ``secret.bin`` törlése és az újraindítás "
+"lecseréli a titkot, és érvényteleníti a régi alatt kiadott összes tokent."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:41
+msgid ""
+":func:`machine.unique_id` is *not* a substitute. On some cam ports it is "
+"also used to derive the network MAC address, which means its value travels "
+"with every packet the cam sends -- not the property a signing secret needs."
+msgstr ""
+"A :func:`machine.unique_id` *nem* helyettesíti ezt. Egyes kamera portokon a "
+"hálózati MAC-cím származtatására is használják, ami azt jelenti, hogy az "
+"értéke minden csomaggal együtt utazik, amelyet a kamera küld -- nem ez az a "
+"tulajdonság, amelyre egy aláíró titoknak szüksége van."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:47
+msgid "Issuing tokens"
+msgstr "Tokenek kiadása"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:49
+msgid ""
+"The phone needs a way to *get* a token in the first place. A short-lived "
+"*JSON Web Token* (JWT) -- a base64-encoded JSON payload with a signature "
+"appended -- is enough for a first pass: the owner trades a password for a "
+"token, then uses the token until it expires:"
+msgstr ""
+"A telefonnak először is szüksége van valamilyen módra, hogy *megszerezzen* "
+"egy tokent. Egy rövid élettartamú *JSON Web Token* (JWT) -- egy "
+"base64-kódolt JSON hasznos teher hozzáfűzött aláírással -- elegendő egy első"
+" megközelítéshez: a tulajdonos jelszót cserél tokenre, majd a tokent "
+"használja, amíg le nem jár:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:71
+#, python-brace-format
+msgid ""
+"The phone POSTs ``{user, pass}`` once, stores the returned token in local "
+"storage, and includes it as ``Authorization: Bearer <token>`` on every "
+"subsequent request."
+msgstr ""
+"A telefon egyszer POST-olja a ``{user, pass}`` adatokat, eltárolja a "
+"visszakapott tokent a helyi tárolóban, és minden további kérésben "
+"``Authorization: Bearer <token>`` formában mellékeli."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:75
+msgid ""
+"The ``exp`` claim is a Unix timestamp. The verifier on the next section "
+"relies on this claim to reject expired tokens automatically -- which means "
+"the cam's wall clock has to be set, because otherwise every token will look "
+"either far in the future or already expired. See "
+":doc:`/openmvcam/tutorial/networking/names/ntp` for the NTP-sync recipe."
+msgstr ""
+"Az ``exp`` állítás (claim) egy Unix időbélyeg. A következő szakaszban "
+"szereplő ellenőrző erre az állításra támaszkodik, hogy automatikusan "
+"elutasítsa a lejárt tokeneket -- ami azt jelenti, hogy a kamera valós idejű "
+"óráját be kell állítani, mert egyébként minden token vagy távol a jövőben, "
+"vagy már lejártnak fog tűnni. Az NTP-szinkronizálás receptjéhez lásd: "
+":doc:`/openmvcam/tutorial/networking/names/ntp`\\ ."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:83
+msgid "Verifying tokens with TokenAuth"
+msgstr "Tokenek ellenőrzése a TokenAuth segítségével"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:85
+msgid ""
+":class:`microdot.auth.TokenAuth` is the decorator factory for routes that "
+"require an ``Authorization: Bearer <token>`` header. The verifier callback "
+"receives the token string and returns whatever identity object should be "
+"attached to the request -- or :data:`None` to reject:"
+msgstr ""
+"A :class:`microdot.auth.TokenAuth` a dekorátorgyár olyan útvonalakhoz, "
+"amelyek ``Authorization: Bearer <token>`` fejlécet igényelnek. Az ellenőrző "
+"visszahívás megkapja a token sztringet, és visszaadja azt az "
+"identitásobjektumot, amelyet a kéréshez kell csatolni -- vagy :data:`None` "
+"értéket az elutasításhoz:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:113
+msgid ""
+":func:`jwt.decode` raises :exc:`jwt.exceptions.PyJWTError` (or a subclass) "
+"when the signature is wrong, the token is malformed, or the ``exp`` claim "
+"has passed. The verifier swallows all of those and returns :data:`None`, so "
+"microdot responds 401 without the handler seeing anything."
+msgstr ""
+"A :func:`jwt.decode` :exc:`jwt.exceptions.PyJWTError` kivételt (vagy egy "
+"alosztályát) vált ki, ha az aláírás hibás, a token hibásan formázott, vagy "
+"az ``exp`` állítás már lejárt. Az ellenőrző mindezeket lenyeli, és "
+":data:`None` értéket ad vissza, így a microdot 401-gyel válaszol anélkül, "
+"hogy a kezelő bármit is látna."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:119
+msgid ""
+"When the verifier returns a non-:data:`None` value, microdot stores it on "
+":attr:`request.g.current_user` so the handler can read it -- in this case "
+"it's the JWT ``sub`` (subject) claim."
+msgstr ""
+"Amikor az ellenőrző nem :data:`None` értéket ad vissza, a microdot eltárolja"
+" azt a :attr:`request.g.current_user` mezőben, hogy a kezelő kiolvashassa --"
+" ebben az esetben ez a JWT ``sub`` (subject) állítása."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:124
+msgid "BasicAuth for closed networks"
+msgstr "BasicAuth zárt hálózatokhoz"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:126
+msgid ""
+"For an admin endpoint that's only ever hit from a trusted network, "
+":class:`microdot.auth.BasicAuth` is simpler -- the browser pops a native "
+"username/password dialog and sends them in the ``Authorization: Basic ...`` "
+"header on every request:"
+msgstr ""
+"Egy olyan adminisztrációs végponthoz, amelyet csak megbízható hálózatról "
+"érnek el, a :class:`microdot.auth.BasicAuth` egyszerűbb -- a böngésző egy "
+"natív felhasználónév/jelszó párbeszédablakot dob fel, és minden kérésben "
+"elküldi azokat az ``Authorization: Basic ...`` fejlécben:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:148
+msgid ""
+"The credentials travel in the clear unless the connection is HTTPS, so this "
+"approach only makes sense on a trusted network or with HTTPS in place."
+msgstr ""
+"A hitelesítő adatok nyíltan utaznak, hacsak a kapcsolat nem HTTPS, így ennek"
+" a megközelítésnek csak megbízható hálózaton vagy HTTPS megléte esetén van "
+"értelme."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:152
+msgid ""
+"``/api/ack`` and ``/api/login`` now understand tokens; ``/admin`` requires "
+"Basic auth."
+msgstr ""
+"Az ``/api/ack`` és az ``/api/login`` mostantól érti a tokeneket; az "
+"``/admin`` Basic hitelesítést igényel."

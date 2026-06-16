@@ -1,0 +1,324 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:2
+msgid "Streaming frames"
+msgstr "Képkockák streamelése"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:4
+msgid ""
+"The most common real use of a custom channel is streaming image frames from "
+"the cam to a host program at the cam's frame rate. The mechanics are subtler"
+" than they look: a JPEG can run to 25 KB or more, so the host reads it as "
+"several fragments, and the cam's capture loop must be prevented from "
+"overwriting the buffer mid-read. The right pattern -- shown here and used by"
+" the tools in ``openmv-projects/tools/`` -- *latches* the buffer until the "
+"host finishes pulling the last byte."
+msgstr ""
+"Egy egyéni csatorna legjellemzőbb valós felhasználása a képkockák "
+"streamelése a kamerától egy gazdaprogram felé, a kamera képsebességén. A "
+"mechanika finomabb a látszatnál: egy JPEG akár 25 KB-ot vagy többet is "
+"kitehet, így a gazdagép több töredékként olvassa be, a kamera rögzítési "
+"ciklusát pedig meg kell akadályozni abban, hogy olvasás közben felülírja a "
+"puffert. A helyes minta -- amelyet itt bemutatunk, és amelyet az ``openmv-"
+"projects/tools/`` mappában lévő eszközök is használnak -- *megreteszeli* a "
+"puffert, amíg a gazdagép ki nem olvassa az utolsó bájtot."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:14
+msgid "The cam side"
+msgstr "A kamera oldala"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:16
+msgid ""
+"A frame channel that captures into a single framebuffer, latches it on the "
+"host's first read, and only takes the next snapshot once the host has "
+"consumed the full image::"
+msgstr ""
+"Egy képkocka-csatorna, amely egyetlen képkocka-pufferbe rögzít, megreteszeli"
+" azt a gazdagép első olvasásakor, és csak akkor készíti el a következő "
+"pillanatképet, amikor a gazdagép a teljes képet felhasználta::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:65
+msgid "Four pieces are doing real work here:"
+msgstr "Itt négy elem végez tényleges munkát:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:67
+msgid ""
+"``frame_available`` is the *latch*. The capture loop only takes a new "
+"snapshot when it is :data:`False` -- meaning the host has pulled the last "
+"byte of the previous frame. The host's read sets it back to :data:`False` "
+"from inside ``readp`` once the final offset has been served. Without this "
+"guard, the next ``csi0.snapshot()`` would overwrite the buffer mid-read and "
+"the host would receive a frame stitched together from two captures."
+msgstr ""
+"A ``frame_available`` a *retesz*\\ . A rögzítési ciklus csak akkor készít új"
+" pillanatképet, amikor ez :data:`False` -- vagyis amikor a gazdagép "
+"kiolvasta az előző képkocka utolsó bájtját. A gazdagép olvasása a ``readp`` "
+"belsejéből állítja vissza :data:`False` értékre, miután az utolsó eltolást "
+"is kiszolgálta. E védelem nélkül a következő ``csi0.snapshot()`` olvasás "
+"közben felülírná a puffert, és a gazdagép két rögzítésből összevarrt "
+"képkockát kapna."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:74
+msgid ""
+"``readp`` rather than ``read`` is what the backend implements. The protocol "
+"library treats the returned buffer as authoritative and reads its bytes "
+"directly into the outgoing packet -- no copy. For frame-sized payloads "
+"``readp`` is noticeably faster than ``read``, which forces an intermediate "
+"copy."
+msgstr ""
+"A háttérprogram a ``readp`` metódust valósítja meg, nem a ``read`` metódust."
+" A protokollkönyvtár a visszaadott puffert mérvadónak tekinti, és annak "
+"bájtjait közvetlenül a kimenő csomagba olvassa be -- másolás nélkül. "
+"Képkocka méretű hasznos terhelés esetén a ``readp`` érezhetően gyorsabb, "
+"mint a ``read``\\ , amely egy köztes másolatot kényszerít ki."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:79
+msgid ""
+"``size`` returns the cached JPEG length without recomputing anything; the "
+"capture loop maintains it whenever it refreshes the buffer. The host calls "
+"``size`` between ``poll`` and ``readp`` to know how many bytes to pull."
+msgstr ""
+"A ``size`` a gyorsítótárazott JPEG-hosszt adja vissza anélkül, hogy bármit "
+"újraszámolna; a rögzítési ciklus karbantartja, valahányszor frissíti a "
+"puffert. A gazdagép a ``poll`` és a ``readp`` között hívja meg a ``size`` "
+"metódust, hogy megtudja, hány bájtot kell lekérnie."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:83
+msgid ""
+":meth:`~protocol.ProtocolChannel.send_event` notifies the host the instant a"
+" new frame lands so it can begin pulling without polling. The event ID "
+"``0x01`` is application-defined (\"frame ready\" in this case); use a "
+"different small integer for each kind of notification."
+msgstr ""
+"A :meth:`~protocol.ProtocolChannel.send_event` abban a pillanatban értesíti "
+"a gazdagépet, amint új képkocka érkezik, így az lekérdezés nélkül "
+"megkezdheti a lehívást. A ``0x01`` eseményazonosító alkalmazásfüggő (ebben "
+"az esetben \"frame ready\"); minden értesítéstípushoz használj eltérő, kis "
+"egész számot."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:90
+msgid "Fragmentation"
+msgstr "Töredezettség"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:92
+msgid ""
+"QVGA RGB565 at JPEG quality 85 compresses to roughly 10-25 KB, depending on "
+"the scene -- much bigger than the negotiated max payload on any cam (see the"
+" per-board table in :func:`protocol.init`). One JPEG read won't fit in one "
+"packet, and that's fine, because the protocol library fragments it "
+"transparently."
+msgstr ""
+"A QVGA RGB565 JPEG 85-ös minőségen nagyjából 10-25 KB-ra tömörödik, a "
+"jelenettől függően -- jóval nagyobbra, mint a kialkudott maximális hasznos "
+"terhelés bármely kamerán (lásd a kártyánkénti táblázatot itt: "
+":func:`protocol.init`\\ ). Egyetlen JPEG-olvasás nem fér el egyetlen "
+"csomagban, és ez rendben is van, mert a protokollkönyvtár átláthatóan "
+"töredezi azt."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:99
+msgid "When the host asks for ``channel_read('frame', 12000)``:"
+msgstr "Amikor a gazdagép a ``channel_read('frame', 12000)`` hívást kéri:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:101
+msgid ""
+"The cam's ``readp`` is called *once* with ``offset=0`` and the full "
+"12000-byte request. It returns one memoryview covering the whole range."
+msgstr ""
+"A kamera ``readp`` metódusa *egyszer* hívódik meg ``offset=0`` értékkel és a"
+" teljes 12000 bájtos kéréssel. Egyetlen memoryview-t ad vissza, amely a "
+"teljes tartományt lefedi."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:104
+msgid ""
+"The protocol library breaks that memoryview into max-payload- sized "
+"fragments on the wire, one ``CHANNEL_READ`` reply packet per fragment, each "
+"with its own header and CRC. The bytes are streamed out of the backend's "
+"buffer directly -- no copy."
+msgstr ""
+"A protokollkönyvtár ezt a memoryview-t a vezetéken maximális hasznos "
+"terhelés méretű töredékekre bontja, töredékenként egy ``CHANNEL_READ`` "
+"válaszcsomaggal, mindegyik a saját fejlécével és CRC-jével. A bájtok "
+"közvetlenül a háttérprogram pufferéből streamelődnek ki -- másolás nélkül."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:108
+msgid ""
+"The host receives the fragments in order, the reliability layer retransmits "
+"any one chunk that fails its CRC, and the host SDK glues the chunks into the"
+" 12000-byte result returned to the caller."
+msgstr ""
+"A gazdagép sorrendben kapja meg a töredékeket, a megbízhatósági réteg "
+"újraküld minden olyan darabot, amely megbukik a CRC-ellenőrzésen, a gazda "
+"SDK pedig a darabokat összeragasztja a hívónak visszaadott 12000 bájtos "
+"eredménnyé."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:115
+msgid ""
+"This is the key practical difference between ``readp`` and ``read``. "
+"``readp`` is called *once per host request*; the protocol layer fragments "
+"and transmits out of the single returned buffer. ``read`` is called *once "
+"per fragment*, and the library copies each returned chunk into its own "
+"packet buffer. For frame-sized payloads ``readp`` saves both the per-"
+"fragment Python-level call overhead and the copy."
+msgstr ""
+"Ez a fő gyakorlati különbség a ``readp`` és a ``read`` között. A ``readp`` "
+"*gazdagép-kérésenként egyszer* hívódik meg; a protokollréteg az egyetlen "
+"visszaadott pufferből töredezik és továbbít. A ``read`` *töredékenként "
+"egyszer* hívódik meg, a könyvtár pedig minden visszaadott darabot a saját "
+"csomagpufferébe másol. Képkocka méretű hasznos terhelés esetén a ``readp`` "
+"megtakarítja mind a töredékenkénti Python-szintű hívás többletköltségét, "
+"mind a másolást."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:125
+msgid ""
+"Want to see the gap for yourself? Rename the backend's ``readp`` method to "
+"``read`` -- nothing else changes; the library will pick up the ``read`` "
+"capability instead -- and compare the host's frame-rate counter before and "
+"after. The slower number is the per-fragment copy and Python-call cost you "
+"avoid by using ``readp``."
+msgstr ""
+"Szeretnéd magad látni a különbséget? Nevezd át a háttérprogram ``readp`` "
+"metódusát ``read`` névre -- semmi más nem változik; a könyvtár ehelyett a "
+"``read`` képességet veszi át --, és hasonlítsd össze a gazdagép képsebesség-"
+"számlálóját előtte és utána. A lassabb szám az a töredékenkénti másolási és "
+"Python-hívási költség, amelyet a ``readp`` használatával elkerülsz."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:132
+msgid ""
+"The latch in ``FrameChannel.readp`` releases the buffer when ``offset + size"
+" == img_size`` -- the moment the host has pulled the last byte. Until then, "
+"the buffer must stay valid, which is why the capture loop only takes the "
+"next snapshot once ``frame_available`` flips back to :data:`False`."
+msgstr ""
+"A ``FrameChannel.readp`` retesze akkor szabadítja fel a puffert, amikor "
+"``offset + size == img_size`` -- abban a pillanatban, amikor a gazdagép "
+"kiolvasta az utolsó bájtot. Addig a puffernek érvényesnek kell maradnia, "
+"ezért is készíti el a rögzítési ciklus a következő pillanatképet csak akkor,"
+" amikor a ``frame_available`` visszabillen :data:`False` értékre."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:139
+msgid "The host side"
+msgstr "A gazdagép oldala"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:141
+msgid "The host pulls frames in a tight loop::"
+msgstr "A gazdagép szoros ciklusban hívja le a képkockákat::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:158
+msgid ""
+"The :meth:`~openmv.camera.Camera.channel_size` call doubles as a \"is "
+"anything ready\" check -- zero means the cam hasn't captured yet -- so the "
+"loop skips read attempts on an empty buffer. For GUI applications that "
+"already poll on a timer, this is the natural pattern."
+msgstr ""
+"A :meth:`~openmv.camera.Camera.channel_size` hívás egyúttal \"van-e bármi "
+"készen\" ellenőrzésként is szolgál -- a nulla azt jelenti, hogy a kamera még"
+" nem rögzített --, így a ciklus üres puffer esetén kihagyja az olvasási "
+"kísérleteket. Az időzítőn már amúgy is lekérdező grafikus felhasználói "
+"felületű alkalmazások számára ez a természetes minta."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:164
+msgid ""
+"Pillow's ``Image.open`` decodes the JPEG; the cam already JPEG-compressed it"
+" so the host doesn't have to redo expensive bit-packing on RGB565. The host "
+"script could just as easily save the bytes to disk, hand them to OpenCV, or "
+"push them through a web view."
+msgstr ""
+"A Pillow ``Image.open`` metódusa dekódolja a JPEG-et; a kamera már JPEG-"
+"tömörítette, így a gazdagépnek nem kell újra elvégeznie a költséges "
+"bitcsomagolást az RGB565-ön. A gazdaszkript ugyanilyen könnyen lemezre is "
+"menthetné a bájtokat, átadhatná őket az OpenCV-nek, vagy átküldhetné egy "
+"webes nézeten."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:171
+msgid "Throughput thinking"
+msgstr "Az átviteli teljesítmény átgondolása"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:173
+msgid "Three things bound the achievable frame rate:"
+msgstr "Az elérhető képsebességet három dolog korlátozza:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:175
+msgid ""
+"The cam's capture rate. The protocol can't deliver frames faster than the "
+"sensor produces them; whatever cap the chosen pixel format and frame size "
+"impose on capture is the ceiling."
+msgstr ""
+"A kamera rögzítési sebessége. A protokoll nem tud gyorsabban szállítani "
+"képkockákat, mint ahogy az érzékelő előállítja őket; bármilyen korlátot is "
+"szab a választott képpontformátum és képkockaméret a rögzítésre, az a felső "
+"határ."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:178
+msgid ""
+"The negotiated max payload. Bigger payloads mean fewer fragments per frame "
+"and less framing overhead, so cams with larger protocol buffers move bytes "
+"faster than smaller ones."
+msgstr ""
+"A kialkudott maximális hasznos terhelés. A nagyobb hasznos terhelés "
+"képkockánként kevesebb töredéket és kevesebb keretezési többletköltséget "
+"jelent, így a nagyobb protokollpufferrel rendelkező kamerák gyorsabban "
+"mozgatják a bájtokat, mint a kisebbek."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:181
+msgid ""
+"CRC and ACK overhead. Each packet costs 14 bytes of framing plus one ACK "
+"round-trip. For long fragments the per-payload overhead is small; for tiny "
+"payloads it dominates."
+msgstr ""
+"A CRC- és ACK-többletköltség. Minden csomag 14 bájt keretezésbe és egy ACK "
+"oda-vissza fordulóba kerül. Hosszú töredékek esetén a hasznos "
+"terhelésenkénti többletköltség kicsi; apró hasznos terhelés esetén dominál."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:185
+msgid ""
+"For most cam-to-laptop GUI work the limiting factor is the cam's capture and"
+" JPEG compression time, not the protocol stack. Where the protocol does "
+"become the bottleneck -- streaming uncompressed raw frames at high frame "
+"rates, for example -- the levers are turning off ACKs "
+"(``protocol.init(ack=False)``), increasing the protocol buffer if the cam "
+"supports it, or capturing in GRAYSCALE so each compressed JPEG carries one "
+"channel instead of three and the encoded frame ends up noticeably smaller on"
+" the wire."
+msgstr ""
+"A legtöbb kamera-laptop grafikus felületű munka esetén a korlátozó tényező a"
+" kamera rögzítési és JPEG-tömörítési ideje, nem a protokollverem. Ahol a "
+"protokoll mégis szűk keresztmetszetté válik -- például tömörítetlen nyers "
+"képkockák streamelésekor nagy képsebességen -- ott a megoldás az ACK-k "
+"kikapcsolása (\\ ``protocol.init(ack=False)``\\ ), a protokollpuffer "
+"növelése, ha a kamera támogatja, vagy GRAYSCALE módban való rögzítés, hogy "
+"minden tömörített JPEG három helyett egyetlen csatornát hordozzon, és a "
+"kódolt képkocka érezhetően kisebb legyen a vezetéken."
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:194
+msgid ""
+"The frame channel is the canonical cam-to-host data flow. The same backend "
+"interface, with a ``write`` method added, lets the host push data the other "
+"way too -- which is what an interactive cam tool needs as soon as the "
+"operator wants to *change* something rather than just watch."
+msgstr ""
+"A képkocka-csatorna a kanonikus kamera-gazda adatfolyam. Ugyanaz a "
+"háttérprogram-interfész egy hozzáadott ``write`` metódussal lehetővé teszi, "
+"hogy a gazdagép a másik irányba is adatot küldjön -- pontosan ez az, amire "
+"egy interaktív kameraeszköznek szüksége van, amint a kezelő *megváltoztatni*"
+" szeretne valamit, nem csak figyelni."

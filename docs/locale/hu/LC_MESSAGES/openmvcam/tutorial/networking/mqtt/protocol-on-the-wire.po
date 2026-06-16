@@ -1,0 +1,458 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT, bájtról bájtra"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"Ezen a ponton a kamera minden szükséges elemmel rendelkezik ahhoz, hogy egy "
+"valódi szolgáltatással kommunikáljon a nyílt interneten: van TCP-socketje, "
+"TLS, amely becsomagolja, DNS, amely nevet ad a peernek, és asyncio, amely "
+"lehetővé teszi, hogy ugyanaz a szkript más munkát is végezzen, amíg a "
+"kapcsolat nyitva van. Az MQTT az első olyan vezetékes protokoll, amely "
+"mindezeket összefogja valamivé, amit egy üzembe helyezett termék ténylegesen"
+" használ."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"Ez az oldal magát a protokollt mutatja be -- a vezetékes formátumot, az "
+"egyes résztvevők által betöltött szerepeket és a tervezésében rejlő "
+"kompromisszumokat -- elég őszintén ahhoz, hogy a mellékelt :mod:`mqtt` "
+"kliens a már ismert dolgok nyilvánvaló becsomagolásának tűnjön, ne pedig "
+"vakmerő ugrásnak."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "Pub/sub kontra kérés/válasz"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"A HTTP -- amelyhez a legtöbb kameraprojekt először nyúl -- *kérés/válasz* "
+"alapú. A kliens egy adott szervertől egy adott erőforrást kér; a szerver "
+"válaszol. Minden csere egy-az-egyhez jellegű, és mindkét fél előre ismeri a "
+"másik címét."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"Az MQTT *közzététel/feliratkozás* (publish/subscribe) alapú. A kliensek egy "
+"középen elhelyezkedő harmadik félhez, az úgynevezett **brókerhez** "
+"csatlakoznak. Egy *közzétevő* (publisher) egy megnevezett **topicra** küld "
+"üzenetet anélkül, hogy tudná vagy törődne azzal, ki hallgatja. Egy "
+"*feliratkozó* (subscriber) megmondja a brókernek, mely topicokra kíváncsi, "
+"és ezután minden olyan üzenetet megkap, amelyet ezekre a topicokra "
+"közzétesznek. A bróker végzi a szétosztást: egyetlen közzététel a ``yard-"
+"cam/motion`` topicon eljut minden olyan eszközhöz, amely feliratkozott a "
+"``yard-cam/motion`` topicra, akár nulla, akár egy, akár ötven ilyen van."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "Három dolog következik ebből a modellváltásból:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**Szétcsatolás.** A közzétevőknek nem kell tudniuk, hogy léteznek "
+"feliratkozók. A feliratkozók jöhetnek és mehetnek anélkül, hogy a közzétevő "
+"észrevenné. Egy második műszerfal hozzáadása egyetlen kódsor az új "
+"műszerfalon; a kamera nem változik."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**Szétosztás.** A bróker kezeli az összes másolatot, így a kamera egyetlen "
+"csomagot küld, függetlenül attól, hány eszköz olvassa. Pontosan erre a "
+"felhasználási esetre épült az MQTT."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**Aszimmetria.** A bróker mostantól szükséges infrastruktúra-elem -- nélküle"
+" a protokoll nem működik. Otthoni projektekhez ez általában egy ingyenes "
+"nyilvános bróker (\\ ``test.mosquitto.org``\\ , ``broker.hivemq.com``\\ ), "
+"vagy egy kisebb, amelyet magad üzemeltetsz."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"Egy kamera, amely egy yard-cam/motion topicra tesz közzé egy brókeren,\n"
+"miközben két böngészős műszerfal és egy felhőalapú archiváló egyaránt\n"
+"megkapja ugyanazt az üzenetet."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "Topicok"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr ""
+"A topicok perjellel elválasztott karakterláncok. A konvenció szerint a "
+"legáltalánosabb áll balra, a legspecifikusabb pedig jobbra::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr ""
+"Két helyettesítő karakter működik a *feliratkozásokban* (a közzétételekben "
+"nem):"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"A ``+`` egyetlen szintre illeszkedik. A ``+/motion`` minden kamera motion "
+"topicjára feliratkozik; a ``yard-cam/+`` pedig minden yard-cam altopicra."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"A ``#`` egy vagy több záró szintre illeszkedik. A ``yard-cam/#`` "
+"feliratkozik a ``yard-cam/motion``\\ , ``yard-cam/temperature``\\ , ``yard-"
+"cam/temperature/sensor-3`` topicokra, és minden másra a ``yard-cam/`` alatt."
+" A feliratkozás végén kell szerepelnie."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"A topic karakterláncok megkülönböztetik a kis- és nagybetűket. A "
+"specifikáció szerint a kezdő ``$`` a bróker belső topicjait jelöli (\\ "
+"``$SYS/...``\\ ), amelyekre a közzétevőknek nem szabad írniuk."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "A csomagformátum"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"Az MQTT TCP felett fut. Minden vezérlőcsomag egy egybájtos *fix fejléccel* "
+"kezdődik, amelyet egy változó hosszúságú *Remaining Length* mező követ, majd"
+" egy csomagtípus-specifikus *változó fejléc*\\ , végül a *hasznos teher* "
+"(payload). Ugyanaz a külső formátum vonatkozik minden parancsra -- CONNECT, "
+"PUBLISH, SUBSCRIBE, PUBACK, DISCONNECT és a többi -- ezért is írható meg egy"
+" MQTT-kliens néhány száz sorban."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"Egy MQTT PUBLISH csomag bájtelrendezése, amely megmutatja a\n"
+"fix fejléc típus- és jelzőbájtját, a változó hosszúságú\n"
+"Remaining Length mezőt, a topic nevét, az opcionális csomag-\n"
+"azonosítót és a hasznos teher bájtjait."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "A fix fejléc egyetlen bájt:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"A 7..4 bitek a **vezérlőcsomag típusa**\\ . A ``0x3`` a PUBLISH (így az első"
+" bájt általában ``0x3?`` formában kezdődik). A ``0x1`` a CONNECT, ``0x2`` a "
+"CONNACK, ``0x8`` a SUBSCRIBE, ``0xC`` a PINGREQ, ``0xE`` a DISCONNECT és így"
+" tovább."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"A 3..0 bitek csomagtípus-specifikus **jelzők**\\ . A PUBLISH esetében a "
+"jelzők a DUP újraküldési jelzőt, a QoS-szintet (2 bit) és a RETAIN jelzőt "
+"kódolják."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"A Remaining Length egy 1-4 bájtos változó hosszúságú egész szám, amely a "
+"saját maga utáni minden bájtot megszámol. Minden bájt felső bitje "
+"folytatásjelző -- az 1 azt jelenti, hogy \"még egy hosszúságbájt "
+"következik\", a 0 pedig azt, hogy \"ez az utolsó\". A 128 alatti hossz elfér"
+" egy bájtban; a nagyobb hasznos terhek többet használnak. A maximális kódolt"
+" hossz 256 MiB."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"Egy PUBLISH esetében a változó fejléc a topic neve -- egy 2 bájtos hossz, "
+"majd UTF-8 bájtok --, amelyet egy 2 bájtos *csomagazonosító* követ, amely "
+"csak akkor létezik, ha a QoS 1 vagy 2. A fennmaradó bájtok a hasznos teher, "
+"amelyet a protokoll átlátszatlan bájtokként kezel."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr ""
+"Egy minimális, QoS-0 szintű PUBLISH, amely az ``ok`` üzenetet küldi az "
+"``a/b`` topicra, így néz ki::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH, minden jelző nulla."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- 7 bájt következik."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- a topic hossza 3."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- a topic."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- a hasznos teher."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr ""
+"Kilenc bájt a vezetéken, és az üzenet eljut a brókeren az ``a/b`` topicra "
+"feliratkozó összes előfizetőhöz."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "QoS-szintek"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"A szolgáltatásminőség (Quality-of-Service) szabályozza, mennyire "
+"erőfeszítéssel biztosítja a bróker (és a kliens) a kézbesítést. A három "
+"szint:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- legfeljebb egyszer.** Küldd el és felejtsd el. A PUBLISH csomag "
+"elküldésre kerül, de soha nem nyer megerősítést. Ha a TCP kézbesíti, a "
+"bróker továbbítja. Ha a kapcsolat küldés közben megszakad, az üzenet "
+"elveszik. A legtöbb érzékelő-telemetriához megfelelő a QoS 0 -- egyetlen "
+"kimaradó hőmérséklet-leolvasás egy 30 másodpercenként kibocsátó "
+"adatfolyamban nem számít."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- legalább egyszer.** A közzétevő csomagazonosítót mellékel, és egy"
+" PUBACK-ra vár. Ha az időtúllépés előtt nem érkezik PUBACK, a közzétevő "
+"beállított DUP jelzővel újraküldi. A bróker végül kézbesítheti ugyanazt az "
+"üzenetet kétszer is egy feliratkozónak ugyanazon a szinten; a feliratkozónak"
+" fel kell készülnie a másolatok kezelésére."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- pontosan egyszer.** Egy négylépéses kézfogás (PUBREC / PUBREL / "
+"PUBCOMP) biztosítja, hogy az üzenet pontosan egyszer érkezzen meg, még az "
+"újracsatlakozásokon át is. Költséges a körutak és a bróker állapotának "
+"szempontjából. Kevés kameraalkalmazásnak van szüksége rá."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"A mellékelt :mod:`mqtt` kliens a QoS 0 és a QoS 1 szintet valósítja meg; a "
+"QoS 2 kivételt dob, ha kéred. Egy érzékelő-leolvasásokat jelentő kamera "
+"számára a QoS 0 szinte mindig a helyes válasz."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "Megőrzött üzenetek és végrendelet"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr ""
+"Két funkciót érdemes ismerni, mert megváltoztatják azt, amit a bróker "
+"megjegyez a topicodról."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN.** Ha egy PUBLISH csomagon be van állítva a RETAIN jelző, a bróker "
+"eltárolja az üzenetet, és minden *jövőbeli* feliratkozónak továbbítja abban "
+"a pillanatban, amikor feliratkozik. Így kezeli az MQTT a \"mi a jelenlegi "
+"érték?\" kérdést -- egy érzékelő megőrzött módon teszi közzé a legutóbbi "
+"leolvasását, és egy műszerfal, amely tíz perccel később iratkozik fel, így "
+"is megkapja a legfrissebb értéket ahelyett, hogy a következő közzétételre "
+"várna. Az ugyanazzal a topiccal történő újra-közzététel felülírja a "
+"megőrzött értéket; egy üres hasznos teher közzététele törli azt."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**Végrendelet (last will).** Amikor egy kliens csatlakozik, megadhat a "
+"brókernek egy \"utolsó akaratot és végrendeletet\": egy topicot, egy hasznos"
+" terhet, egy QoS-t és egy retain jelzőt. Ha az a kliens *nem szabályosan* "
+"bontja a kapcsolatot -- TCP RESET, áramkimaradás, hálózati megszakadás "
+"DISCONNECT csomag nélkül --, a bróker a kliens nevében közzéteszi a "
+"végrendeletet. A feliratkozók ezt a kamera offline állapotba kerüléséről "
+"szóló értesítésként látják. Maga a kamera soha nem küldi el a végrendeletet;"
+" a bróker teszi, mert addigra a kamera már nincs jelen."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "Életben tartás és újracsatlakozás"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"A CONNECT egy *életben tartási* (keepalive) intervallumot hordoz "
+"másodpercben. Ha a kliens ennyi ideig néma volt, a bróker halottnak tekinti."
+" Ennek megelőzésére a kliens időről időre küld egy PINGREQ-et (egyetlen "
+"bájt: ``0xC0``\\ ), és visszakap egy PINGRESP-et (\\ ``0xD0``\\ ) -- a "
+"legkisebb, legolcsóbb szívverést, amelyet a protokoll hordozni tud. A "
+"legtöbb kameraalkalmazás 30 vagy 60 másodpercre állítja az életben tartást."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"Ha a TCP-kapcsolat megszakad, mindkét fél észreveszi, és nulláról "
+"csatlakozik újra. A megszakadás előtt létesített feliratkozások elvesznek, "
+"hacsak a kliens nem használt *tartós munkamenetet* a csatlakozáskor; "
+"egyszerű kameraalkalmazásokhoz az újracsatlakozáskor-újrafeliratkozás minta "
+"rövidebb és ugyanolyan jó."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"Ez elegendő az MQTT-specifikáció olvasásához, vagy egy kliens kézi "
+"megírásához egy :class:`socket.socket` felett. A :mod:`mqtt` modulban lévő "
+"mellékelt kliens pontosan ezt teszi, plusz egy értelmes API-t biztosít az "
+"alkalmazáskódhoz."

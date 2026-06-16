@@ -1,0 +1,654 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "Naplózás"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"Egy leszállított termék nem tud hazatelefonálni a :func:`print` "
+"segítségével. A ``print()`` az USB stdout-ra ír, ami csak akkor létezik, ha "
+"a kamera egy fejlesztő munkapadján van, nyitott terminállal. A terepen semmi"
+" sem olvassa; minden sor a padlóra esik. A :mod:`logging` könyvtár ennek a "
+"helyettesítője -- egy szintszűrő, egy az alkalmazás által választott "
+"célhely, és egy formátum, amely megmondja, mi és mikor történt."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"A kamerán lévő :mod:`logging` modul a CPython megfelelőjének lecsupaszított "
+"átirata -- ugyanaz a gondolati modell, kisebb felület, néhány eltéréssel, "
+"amelyek a éles üzemű beállításnál számítanak."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "A gondolati modell"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr ""
+"A naplózás négy darabból épül fel. Mindegyik darabnak egyetlen feladata van;"
+" ez a szétválasztás teszi lehetővé, hogy egyetlen logger több célhelyre "
+"elágazzon, mindegyik a saját formátumával és szintjével:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+"A **Logger** az, amit az alkalmazás meghív. A kód azt mondja: "
+"``log.info(\"frame %d\", n)``\\ ; a logger az az objektum, amelyre ez a "
+"hívás érkezik. A loggereket név alapján keressük meg a "
+":func:`logging.getLogger` segítségével."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+"A **Handler** dönti el, hogy *hová* kerül egy rekord. Egy "
+":class:`~logging.StreamHandler` egy adatfolyamra ír (alapértelmezetten a "
+":data:`sys.stderr`\\ -re); egy :class:`~logging.FileHandler` egy lemezen "
+"lévő fájlhoz fűz hozzá. Egy loggernek tetszőleges számú handlere lehet."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"A kamerán a ``sys.stdout`` és a ``sys.stderr`` ugyanahhoz az USB CDC "
+"csatornához van bekötve -- a bármelyikre történő írás ugyanazon a terminálon"
+" jelenik meg, amelyet a fejlesztő USB-n keresztül nyitva tart. Egy "
+"``sys.stderr``\\ -re író handler a gyakorlatban olyan handler, amely "
+"ugyanoda ír, ahová a ``print()``\\ . A handler absztrakció továbbra is "
+"biztosít célhelyenkénti szűrést és formázást; csak épp nem ad fizikailag "
+"külön csatornát."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+"A **Formatter** dönti el, hogy *hogyan* jelenik meg egy rekord szövegként. "
+"Fog egy rekordot, és visszaadja a kiírandó sort. Egy formátumsztring "
+"formatterenként; egy formatter handlerenként."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"A **szintszűrő** minden loggeren és minden handleren ott ül. A rekordok egy "
+"szintet hordoznak (\\ ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ ). Csak a szűrő szintjén vagy afölött lévő rekordok jutnak "
+"át."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"Ez a szétválasztás azért számít, mert egy tipikus éles üzemű beállításnak "
+"egynél több célhelye van: egy fájl az SD-kártyán, amely mindent megtart "
+"egészen a ``DEBUG`` szintig az utólagos elemzéshez, és egy adatfolyam az USB"
+" felé, amely csak a ``WARNING`` szintet és a rosszabbat hozza felszínre, "
+"hogy a kamerához csatlakozott fejlesztő lássa a lényeget anélkül, hogy "
+"belefulladna a részletekbe. Ugyanaz a kód, két célhely, két szűrő."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "Szintek és hogy mit jelent mindegyik"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr ""
+"Az öt szint egy rendezett skála. A rekordok egy szintet hordoznak, hogy az "
+"egyes handlereken lévő szűrő eldobhassa azokat, amelyek nem érdeklik."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr ""
+"``DEBUG`` -- nyomkövetés, képkockánkénti számlálók, belső állapot kiírások. "
+"A legalacsonyabb szint; nagy mennyiségű."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr ""
+"``INFO`` -- normál működési események. A Wi-Fi csatlakozott, egy modell "
+"betöltődött, a watchdog elindult, egy új naplófájl került forgatásra."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr ""
+"``WARNING`` -- valami váratlan, de az alkalmazás kezelte. Egy eldobott "
+"képkocka, egy újrapróbált hálózati kérés."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr ""
+"``ERROR`` -- egy művelet meghiúsult, és az alkalmazás nem tudta befejezni. "
+"Egy hiányzó modellfájl, egy elutasított SD-kártya írás."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr ""
+"``CRITICAL`` -- az alkalmazás egyáltalán nem tud folytatódni. Elfogyott a "
+"memória, hiányzik egy kötelező csatlakoztatás."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"Egy fontos alapértelmezés, amelyet érdemes megjegyezni: a kamera "
+":mod:`logging` modulja minden loggert ``WARNING`` szinten indít. A ``DEBUG``"
+" és ``INFO`` szintű rekordok csendben eldobódnak, hacsak nem hívják meg a "
+":meth:`Logger.setLevel`\\ -t -- általában az alábbi :func:`basicConfig` "
+"hívás részeként. Egy \"nem működő\" naplózási beállítás gyakori első tünete,"
+" hogy az alkalmazás ``INFO`` szinten bocsátott ki, és az alapértelmezett "
+"szűrő megette a rekordot."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"A szint az egyetlen szűrő, amelyet a kamera :mod:`logging` modulja kínál. "
+"Nincsenek :class:`Filter` objektumok a részletesebb rekordonkénti "
+"szabályokhoz; ha egy rekord szintje átjut, akkor kibocsátódik."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig: a gyorsindítás"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ""
+"A :func:`logging.basicConfig` egyetlen hívással konfigurálja a gyökér "
+"loggert. Két alak fordul elő leggyakrabban:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr "Egy fejlesztői beállítás, minden az USB stderr-re ``INFO`` szinten::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr ""
+"Egy éles üzemű beállítás, minden egy SD-kártyán lévő fájlba, időbélyeggel "
+"ellátott formátummal::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+"Adj át vagy ``filename=``\\ -t egy :class:`FileHandler`\\ -hez, vagy "
+"``stream=``\\ -et egy :class:`StreamHandler`\\ -hez; a kettő kölcsönösen "
+"kizárja egymást a :func:`basicConfig`\\ -ban."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr ""
+"A formátumsztring egy ``%(field)s``\\ -stílusú sablon. A kamera formattere a"
+" következő mezőket támogatja:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s`` -- a :func:`time.localtime`\\ -ból formázott időbélyeg. Az "
+"alapértelmezett formátum ``%Y-%m-%d %H:%M:%S``\\ ; a felülírásához add át a "
+"``datefmt=``\\ -et."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s`` -- a logger neve (lásd a következő szakaszt)."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s`` -- a rekord formázott üzenete."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d`` -- a rekord időbélyegének ezredmásodperc-törtrésze."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"Az alapértelmezett formátum, ha nincs megadva, a "
+"``%(levelname)s:%(name)s:%(message)s`` -- ami a fejlesztői beállításhoz "
+"megfelelő, de elégtelen egy terepi naplóhoz, ahol épp az időbélyeg teszi a "
+"fájlt hetekkel később is hasznossá."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+"A :func:`basicConfig` a további hívásoknál üresjárat, hacsak nem adják át a "
+"``force=True``\\ -t. Konfiguráld egyszer az indításkor; ne hívd meg újra, "
+"hogy futás közben \"célhelyet válts\"."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"A kamera :mod:`logging` moduljában nincs :func:`dictConfig` vagy "
+":func:`fileConfig`\\ . A konfiguráció mindig programozott -- egyetlen "
+"``setup_logging()`` segédfüggvény, amelyet egyszer hívnak meg a "
+"``main.py``\\ -ból, ez a bevett gyakorlat."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "Modulonként elnevezett loggerek"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"Az alkalmazás kódjának nem szabad a modulszintű rövidítéseket hívnia (\\ "
+":func:`logging.info`\\ , :func:`logging.warning` és így tovább). Ezek mind a"
+" gyökér loggeren keresztül haladnak, és az ebből származó naplórekordok a "
+"``root`` nevet hordozzák -- haszontalan annak megállapítására, hogy *honnan*"
+" jött a rekord."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "A bevett gyakorlat modulonként egy logger, a modulról elnevezve::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr ""
+"Ekkor minden rekord az ``app.detector``\\ -t hordozza a ``%(name)s``\\ -ben,"
+" és a naplósor megmondja, ki bocsátotta ki."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"A kamera :mod:`logging` modulja egy fontos szempontból eltér a CPythontól: a"
+" logger névtér **lapos**\\ . A ``getLogger('app')`` és a "
+"``getLogger('app.detector')`` független loggerek, szülő/gyermek kapcsolat "
+"nélkül -- egy szint beállítása az ``app``\\ -on *nem* terjed át az "
+"``app.detector``\\ -ra. A mechanizmus, ami működik: egy saját handlerekkel "
+"nem rendelkező, elnevezett logger kölcsönveszi a gyökér logger handlereit és"
+" szintjét. Így állít be egyetlen, a gyökéren meghívott :func:`basicConfig` "
+"hívás minden más, az alkalmazás bármely pontján lévő :func:`getLogger` "
+"hívást."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "Lusta %-argumentumos formázás"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "Írd ezt::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "Ne ezt::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"A ``%``\\ -argumentumos forma lehetővé teszi, hogy a logger az "
+"argumentumokat *azután* helyettesítse be, hogy a szintszűrő eldöntötte, "
+"kibocsátja-e a rekordot. Egy kiszűrt ``DEBUG`` hívás egy gyakran futó "
+"hurokban semmibe sem kerül a formátumsztringjéért. Egy f-string elsőként, "
+"minden alkalommal kiértékelődik, még mielőtt a hívás egyáltalán elérné a "
+"loggert."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr ""
+"A CPython ``extra=`` kulcsszava strukturált mezőkhöz nem támogatott a "
+"kamerán; helyette add át az értékeket üzenetargumentumként."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "Kivételek naplózása"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+"Egy :keyword:`except` blokkon belül a :meth:`Logger.exception` ``ERROR`` "
+"szinten naplózza az üzenetet, *és* hozzáfűzi az aktuális kivétel "
+"veremkövetését a rekordhoz::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"A veremkövetést a :func:`sys.print_exception` rögzíti, ami egy "
+"kivételnaplónak a többsoros ``Traceback (most recent call last):`` blokkját "
+"adja. Ez a megfelelő eszköz a legfelső szintű kivételkezeléshez -- elkapni, "
+"naplózni és továbbmenni."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "Több handler"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"A fentebb említett éles üzemű felosztás -- minden egy fájlba ``DEBUG`` "
+"szinten, a lényeg a stderr-re ``WARNING`` szinten -- két handler, amely "
+"ugyanahhoz a loggerhez van csatolva, mindegyik a saját szintjével és "
+"formatterével::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"A gyökér logger szintje az *első* szűrő, amelybe minden rekord beleütközik. "
+"Állítsd a legalacsonyabb szintre, amelyet bármelyik handler látni akar -- "
+"itt ``DEBUG``\\ -ra --, hogy egyik handlert se éheztesse ki maga a logger. A"
+" handlerenkénti szintek aztán eldöntik, mely rekordok kerülnek ténylegesen "
+"kibocsátásra mely célhelyre."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "Naplófájlok forgatása"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"A kamera :mod:`logging` moduljában nincs :class:`RotatingFileHandler` vagy "
+":class:`TimedRotatingFileHandler`\\ . A forgatás az alkalmazás feladata."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"A minta az, hogy az aktuális :class:`FileHandler`\\ -t egy ismert helyen "
+"tartjuk, egy újra cseréljük, amikor a forgatási feltétel teljesül, és "
+"hagyjuk, hogy egy dátumozott útvonal biztosítsa a természetes fájlhatárt. "
+"Óránkénti forgatáshoz a ``/sdcard/logs/<year>/<month>/<day>/<hour>.log`` "
+"útvonalra::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"Hívd meg a ``rotate_if_needed()``\\ -et a fő hurok minden iterációjában "
+"egyszer; az útvonal-ellenőrzés olcsó, és a csere csak az órahatáron történik"
+" meg. A könyvtárfának léteznie kell, mielőtt a :class:`FileHandler` meg "
+"tudja nyitni a fájlt."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "Ürítés energiaérzékeny telepítéseknél"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+"A :class:`FileHandler` írásai a mögöttes fájlobjektum Python-pufferelésén "
+"mennek keresztül. Egy áramkimaradás egy írás és egy ürítés között elveszíti "
+"a végén lévő rekordokat. Akkumulátoros vagy húzd-ki-a-dugót telepítéseknél "
+"hívd meg a ``flush()``\\ -t a handler adatfolyamán a kritikus rekordok után,"
+" vagy időzítve."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr ""
+"Egy kis segédfüggvény, amely üríti a gyökér loggerhez csatolt összes "
+"handlert::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr ""
+"Hívd meg a ``flush_handlers()``\\ -t közvetlenül egy olyan rekord után, "
+"amelyet az alkalmazás nem engedhet meg magának elveszíteni::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"Háttérbeli biztonság érdekében hívd meg a fő hurokból olyan ütemben, amely "
+"egyensúlyt teremt a naplófrissesség és a flash memória kopása között -- "
+"másodpercenként egyszer általában bőven elég. A :meth:`Logger.critical` "
+"önmagában *nem* vált ki ürítést."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "Indítási diagnosztika"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"Egy terepi napló kontextus nélkül szinte haszontalan. Minden hidegindításnál"
+" az első rekordoknak azonosítaniuk kell, hogy *melyik* kamera, *milyen "
+"build* fut, és *hogyan* jutott el a kamera ehhez az indításhoz. Három "
+"eszközfedélzeti forrás együtt mindezt lefedi:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv` -- az OpenMV firmware verziója."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ""
+":func:`os.uname` -- a MicroPython verziója, a lapka neve + MCU, valamint a "
+"git címke és annak a forrásnak a buildelési dátuma, amelyből a firmware "
+"épült."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ""
+":mod:`machine` -- az MCU egyedi szilícium-azonosítója és az ezt az indítást "
+"kiváltó visszaállítási ok."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr ""
+":func:`os.listdir` minden csatlakozási ponton -- a fájlrendszerek, amelyek "
+"ténylegesen elindultak."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr ""
+"Egy segédfüggvény, amely mindegyiket behúzza a napló első rekordjaiba::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "Egy tipikus napló valami ilyesmivel nyit::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"Minden naplófájl nyolc sorára az üzemeltető ismeri a fizikai egységet, a "
+"firmware leszármazási vonalát, hogy miért indult el a kamera, és melyik "
+"tároló jött fel. Az ``unique id`` az MCU gyárilag beprogramozott szilícium-"
+"sorozatszáma; ez azonos az újraflashelések és az SD-kártya cserék között. A "
+"``build`` annak a firmware-fának a git címkéje és dátuma, amelyből a kép "
+"épült -- az az egyetlen mező, amely azt mondja: \"pontosan ez az a bináris, "
+"amely ehhez az egységhez ezen az időponton kiszállításra került.\""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "Összerakva"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr ""
+"Egy teljes éles üzemű naplózási beállítás, egy segédfüggvénybe szervezve, "
+"amelyet a ``main.py`` egyszer hív meg az indításkor::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "Majd a ``main.py`` tetején::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "Az alkalmazás bármely más moduljának csak ennyit kell tennie::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr ""
+"és ingyen megkapja a konfigurált kimenetet -- fájlt teljes részletességgel, "
+"adatfolyamot figyelmeztetésekkel, elnevezett rekordokat, időbélyeggel "
+"ellátott formattert, és egy dokumentált indítást minden hidegindításnál."

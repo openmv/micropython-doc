@@ -1,0 +1,372 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:2
+msgid "Freezing scripts into the firmware"
+msgstr "Szkriptek befagyasztása a firmware-be"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:4
+msgid ""
+"A *frozen* module is a ``.py`` file compiled to bytecode and linked into the"
+" firmware image at build time. The runtime imports a frozen module straight "
+"from flash, without ever looking at the on-disk filesystem. For a shipped "
+"product this is the right place for the application code: nothing for the "
+"end user to delete, nothing for a stale ``.py`` on the SD card to override, "
+"and the cam runs the same code every boot regardless of what (if anything) "
+"is on its drives."
+msgstr ""
+"A *befagyasztott* (frozen) modul olyan ``.py`` fájl, amelyet bájtkóddá "
+"fordítanak, és build-időben a firmware-képbe linkelnek. A futtatókörnyezet a"
+" befagyasztott modult közvetlenül a flash memóriából importálja, anélkül "
+"hogy egyáltalán megnézné a lemezen lévő fájlrendszert. Egy szállított termék"
+" esetén ez a megfelelő hely az alkalmazás kódjának: a végfelhasználónak "
+"nincs mit törölnie, nincs olyan elavult ``.py`` az SD-kártyán, amely "
+"felülírhatná, és a kamera minden indításkor ugyanazt a kódot futtatja, "
+"függetlenül attól, hogy mi van (ha van egyáltalán) a meghajtóin."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:13
+msgid ""
+"This page covers the startup sequence the cam follows, then how "
+"``manifest.py`` and the ``freeze`` directive bake an application into the "
+"build."
+msgstr ""
+"Ez az oldal bemutatja a kamera által követett indítási sorrendet, majd azt, "
+"hogy a ``manifest.py`` és a ``freeze`` direktíva hogyan süti bele az "
+"alkalmazást a buildbe."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:18
+msgid "The startup sequence"
+msgstr "Az indítási sorrend"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:20
+msgid "What runs, and when, on a cam coming out of reset:"
+msgstr "Mi fut, és mikor, egy reset után induló kamerán:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:22
+msgid ""
+"**The bootloader.** Power-up enters a short DFU window the IDE uses to push "
+"firmware updates. The window closes after a few seconds and the bootloader "
+"hands off to MicroPython. A running script can re-enter this window on "
+"demand by calling :func:`machine.bootloader`."
+msgstr ""
+"**A rendszerbetöltő.** A bekapcsoláskor egy rövid DFU-ablakba lép, amelyet "
+"az IDE a firmware-frissítések feltöltésére használ. Az ablak néhány "
+"másodperc után bezárul, és a rendszerbetöltő átadja a vezérlést a "
+"MicroPythonnak. Egy futó szkript igény szerint újra beléphet ebbe az ablakba"
+" a :func:`machine.bootloader` hívásával."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:28
+msgid ""
+"**Frozen filesystem init.** Before any application code runs, the runtime "
+"brings the filesystems up. Internal flash is mounted at ``/flash`` (and "
+"formatted blank if there is nothing there). If an SD card is present *and* a"
+" marker file called ``SKIPSD`` does **not** exist on internal flash, the SD "
+"card is mounted at ``/sdcard``. ROMFS, when the build includes it, is "
+"mounted automatically at ``/rom``. The working directory is set to the boot "
+"directory (``/sdcard`` if the card mounted, ``/flash`` otherwise), and "
+":data:`sys.path` is populated with ``/flash``, ``/flash/lib``, ``/sdcard``, "
+"``/sdcard/lib``, ``/rom``, and ``/rom/lib``. The flash-resident setup is "
+"handled by a frozen module called ``_boot.py`` -- port and board "
+"infrastructure, not an application hook. Applications do not customise "
+"``_boot.py``; the build does. Dropping a ``SKIPSD`` file onto flash from the"
+" IDE is the supported way to make the cam boot from internal flash instead "
+"of the SD card."
+msgstr ""
+"**Befagyasztott fájlrendszer inicializálása.** Mielőtt bármilyen "
+"alkalmazáskód futna, a futtatókörnyezet elindítja a fájlrendszereket. A "
+"belső flash memória a ``/flash`` ponton csatolódik (és üresre formázódik, ha"
+" nincs ott semmi). Ha SD-kártya van jelen, *és* a belső flash memórián "
+"**nem** létezik ``SKIPSD`` nevű jelölőfájl, akkor az SD-kártya a ``/sdcard``"
+" ponton csatolódik. A ROMFS, ha a build tartalmazza, automatikusan a "
+"``/rom`` ponton csatolódik. A munkakönyvtár az indítási könyvtárra áll be "
+"(\\ ``/sdcard``\\ , ha a kártya csatolódott, egyébként ``/flash``\\ ), a "
+":data:`sys.path` pedig a ``/flash``\\ , ``/flash/lib``\\ , ``/sdcard``\\ , "
+"``/sdcard/lib``\\ , ``/rom`` és ``/rom/lib`` elemekkel töltődik fel. A flash"
+" memóriában lévő beállítást egy ``_boot.py`` nevű befagyasztott modul kezeli"
+" -- ez port- és kártyainfrastruktúra, nem alkalmazás-horog. Az alkalmazások "
+"nem testreszabják a ``_boot.py`` fájlt; ezt a build teszi. A ``SKIPSD`` fájl"
+" flash memóriára ejtése az IDE-ből a támogatott módja annak, hogy a kamera "
+"az SD-kártya helyett a belső flash memóriáról induljon."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:46
+msgid ""
+"**Pre-REPL setup.** ``boot.py`` runs on *every* soft reset -- cold boot, "
+"``Ctrl-D`` from the REPL, the running script returning, and watchdog "
+"recovery -- *before* the REPL becomes reachable. Its job is to prepare the "
+"environment the rest of the system runs in: the kind of setup the REPL, the "
+"application, and any recovery tooling all need in place to function. It is "
+"not where the application itself lives. ``main.py`` is the application's "
+"entry point."
+msgstr ""
+"**REPL előtti beállítás.** A ``boot.py`` *minden* szoftveres resetkor lefut "
+"-- hidegindítás, ``Ctrl-D`` a REPL-ből, a futó szkript visszatérése és "
+"watchdog-helyreállítás esetén -- *mielőtt* a REPL elérhetővé válik. "
+"Feladata, hogy előkészítse azt a környezetet, amelyben a rendszer többi "
+"része fut: az a fajta beállítás, amelyre a REPL-nek, az alkalmazásnak és "
+"bármely helyreállító eszköznek egyaránt szüksége van a működéshez. Nem itt "
+"él maga az alkalmazás. A ``main.py`` az alkalmazás belépési pontja."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:55
+msgid ""
+"**Main loop.** ``main.py`` is the application's main loop. Runs once on cold"
+" boot, immediately after ``boot.py``. *Not* re-run on subsequent soft resets"
+" -- the cam drops to the REPL instead. That asymmetry matters for "
+"development (a Ctrl-D drops to the REPL without re-running the loop, so the "
+"developer can inspect state) but not for production: a fielded cam sees "
+"power-on, watchdog, and hard resets, which are all hardware resets that re-"
+"enter the cold-boot path and run ``main.py`` again."
+msgstr ""
+"**Fő ciklus.** A ``main.py`` az alkalmazás fő ciklusa. Hidegindításkor "
+"egyszer fut le, közvetlenül a ``boot.py`` után. A későbbi szoftveres "
+"reseteknél *nem* fut le újra -- a kamera helyette a REPL-be kerül. Ez az "
+"aszimmetria a fejlesztés szempontjából számít (egy Ctrl-D a REPL-be visz a "
+"ciklus újrafuttatása nélkül, így a fejlesztő megvizsgálhatja az állapotot), "
+"de a produkció szempontjából nem: egy terepen lévő kamera bekapcsolást, "
+"watchdogot és kemény reseteket lát, amelyek mind hardveres resetek, és ezek "
+"újra belépnek a hidegindítási útvonalba, és ismét lefuttatják a ``main.py`` "
+"fájlt."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:66
+msgid "Freezing into the firmware"
+msgstr "Befagyasztás a firmware-be"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:68
+msgid ""
+"A board's frozen-module set is declared in ``boards/<TARGET>/manifest.py`` "
+"in the firmware tree. The manifest is a small Python file that calls a "
+"handful of directives:"
+msgstr ""
+"Egy kártya befagyasztott modulkészletét a firmware-fában lévő "
+"``boards/<TARGET>/manifest.py`` fájl deklarálja. A manifest egy kis Python-"
+"fájl, amely néhány direktívát hív meg:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:73
+msgid ""
+"``freeze(\"$(OMV_LIB_DIR)/\", \"foo.py\")`` -- bakes a single ``foo.py`` "
+"into the build."
+msgstr ""
+"``freeze(\"$(OMV_LIB_DIR)/\", \"foo.py\")`` -- egyetlen ``foo.py`` fájlt süt"
+" bele a buildbe."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:75
+msgid ""
+"``package(\"mylib\", base_path=\"...\")`` -- bakes a multi-file Python "
+"package, preserving its directory layout under the given base path."
+msgstr ""
+"``package(\"mylib\", base_path=\"...\")`` -- egy több fájlból álló Python-"
+"csomagot süt bele, megőrizve annak könyvtárszerkezetét a megadott "
+"alapútvonal alatt."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:78
+msgid ""
+"``include(\"...\")`` -- pulls in another manifest file. The board manifests "
+"use this to share common module sets."
+msgstr ""
+"``include(\"...\")`` -- behúz egy másik manifest fájlt. A kártya-manifestek "
+"ezt használják a közös modulkészletek megosztására."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:80
+msgid ""
+"``require(\"logging\")`` -- pulls in a named upstream ``micropython-lib`` "
+"module by name."
+msgstr ""
+"``require(\"logging\")`` -- név szerint behúz egy megnevezett upstream "
+"``micropython-lib`` modult."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:83
+msgid ""
+"A minimal application manifest adds one ``freeze`` line per top-level script"
+" and a ``package`` line per package the application depends on."
+msgstr ""
+"Egy minimális alkalmazás-manifest top-szintű szkriptenként egy ``freeze`` "
+"sort, az alkalmazás által használt csomagonként pedig egy ``package`` sort "
+"ad hozzá."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:88
+msgid "Where the source lives"
+msgstr "Hol található a forrás"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:90
+msgid ""
+"Application source lives under ``scripts/libraries/`` in the firmware tree, "
+"alongside the modules the build already freezes. The manifest variable "
+"``$(OMV_LIB_DIR)`` expands to that path, so manifest entries stay short. "
+"Editing the manifest is already an in-tree operation, so keeping the source "
+"in-tree avoids juggling a separate project repo on the path resolution."
+msgstr ""
+"Az alkalmazás forrása a firmware-fában lévő ``scripts/libraries/`` alatt "
+"található, azon modulok mellett, amelyeket a build már befagyaszt. A "
+"``$(OMV_LIB_DIR)`` manifest-változó erre az útvonalra bővül ki, így a "
+"manifest bejegyzései rövidek maradnak. A manifest szerkesztése amúgy is "
+"fában belüli művelet, így a forrás fában tartása megspórolja egy külön "
+"projekt-repó zsonglőrködését az útvonalfeloldásnál."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:98
+msgid ""
+"A typical layout for an application that ships a single ``main.py`` plus a "
+"supporting package::"
+msgstr ""
+"Egy tipikus elrendezés olyan alkalmazáshoz, amely egyetlen ``main.py`` fájlt"
+" és egy kiegészítő csomagot szállít::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:107
+msgid ""
+"And in the board's ``boards/<TARGET>/manifest.py``, one ``freeze`` line for "
+"the script and one ``package`` line for the package::"
+msgstr ""
+"A kártya ``boards/<TARGET>/manifest.py`` fájljában pedig egy ``freeze`` sor "
+"a szkripthez és egy ``package`` sor a csomaghoz::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:114
+msgid ""
+"Single-file scripts -- ``main.py`` here, but the same rule applies to "
+"``boot.py`` or any standalone helper -- use ``freeze``. Multi-file packages "
+"use ``package``. Adding another script is one more ``freeze`` line; adding "
+"another package is one more ``package`` line."
+msgstr ""
+"Egyfájlos szkriptek -- itt a ``main.py``\\ , de ugyanez a szabály vonatkozik"
+" a ``boot.py`` fájlra vagy bármely önálló segédfájlra -- a ``freeze`` "
+"direktívát használják. A több fájlból álló csomagok a ``package`` direktívát"
+" használják. Egy újabb szkript hozzáadása egy újabb ``freeze`` sor; egy "
+"újabb csomag hozzáadása egy újabb ``package`` sor."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:121
+msgid "Building and flashing"
+msgstr "Buildelés és flashelés"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:123
+msgid ""
+"Once the manifest is in place, build the firmware exactly as the "
+":doc:`firmware chapter </openmvcam/tutorial/production/firmware/building>` "
+"describes::"
+msgstr ""
+"Miután a manifest a helyén van, buildeld a firmware-t pontosan úgy, ahogyan "
+"a :doc:`firmware fejezet </openmvcam/tutorial/production/firmware/building>`"
+" leírja::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:130
+msgid "The output lands in ``build/<TARGET>/bin/``::"
+msgstr "A kimenet a ``build/<TARGET>/bin/`` könyvtárba kerül::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:136
+msgid ""
+"Flashing the ``.bin`` and ``.img`` through the IDE lands a cam whose "
+"application is part of the build."
+msgstr ""
+"A ``.bin`` és ``.img`` fájlok IDE-n keresztüli flashelése olyan kamerát "
+"eredményez, amelynek alkalmazása a build része."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:139
+msgid ""
+"The startup sequence above is what makes the bake-in effective: the runtime "
+"resolves ``boot.py`` and ``main.py`` to the frozen copies before it ever "
+"checks the filesystem, so a shipped cam runs the build's code even if the SD"
+" card holds a stale ``boot.py`` left from development."
+msgstr ""
+"A fenti indítási sorrend az, ami a belesütést hatékonnyá teszi: a "
+"futtatókörnyezet a ``boot.py`` és ``main.py`` fájlokat a befagyasztott "
+"példányokra oldja fel, mielőtt egyáltalán megnézné a fájlrendszert, így egy "
+"szállított kamera akkor is a build kódját futtatja, ha az SD-kártyán egy "
+"fejlesztésből ottmaradt, elavult ``boot.py`` található."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:146
+msgid "Lookup order"
+msgstr "Keresési sorrend"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:148
+msgid ""
+"The override semantics are *different* for the ``boot.py`` / ``main.py`` "
+"execution path and for ordinary ``import`` statements. Knowing which is "
+"which matters for both production and development:"
+msgstr ""
+"A felülírási szemantika *eltérő* a ``boot.py`` / ``main.py`` végrehajtási "
+"útvonal és a közönséges ``import`` utasítások esetén. Annak ismerete, hogy "
+"melyik melyik, a produkció és a fejlesztés szempontjából is számít:"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:153
+msgid ""
+"For ``boot.py`` and ``main.py``: the runtime looks for a *frozen* copy "
+"first, then the filesystem. A frozen ``boot.py`` cannot be overridden by "
+"dropping one onto the SD card -- whoever holds the cam cannot change the "
+"entry point without reflashing."
+msgstr ""
+"A ``boot.py`` és ``main.py`` esetén: a futtatókörnyezet először a "
+"*befagyasztott* példányt keresi, majd a fájlrendszert. Egy befagyasztott "
+"``boot.py`` fájlt nem lehet felülírni egy SD-kártyára ejtett másikkal -- aki"
+" a kamerát birtokolja, nem tudja megváltoztatni a belépési pontot "
+"újraflashelés nélkül."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:159
+msgid ""
+"For ``import foo``: the runtime searches :data:`sys.path` first -- which "
+"covers ``/flash``, ``/sdcard``, ``/rom``, and their ``lib`` subdirectories "
+"-- then frozen modules. A same-name ``foo.py`` on flash or SD *does* "
+"override a frozen ``foo``. This is the development affordance: drop a fixed "
+"module on the card, soft-reset, see the change without reflashing."
+msgstr ""
+"Az ``import foo`` esetén: a futtatókörnyezet először a :data:`sys.path` "
+"útvonalat keresi -- amely lefedi a ``/flash``\\ , ``/sdcard``\\ , ``/rom`` "
+"könyvtárakat és azok ``lib`` alkönyvtárait --, majd a befagyasztott "
+"modulokat. Egy flash memórián vagy SD-kártyán lévő, azonos nevű ``foo.py`` "
+"*valóban* felülír egy befagyasztott ``foo`` modult. Ez a fejlesztési "
+"könnyítés: ejts egy javított modult a kártyára, végezz szoftveres resetet, "
+"és lásd a változást újraflashelés nélkül."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:167
+msgid ""
+"A shipped product that wants to suppress the filesystem-overrides-frozen "
+"behaviour for imports can clear :data:`sys.path` early in ``boot.py``::"
+msgstr ""
+"Egy szállított termék, amely el akarja nyomni a fájlrendszer-felülírja-a-"
+"befagyasztottat viselkedést az importoknál, korán a ``boot.py`` fájlban "
+"kiürítheti a :data:`sys.path` útvonalat::"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:175
+msgid ""
+"With ``sys.path`` empty, all imports resolve from the frozen modules only; "
+"nothing on flash, SD, or ROMFS can shadow them."
+msgstr ""
+"Ha a ``sys.path`` üres, minden import kizárólag a befagyasztott modulokból "
+"oldódik fel; semmi a flash memórián, az SD-kártyán vagy a ROMFS-en nem "
+"árnyékolhatja be őket."
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:180
+msgid "The asset problem"
+msgstr "Az eszköz-probléma"
+
+#: ../../openmvcam/tutorial/production/shipping/freezing-scripts.rst:182
+msgid ""
+"Freezing is great for code. It is *not* great for large binary assets: "
+"machine-learning model files, label tables, JSON configuration, image "
+"templates. Embedding those as Python literals balloons the source, "
+"recompiles slowly, and wastes the bytecode container on data the interpreter"
+" is just going to read raw anyway. The :doc:`romfs-image` page covers the "
+"read-only flash filesystem that fills this gap."
+msgstr ""
+"A befagyasztás kiváló a kódhoz. *Nem* kiváló viszont a nagy bináris "
+"eszközökhöz: gépi tanulási modellfájlokhoz, címketáblázatokhoz, JSON-"
+"konfigurációhoz, képsablonokhoz. Ezek Python-literálként való beágyazása "
+"felfújja a forrást, lassan fordul újra, és az adatokra pazarolja a bájtkód-"
+"tárolót, amelyeket az értelmező amúgy is csak nyersen fog beolvasni. A "
+":doc:`romfs-image` oldal bemutatja az ezt a hiányt betöltő, csak olvasható "
+"flash-fájlrendszert."

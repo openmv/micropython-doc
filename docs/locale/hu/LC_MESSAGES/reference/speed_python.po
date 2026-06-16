@@ -1,0 +1,810 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 21:02-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: hu <LL@li.org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/speed_python.rst:4
+msgid "Maximising MicroPython speed"
+msgstr "A MicroPython sebességének maximalizálása"
+
+#: ../../reference/speed_python.rst:10
+msgid ""
+"This tutorial describes ways of improving the performance of MicroPython "
+"code. Optimisations involving other languages are covered elsewhere, namely "
+"the use of modules written in C and the MicroPython inline assembler."
+msgstr ""
+"Ez az útmutató a MicroPython kód teljesítményének javítását szolgáló "
+"módszereket ismerteti. Az egyéb nyelveket érintő optimalizálásokat máshol "
+"tárgyaljuk, nevezetesen a C nyelven írt modulok és a MicroPython beépített "
+"assemblerének használatát."
+
+#: ../../reference/speed_python.rst:14
+msgid ""
+"The process of developing high performance code comprises the following "
+"stages which should be performed in the order listed."
+msgstr ""
+"A nagy teljesítményű kód fejlesztésének folyamata az alábbi szakaszokból "
+"áll, amelyeket a felsorolt sorrendben kell elvégezni."
+
+#: ../../reference/speed_python.rst:17
+msgid "Design for speed."
+msgstr "Tervezés a sebességre."
+
+#: ../../reference/speed_python.rst:18
+msgid "Code and debug."
+msgstr "Kódolás és hibakeresés."
+
+#: ../../reference/speed_python.rst:20
+msgid "Optimisation steps:"
+msgstr "Optimalizálási lépések:"
+
+#: ../../reference/speed_python.rst:22
+msgid "Identify the slowest section of code."
+msgstr "A kód leglassabb részének azonosítása."
+
+#: ../../reference/speed_python.rst:23
+msgid "Improve the efficiency of the Python code."
+msgstr "A Python kód hatékonyságának javítása."
+
+#: ../../reference/speed_python.rst:24
+msgid "Use the native code emitter."
+msgstr "A natív kód-kibocsátó (native code emitter) használata."
+
+#: ../../reference/speed_python.rst:25
+msgid "Use the viper code emitter."
+msgstr "A viper kód-kibocsátó (viper code emitter) használata."
+
+#: ../../reference/speed_python.rst:26
+msgid "Use hardware-specific optimisations."
+msgstr "Hardverspecifikus optimalizálások használata."
+
+#: ../../reference/speed_python.rst:29
+msgid "Designing for speed"
+msgstr "Tervezés a sebességre"
+
+#: ../../reference/speed_python.rst:31
+msgid ""
+"Performance issues should be considered at the outset. This involves taking "
+"a view on the sections of code which are most performance critical and "
+"devoting particular attention to their design. The process of optimisation "
+"begins when the code has been tested: if the design is correct at the outset"
+" optimisation will be straightforward and may actually be unnecessary."
+msgstr ""
+"A teljesítménnyel kapcsolatos kérdéseket már a kezdetektől figyelembe kell "
+"venni. Ez azt jelenti, hogy átgondoljuk, mely kódrészek a legkritikusabbak a"
+" teljesítmény szempontjából, és különös figyelmet fordítunk a tervezésükre. "
+"Az optimalizálás folyamata akkor kezdődik, amikor a kódot teszteltük: ha a "
+"tervezés a kezdetektől helyes, az optimalizálás egyszerű lesz, sőt, akár "
+"szükségtelen is."
+
+#: ../../reference/speed_python.rst:38
+msgid "Algorithms"
+msgstr "Algoritmusok"
+
+#: ../../reference/speed_python.rst:40
+msgid ""
+"The most important aspect of designing any routine for performance is "
+"ensuring that the best algorithm is employed. This is a topic for textbooks "
+"rather than for a MicroPython guide but spectacular performance gains can "
+"sometimes be achieved by adopting algorithms known for their efficiency."
+msgstr ""
+"Bármely rutin teljesítményre tervezésének legfontosabb szempontja annak "
+"biztosítása, hogy a legjobb algoritmust alkalmazzuk. Ez inkább tankönyvekbe,"
+" mintsem egy MicroPython útmutatóba illő téma, de a hatékonyságukról ismert "
+"algoritmusok alkalmazásával olykor látványos teljesítményjavulás érhető el."
+
+#: ../../reference/speed_python.rst:46
+msgid "RAM allocation"
+msgstr "RAM-foglalás"
+
+#: ../../reference/speed_python.rst:48
+msgid ""
+"To design efficient MicroPython code it is necessary to have an "
+"understanding of the way the interpreter allocates RAM. When an object is "
+"created or grows in size (for example where an item is appended to a list) "
+"the necessary RAM is allocated from a block known as the heap. This takes a "
+"significant amount of time; further it will on occasion trigger a process "
+"known as garbage collection which can take several milliseconds."
+msgstr ""
+"A hatékony MicroPython kód tervezéséhez szükséges megérteni, ahogyan az "
+"értelmező a RAM-ot foglalja. Amikor egy objektum létrejön vagy mérete nő "
+"(például amikor egy elemet egy listához fűzünk), a szükséges RAM-ot egy "
+"halom (heap) néven ismert blokkból foglalja le. Ez jelentős időt vesz "
+"igénybe; továbbá alkalmanként elindít egy szemétgyűjtés (garbage collection)"
+" néven ismert folyamatot, amely több ezredmásodpercet is igénybe vehet."
+
+#: ../../reference/speed_python.rst:55
+msgid ""
+"Consequently the performance of a function or method can be improved if an "
+"object is created once only and not permitted to grow in size. This implies "
+"that the object persists for the duration of its use: typically it will be "
+"instantiated in a class constructor and used in various methods."
+msgstr ""
+"Következésképpen egy függvény vagy metódus teljesítménye javítható, ha egy "
+"objektumot csak egyszer hozunk létre, és nem engedjük, hogy a mérete nőjön. "
+"Ez azt jelenti, hogy az objektum a teljes használat idejére fennmarad: "
+"jellemzően egy osztály konstruktorában példányosítjuk, és különböző "
+"metódusokban használjuk."
+
+#: ../../reference/speed_python.rst:60
+msgid ""
+"This is covered in further detail :ref:`Controlling garbage collection "
+"<controlling_gc>` below."
+msgstr ""
+"Ezt részletesebben az alábbi :ref:`A szemétgyűjtés vezérlése "
+"<controlling_gc>` című részben tárgyaljuk."
+
+#: ../../reference/speed_python.rst:65
+msgid "Buffers"
+msgstr "Pufferek"
+
+#: ../../reference/speed_python.rst:67
+msgid ""
+"An example of the above is the common case where a buffer is required, such "
+"as one used for communication with a device. A typical driver will create "
+"the buffer in the constructor and use it in its I/O methods which will be "
+"called repeatedly."
+msgstr ""
+"A fentiekre példa az a gyakori eset, amikor egy pufferre van szükség, "
+"például egy eszközzel való kommunikációhoz használt pufferre. Egy tipikus "
+"meghajtó a konstruktorban hozza létre a puffert, és az I/O metódusaiban "
+"használja, amelyeket ismételten meghív."
+
+#: ../../reference/speed_python.rst:71
+msgid ""
+"The MicroPython libraries typically provide support for pre-allocated "
+"buffers. For example, objects which support stream interface (e.g., file or "
+"UART) provide ``read()`` method which allocates new buffer for read data, "
+"but also a ``readinto()`` method to read data into an existing buffer."
+msgstr ""
+"A MicroPython könyvtárak jellemzően támogatják az előre lefoglalt "
+"puffereket. Például a stream interfészt támogató objektumok (pl. fájl vagy "
+"UART) biztosítanak egy ``read()`` metódust, amely új puffert foglal le a "
+"beolvasott adatoknak, de egy ``readinto()`` metódust is, amely egy meglévő "
+"pufferbe olvassa be az adatokat."
+
+#: ../../reference/speed_python.rst:76
+msgid "Some useful classes for creating reusable buffer objects:"
+msgstr ""
+"Néhány hasznos osztály újrafelhasználható pufferobjektumok létrehozásához:"
+
+#: ../../reference/speed_python.rst:78
+msgid ":class:`bytearray`"
+msgstr ":class:`bytearray`"
+
+#: ../../reference/speed_python.rst:79
+msgid ":mod:`array` (:ref:`discussed below<speed_arrays>`)"
+msgstr ":mod:`array` (\\ :ref:`az alábbiakban tárgyalva<speed_arrays>`\\ )"
+
+#: ../../reference/speed_python.rst:80
+msgid ":class:`io.StringIO` and :class:`io.BytesIO`"
+msgstr ":class:`io.StringIO` és :class:`io.BytesIO`"
+
+#: ../../reference/speed_python.rst:81
+msgid ":class:`micropython.RingIO`"
+msgstr ":class:`micropython.RingIO`"
+
+#: ../../reference/speed_python.rst:84
+msgid "Floating point"
+msgstr "Lebegőpontos számok"
+
+#: ../../reference/speed_python.rst:86
+msgid ""
+"Some MicroPython ports allocate floating point numbers on heap. Some other "
+"ports may lack dedicated floating-point coprocessor, and perform arithmetic "
+"operations on them in \"software\" at considerably lower speed than on "
+"integers. Where performance is important, use integer operations and "
+"restrict the use of floating point to sections of the code where performance"
+" is not paramount. For example, capture ADC readings as integer values to an"
+" array in one quick go, and only then convert them to floating-point numbers"
+" for signal processing."
+msgstr ""
+"Egyes MicroPython portok a lebegőpontos számokat a halmon (heap) foglalják "
+"le. Néhány más portból hiányozhat a dedikált lebegőpontos koprocesszor, így "
+"az aritmetikai műveleteket „szoftveresen” végzik el rajtuk, lényegesen "
+"lassabban, mint az egészeken. Ahol a teljesítmény fontos, használj egész "
+"számos műveleteket, és a lebegőpontos számok használatát korlátozd a kód "
+"olyan szakaszaira, ahol a teljesítmény nem elsődleges. Például rögzítsd az "
+"ADC-leolvasásokat egész értékként egy tömbbe egyetlen gyors lépésben, és "
+"csak ezután alakítsd át őket lebegőpontos számokká a jelfeldolgozáshoz."
+
+#: ../../reference/speed_python.rst:97
+msgid "Arrays"
+msgstr "Tömbök"
+
+#: ../../reference/speed_python.rst:99
+msgid ""
+"Consider the use of the various types of array classes as an alternative to "
+"lists. The :mod:`array` module supports various element types with 8-bit "
+"elements supported by Python's built in `bytes` and `bytearray` classes. "
+"These data structures all store elements in contiguous memory locations. "
+"Once again to avoid memory allocation in critical code these should be pre-"
+"allocated and passed as arguments or as bound objects."
+msgstr ""
+"Fontold meg a különféle tömbosztályok használatát a listák "
+"alternatívájaként. Az :mod:`array` modul különféle elemtípusokat támogat, a "
+"8 bites elemeket pedig a Python beépített `bytes` és `bytearray` osztályai "
+"is támogatják. Ezek az adatszerkezetek mind egymást követő (összefüggő) "
+"memóriahelyeken tárolják az elemeket. Ismét: a kritikus kódban történő "
+"memóriafoglalás elkerülése érdekében ezeket előre le kell foglalni, és "
+"argumentumként vagy kötött objektumként kell átadni."
+
+#: ../../reference/speed_python.rst:106
+msgid "Memoryviews"
+msgstr "Memoryview-k"
+
+#: ../../reference/speed_python.rst:108
+msgid ""
+"When passing slices of objects such as `bytearray` instances, Python creates"
+" a copy which involves allocation of the size proportional to the size of "
+"slice. This can be alleviated using a `memoryview` object. The `memoryview` "
+"itself is allocated on the heap, but is a small, fixed-size object, "
+"regardless of the size of slice it points to. Slicing a `memoryview` creates"
+" a new `memoryview`, so this cannot be done in an interrupt service routine."
+" Further, the slice syntax ``a:b`` causes further allocation by "
+"instantiating a ``slice(a, b)`` object."
+msgstr ""
+"Olyan objektumok szeleteinek átadásakor, mint a `bytearray` példányok, a "
+"Python másolatot készít, ami a szelet méretével arányos méretű foglalással "
+"jár. Ez enyhíthető egy `memoryview` objektum használatával. Maga a "
+"`memoryview` a halmon (heap) foglalódik le, de egy kicsi, rögzített méretű "
+"objektum, függetlenül attól, hogy mekkora szeletre mutat. Egy `memoryview` "
+"szeletelése új `memoryview`\\ -t hoz létre, így ez nem végezhető el egy "
+"megszakításkiszolgáló rutinban. Továbbá az ``a:b`` szeletszintaxis további "
+"foglalást okoz egy ``slice(a, b)`` objektum példányosításával."
+
+#: ../../reference/speed_python.rst:123
+msgid ""
+"A `memoryview` can only be applied to objects supporting the buffer protocol"
+" - this includes arrays but not lists. Small caveat is that while memoryview"
+" object is live, it also keeps alive the original buffer object. So, a "
+"memoryview isn't a universal panacea. For instance, in the example above, if"
+" you are done with 10K buffer and just need those bytes 30:2000 from it, it "
+"may be better to make a slice, and let the 10K buffer go (be ready for "
+"garbage collection), instead of making a long-living memoryview and keeping "
+"10K blocked for GC."
+msgstr ""
+"A `memoryview` csak a pufferprotokollt támogató objektumokra alkalmazható – "
+"ez magában foglalja a tömböket, de a listákat nem. Egy apró fenntartás, hogy"
+" amíg egy memoryview objektum él, addig az eredeti pufferobjektumot is "
+"életben tartja. Tehát a memoryview nem egyetemes csodaszer. Például a fenti "
+"esetben, ha végeztél a 10K pufferrel, és csak a 30:2000 bájtokra van "
+"szükséged belőle, jobb lehet készíteni egy szeletet, és hagyni, hogy a 10K "
+"puffer elengedhető legyen (készen álljon a szemétgyűjtésre), ahelyett, hogy "
+"egy hosszú életű memoryview-t készítenél, és 10K-t blokkolva tartanál a GC "
+"elől."
+
+#: ../../reference/speed_python.rst:131
+msgid ""
+"Nonetheless, `memoryview` is indispensable for advanced preallocated buffer "
+"management. ``readinto()`` method discussed above puts data at the beginning"
+" of buffer and fills in entire buffer. What if you need to put data in the "
+"middle of existing buffer? Just create a memoryview into the needed section "
+"of buffer and pass it to ``readinto()``."
+msgstr ""
+"Mindazonáltal a `memoryview` nélkülözhetetlen a fejlett, előre lefoglalt "
+"pufferkezeléshez. A fent tárgyalt ``readinto()`` metódus az adatokat a "
+"puffer elejére teszi, és kitölti a teljes puffert. Mi van akkor, ha egy "
+"meglévő puffer közepére kell adatot tenned? Csak hozz létre egy memoryview-t"
+" a puffer kívánt szakaszába, és add át a ``readinto()`` metódusnak."
+
+#: ../../reference/speed_python.rst:138
+msgid "Strings vs Bytes"
+msgstr "Sztringek és bájtok"
+
+#: ../../reference/speed_python.rst:140
+msgid ""
+"MicroPython uses :ref:`string interning <qstr>` to save space when there are"
+" multiple identical strings. Each time a new string is allocated at runtime "
+"(for example, when two other strings are concatenated), MicroPython checks "
+"whether the new string can be interned to save RAM."
+msgstr ""
+"A MicroPython :ref:`sztring-internálást <qstr>` használ a helytakarékosság "
+"érdekében, amikor több azonos sztring is van. Minden alkalommal, amikor "
+"futásidőben egy új sztring foglalódik le (például amikor két másik sztringet"
+" összefűzünk), a MicroPython ellenőrzi, hogy az új sztring internálható-e a "
+"RAM megtakarítása érdekében."
+
+#: ../../reference/speed_python.rst:145
+msgid ""
+"If you have code which performs performance-critical string operations then "
+"consider using :class:`bytes` objects and literals (i.e. ``b\"abc\"``). This"
+" skips the interning check, and can be several times faster than performing "
+"the same operations with string objects."
+msgstr ""
+"Ha olyan kódod van, amely teljesítménykritikus sztringműveleteket végez, "
+"akkor fontold meg a :class:`bytes` objektumok és literálok (pl. "
+"``b\"abc\"``\\ ) használatát. Ez kihagyja az internálási ellenőrzést, és "
+"többszörösen gyorsabb lehet, mint ugyanezen műveletek elvégzése "
+"sztringobjektumokkal."
+
+#: ../../reference/speed_python.rst:150
+msgid ""
+"The fastest performance will always be achieved by avoiding new object "
+"creation entirely, for example with a reusable :ref:`buffer as described "
+"above<speed_buffers>`."
+msgstr ""
+"A leggyorsabb teljesítményt mindig az új objektum létrehozásának teljes "
+"elkerülésével érheted el, például egy újrafelhasználható :ref:`fentebb leírt"
+" pufferrel<speed_buffers>`\\ ."
+
+#: ../../reference/speed_python.rst:155
+msgid "Identifying the slowest section of code"
+msgstr "A kód leglassabb részének azonosítása"
+
+#: ../../reference/speed_python.rst:157
+msgid ""
+"This is a process known as profiling and is covered in textbooks and (for "
+"standard Python) supported by various software tools. For the type of "
+"smaller embedded application likely to be running on MicroPython platforms "
+"the slowest function or method can usually be established by judicious use "
+"of the timing ``ticks`` group of functions documented in `time`. Code "
+"execution time can be measured in ms, us, or CPU cycles."
+msgstr ""
+"Ez egy profilozás (profiling) néven ismert folyamat, amelyet tankönyvek "
+"tárgyalnak, és (a standard Python esetében) különféle szoftvereszközök "
+"támogatnak. A MicroPython platformokon valószínűleg futó kisebb beágyazott "
+"alkalmazások esetében a leglassabb függvény vagy metódus általában a `time` "
+"modulban dokumentált, az időmérést végző ``ticks`` függvénycsoport "
+"körültekintő használatával állapítható meg. A kód végrehajtási ideje ms-ban,"
+" us-ban vagy CPU-ciklusokban mérhető."
+
+#: ../../reference/speed_python.rst:164
+msgid ""
+"The following enables any function or method to be timed by adding an "
+"``@timed_function`` decorator:"
+msgstr ""
+"Az alábbi kód lehetővé teszi bármely függvény vagy metódus időzítését egy "
+"``@timed_function`` dekorátor hozzáadásával:"
+
+#: ../../reference/speed_python.rst:180
+msgid "MicroPython code improvements"
+msgstr "MicroPython kódfejlesztések"
+
+#: ../../reference/speed_python.rst:183
+msgid "The const() declaration"
+msgstr "A const() deklaráció"
+
+#: ../../reference/speed_python.rst:185
+msgid ""
+"MicroPython provides a ``const()`` declaration. This works in a similar way "
+"to ``#define`` in C in that when the code is compiled to bytecode the "
+"compiler substitutes the numeric value for the identifier. This avoids a "
+"dictionary lookup at runtime. The argument to ``const()`` may be anything "
+"which, at compile time, evaluates to an integer e.g. ``0x100`` or ``1 << "
+"8``."
+msgstr ""
+"A MicroPython biztosít egy ``const()`` deklarációt. Ez a C nyelvbeli "
+"``#define`` direktívához hasonlóan működik, amennyiben amikor a kódot "
+"bájtkóddá fordítják, a fordító a numerikus értéket helyettesíti be az "
+"azonosító helyére. Ez elkerüli a futásidejű szótár-keresést. A ``const()`` "
+"argumentuma bármi lehet, ami fordítási időben egész számmá értékelődik ki, "
+"pl. ``0x100`` vagy ``1 << 8``\\ ."
+
+#: ../../reference/speed_python.rst:194
+msgid "Caching object references"
+msgstr "Objektumhivatkozások gyorsítótárazása"
+
+#: ../../reference/speed_python.rst:196
+msgid ""
+"Where a function or method repeatedly accesses objects performance is "
+"improved by caching the object in a local variable:"
+msgstr ""
+"Ahol egy függvény vagy metódus ismételten hozzáfér objektumokhoz, a "
+"teljesítmény javul, ha az objektumot egy lokális változóban "
+"gyorsítótárazzuk:"
+
+#: ../../reference/speed_python.rst:209
+msgid ""
+"This avoids the need repeatedly to look up ``self.ba`` and "
+"``obj_display.framebuffer`` in the body of the method ``bar()``."
+msgstr ""
+"Ez elkerüli, hogy a ``self.ba`` és az ``obj_display.framebuffer`` ismételten"
+" kikeresésre kerüljön a ``bar()`` metódus törzsében."
+
+#: ../../reference/speed_python.rst:215
+msgid "Controlling garbage collection"
+msgstr "A szemétgyűjtés vezérlése"
+
+#: ../../reference/speed_python.rst:217
+msgid ""
+"When memory allocation is required, MicroPython attempts to locate an "
+"adequately sized block on the heap. This may fail, usually because the heap "
+"is cluttered with objects which are no longer referenced by code. If a "
+"failure occurs, the process known as garbage collection reclaims the memory "
+"used by these redundant objects and the allocation is then tried again - a "
+"process which can take several milliseconds."
+msgstr ""
+"Amikor memóriafoglalásra van szükség, a MicroPython megpróbál egy megfelelő "
+"méretű blokkot keresni a halmon (heap). Ez meghiúsulhat, általában azért, "
+"mert a halom tele van olyan objektumokkal, amelyekre a kód már nem "
+"hivatkozik. Ha hiba lép fel, a szemétgyűjtés néven ismert folyamat "
+"visszanyeri az ezen felesleges objektumok által használt memóriát, majd a "
+"foglalást újra megpróbálja – ez a folyamat több ezredmásodpercet is igénybe "
+"vehet."
+
+#: ../../reference/speed_python.rst:224
+msgid ""
+"There may be benefits in pre-empting this by periodically issuing "
+"``gc.collect()``. Firstly doing a collection before it is actually required "
+"is quicker - typically on the order of 1ms if done frequently. Secondly you "
+"can determine the point in code where this time is used rather than have a "
+"longer delay occur at random points, possibly in a speed critical section. "
+"Finally performing collections regularly can reduce fragmentation in the "
+"heap. Severe fragmentation can lead to non-recoverable allocation failures."
+msgstr ""
+"Előnyös lehet ezt megelőzni azzal, hogy időszakosan kiadjuk a "
+"``gc.collect()`` parancsot. Egyrészt a szemétgyűjtés elvégzése azelőtt, hogy"
+" ténylegesen szükség lenne rá, gyorsabb – jellemzően 1 ms körüli, ha gyakran"
+" végezzük. Másrészt te határozhatod meg a kódban azt a pontot, ahol ez az "
+"idő felhasználódik, ahelyett, hogy hosszabb késleltetés következne be "
+"véletlenszerű pontokon, esetleg egy sebességkritikus szakaszban. Végül a "
+"szemétgyűjtés rendszeres elvégzése csökkentheti a halom töredezettségét. A "
+"súlyos töredezettség visszafordíthatatlan foglalási hibákhoz vezethet."
+
+#: ../../reference/speed_python.rst:233
+msgid "The Native code emitter"
+msgstr "A natív kód-kibocsátó"
+
+#: ../../reference/speed_python.rst:235
+msgid ""
+"This causes the MicroPython compiler to emit native CPU opcodes rather than "
+"bytecode. It covers the bulk of the MicroPython functionality, so most "
+"functions will require no adaptation (but see below). It is invoked by means"
+" of a function decorator:"
+msgstr ""
+"Ez arra készteti a MicroPython fordítót, hogy bájtkód helyett natív CPU-"
+"utasításokat (opkódokat) bocsásson ki. Lefedi a MicroPython "
+"funkcionalitásának nagy részét, így a legtöbb függvény nem igényel "
+"átalakítást (de lásd lentebb). Egy függvénydekorátor segítségével hívható "
+"meg:"
+
+#: ../../reference/speed_python.rst:246
+msgid ""
+"There are certain limitations in the current implementation of the native "
+"code emitter."
+msgstr ""
+"A natív kód-kibocsátó jelenlegi implementációjának vannak bizonyos korlátai."
+
+#: ../../reference/speed_python.rst:248
+msgid "If ``raise`` is used an argument must be supplied."
+msgstr "Ha a ``raise`` használatban van, argumentumot kell megadni."
+
+#: ../../reference/speed_python.rst:249
+msgid ""
+"The background scheduler (see `micropython.schedule`) is not run during "
+"execution of native code."
+msgstr ""
+"A háttérütemező (lásd `micropython.schedule`\\ ) nem fut a natív kód "
+"végrehajtása során."
+
+#: ../../reference/speed_python.rst:251
+msgid ""
+"On targets with threading and the GIL, the GIL is not released during "
+"execution of native code."
+msgstr ""
+"A szálkezeléssel és a GIL-lel rendelkező célplatformokon a GIL nem szabadul "
+"fel a natív kód végrehajtása során."
+
+#: ../../reference/speed_python.rst:254
+msgid ""
+"To mitigate the last two points, long running native functions should call "
+"``time.sleep(0)`` periodically, which will run the scheduler and bounce the "
+"GIL."
+msgstr ""
+"Az utóbbi két pont enyhítése érdekében a hosszan futó natív függvényeknek "
+"időszakosan meg kell hívniuk a ``time.sleep(0)`` függvényt, amely lefuttatja"
+" az ütemezőt és felszabadítja a GIL-t."
+
+#: ../../reference/speed_python.rst:257
+msgid ""
+"The trade-off for the improved performance (roughly twice as fast as "
+"bytecode) is an increase in compiled code size."
+msgstr ""
+"A javított teljesítményért (durván kétszer olyan gyors, mint a bájtkód) "
+"cserébe a lefordított kód mérete megnő."
+
+#: ../../reference/speed_python.rst:261
+msgid "The Viper code emitter"
+msgstr "A Viper kód-kibocsátó"
+
+#: ../../reference/speed_python.rst:263
+msgid ""
+"The optimisations discussed above involve standards-compliant Python code. "
+"The Viper code emitter is not fully compliant. It supports special Viper "
+"native data types in pursuit of performance. Integer processing is non-"
+"compliant because it uses machine words: arithmetic on 32 bit hardware is "
+"performed modulo 2**32."
+msgstr ""
+"A fent tárgyalt optimalizálások szabványoknak megfelelő Python kódot "
+"érintenek. A Viper kód-kibocsátó nem teljesen szabványkövető. A teljesítmény"
+" érdekében speciális Viper natív adattípusokat támogat. Az egészszám-"
+"feldolgozás nem szabványkövető, mivel gépi szavakat használ: a 32 bites "
+"hardveren az aritmetika modulo 2**32 történik."
+
+#: ../../reference/speed_python.rst:268
+msgid ""
+"Like the Native emitter Viper produces machine instructions but further "
+"optimisations are performed, substantially increasing performance especially"
+" for integer arithmetic and bit manipulations. It is invoked using a "
+"decorator:"
+msgstr ""
+"A natív kibocsátóhoz hasonlóan a Viper is gépi utasításokat állít elő, de "
+"további optimalizálásokat végez, lényegesen növelve a teljesítményt, "
+"különösen az egészszám-aritmetika és a bitmanipulációk esetében. Egy "
+"dekorátorral hívható meg:"
+
+#: ../../reference/speed_python.rst:278
+msgid ""
+"As the above fragment illustrates it is beneficial to use Python type hints "
+"to assist the Viper optimiser. Type hints provide information on the data "
+"types of arguments and of the return value; these are a standard Python "
+"language feature formally defined here `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_. Viper supports its own set of"
+" types namely ``int``, ``uint`` (unsigned integer), ``ptr``, ``ptr8``, "
+"``ptr16`` and ``ptr32``. The ``ptrX`` types are discussed below. Currently "
+"the ``uint`` type serves a single purpose: as a type hint for a function "
+"return value. If such a function returns ``0xffffffff`` Python will "
+"interpret the result as 2**32 -1 rather than as -1."
+msgstr ""
+"Ahogy a fenti részlet szemlélteti, hasznos a Python típusjelzéseinek (type "
+"hints) használata a Viper optimalizáló segítésére. A típusjelzések "
+"információt nyújtanak az argumentumok és a visszatérési érték "
+"adattípusairól; ezek egy standard Python nyelvi jellemzők, amelyeket "
+"formálisan itt definiálnak: `PEP0484 "
+"<https://www.python.org/dev/peps/pep-0484/>`_\\ . A Viper saját "
+"típuskészletet támogat, nevezetesen az ``int``\\ , ``uint`` (előjel nélküli "
+"egész), ``ptr``\\ , ``ptr8``\\ , ``ptr16`` és ``ptr32`` típusokat. A "
+"``ptrX`` típusokat az alábbiakban tárgyaljuk. Jelenleg a ``uint`` típus "
+"egyetlen célt szolgál: típusjelzésként egy függvény visszatérési értékéhez. "
+"Ha egy ilyen függvény ``0xffffffff`` értéket ad vissza, a Python az "
+"eredményt 2**32 -1-ként értelmezi, nem pedig -1-ként."
+
+#: ../../reference/speed_python.rst:286
+msgid ""
+"In addition to the restrictions imposed by the native emitter the following "
+"constraints apply:"
+msgstr ""
+"A natív kibocsátó által támasztott korlátozásokon túl a következő "
+"megszorítások érvényesek:"
+
+#: ../../reference/speed_python.rst:288
+msgid "Default argument values are not permitted."
+msgstr "Alapértelmezett argumentumértékek nem engedélyezettek."
+
+#: ../../reference/speed_python.rst:289
+msgid "Floating point may be used but is not optimised."
+msgstr "Lebegőpontos számok használhatók, de nincsenek optimalizálva."
+
+#: ../../reference/speed_python.rst:291
+msgid "Viper provides pointer types to assist the optimiser. These comprise"
+msgstr ""
+"A Viper mutatótípusokat biztosít az optimalizáló segítésére. Ezek a "
+"következők:"
+
+#: ../../reference/speed_python.rst:293
+msgid "``ptr`` Pointer to an object."
+msgstr "``ptr`` Mutató egy objektumra."
+
+#: ../../reference/speed_python.rst:294
+msgid "``ptr8`` Points to a byte."
+msgstr "``ptr8`` Egy bájtra mutat."
+
+#: ../../reference/speed_python.rst:295
+msgid "``ptr16`` Points to a 16 bit half-word."
+msgstr "``ptr16`` Egy 16 bites félszóra mutat."
+
+#: ../../reference/speed_python.rst:296
+msgid "``ptr32`` Points to a 32 bit machine word."
+msgstr "``ptr32`` Egy 32 bites gépi szóra mutat."
+
+#: ../../reference/speed_python.rst:298
+msgid ""
+"The concept of a pointer may be unfamiliar to Python programmers. It has "
+"similarities to a Python `memoryview` object in that it provides direct "
+"access to data stored in memory. Items are accessed using subscript "
+"notation, but slices are not supported: a pointer can return a single item "
+"only. Its purpose is to provide fast random access to data stored in "
+"contiguous memory locations - such as data stored in objects which support "
+"the buffer protocol, and memory-mapped peripheral registers in a "
+"microcontroller. It should be noted that programming using pointers is "
+"hazardous: bounds checking is not performed and the compiler does nothing to"
+" prevent buffer overrun errors."
+msgstr ""
+"A mutató fogalma ismeretlen lehet a Python programozók számára. Hasonlóságot"
+" mutat egy Python `memoryview` objektummal, amennyiben közvetlen hozzáférést"
+" biztosít a memóriában tárolt adatokhoz. Az elemekhez indexelő (subscript) "
+"jelöléssel lehet hozzáférni, de a szeletek nem támogatottak: egy mutató csak"
+" egyetlen elemet tud visszaadni. Célja, hogy gyors véletlenszerű hozzáférést"
+" biztosítson az egymást követő (összefüggő) memóriahelyeken tárolt adatokhoz"
+" – ilyenek a pufferprotokollt támogató objektumokban tárolt adatok, valamint"
+" egy mikrokontroller memóriába leképezett perifériaregiszterei. "
+"Megjegyzendő, hogy a mutatókkal való programozás veszélyes: nincs "
+"határellenőrzés, és a fordító semmit sem tesz a puffertúlcsordulási hibák "
+"megelőzéséért."
+
+#: ../../reference/speed_python.rst:307
+msgid "Typical usage is to cache variables:"
+msgstr "A tipikus felhasználás a változók gyorsítótárazása:"
+
+#: ../../reference/speed_python.rst:318
+msgid ""
+"In this instance the compiler \"knows\" that ``buf`` is the address of an "
+"array of bytes; it can emit code to rapidly compute the address of "
+"``buf[x]`` at runtime. Where casts are used to convert objects to Viper "
+"native types these should be performed at the start of the function rather "
+"than in critical timing loops as the cast operation can take several "
+"microseconds. The rules for casting are as follows:"
+msgstr ""
+"Ebben az esetben a fordító „tudja”, hogy a ``buf`` egy bájttömb címe; olyan "
+"kódot tud kibocsátani, amely futásidőben gyorsan kiszámítja a ``buf[x]`` "
+"címét. Ahol típuskonverziókat (cast) használunk az objektumok Viper natív "
+"típusokká alakítására, ezeket a függvény elején kell elvégezni, nem pedig a "
+"kritikus időzítésű ciklusokban, mivel a konverziós művelet több "
+"mikroszekundumot is igénybe vehet. A konverzió szabályai a következők:"
+
+#: ../../reference/speed_python.rst:324
+msgid ""
+"Casting operators are currently: ``int``, ``bool``, ``uint``, ``ptr``, "
+"``ptr8``, ``ptr16`` and ``ptr32``."
+msgstr ""
+"A konverziós operátorok jelenleg: ``int``\\ , ``bool``\\ , ``uint``\\ , "
+"``ptr``\\ , ``ptr8``\\ , ``ptr16`` és ``ptr32``\\ ."
+
+#: ../../reference/speed_python.rst:325
+msgid "The result of a cast will be a native Viper variable."
+msgstr "Egy konverzió eredménye egy natív Viper változó lesz."
+
+#: ../../reference/speed_python.rst:326
+msgid "Arguments to a cast can be a Python object or a native Viper variable."
+msgstr ""
+"Egy konverzió argumentuma lehet egy Python objektum vagy egy natív Viper "
+"változó."
+
+#: ../../reference/speed_python.rst:327
+msgid ""
+"If argument is a native Viper variable, then cast is a no-op (i.e. costs "
+"nothing at runtime) that just changes the type (e.g. from ``uint`` to "
+"``ptr8``) so that you can then store/load using this pointer."
+msgstr ""
+"Ha az argumentum egy natív Viper változó, akkor a konverzió üres művelet "
+"(azaz futásidőben semmibe sem kerül), amely csak a típust változtatja meg "
+"(pl. ``uint``\\ -ról ``ptr8``\\ -ra), hogy ezután ezzel a mutatóval "
+"tárolni/betölteni tudj."
+
+#: ../../reference/speed_python.rst:330
+msgid ""
+"If the argument is a Python object and the cast is ``int`` or ``uint``, then"
+" the Python object must be of integral type and the value of that integral "
+"object is returned."
+msgstr ""
+"Ha az argumentum egy Python objektum, és a konverzió ``int`` vagy ``uint``\\"
+" , akkor a Python objektumnak egész típusúnak kell lennie, és ezen egész "
+"objektum értéke kerül visszaadásra."
+
+#: ../../reference/speed_python.rst:332
+msgid ""
+"The argument to a bool cast must be integral type (boolean or integer); when"
+" used as a return type the viper function will return True or False objects."
+msgstr ""
+"Egy bool konverzió argumentumának egész típusúnak (logikai vagy egész) kell "
+"lennie; visszatérési típusként használva a viper függvény True vagy False "
+"objektumot ad vissza."
+
+#: ../../reference/speed_python.rst:334
+msgid ""
+"If the argument is a Python object and the cast is ``ptr``, ``ptr8``, "
+"``ptr16`` or ``ptr32``, then the Python object must either have the buffer "
+"protocol (in which case a pointer to the start of the buffer is returned) or"
+" it must be of integral type (in which case the value of that integral "
+"object is returned)."
+msgstr ""
+"Ha az argumentum egy Python objektum, és a konverzió ``ptr``\\ , ``ptr8``\\ "
+", ``ptr16`` vagy ``ptr32``\\ , akkor a Python objektumnak vagy rendelkeznie "
+"kell a pufferprotokollal (ebben az esetben a puffer elejére mutató mutató "
+"kerül visszaadásra), vagy egész típusúnak kell lennie (ebben az esetben ezen"
+" egész objektum értéke kerül visszaadásra)."
+
+#: ../../reference/speed_python.rst:339
+msgid ""
+"Writing to a pointer which points to a read-only object will lead to "
+"undefined behaviour."
+msgstr ""
+"Egy csak olvasható objektumra mutató mutatóba való írás nem definiált "
+"viselkedéshez vezet."
+
+#: ../../reference/speed_python.rst:343
+msgid ""
+"The code examples below are given for the STM32-based OpenMV Cams, which "
+"provide the ``stm`` module. The techniques described apply generally."
+msgstr ""
+"Az alábbi kódpéldák az STM32-alapú OpenMV Camekhez vannak megadva, amelyek "
+"biztosítják az ``stm`` modult. A leírt technikák általánosan alkalmazhatók."
+
+#: ../../reference/speed_python.rst:346
+msgid ""
+"The ``stm`` module exposes the memory addresses of the MCU's peripheral "
+"registers. Each GPIO port has an *output data register* (ODR) whose bits map"
+" one-to-one to that port's pins: writing the register drives those pins "
+"directly, without the overhead of a :class:`machine.Pin` method call, and "
+"XOR-ing a bit toggles its pin. On the original OpenMV Cam the blue LED is "
+"wired to ``GPIOC`` pin 2, so the following example uses a ``ptr16`` cast to "
+"toggle the blue LED ``n`` times:"
+msgstr ""
+"Az ``stm`` modul kiteszi az MCU perifériaregisztereinek memóriacímeit. "
+"Minden GPIO-portnak van egy *kimeneti adatregisztere* (ODR), amelynek bitjei"
+" egy-az-egyben leképeződnek az adott port lábaira: a regiszter írása "
+"közvetlenül vezérli ezeket a lábakat, egy :class:`machine.Pin` metódushívás "
+"többletterhe nélkül, egy bit XOR-olása pedig átkapcsolja a hozzá tartozó "
+"lábat. Az eredeti OpenMV Camen a kék LED a ``GPIOC`` 2-es lábához van "
+"bekötve, így a következő példa egy ``ptr16`` konverziót használ a kék LED "
+"``n``\\ -szeri átkapcsolásához:"
+
+#: ../../reference/speed_python.rst:363
+msgid ""
+"A detailed technical description of the three code emitters may be found on "
+"Kickstarter here `Note 1 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/664832>`_ and here `Note 2 "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+msgstr ""
+"A három kód-kibocsátó részletes technikai leírása a Kickstarteren található "
+"itt: `1. megjegyzés <https://www.kickstarter.com/projects/214379695/micro-"
+"python-python-for-microcontrollers/posts/664832>`_ és itt: `2. megjegyzés "
+"<https://www.kickstarter.com/projects/214379695/micro-python-python-for-"
+"microcontrollers/posts/665145>`_"
+
+#: ../../reference/speed_python.rst:368
+msgid "Accessing hardware directly"
+msgstr "A hardver közvetlen elérése"
+
+#: ../../reference/speed_python.rst:370
+msgid ""
+"This comes into the category of more advanced programming and involves some "
+"knowledge of the target MCU. Consider the example of toggling an output pin "
+"on an OpenMV Cam. The standard approach would be to write"
+msgstr ""
+"Ez a haladóbb programozás kategóriájába tartozik, és igényel némi ismeretet "
+"a célmikrokontrollerről (MCU). Vegyük egy kimeneti láb átkapcsolásának "
+"példáját egy OpenMV Camen. A szokásos megközelítés a következő lenne:"
+
+#: ../../reference/speed_python.rst:378
+msgid ""
+"This involves the overhead of two calls to the :class:`~machine.Pin` "
+"instance's :meth:`~machine.Pin.value()` method. This overhead can be "
+"eliminated by performing a read/write to the relevant bit of the chip's GPIO"
+" port output data register (ODR). To facilitate this the ``stm`` module "
+"provides a set of constants giving the addresses of the relevant registers "
+"(``stm.GPIOC`` is the base address of the GPIOC port, ``stm.GPIO_ODR`` the "
+"offset of its output data register). As above, the blue LED on the original "
+"OpenMV Cam is ``GPIOC`` pin 2, so a fast toggle of it can be performed as "
+"follows:"
+msgstr ""
+"Ez két hívás többletterhével jár a :class:`~machine.Pin` példány "
+":meth:`~machine.Pin.value()` metódusához. Ez a többletteher kiküszöbölhető a"
+" chip GPIO-portjának kimeneti adatregiszterében (ODR) lévő megfelelő bit "
+"írásával/olvasásával. Ennek megkönnyítésére az ``stm`` modul biztosít egy "
+"sor konstanst, amelyek megadják a megfelelő regiszterek címeit (az "
+"``stm.GPIOC`` a GPIOC port báziscíme, az ``stm.GPIO_ODR`` pedig a kimeneti "
+"adatregiszterének eltolása). Ahogy fentebb, az eredeti OpenMV Camen a kék "
+"LED a ``GPIOC`` 2-es lábához tartozik, így annak gyors átkapcsolása a "
+"következőképpen végezhető el:"
