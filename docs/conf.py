@@ -34,8 +34,13 @@ openmv_version = "5.0.0"
 # (Also used as the Sphinx ``version`` / ``release`` variables below.)
 micropython_version = "1.28"
 
-# Build date is computed automatically each time Sphinx runs.
-build_date = _dt.date.today().strftime("%d %b %Y")
+# Build date is computed automatically each time Sphinx runs. This English
+# value is the default/fallback; setup() below replaces it per-build with a
+# locale-formatted date (e.g. "17 يونيو 2026", "2026年6月17日") so the month
+# name in the hero badge and footer is translated, not just the surrounding
+# words.
+_build_date_value = _dt.date.today()
+build_date = _build_date_value.strftime("%d %b %Y")
 
 # Values exposed to topindex.html and footer templates.
 # Resolve this submodule's HEAD SHA at build time so "Edit this
@@ -323,6 +328,10 @@ language = "en"
 # -- Options for i18n output ----------------------------------------------
 locale_dirs = ["locale"]
 gettext_compact = False
+# Also extract ".. raw:: html" blocks (the changelog/quickstart cards and the
+# quickref/sensors/shields tables) and image ":alt:" text so they translate.
+# Deliberately NOT "literal-block" -- code examples must stay untranslated.
+gettext_additional_targets = ["raw", "image"]
 
 # Shibuya's navbar "Translations" switcher and the <link rel="alternate"
 # hreflang> tags read this list. Each entry is
@@ -339,30 +348,30 @@ gettext_compact = False
 #   sphinx-build -b html -D language=zh_TW . _build/html/zh_TW
 #
 # The zh_CN / zh_TW entries below go live once those builds are deployed.
+# English first (default), then A–Z by English language name.
 html_context["languages"] = [
-    ("English",   "/%s.html",       "en"),
-    ("简体中文",   "/zh_CN/%s.html", "zh-Hans"),
-    ("繁體中文",   "/zh_TW/%s.html", "zh-Hant"),
-    ("Deutsch",   "/de/%s.html",    "de"),
-    ("日本語",     "/ja/%s.html",    "ja"),
-    ("Español",   "/es/%s.html",    "es"),
-    ("Русский",   "/ru/%s.html",    "ru"),
-    ("Français",  "/fr/%s.html",    "fr"),
-    ("한국어",     "/ko/%s.html",    "ko"),
-    ("Italiano",  "/it/%s.html",    "it"),
-    ("Português", "/pt_BR/%s.html", "pt-BR"),
-    ("Nederlands","/nl/%s.html",    "nl"),
-    ("Română",    "/ro/%s.html",    "ro"),
-    ("Hrvatski",  "/hr/%s.html",    "hr"),
-    ("Čeština",   "/cs/%s.html",    "cs"),
-    ("Polski",    "/pl/%s.html",    "pl"),
-    ("Suomi",     "/fi/%s.html",    "fi"),
-    ("Svenska",   "/sv/%s.html",    "sv"),
-    ("Magyar",    "/hu/%s.html",    "hu"),
-    ("Türkçe",    "/tr/%s.html",    "tr"),
-    # RTL — added in Step 4b only after the layout check passes:
-    # ("עברית",    "/he/%s.html",    "he"),
-    # ("العربية",  "/ar/%s.html",    "ar"),
+    ("English",    "/%s.html",       "en"),
+    ("العربية",    "/ar/%s.html",    "ar"),       # Arabic
+    ("简体中文",    "/zh_CN/%s.html", "zh-Hans"),  # Chinese (Simplified)
+    ("繁體中文",    "/zh_TW/%s.html", "zh-Hant"),  # Chinese (Traditional)
+    ("Hrvatski",   "/hr/%s.html",    "hr"),       # Croatian
+    ("Čeština",    "/cs/%s.html",    "cs"),       # Czech
+    ("Nederlands", "/nl/%s.html",    "nl"),       # Dutch
+    ("Suomi",      "/fi/%s.html",    "fi"),       # Finnish
+    ("Français",   "/fr/%s.html",    "fr"),       # French
+    ("Deutsch",    "/de/%s.html",    "de"),       # German
+    ("עברית",      "/he/%s.html",    "he"),       # Hebrew
+    ("Magyar",     "/hu/%s.html",    "hu"),       # Hungarian
+    ("Italiano",   "/it/%s.html",    "it"),       # Italian
+    ("日本語",      "/ja/%s.html",    "ja"),       # Japanese
+    ("한국어",      "/ko/%s.html",    "ko"),       # Korean
+    ("Polski",     "/pl/%s.html",    "pl"),       # Polish
+    ("Português",  "/pt_BR/%s.html", "pt-BR"),    # Portuguese
+    ("Română",     "/ro/%s.html",    "ro"),       # Romanian
+    ("Русский",    "/ru/%s.html",    "ru"),       # Russian
+    ("Español",    "/es/%s.html",    "es"),       # Spanish
+    ("Svenska",    "/sv/%s.html",    "sv"),       # Swedish
+    ("Türkçe",     "/tr/%s.html",    "tr"),       # Turkish
 ]
 
 # There are two options for replacing |today|: either, you set today to some
@@ -692,3 +701,54 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+
+
+# =============================================================================
+# Per-language build date
+# =============================================================================
+def setup(app):
+    """Localize the build date for each language build.
+
+    ``build_date`` in ``html_context`` is computed once at import time with an
+    English month abbreviation. Each translation is a separate Sphinx run with
+    ``-D language=<lang>``, so by the time a page is rendered we know the target
+    language and can reformat the date with Babel — giving a natural localized
+    date (month names, ordering, and digits) in the hero badge and footer
+    instead of "17 Jun 2026" everywhere.
+    """
+    from babel.dates import format_date
+
+    def localize_build_date(app, pagename, templatename, context, doctree):
+        lang = (app.config.language or "en").replace("-", "_")
+        try:
+            context["build_date"] = format_date(
+                _build_date_value, format="long", locale=lang
+            )
+        except Exception:
+            pass  # unknown locale -> keep the English default already in context
+
+    def localize_nav_links(app, pagename, templatename, context, doctree):
+        # The navbar (Shibuya's ``theme_nav_links``) renders the configured
+        # titles verbatim -- they are not gettext-wrapped, so they would stay
+        # English in every translation. Run each title through the loaded
+        # catalog here; titles that have a translation in sphinx.po (Tutorial,
+        # Libraries, ...) get localized, proper nouns (OpenMV, CPython) pass
+        # through unchanged because gettext returns the msgid when untranslated.
+        nav = context.get("theme_nav_links")
+        translator = getattr(app, "translator", None)
+        if not nav or translator is None:
+            return
+
+        def tr(node):
+            out = dict(node)
+            if out.get("title"):
+                out["title"] = translator.gettext(out["title"])
+            if out.get("children"):
+                out["children"] = [tr(c) for c in out["children"]]
+            return out
+
+        context["theme_nav_links"] = [tr(link) for link in nav]
+
+    app.connect("html-page-context", localize_build_date)
+    app.connect("html-page-context", localize_nav_links)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
