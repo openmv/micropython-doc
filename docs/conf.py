@@ -557,6 +557,9 @@ html_css_files = [
 # in <head> so the swap happens before paint. See static/lang-redirect.js.
 html_js_files = [
     "lang-redirect.js",
+    # Re-publish --sy-s-offset-top from the real header height so sticky
+    # elements stay aligned when the navbar wraps (long translated labels).
+    "navbar-height.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
