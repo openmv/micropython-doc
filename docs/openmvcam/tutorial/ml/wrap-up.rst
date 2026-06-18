@@ -73,6 +73,27 @@ Three things the chapter prepares for:
   and the operator coverage of the target engine are the
   four levers, and the chapter covered each of them.
 
+Training your own model
+-----------------------
+
+This chapter started from a trained ``.tflite``. Producing
+one for a custom task -- a new set of object classes, a
+purpose-built classifier -- does not mean standing up a
+training pipeline by hand: two hosted services cover the
+whole loop, from collecting and labelling data through
+training to exporting a model the cam can load.
+
+* :doc:`Edge Impulse <../tools/edge-impulse>` -- an
+  end-to-end embedded-ML platform; capture data from the cam,
+  label it, train, and export a quantized ``.tflite`` ready
+  for the OpenMV inference engine.
+
+* :doc:`Roboflow <../tools/roboflow/index>` -- dataset
+  management and annotation with hosted training, geared
+  toward object detection; export a YOLOv8 model that the
+  :class:`~ml.postprocessing.ultralytics.YoloV8`
+  post-processor decodes directly.
+
 ML composes with the rest of the cam
 ------------------------------------
 
