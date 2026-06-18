@@ -550,6 +550,9 @@ html_static_path = ["static"]
 # Add a custom CSS file for HTML generation
 html_css_files = [
     "custom.css",
+    # Right-to-left mirroring for Arabic/Hebrew. Every rule is scoped to
+    # [dir="rtl"] (set by partials/extra-head.html), so it is inert otherwise.
+    "rtl.css",
 ]
 # Client-side locale auto-selection: redirect first-time visitors to the
 # build matching their browser language (English at root is the fallback),
@@ -707,6 +710,26 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 
 # =============================================================================
+# Right-to-left layout (Arabic, Hebrew) -- DISABLED, future work
+# =============================================================================
+# A working first pass at RTL mirroring exists in the tree -- static/rtl.css and
+# templates/partials/extra-head.html (emits <html dir="rtl">) -- but it is
+# turned OFF here. Reasons it is parked rather than shipped:
+#   * The Shibuya theme has no native RTL support, so this is an open-ended set
+#     of overrides on its (minified) chrome; new edge cases keep surfacing
+#     (mobile drawers, dropdown spacing, chevrons, ...), and a theme update can
+#     silently re-break them.
+#   * It only affects 2 of the 21 translations, and neither maintainer reads
+#     Arabic/Hebrew, so the layout cannot be properly QA'd here.
+#   * Arabic/Hebrew already read correctly with the LTR layout: the browser's
+#     bidi algorithm flows the translated text right-to-left within the page.
+# To revive it: set RTL_ENABLED = True, rebuild ar/he, and have a native
+# Arabic/Hebrew speaker review the result. rtl.css / extra-head.html are kept
+# in place (inert) so re-enabling is just this flag.
+RTL_ENABLED = False
+
+
+# =============================================================================
 # Per-language build date
 # =============================================================================
 def setup(app):
@@ -719,6 +742,7 @@ def setup(app):
     date (month names, ordering, and digits) in the hero badge and footer
     instead of "17 Jun 2026" everywhere.
     """
+    from babel.core import Locale
     from babel.dates import format_date
 
     def localize_build_date(app, pagename, templatename, context, doctree):
@@ -729,6 +753,22 @@ def setup(app):
             )
         except Exception:
             pass  # unknown locale -> keep the English default already in context
+        # Expose the writing direction so partials/extra-head.html can flip the
+        # document to RTL for Arabic/Hebrew (the Shibuya theme does not emit a
+        # dir attribute itself). rtl.css then mirrors the chrome.
+        #
+        # DISABLED (future work): the RTL layout retrofit is intentionally
+        # parked -- see RTL_ENABLED below. While disabled this always resolves
+        # to "ltr", so Arabic/Hebrew ship with the left-to-right layout (their
+        # text still reads right-to-left via the browser's bidi algorithm) like
+        # every other translation.
+        direction = "ltr"
+        if RTL_ENABLED:
+            try:
+                direction = Locale.parse(lang).text_direction
+            except Exception:
+                direction = "ltr"
+        context["text_direction"] = direction
 
     def localize_nav_links(app, pagename, templatename, context, doctree):
         # The navbar (Shibuya's ``theme_nav_links``) renders the configured
