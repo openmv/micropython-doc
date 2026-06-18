@@ -1,0 +1,316 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: id <LL@li.org>\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:2
+msgid "Filesystem hygiene"
+msgstr "Kebersihan filesystem"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:4
+msgid ""
+"Flash and SD storage on a shipped cam fill up with files no operator is "
+"going to clean out by hand. Two decisions about that storage stay with the "
+"product for its lifetime: *which surface holds which kind of data*, and *how"
+" the directories are structured so file operations keep working as the "
+"application accumulates records*."
+msgstr ""
+"Penyimpanan flash dan SD pada kamera yang telah dikirimkan akan terisi file-"
+"file yang tidak akan dibersihkan secara manual oleh operator. Dua keputusan "
+"mengenai penyimpanan tersebut akan berlaku sepanjang masa produk: *permukaan"
+" mana yang menyimpan jenis data apa*\\ , dan *bagaimana direktori disusun "
+"agar operasi file tetap berjalan seiring aplikasi mengumpulkan catatan*\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:12
+msgid "Where things go"
+msgstr "Ke mana data ditempatkan"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:14
+msgid ""
+"Code and assets ride in the frozen modules and ROMFS the build commits at "
+"ship time. Application *state* -- anything the application writes at "
+"runtime, anything that grows, anything that changes between boots -- has to "
+"live somewhere else. The cam exposes two writable surfaces for it:"
+msgstr ""
+"Kode dan aset disimpan dalam modul beku dan ROMFS yang dikompilasi saat "
+"waktu pengiriman. *State* aplikasi -- apapun yang ditulis oleh aplikasi saat"
+" runtime, apapun yang bertambah, apapun yang berubah antar boot -- harus "
+"disimpan di tempat lain. Kamera mengekspos dua permukaan yang dapat ditulis "
+"untuk itu:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:20
+msgid ""
+"**Internal flash** at ``/flash``: a small writable filesystem mounted before"
+" any application code runs. The right place for *small fixed-size records "
+"that survive reboots*: configuration the application updates at runtime, "
+"last-known calibration, a rolling counter, a one-line marker file saying "
+"\"this cam was provisioned.\" Limited write cycles -- modern internal flash "
+"tolerates thousands to tens of thousands of writes per sector, not millions,"
+" so writes need to be infrequent, not per frame."
+msgstr ""
+"**Flash internal** di ``/flash``\\ : filesystem yang dapat ditulis berukuran"
+" kecil yang dipasang sebelum kode aplikasi apapun berjalan. Tempat yang "
+"tepat untuk *catatan berukuran tetap kecil yang bertahan antar reboot*\\ : "
+"konfigurasi yang diperbarui aplikasi saat runtime, kalibrasi terakhir yang "
+"diketahui, penghitung bergulir, file penanda satu baris yang menyatakan "
+"\"kamera ini telah diprovisioning.\" Siklus penulisan terbatas -- flash "
+"internal modern menoleransi ribuan hingga puluhan ribu penulisan per sektor,"
+" bukan jutaan, sehingga penulisan harus jarang, bukan per bingkai."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:30
+msgid ""
+"**SD card** at ``/sdcard``: a larger writable filesystem mounted when a card"
+" is present. The right place for *bulky variable files*: image and video "
+"captures, log files, model fine-tuning data, anything that might grow to "
+"megabytes or gigabytes. Higher write capacity than internal flash but still "
+"finite; removable, replaceable, and the surface most likely to disappear "
+"when the application is mid-write."
+msgstr ""
+"**Kartu SD** di ``/sdcard``\\ : filesystem yang dapat ditulis berukuran "
+"lebih besar yang dipasang saat kartu tersedia. Tempat yang tepat untuk *file"
+" variabel berukuran besar*\\ : tangkapan citra dan video, file log, data "
+"fine-tuning model, apapun yang mungkin tumbuh hingga megabyte atau gigabyte."
+" Kapasitas tulis lebih tinggi dari flash internal namun tetap terbatas; "
+"dapat dilepas, dapat diganti, dan permukaan yang paling mungkin menghilang "
+"saat aplikasi sedang dalam proses penulisan."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:38
+msgid ""
+"The right answer for *where to write something* is almost always \"flash for"
+" small fixed records, SD for everything else.\" The two are not "
+"interchangeable: an application that scribbles its rolling log file to "
+"``/flash`` will burn through the flash's write endurance in a deployment "
+"that would have been fine on SD."
+msgstr ""
+"Jawaban yang tepat untuk *ke mana menulis sesuatu* hampir selalu \"flash "
+"untuk catatan tetap kecil, SD untuk segalanya.\" Keduanya tidak dapat "
+"dipertukarkan: aplikasi yang menulis file log bergulirnya ke ``/flash`` akan"
+" menghabiskan daya tahan penulisan flash dalam suatu deployment yang "
+"seharusnya baik-baik saja di SD."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:46
+msgid "Treat both as can-fail"
+msgstr "Perlakukan keduanya sebagai dapat gagal"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:48
+msgid ""
+"``/flash`` and ``/sdcard`` can both fail. The SD card can be ejected, the "
+"flash can be corrupted by a power loss mid-write, either can run out of "
+"space, and any operation on either can raise :exc:`OSError` for reasons the "
+"application will not get a chance to diagnose in the field."
+msgstr ""
+"``/flash`` dan ``/sdcard`` keduanya bisa gagal. Kartu SD bisa dilepas, flash"
+" bisa rusak akibat kehilangan daya saat penulisan berlangsung, keduanya bisa"
+" kehabisan ruang, dan operasi apapun pada keduanya dapat memunculkan "
+":exc:`OSError` karena alasan yang tidak akan sempat didiagnosis oleh "
+"aplikasi di lapangan."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:54
+msgid "Two patterns make the application survive that:"
+msgstr "Dua pola membuat aplikasi dapat bertahan dari hal tersebut:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:56
+msgid ""
+"**Wrap mounts and operations in try blocks.** Every :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` against user-data paths is potentially"
+" failing. Catch :exc:`OSError`, log it, and fall back to a defined "
+"alternative -- write to ``/flash`` if ``/sdcard`` is gone, skip the "
+"operation if neither is available."
+msgstr ""
+"**Bungkus operasi mount dan operasi dalam blok try.** Setiap :func:`open`\\ "
+", :func:`os.listdir`\\ , :func:`os.rename` terhadap jalur data pengguna "
+"berpotensi gagal. Tangkap :exc:`OSError`\\ , catat, dan kembali ke "
+"alternatif yang telah ditentukan -- tulis ke ``/flash`` jika ``/sdcard`` "
+"tidak tersedia, lewati operasi jika tidak ada yang tersedia."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:63
+msgid ""
+"**Atomic writes for files that must survive a power loss.** Write to a "
+"temporary path, close the handle, then :func:`os.rename` over the live name."
+" Either the rename succeeded and the file is the new version, or it did not "
+"and the file is the old version. There is no third state where the file is "
+"half-written::"
+msgstr ""
+"**Penulisan atomis untuk file yang harus bertahan dari kehilangan daya.** "
+"Tulis ke jalur sementara, tutup handle-nya, lalu :func:`os.rename` ke nama "
+"aktif. Entah rename berhasil dan file adalah versi baru, atau tidak berhasil"
+" dan file adalah versi lama. Tidak ada kondisi ketiga di mana file setengah "
+"ditulis::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:79
+msgid ""
+"The pattern works on both flash and SD. It does *not* work for files large "
+"enough that the tmp file uses up the filesystem's free space; reserve it for"
+" small records."
+msgstr ""
+"Pola ini berfungsi pada flash maupun SD. Pola ini *tidak* berfungsi untuk "
+"file yang cukup besar sehingga file tmp menghabiskan ruang kosong "
+"filesystem; cadangkan untuk catatan kecil."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:84
+msgid "The slow-directory trap"
+msgstr "Jebakan direktori yang lambat"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:86
+msgid ""
+"The MicroPython VFS does not index directory contents the way a desktop "
+"filesystem does. :func:`os.listdir` and :func:`os.stat` walk the underlying "
+"file table linearly. A directory with a hundred files is fine; a directory "
+"with ten thousand files is unusably slow, with every :func:`os.listdir` "
+"taking seconds and every :func:`open` checking against the table on its way "
+"through."
+msgstr ""
+"VFS MicroPython tidak mengindeks isi direktori seperti yang dilakukan "
+"filesystem desktop. :func:`os.listdir` dan :func:`os.stat` menelusuri tabel "
+"file yang mendasarinya secara linear. Direktori dengan seratus file tidak "
+"masalah; direktori dengan sepuluh ribu file sangat lambat digunakan, dengan "
+"setiap :func:`os.listdir` memakan waktu beberapa detik dan setiap "
+":func:`open` memeriksa tabel saat diaksesnya."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:94
+msgid ""
+"Applications that write logs or captures to disk hit this fastest. A naive "
+"``/sdcard/logs/<timestamp>.log`` scheme that opens one new file per minute "
+"fills the ``logs/`` directory with half a million files in a year of "
+"deployment. Long before then the application starts missing its frame rate "
+"because every file open is taking longer than a frame interval."
+msgstr ""
+"Aplikasi yang menulis log atau tangkapan ke disk mengalami masalah ini "
+"paling cepat. Skema ``/sdcard/logs/<timestamp>.log`` yang naif yang membuka "
+"satu file baru per menit akan mengisi direktori ``logs/`` dengan setengah "
+"juta file dalam satu tahun deployment. Jauh sebelum itu, aplikasi mulai "
+"melewatkan frame rate-nya karena setiap pembukaan file memakan waktu lebih "
+"lama dari interval satu bingkai."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:102
+msgid ""
+"The right pattern is to split files across a tree of dated subdirectories so"
+" no single directory ever holds more than a few hundred entries::"
+msgstr ""
+"Pola yang tepat adalah membagi file di seluruh pohon subdirektori bertanggal"
+" sehingga tidak ada satu direktori pun yang pernah menyimpan lebih dari "
+"beberapa ratus entri::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:130
+msgid ""
+"A year of one-file-per-hour logging is now spread across 365 day-"
+"directories, each containing at most 24 files; :func:`os.listdir` against "
+"any one directory stays cheap, and the application's frame loop does not "
+"stall on file operations as the deployment ages."
+msgstr ""
+"Satu tahun logging satu-file-per-jam kini tersebar di 365 direktori hari, "
+"masing-masing berisi paling banyak 24 file; :func:`os.listdir` terhadap "
+"direktori mana pun tetap cepat, dan loop bingkai aplikasi tidak terhenti "
+"pada operasi file seiring bertambahnya umur deployment."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:136
+msgid ""
+"The same principle applies to image captures, sensor traces, or anything "
+"else the application writes a file per event for. If the event rate is high,"
+" the tree wants to be deeper (year/month/day/hour, or "
+"year/month/day/hour/minute) so each leaf directory stays small. If the event"
+" rate is low, a year/month tree is enough."
+msgstr ""
+"Prinsip yang sama berlaku untuk tangkapan citra, jejak sensor, atau apapun "
+"lainnya yang ditulis aplikasi satu file per peristiwa. Jika tingkat "
+"peristiwa tinggi, pohon perlu lebih dalam (year/month/day/hour, atau "
+"year/month/day/hour/minute) agar setiap direktori daun tetap kecil. Jika "
+"tingkat peristiwa rendah, pohon year/month sudah cukup."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:144
+msgid "Per-device paths"
+msgstr "Jalur per perangkat"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:146
+msgid ""
+"In a fleet of more than one cam, log files need to identify which physical "
+"unit they came from. :func:`machine.unique_id` returns a hardware identifier"
+" baked into the cam at the factory; it is the same value across reboots, "
+"across firmware updates, and across SD card swaps. Embed it in the log path "
+"or in the log records and an operator looking at a pile of SD cards or a "
+"centralised log can tell which one is which::"
+msgstr ""
+"Dalam armada yang terdiri lebih dari satu kamera, file log perlu "
+"mengidentifikasi unit fisik mana yang menghasilkannya. "
+":func:`machine.unique_id` mengembalikan identifikasi perangkat keras yang "
+"tertanam pada kamera di pabrik; nilainya sama di seluruh reboot, pembaruan "
+"firmware, dan penggantian kartu SD. Sematkan ke jalur log atau ke catatan "
+"log dan operator yang melihat tumpukan kartu SD atau log terpusat dapat "
+"mengetahui mana yang mana::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:161
+msgid ""
+"Combined with the dated-subdirectory pattern, the layout becomes "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- one unit's hour of records, "
+"in a directory shallow enough to walk, on a path that names the unit on the "
+"file system itself."
+msgstr ""
+"Dikombinasikan dengan pola subdirektori bertanggal, tata letaknya menjadi "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- satu jam catatan sebuah "
+"unit, dalam direktori yang cukup dangkal untuk ditelusuri, pada jalur yang "
+"mencantumkan nama unit pada filesystem itu sendiri."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:168
+msgid "Pulling it together"
+msgstr "Menggabungkan semuanya"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:170
+msgid "A shipped cam's writable storage looks roughly like this:"
+msgstr ""
+"Penyimpanan yang dapat ditulis dari kamera yang telah dikirimkan terlihat "
+"kira-kira seperti ini:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:172
+msgid ""
+"``/flash`` -- configuration, calibration, a provisioning marker. Written "
+"rarely, read often. Atomic-rename pattern for any file whose loss would "
+"break the next boot."
+msgstr ""
+"``/flash`` -- konfigurasi, kalibrasi, penanda provisioning. Jarang ditulis, "
+"sering dibaca. Pola atomic-rename untuk file apapun yang kehilangannya akan "
+"merusak boot berikutnya."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:176
+msgid ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- the "
+"operational log. Written continuously, rotated by the path, never written "
+"through a directory with thousands of siblings."
+msgstr ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- log "
+"operasional. Ditulis terus-menerus, dirotasi berdasarkan jalur, tidak pernah"
+" ditulis melalui direktori dengan ribuan file sejajar."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:181
+msgid ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- image or video "
+"captures the application makes. Same tree shape, same reason."
+msgstr ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- tangkapan citra atau"
+" video yang dibuat oleh aplikasi. Bentuk pohon yang sama, alasan yang sama."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:185
+msgid ""
+"That layout costs the application about twenty lines of code and saves it "
+"from the failure modes that take the cam down months into a deployment."
+msgstr ""
+"Tata letak tersebut hanya membutuhkan sekitar dua puluh baris kode dari "
+"aplikasi dan menyelamatkannya dari mode kegagalan yang menjatuhkan kamera "
+"berbulan-bulan setelah deployment."
