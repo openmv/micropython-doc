@@ -20,8 +20,7 @@ The submodule is conventionally imported as ``np``::
 
 Each ``dtype`` argument is one of the integer constants exposed at module
 level: `numpy.bool`, `numpy.uint8`, `numpy.int8`, `numpy.uint16`,
-`numpy.int16`, `numpy.float` (the default), and (when complex support is
-compiled in) `numpy.complex`. The result type `ndarray` refers to
+`numpy.int16`, and `numpy.float` (the default). The result type `ndarray` refers to
 `numpy.ndarray`.
 
 Submodules
@@ -59,9 +58,8 @@ The same type is reachable as ``ulab.ndarray``,
       ``ValueError`` is raised.
    :param dtype: Element type for the new array. One of the type-code
       integers exposed by `numpy` (`numpy.bool`, `numpy.uint8`,
-      `numpy.int8`, `numpy.uint16`, `numpy.int16`,
-      `numpy.float`, and -- when supported -- `numpy.complex`), or
-      a `dtype` instance. Defaults to `numpy.float`.
+      `numpy.int8`, `numpy.uint16`, `numpy.int16`, and
+      `numpy.float`), or a `dtype` instance. Defaults to `numpy.float`.
 
    The factory function `numpy.array` is the conventional way to
    create an `ndarray`; it forwards to this constructor.
@@ -69,7 +67,7 @@ The same type is reachable as ``ulab.ndarray``,
    .. method:: byteswap(*, inplace: bool = False) -> ndarray
 
       Swap the byte order of every element. For ``uint16``, ``int16``,
-      ``float`` and ``complex`` arrays this reverses the per-element
+      and ``float`` arrays this reverses the per-element
       byte order, which is useful when consuming data from peripherals
       whose endianness does not match the microcontroller's. For
       single-byte dtypes (``bool``, ``uint8``, ``int8``) this is a
@@ -177,43 +175,25 @@ The same type is reachable as ``ulab.ndarray``,
 
       The transpose of the array; equivalent to :meth:`transpose`.
 
-   .. attribute:: real
-      :type: ndarray
-
-      The real part of a complex array, returned as a ``float``
-      `ndarray`. For real arrays this is a copy of ``self`` with the
-      same `dtype`. Only available when the firmware was built with
-      complex support.
-
-   .. attribute:: imag
-      :type: ndarray
-
-      The imaginary part of a complex array, returned as a ``float``
-      `ndarray`. For real arrays this is an array of zeros with the
-      same `dtype` as ``self``. Only available when the firmware was
-      built with complex support.
-
 Supported operators
 ~~~~~~~~~~~~~~~~~~~
 
 `ndarray` instances support the following operators. Binary operators
 broadcast their operands following standard numpy broadcasting rules
 and follow numpy's upcasting rules (e.g. ``uint8 + int8 => int16``,
-``uint16 + int16 => float``); operations involving a complex operand
-produce a complex result.
+``uint16 + int16 => float``).
 
 **Arithmetic (binary):** ``+``, ``-``, ``*``, ``/``, ``//``, ``%``, ``**``.
 Reflected (right-hand) operands and the in-place variants
 ``+=``, ``-=``, ``*=``, ``/=``, ``%=``, ``**=`` are also supported. Both
 ``ndarray``-with-``ndarray`` and ``ndarray``-with-scalar forms are
-accepted. Floor division (``//``) and the modulo operator (``%``) are
-not implemented for ``complex`` arrays.
+accepted.
 
 **Comparison:** ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. Each
 returns a boolean `ndarray` of the broadcast shape.
 
 **Bitwise (integer arrays only):** ``&``, ``|``, ``^``. Applying
-these to a ``float`` or ``complex`` array raises ``TypeError``.
+these to a ``float`` array raises ``TypeError``.
 
 **Unary:** ``+`` (returns a copy), ``-`` (negation; on unsigned
 dtypes the values wrap modulo :math:`2^N`), ``abs()`` (element-wise
@@ -296,8 +276,7 @@ Array construction
 
    Return *num* evenly spaced samples over the closed interval ``[start, stop]``
    (or half-open if *endpoint* is ``False``). When *retstep* is ``True``, return
-   a tuple ``(samples, step)``. Complex *start*/*stop* produce a complex array
-   (when complex support is enabled).
+   a tuple ``(samples, step)``.
 
 .. function:: logspace(start: float, stop: float, num: int = 50, *, base: float = 10.0, endpoint: bool = True, dtype: int = float) -> ndarray
 
@@ -632,33 +611,6 @@ I/O
    *header* and *footer*, if provided, are written before/after the data,
    each prefixed by *comments*. Values are written as floating point.
 
-Complex helpers
----------------
-
-These functions are only available when ulab was compiled with complex
-support (``ULAB_SUPPORTS_COMPLEX``).
-
-.. function:: real(val: ndarray) -> ndarray
-
-   Return the real part of *val*. For a real-dtype input, returns a copy
-   preserving the dtype; for a complex input, returns a float `ndarray`.
-
-.. function:: imag(val: ndarray) -> ndarray
-
-   Return the imaginary part of *val*. For a real-dtype input, returns an
-   array of zeros with the same dtype; for a complex input, returns a float
-   `ndarray`.
-
-.. function:: conjugate(val: ndarray | complex | int | float) -> ndarray | complex | int | float
-
-   Return the complex conjugate of *val*. Real-valued inputs are returned
-   unchanged.
-
-.. function:: sort_complex(a: ndarray) -> ndarray
-
-   Sort the 1-D array *a* first by real part, then by imaginary part. The
-   result is always of complex dtype, even if *a* was real-valued.
-
 Universal functions
 -------------------
 
@@ -718,7 +670,7 @@ into a pre-allocated float `ndarray` of the same size.
 
 .. function:: exp(x: ndarray | float, /) -> ndarray | float
 
-   Compute the exponential ``e**x`` of each element of *x*; may return a complex `ndarray` when given complex input (if complex support is enabled).
+   Compute the exponential ``e**x`` of each element of *x*.
 
 .. function:: expm1(x: ndarray | float, /) -> ndarray | float
 
@@ -758,7 +710,7 @@ into a pre-allocated float `ndarray` of the same size.
 
 .. function:: sqrt(x: ndarray | float, /, *, dtype: int = float) -> ndarray | float
 
-   Compute the square root of each element of *x*; pass ``dtype=numpy.complex`` to obtain complex results for negative real inputs (if complex support is enabled).
+   Compute the square root of each element of *x*.
 
 .. function:: tan(x: ndarray | float, /) -> ndarray | float
 

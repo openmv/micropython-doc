@@ -13,7 +13,7 @@ Numerical integration works best with float64 math enabled. With float32
 math the routines still work, with reduced precision. The required error
 tolerance can be specified via the ``eps`` keyword argument; the
 default is the compile-time ``etolerance`` value (``1e-14`` for fp64,
-``1e-8`` for fp32). Complex numbers are not supported.
+``1e-8`` for fp32).
 
 Functions
 ---------

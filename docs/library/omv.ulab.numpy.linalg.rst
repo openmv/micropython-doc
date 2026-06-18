@@ -7,8 +7,7 @@
 The :mod:`numpy.linalg` submodule provides a small selection of linear-algebra
 routines that operate on :class:`numpy.ndarray` objects. Functions that operate
 on matrices require two-dimensional arrays; passing arrays of a different
-dimensionality raises a ``ValueError``. Complex dtypes are not supported by
-this submodule.
+dimensionality raises a ``ValueError``.
 
 Functions
 ---------

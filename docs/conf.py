@@ -333,6 +333,15 @@ gettext_compact = False
 # Deliberately NOT "literal-block" -- code examples must stay untranslated.
 gettext_additional_targets = ["raw", "image"]
 
+# Translated builds emit "i18n.inconsistent_references" warnings whenever a
+# translation legitimately localizes the visible text of a hyperlink or a
+# cross-reference to a section title (e.g. a `Section title`_ reference whose
+# title is itself translated, or a named link whose label is translated). For a
+# machine-translated, 26-language site this fires constantly and is expected --
+# the links still resolve. Suppress just this one noisy i18n class; all other
+# warning categories stay on.
+suppress_warnings = ["i18n.inconsistent_references"]
+
 # Shibuya's navbar "Translations" switcher and the <link rel="alternate"
 # hreflang> tags read this list. Each entry is
 #   (display name, URL pattern with %s for the page, hreflang).
