@@ -1,0 +1,204 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pt_PT <LL@li.org>\n"
+"Language: pt_PT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:2
+msgid "Building a ROMFS image"
+msgstr "Criar uma imagem ROMFS"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:4
+msgid ""
+"A *ROMFS image* is a flash-resident, read-only filesystem the runtime auto-"
+"mounts at ``/rom``. It solves the asset problem the previous page closed on:"
+" machine-learning model files, label tables, JSON configuration, image "
+"templates -- anything the application opens and reads but never writes -- "
+"ride into the build without paying the cost of being embedded as Python "
+"literals."
+msgstr ""
+"Uma *imagem ROMFS* é um sistema de ficheiros residente em flash, de leitura "
+"apenas, que o runtime monta automaticamente em ``/rom``\\ . Resolve o "
+"problema dos recursos com que a página anterior terminou: ficheiros de "
+"modelos de machine learning, tabelas de etiquetas, configuração JSON, "
+"modelos de imagem -- qualquer coisa que a aplicação abre e lê mas nunca "
+"escreve -- entra na compilação sem pagar o custo de ser incorporada como "
+"literais Python."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:12
+msgid "Three things make ROMFS the right tool for shipped assets:"
+msgstr ""
+"Três aspetos fazem da ROMFS a ferramenta certa para recursos expedidos:"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:14
+msgid ""
+"The filesystem is *part of the firmware image*. End users cannot delete a "
+"file out of ``/rom``, edit one, or replace one with their own."
+msgstr ""
+"O sistema de ficheiros é *parte da imagem de firmware*\\ . Os utilizadores "
+"finais não podem apagar um ficheiro de ``/rom``\\ , editá-lo nem substituí-"
+"lo pelo seu."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:17
+msgid ""
+"Files in ``/rom`` are accessible *in place*. Consumers like the :mod:`ml` "
+"module loading a model file get a direct view into flash with no RAM copy --"
+" a multi-megabyte model on ``/rom`` \"loads\" essentially for free, where "
+"the same file on ``/sdcard`` is read into RAM at load time and stays there "
+"for the lifetime of the reference. Ordinary :func:`open` + ``read`` copies "
+"on demand: each ``read(n)`` call copies ``n`` bytes from flash to RAM at the"
+" moment of the call, with a bare ``read()`` asking for the whole file."
+msgstr ""
+"Os ficheiros em ``/rom`` são acessíveis *no local*\\ . Consumidores como o "
+"módulo :mod:`ml` a carregar um ficheiro de modelo obtêm uma vista direta "
+"para a flash sem cópia em RAM -- um modelo de vários megabytes em ``/rom`` "
+"\"carrega\" essencialmente de graça, enquanto o mesmo ficheiro em "
+"``/sdcard`` é lido para RAM no momento do carregamento e fica lá durante o "
+"tempo de vida da referência. O :func:`open` comum + ``read`` copia a pedido:"
+" cada chamada ``read(n)`` copia ``n`` bytes da flash para RAM no momento da "
+"chamada, sendo que um ``read()`` simples pede o ficheiro inteiro."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:26
+msgid ""
+"``/rom`` and ``/rom/lib`` are added to :data:`sys.path` at boot. Python "
+"packages dropped into the image are importable by name; nothing special at "
+"the call site."
+msgstr ""
+"``/rom`` e ``/rom/lib`` são adicionados a :data:`sys.path` no arranque. Os "
+"pacotes Python colocados na imagem são importáveis pelo nome; nada de "
+"especial no local de chamada."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:31
+msgid "Building an image"
+msgstr "Criar uma imagem"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:33
+msgid ""
+"ROMFS images are created, edited, and flashed through the IDE. Use it as the"
+" source of truth for the contents of every shipped ROMFS partition."
+msgstr ""
+"As imagens ROMFS são criadas, editadas e gravadas através do IDE. Utilize-o "
+"como fonte de verdade para o conteúdo de cada partição ROMFS expedida."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:37
+msgid ""
+"The reason this matters: model files come with alignment requirements that "
+"the loader at runtime enforces. ``.tflite`` files must be padded to 16-byte "
+"boundaries, and the N6's NPU requires 32-byte alignment for compiled models."
+" The IDE applies that padding automatically when it writes the image. Tools "
+"that walk the source tree without applying the padding -- ``mpremote romfs``"
+" in particular -- produce an image that mounts cleanly but whose models fail"
+" at the first inference call."
+msgstr ""
+"O motivo pelo qual isto é importante: os ficheiros de modelo vêm com "
+"requisitos de alinhamento que o carregador em runtime impõe. Os ficheiros "
+"``.tflite`` têm de ser preenchidos para limites de 16 bytes, e o NPU do N6 "
+"exige alinhamento de 32 bytes para modelos compilados. O IDE aplica esse "
+"preenchimento automaticamente quando escreve a imagem. Ferramentas que "
+"percorrem a árvore de código-fonte sem aplicar o preenchimento -- ``mpremote"
+" romfs`` em particular -- produzem uma imagem que monta corretamente mas "
+"cujos modelos falham na primeira chamada de inferência."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:47
+msgid ""
+"The IDE's ROMFS editor is an interactive view of the image's contents. Files"
+" and folders can be added, renamed, and deleted in memory; saving writes the"
+" result out as an ``.img`` file ready to flash. A typical structure for an "
+"application that ships a model alongside some assets and a Python package "
+"looks like::"
+msgstr ""
+"O editor ROMFS do IDE é uma vista interativa do conteúdo da imagem. "
+"Ficheiros e pastas podem ser adicionados, renomeados e eliminados em "
+"memória; guardar escreve o resultado como um ficheiro ``.img`` pronto a "
+"gravar. Uma estrutura típica para uma aplicação que expede um modelo junto "
+"com alguns recursos e um pacote Python tem este aspeto::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:66
+msgid ""
+"Both the IDE and ``mpremote`` cross-compile ``.py`` files to ``.mpy`` "
+"bytecode on the way into a ROMFS image, so the cam imports them without "
+"paying the parse cost at load time. Source files in the editor stay ``.py``;"
+" the image contains ``.mpy``."
+msgstr ""
+"Tanto o IDE como o ``mpremote`` compilam cruzadamente ficheiros ``.py`` para"
+" bytecode ``.mpy`` ao inseri-los numa imagem ROMFS, pelo que a câmara os "
+"importa sem pagar o custo de análise no momento do carregamento. Os "
+"ficheiros de código-fonte no editor ficam como ``.py``\\ ; a imagem contém "
+"``.mpy``\\ ."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:72
+msgid ""
+"Once the image is flashed, the tree is visible from MicroPython at "
+"``/rom/``::"
+msgstr ""
+"Depois de a imagem ser gravada, a árvore é visível a partir do MicroPython "
+"em ``/rom/``\\ ::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:83
+msgid "Most of the application lives in ROMFS"
+msgstr "A maior parte da aplicação reside em ROMFS"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:85
+msgid ""
+"ROMFS is the right home for almost everything an application ships: the "
+"libraries it imports, the model files it loads, the configuration it reads, "
+"any asset whose output came from a build tool that emits a file tree (model "
+"converters, image pipelines, asset packers), and -- importantly -- the "
+"application code itself."
+msgstr ""
+"A ROMFS é o lugar certo para quase tudo o que uma aplicação expede: as "
+"bibliotecas que importa, os ficheiros de modelo que carrega, a configuração "
+"que lê, qualquer recurso cuja saída veio de uma ferramenta de compilação que"
+" emite uma árvore de ficheiros (conversores de modelos, pipelines de imagem,"
+" empacotadores de recursos) e -- importantly -- o próprio código da "
+"aplicação."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:92
+msgid ""
+"The frozen-modules side should stay small: ``boot.py`` for pre-REPL setup, "
+"``main.py`` as a thin entry point, and only the libraries the cam genuinely "
+"cannot boot without. Everything else goes in ROMFS, where iterating on it is"
+" a fresh ``.img`` saved out of the IDE and reflashed -- no firmware rebuild "
+"required, no toolchain on hand to do it."
+msgstr ""
+"O lado dos módulos congelados deve permanecer pequeno: ``boot.py`` para "
+"configuração pré-REPL, ``main.py`` como ponto de entrada leve, e apenas as "
+"bibliotecas que a câmara genuinamente não consegue arrancar sem. Tudo o "
+"resto vai para a ROMFS, onde iterar significa guardar um novo ``.img`` do "
+"IDE e regravar -- sem necessidade de recompilar o firmware, sem precisar de "
+"ter uma toolchain disponível."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:99
+msgid ""
+"The pattern that falls out is a ``main.py`` that does nothing but delegate "
+"into the ROMFS-resident application::"
+msgstr ""
+"O padrão que emerge é um ``main.py`` que não faz nada mais do que delegar "
+"para a aplicação residente em ROMFS::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:110
+msgid ""
+"A change to ``app`` is a ROMFS edit and a reflash. The firmware build stays "
+"put for the lifetime of the product unless something on the frozen side "
+"actually has to change."
+msgstr ""
+"Uma alteração ao ``app`` é uma edição à ROMFS e uma regravação. A compilação"
+" do firmware mantém-se para o tempo de vida do produto a menos que algo no "
+"lado congelado realmente precise de mudar."

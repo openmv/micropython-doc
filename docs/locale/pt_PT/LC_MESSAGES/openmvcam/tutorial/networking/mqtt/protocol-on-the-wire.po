@@ -1,0 +1,456 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pt_PT <LL@li.org>\n"
+"Language: pt_PT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT, byte a byte"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"A esta altura, a câmara tem tudo o que precisa para comunicar com um serviço"
+" real na internet aberta: um socket TCP, TLS para o envolver, DNS para "
+"identificar o par, e asyncio para permitir que o mesmo script execute outras"
+" tarefas enquanto a ligação está aberta. MQTT é o primeiro protocolo de fio "
+"que une tudo isso em algo que um produto em produção utiliza de verdade."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"Esta página aborda o próprio protocolo -- o formato em fio, os papéis "
+"desempenhados por cada participante, e as compensações do seu design -- com "
+"honestidade suficiente para que o cliente :mod:`mqtt` incluído pareça um "
+"mero revestimento do que já se sabe, em vez de um salto de fé."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "Pub/sub vs pedido/resposta"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"HTTP -- o protocolo que a maioria dos projetos com câmara utiliza em "
+"primeiro lugar -- é *pedido/resposta*\\ . Um cliente solicita a um servidor "
+"específico um recurso específico; o servidor responde. Cada troca é um para "
+"um, e ambas as partes conhecem o endereço uma da outra com antecedência."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT é *publicação/subscrição*\\ . Os clientes ligam-se a um terceiro no "
+"meio chamado **broker**\\ . Um *publicador* envia uma mensagem para um "
+"**tópico** nomeado sem saber nem se preocupar com quem está a escutar. Um "
+"*subscritor* indica ao broker os tópicos que pretende e recebe todas as "
+"mensagens publicadas nesses tópicos a partir daí. O broker é o ponto de "
+"distribuição: uma publicação em ``yard-cam/motion`` chega a todos os "
+"dispositivos subscritos a ``yard-cam/motion``\\ , mesmo que sejam zero, um "
+"ou cinquenta."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "Três consequências decorrem dessa mudança de modelo:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**Desacoplamento.** Os publicadores não precisam de saber que existem "
+"subscritores. Os subscritores podem entrar e sair sem que o publicador "
+"repare. Adicionar um segundo painel de controlo é uma linha de código no "
+"novo painel; a câmara não muda."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**Distribuição em leque.** O broker trata de cada duplicado, pelo que a "
+"câmara envia um único pacote independentemente de quantos dispositivos o "
+"leem. É o caso de uso para o qual o MQTT foi criado."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**Assimetria.** O broker é agora uma peça de infraestrutura obrigatória -- "
+"sem um, o protocolo não funciona. Em projetos domésticos, isso é normalmente"
+" um broker público gratuito (\\ ``test.mosquitto.org``\\ , "
+"``broker.hivemq.com``\\ ) ou um pequeno broker que corre você mesmo."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"Uma câmara a publicar no tópico yard-cam/motion de um broker\n"
+"enquanto dois painéis de controlo no browser e um arquivo na nuvem\n"
+"recebem a mesma mensagem."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ".. image:: figures/mqtt-fanout.svg"
+msgstr ".. image:: figures/mqtt-fanout.svg"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "Tópicos"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr ""
+"Os tópicos são cadeias de carateres separadas por barras. A convenção é mais"
+" geral à esquerda, mais específica à direita::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr ""
+"Dois carateres universais funcionam em *subscrições* (não em publicações):"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` corresponde a um único nível. ``+/motion`` subscreve ao tópico de "
+"movimento de todas as câmaras; ``yard-cam/+`` subscreve a todos os sub-"
+"tópicos de yard-cam."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` corresponde a um ou mais níveis finais. ``yard-cam/#`` subscreve a "
+"``yard-cam/motion``\\ , ``yard-cam/temperature``\\ , ``yard-"
+"cam/temperature/sensor-3``\\ , e a tudo o mais sob ``yard-cam/``\\ . Deve "
+"aparecer no final da subscrição."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"As cadeias de tópicos são sensíveis a maiúsculas e minúsculas. De acordo com"
+" a especificação, um ``$`` inicial marca tópicos internos do broker (\\ "
+"``$SYS/...``\\ ) para os quais os publicadores não devem escrever."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "O formato do pacote"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"O MQTT corre sobre TCP. Cada pacote de controlo começa com um *cabeçalho "
+"fixo* de um byte seguido de um campo *Comprimento Restante* de comprimento "
+"variável, depois um *cabeçalho variável* específico do tipo de pacote, e "
+"depois o *payload*\\ . O mesmo formato externo cobre todos os comandos -- "
+"CONNECT, PUBLISH, SUBSCRIBE, PUBACK, DISCONNECT, e os restantes -- razão "
+"pela qual um cliente MQTT pode ser escrito em algumas centenas de linhas."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"O esquema de bytes de um pacote MQTT PUBLISH mostrando\n"
+"o byte de tipo e flags do cabeçalho fixo, o campo Comprimento Restante\n"
+"de comprimento variável, o nome do tópico, o identificador de pacote\n"
+"facultativo, e os bytes do payload."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ".. image:: figures/mqtt-publish-packet.svg"
+msgstr ".. image:: figures/mqtt-publish-packet.svg"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "O cabeçalho fixo tem um byte:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"Os bits 7..4 são o **tipo de pacote de controlo**\\ . ``0x3`` é PUBLISH (por"
+" isso o primeiro byte começa geralmente em ``0x3?``\\ ). ``0x1`` é CONNECT, "
+"``0x2`` CONNACK, ``0x8`` SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, "
+"etc."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"Os bits 3..0 são **flags** específicas do tipo de pacote. Para PUBLISH, as "
+"flags codificam o flag DUP de retransmissão, o nível de QoS (2 bits) e o "
+"flag RETAIN."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"O Comprimento Restante é um inteiro de comprimento variável de 1 a 4 bytes "
+"que conta todos os bytes após si próprio. O bit superior de cada byte é um "
+"marcador de continuação -- 1 significa \"segue outro byte de comprimento\", "
+"0 significa \"este é o último\". Um comprimento inferior a 128 cabe num "
+"byte; payloads maiores utilizam mais bytes. O comprimento máximo codificável"
+" é 256 MiB."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"Para um PUBLISH, o cabeçalho variável é o nome do tópico -- um comprimento "
+"de 2 bytes, depois bytes UTF-8 -- seguido de um *identificador de pacote* de"
+" 2 bytes que só existe quando o QoS é 1 ou 2. Os bytes restantes são o "
+"payload, tratado como bytes opacos pelo protocolo."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "Um PUBLISH mínimo de QoS 0 de ``ok`` para ``a/b`` é::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH, todas as flags a zero."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- seguem-se 7 bytes."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- comprimento do tópico 3."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- tópico."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- payload."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr ""
+"Nove bytes em fio e a mensagem chega a todos os subscritores de ``a/b`` no "
+"broker."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "Níveis de QoS"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"A Qualidade de Serviço controla o esforço do broker (e do cliente) para "
+"garantir a entrega. Os três níveis:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- no máximo uma vez.** Disparar e esquecer. O pacote PUBLISH é "
+"enviado e nunca confirmado. Se o TCP entregar, o broker reencaminha. Se a "
+"ligação cair a meio do envio, a mensagem perde-se. A maior parte da "
+"telemetria de sensores funciona bem com QoS 0 -- uma leitura de temperatura "
+"em falta num fluxo que emite a cada 30 segundos não tem importância."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- pelo menos uma vez.** O publicador inclui um identificador de "
+"pacote e aguarda um PUBACK. Se não chegar nenhum PUBACK antes de um tempo "
+"limite, o publicador retransmite com o flag DUP definido. O broker pode "
+"acabar por entregar a mesma mensagem duas vezes a um subscritor no mesmo "
+"nível; o subscritor tem de estar disposto a lidar com duplicados."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- exatamente uma vez.** Um handshake de quatro etapas (PUBREC / "
+"PUBREL / PUBCOMP) garante que a mensagem chega exatamente uma vez, mesmo "
+"após reconexões. Dispendioso em termos de round-trips e estado do broker. "
+"Poucas aplicações com câmara precisam disto."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"O cliente :mod:`mqtt` incluído implementa QoS 0 e QoS 1; QoS 2 levanta uma "
+"exceção se for solicitado. Para uma câmara a reportar leituras de sensores, "
+"QoS 0 é quase sempre a resposta certa."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "Mensagens retidas e último testamento"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr ""
+"Duas funcionalidades merecem atenção porque alteram o que o broker memoriza "
+"sobre o seu tópico."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN.** Se um PUBLISH tiver o flag RETAIN definido, o broker armazena a "
+"mensagem e encaminha-a para cada *futuro* subscritor no momento em que "
+"subscreve. É assim que o MQTT trata \"qual é o valor atual?\" -- um sensor "
+"publica a sua leitura mais recente como retida, e um painel de controlo que "
+"subscreve dez minutos depois continua a receber o valor mais recente em vez "
+"de aguardar a próxima publicação. Publicar novamente com o mesmo tópico "
+"substitui o valor retido; publicar com um payload vazio limpa-o."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**Último testamento.** Quando um cliente se liga, pode fornecer ao broker um"
+" \"último testamento\": um tópico, um payload, um QoS e um flag de retenção."
+" Se esse cliente se desligar *de forma não limpa* -- TCP RESET, perda de "
+"energia, queda de rede sem pacote DISCONNECT -- o broker publica o "
+"testamento em nome do cliente. Os subscritores veem-no como a notificação da"
+" câmara de que ficou offline. A própria câmara nunca envia o testamento; o "
+"broker faz-o, porque a essa altura a câmara já desapareceu."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "Keepalive e reconexão"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"O CONNECT transporta um intervalo de *keepalive* em segundos. Se o cliente "
+"estiver em silêncio durante esse tempo, o broker considera-o morto. Para "
+"evitar isso, o cliente envia periodicamente um PINGREQ (um byte: ``0xC0``\\ "
+") e recebe de volta um PINGRESP (\\ ``0xD0``\\ ) -- o heartbeat mais pequeno"
+" e mais barato que o protocolo pode transportar. A maioria das aplicações "
+"com câmara define o keepalive para 30 ou 60 segundos."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"Se a ligação TCP cair, ambos os lados reparam e reconectam-se do zero. As "
+"subscrições feitas antes da queda perdem-se a menos que o cliente tenha "
+"utilizado uma *sessão persistente* na ligação; para aplicações simples com "
+"câmara, o padrão de resubscrição na reconexão é mais curto e igualmente "
+"eficaz."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"Isto é suficiente para ler a especificação MQTT ou escrever manualmente um "
+"cliente sobre um :class:`socket.socket`\\ . O cliente incluído em "
+":mod:`mqtt` faz exatamente isso, mais uma API sensata para o código de "
+"aplicação."
