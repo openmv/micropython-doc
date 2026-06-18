@@ -1,0 +1,406 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:2
+msgid "Debouncing"
+msgstr "Khử rung (Debouncing)"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:4
+msgid ""
+"A switch is drawn as a perfect open-or-closed contact, but a real switch's "
+"contacts do not snap cleanly between the two states. They *chatter* -- make "
+"and break electrical contact many times within a few milliseconds before "
+"settling. A GPIO input reading the pin sees that as a burst of edges; a "
+"careless polling loop counts several \"presses\" for one real press, and an "
+"interrupt handler runs several times per actual press."
+msgstr ""
+"Một công tắc được vẽ như một tiếp điểm mở hoặc đóng hoàn hảo, nhưng tiếp "
+"điểm của công tắc thực tế không chuyển đổi sạch sẽ giữa hai trạng thái. "
+"Chúng *rung* -- đóng ngắt tiếp xúc điện nhiều lần trong vài mili giây trước "
+"khi ổn định. Một GPIO input đọc chân (pin) nhìn thấy đó như một loạt cạnh; "
+"vòng lặp kiểm tra không cẩn thận đếm nhiều lần \"nhấn\" cho một lần nhấn "
+"thực, và trình xử lý ngắt chạy nhiều lần cho mỗi lần nhấn thực."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:12
+msgid ""
+"An idealised scope trace showing a switch input\n"
+"signal. The signal starts high (open switch), drops\n"
+"low, bounces back and forth several times within a\n"
+"few milliseconds, then settles low (closed switch)."
+msgstr ""
+"Đồ thị oscilloscope lý tưởng hóa hiển thị tín hiệu\n"
+"ngõ vào của công tắc. Tín hiệu bắt đầu cao (công tắc\n"
+"mở), giảm xuống thấp, bật lên và xuống nhiều lần trong\n"
+"vài mili giây, sau đó ổn định ở mức thấp (công tắc đóng)."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:12
+msgid ".. image:: ../figures/switch-bounce.svg"
+msgstr ".. image:: ../figures/switch-bounce.svg"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:18
+msgid ""
+"A bouncing switch produces a burst of fast transitions before settling."
+msgstr ""
+"Một công tắc đang rung tạo ra một loạt chuyển đổi nhanh trước khi ổn định."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:21
+msgid ""
+"*Debouncing* is the practice of filtering the chatter so that each physical "
+"press registers as a single event. Two approaches solve this -- software (a "
+"timing rule in firmware) or hardware (a small filter on the wire). They are "
+"not mutually exclusive."
+msgstr ""
+"*Khử rung* là thực hành lọc tiếng rung để mỗi lần nhấn vật lý chỉ được ghi "
+"nhận là một sự kiện duy nhất. Hai phương pháp giải quyết vấn đề này -- phần "
+"mềm (một quy tắc thời gian trong firmware) hoặc phần cứng (một bộ lọc nhỏ "
+"trên dây). Chúng không loại trừ lẫn nhau."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:27
+msgid "Software debouncing"
+msgstr "Khử rung bằng phần mềm"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:29
+msgid ""
+"The idea is to remember when the input last changed and reject further "
+"changes within a short window of that timestamp. Contact bounce typically "
+"lasts under 10 ms; a real press takes 50 -- 100 ms; a 30 -- 50 ms window "
+"catches all bounces without blocking real presses."
+msgstr ""
+"Ý tưởng là ghi nhớ khi ngõ vào lần cuối thay đổi và từ chối các thay đổi "
+"tiếp theo trong một khoảng thời gian ngắn kể từ dấu thời gian đó. Rung tiếp "
+"điểm thường kéo dài dưới 10 ms; một lần nhấn thực mất 50 -- 100 ms; một cửa "
+"sổ 30 -- 50 ms bắt được tất cả các rung mà không chặn các lần nhấn thực."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:35
+msgid ""
+"In a polling loop, read the pin, compare to the last stable value, and only "
+"accept a change after the debounce window has elapsed:"
+msgstr ""
+"Trong vòng lặp kiểm tra, đọc chân (pin), so sánh với giá trị ổn định cuối "
+"cùng, và chỉ chấp nhận một thay đổi sau khi cửa sổ khử rung đã trôi qua:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:59
+msgid ""
+"For interrupt-driven reads, apply the same timing rule inside the handler, "
+"then hand the real press off to main context via "
+":func:`micropython.schedule` (see :doc:`gpio-input`):"
+msgstr ""
+"Đối với các lần đọc theo ngắt, áp dụng cùng quy tắc thời gian bên trong "
+"trình xử lý, sau đó chuyển lần nhấn thực sang ngữ cảnh chính thông qua "
+":func:`micropython.schedule` (xem :doc:`gpio-input`\\ ):"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:86
+msgid ""
+"The ISR filters bounces by timestamp and queues the callback; "
+"``handle_press`` runs back in main context, where allocation and slow I/O "
+"are safe."
+msgstr ""
+"ISR lọc các rung theo dấu thời gian và xếp hàng hàm gọi lại; "
+"``handle_press`` chạy lại trong ngữ cảnh chính, nơi việc cấp phát và I/O "
+"chậm đều an toàn."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:91
+msgid "Hardware debouncing"
+msgstr "Khử rung bằng phần cứng"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:93
+msgid ""
+"Hardware debouncing filters the chatter electrically, before it ever reaches"
+" the pin. The standard tool is a capacitor."
+msgstr ""
+"Khử rung bằng phần cứng lọc tiếng rung về mặt điện, trước khi nó đến được "
+"chân (pin). Công cụ tiêu chuẩn là tụ điện."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:96
+msgid ""
+"A capacitor is a two-terminal component that stores electric charge. "
+"Physically, it is two conductive plates held a short distance apart, "
+"separated by an insulator (the *dielectric*)."
+msgstr ""
+"Tụ điện là linh kiện hai cực lưu trữ điện tích. Về mặt vật lý, nó gồm hai "
+"tấm dẫn điện được giữ cách nhau một khoảng ngắn, ngăn cách bởi một chất cách"
+" điện (\\ *điện môi*\\ )."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:100
+msgid ""
+"A capacitor drawn as two parallel horizontal plates\n"
+"with a dielectric (insulator) between them. A lead\n"
+"connects each plate to an external terminal -- A on\n"
+"top, B on bottom. Equal and opposite charges +Q and\n"
+"-Q accumulate on the two plates when a voltage V is\n"
+"applied across the terminals."
+msgstr ""
+"Tụ điện được vẽ như hai tấm ngang song song\n"
+"với điện môi (chất cách điện) giữa chúng. Một dây dẫn\n"
+"nối mỗi tấm với một đầu cực bên ngoài -- A ở\n"
+"trên, B ở dưới. Các điện tích bằng nhau và ngược chiều +Q và\n"
+"-Q tích lũy trên hai tấm khi điện áp V được\n"
+"đặt vào hai đầu cực."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:100
+msgid ".. image:: ../figures/capacitor.svg"
+msgstr ".. image:: ../figures/capacitor.svg"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:108
+msgid ""
+"A parallel-plate capacitor: two conductors separated by an insulating layer."
+msgstr ""
+"Tụ điện tấm phẳng song song: hai dây dẫn ngăn cách bởi một lớp cách điện."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:111
+msgid ""
+"Applying a voltage across its terminals drives equal and opposite charges "
+"onto the two plates; the relationship is"
+msgstr ""
+"Đặt một điện áp vào hai đầu cực của nó sẽ đẩy các điện tích bằng nhau và "
+"ngược chiều lên hai tấm; mối quan hệ là"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:118
+msgid ""
+"where ``Q`` is the stored charge (coulombs), ``V`` is the voltage across the"
+" capacitor, and ``C`` is its *capacitance* (farads). Capacitance is fixed by"
+" the device's construction; more capacitance means more charge stored at the"
+" same voltage."
+msgstr ""
+"trong đó ``Q`` là điện tích lưu trữ (coulomb), ``V`` là điện áp trên tụ "
+"điện, và ``C`` là *điện dung* của nó (farad). Điện dung được cố định bởi cấu"
+" trúc của thiết bị; điện dung lớn hơn có nghĩa là lưu trữ nhiều điện tích "
+"hơn ở cùng điện áp."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:123
+msgid ""
+"The consequence: a capacitor cannot change its voltage instantly. Charge "
+"flowing in or out has to pass through whatever resistance is in the path, "
+"and that resistance sets how fast the voltage can change."
+msgstr ""
+"Hệ quả: tụ điện không thể thay đổi điện áp của nó ngay lập tức. Điện tích "
+"chảy vào hay ra phải đi qua bất kỳ điện trở nào trên đường đi, và điện trở "
+"đó quyết định tốc độ thay đổi điện áp."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:129
+msgid "RC time constant"
+msgstr "Hằng số thời gian RC"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:131
+msgid ""
+"Charging a capacitor through a resistor produces a smooth exponential rise "
+"toward the supply voltage, not a step. The characteristic time of that rise "
+"is the RC time constant:"
+msgstr ""
+"Sạc tụ điện qua một điện trở tạo ra sự tăng theo hàm mũ mượt mà về phía điện"
+" áp nguồn, chứ không phải một bước nhảy. Thời gian đặc trưng của sự tăng đó "
+"là hằng số thời gian RC:"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:139
+#, python-format
+msgid ""
+"After one ``τ``, the capacitor has reached about 63 % of the supply voltage."
+" After 5 ``τ``, it is over 99 % -- \"fully charged\" for practical purposes."
+msgstr ""
+"Sau một ``τ``\\ , tụ điện đã đạt khoảng 63 % điện áp nguồn. Sau 5 ``τ``\\ , "
+"nó đạt hơn 99 % -- \"sạc đầy\" cho các mục đích thực tế."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:143
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage rising along\n"
+"an exponential curve from 0 V toward the supply rail.\n"
+"The time τ = RC is marked on the x-axis where the\n"
+"curve reaches 63 % of the supply voltage."
+msgstr ""
+"Đồ thị hiển thị điện áp của tụ điện tăng theo\n"
+"đường cong hàm mũ từ 0 V đến thanh ray nguồn.\n"
+"Thời gian τ = RC được đánh dấu trên trục x nơi\n"
+"đường cong đạt 63 % điện áp nguồn."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:143
+msgid ".. image:: ../figures/rc-charging.svg"
+msgstr ".. image:: ../figures/rc-charging.svg"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:149
+#, python-format
+msgid ""
+"A capacitor charges along an exponential curve. ``τ = RC`` is the time to "
+"reach 63 % of the final voltage."
+msgstr ""
+"Tụ điện sạc theo đường cong hàm mũ. ``τ = RC`` là thời gian để đạt 63 % điện"
+" áp cuối cùng."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:152
+#, python-format
+msgid ""
+"Discharging through a resistor follows the mirror image: the voltage falls "
+"exponentially from its initial value toward zero, dropping to 37 % of the "
+"starting voltage after one ``τ``, and to under 1 % after 5 ``τ``."
+msgstr ""
+"Phóng điện qua một điện trở đi theo hình ảnh gương: điện áp giảm theo hàm mũ"
+" từ giá trị ban đầu về không, giảm xuống 37 % điện áp ban đầu sau một "
+"``τ``\\ , và xuống dưới 1 % sau 5 ``τ``\\ ."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:157
+#, python-format
+msgid ""
+"A graph showing a capacitor's voltage falling along\n"
+"an exponential curve from Vmax toward 0 V. The time\n"
+"τ = RC is marked on the x-axis where the curve drops\n"
+"to 37 % of the starting voltage."
+msgstr ""
+"Đồ thị hiển thị điện áp của tụ điện giảm theo\n"
+"đường cong hàm mũ từ Vmax xuống 0 V. Thời gian\n"
+"τ = RC được đánh dấu trên trục x nơi đường cong giảm\n"
+"xuống 37 % điện áp ban đầu."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:157
+msgid ".. image:: ../figures/rc-discharging.svg"
+msgstr ".. image:: ../figures/rc-discharging.svg"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:163
+#, python-format
+msgid ""
+"A capacitor discharges along an exponential decay. ``τ = RC`` is the time to"
+" fall to 37 % of the starting voltage."
+msgstr ""
+"Tụ điện phóng điện theo sự giảm theo hàm mũ. ``τ = RC`` là thời gian để giảm"
+" xuống 37 % điện áp ban đầu."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:168
+msgid "The debounce circuit"
+msgstr "Mạch khử rung"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:170
+msgid ""
+"A capacitor between an input pin and ground, fed through a series resistor, "
+"forms a *low-pass filter*. Fast spikes do not have time to charge or "
+"discharge the capacitor through that resistor; the pin stays close to "
+"whatever voltage it was at before the spike. Slow changes -- a deliberate "
+"press -- charge or discharge the capacitor and the reading follows."
+msgstr ""
+"Một tụ điện giữa chân (pin) ngõ vào và đất, được cấp qua một điện trở nối "
+"tiếp, tạo thành một *bộ lọc thông thấp*\\ . Các đột biến nhanh không có thời"
+" gian sạc hoặc phóng điện tụ điện qua điện trở đó; chân (pin) ở gần với bất "
+"kỳ điện áp nào trước đột biến. Các thay đổi chậm -- một lần nhấn có chủ ý --"
+" sạc hoặc phóng điện tụ điện và giá trị đọc theo sau."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:177
+msgid ""
+"``R1`` pulls the switch's high side up to Vcc, producing a raw switch signal"
+" that bounces. ``R2`` and ``C`` then low-pass-filter that signal into the "
+"pin:"
+msgstr ""
+"``R1`` kéo phía cao của công tắc lên Vcc, tạo ra tín hiệu công tắc thô bị "
+"rung. ``R2`` và ``C`` sau đó lọc thông thấp tín hiệu đó vào chân (pin):"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:181
+msgid ""
+"A switch input with hardware debouncing. Vcc connects\n"
+"through a 10 kΩ pull-up resistor down to a junction.\n"
+"That junction connects to ground through the switch\n"
+"on one branch, and through a 10 kΩ series resistor to\n"
+"the Pin on the other branch. A 100 nF capacitor\n"
+"between Pin and ground completes the low-pass filter."
+msgstr ""
+"Ngõ vào công tắc với khử rung phần cứng. Vcc kết nối\n"
+"qua điện trở kéo lên 10 kΩ xuống một nút giao. Nút\n"
+"giao đó kết nối với đất qua công tắc ở một nhánh,\n"
+"và qua điện trở nối tiếp 10 kΩ đến Pin ở nhánh kia.\n"
+"Một tụ điện 100 nF giữa Pin và đất hoàn thành bộ lọc thông thấp."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:181
+msgid ".. image:: ../figures/debounce-circuit.svg"
+msgstr ".. image:: ../figures/debounce-circuit.svg"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:189
+msgid ""
+"Hardware debouncing: ``R2`` and ``C`` low-pass-filter the raw switch signal "
+"before it reaches the pin."
+msgstr ""
+"Khử rung phần cứng: ``R2`` và ``C`` lọc thông thấp tín hiệu công tắc thô "
+"trước khi nó đến chân (pin)."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:192
+msgid ""
+"Typical values: ``R1 = 10 kΩ`` (pull-up), ``R2 = 10 kΩ`` (series), ``C = 100"
+" nF``."
+msgstr ""
+"Giá trị điển hình: ``R1 = 10 kΩ`` (kéo lên), ``R2 = 10 kΩ`` (nối tiếp), ``C "
+"= 100 nF``\\ ."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:195
+msgid ""
+"When the switch is open, current flows Vcc → ``R1`` → ``R2`` → cap (in "
+"series), charging the cap to Vcc with ``τ_charge = (R1 + R2) × C = 2 ms``."
+msgstr ""
+"Khi công tắc mở, dòng điện chạy Vcc → ``R1`` → ``R2`` → tụ điện (nối tiếp), "
+"sạc tụ điện lên Vcc với ``τ_charge = (R1 + R2) × C = 2 ms``\\ ."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:199
+msgid ""
+"When the switch closes, the switch node clamps to ground and the cap drains "
+"through ``R2`` alone to that ground with ``τ_discharge = R2 × C = 1 ms``."
+msgstr ""
+"Khi công tắc đóng, nút công tắc kẹp xuống đất và tụ điện xả qua ``R2`` đơn "
+"lẻ về đất đó với ``τ_discharge = R2 × C = 1 ms``\\ ."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:203
+msgid ""
+"Both edges are RC-filtered. Because the cap sits on its own node, downstream"
+" of ``R2`` from the switch, it swings cleanly between Vcc (open) and 0 V "
+"(closed) -- no current has to flow through ``R1`` at steady state in either "
+"case."
+msgstr ""
+"Cả hai cạnh đều được lọc RC. Vì tụ điện nằm trên nút riêng của nó, hạ nguồn "
+"từ ``R2`` so với công tắc, nó dao động sạch sẽ giữa Vcc (mở) và 0 V (đóng) "
+"-- không có dòng điện phải chạy qua ``R1`` ở trạng thái ổn định trong cả hai"
+" trường hợp."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:209
+msgid "Choosing between them"
+msgstr "Lựa chọn giữa hai phương pháp"
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:211
+msgid ""
+"**Software** is the default. It costs nothing in components, the threshold "
+"is easy to tune, and it works on any pin that the CPU reads."
+msgstr ""
+"**Phần mềm** là lựa chọn mặc định. Nó không tốn gì về linh kiện, ngưỡng dễ "
+"điều chỉnh, và nó hoạt động trên bất kỳ chân (pin) nào mà CPU đọc."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:214
+msgid ""
+"**Hardware** is worth the parts when the bounce reaches something other than"
+" the CPU's polling code -- an interrupt that must not double-fire, a "
+"hardware counter, a peripheral with no filter of its own."
+msgstr ""
+"**Phần cứng** đáng đầu tư linh kiện khi rung ảnh hưởng đến thứ gì đó không "
+"phải là code kiểm tra của CPU -- một ngắt không được kích hoạt hai lần, một "
+"bộ đếm phần cứng, một ngoại vi không có bộ lọc riêng."
+
+#: ../../openmvcam/tutorial/hardware/gpio-input/debouncing.rst:219
+msgid ""
+"Software and hardware debouncing also coexist peacefully: a small RC filter "
+"suppresses the worst spikes, and a software debounce window covers what is "
+"left."
+msgstr ""
+"Khử rung phần mềm và phần cứng cũng cùng tồn tại hòa bình: bộ lọc RC nhỏ "
+"triệt tiêu các đột biến tệ nhất, và cửa sổ khử rung phần mềm bao phủ những "
+"gì còn lại."

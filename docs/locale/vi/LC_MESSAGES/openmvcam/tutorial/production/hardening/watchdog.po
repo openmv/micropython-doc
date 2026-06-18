@@ -1,0 +1,252 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:2
+msgid "The watchdog"
+msgstr "Watchdog"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:4
+msgid ""
+"The hardware watchdog is the floor every other hardening choice sits on. It "
+"is a tiny independent timer that resets the processor when it has not been "
+"told otherwise for too long. A script that wedges on a flaky sensor, a "
+"network call that blocks past its timeout, a memory allocator stuck in a "
+"corner of the heap, an exception that escaped the loop -- none of them stop "
+"the watchdog. The timer counts down regardless, and the cam reboots."
+msgstr ""
+"Watchdog phần cứng là nền tảng mà mọi lựa chọn hardening khác đặt lên. Đó là"
+" một bộ định thời độc lập nhỏ bé đặt lại bộ xử lý khi nó không được thông "
+"báo khác trong thời gian quá lâu. Một tập lệnh bị kẹt trên một cảm biến "
+"không ổn định, một cuộc gọi mạng bị chặn qua thời gian chờ, một bộ cấp phát "
+"bộ nhớ bị mắc kẹt ở một góc của heap, một ngoại lệ thoát ra khỏi vòng lặp --"
+" không có gì trong số đó dừng watchdog. Bộ định thời đếm ngược bất kể, và "
+"camera khởi động lại."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:13
+msgid ""
+"For a shipped product, a watchdog is not optional. Without it, any of the "
+"failure modes above leaves the cam dead until someone notices and power-"
+"cycles it. With it, the cam comes back up by itself and the only evidence of"
+" the failure is one line in the log."
+msgstr ""
+"Đối với một sản phẩm được giao hàng, watchdog không phải là tùy chọn. Nếu "
+"không có nó, bất kỳ chế độ lỗi nào ở trên đều khiến camera chết cho đến khi "
+"ai đó nhận ra và tắt/bật nguồn. Với nó, camera tự khởi động lại và bằng "
+"chứng duy nhất về sự cố là một dòng trong log."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:21
+msgid ""
+"The hardware chapter's :doc:`watchdog timer "
+"</openmvcam/tutorial/hardware/production/watchdog>` page covers what a "
+"watchdog is at the hardware level and the basics of the :class:`machine.WDT`"
+" API. This page covers what changes for a production deployment."
+msgstr ""
+"Trang :doc:`watchdog timer "
+"</openmvcam/tutorial/hardware/production/watchdog>` trong chương phần cứng "
+"đề cập đến watchdog là gì ở cấp độ phần cứng và những điều cơ bản của API "
+":class:`machine.WDT`\\ . Trang này đề cập đến những gì thay đổi cho một "
+"triển khai production."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:28
+msgid "Starting the watchdog"
+msgstr "Khởi động watchdog"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:30
+msgid ""
+":class:`machine.WDT` is the API. It is hardware-backed: once constructed, "
+"the timer runs until the next reset. There is no ``stop()``, no "
+"``deinit()``, no Ctrl-C escape. That is the point."
+msgstr ""
+":class:`machine.WDT` là API. Nó được hỗ trợ bởi phần cứng: một khi được khởi"
+" tạo, bộ định thời chạy cho đến lần đặt lại tiếp theo. Không có ``stop()``\\"
+" , không có ``deinit()``\\ , không có lối thoát Ctrl-C. Đó chính là điểm mấu"
+" chốt."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:35
+msgid ""
+"A typical setup at the top of ``main.py``, immediately before the loop it "
+"protects::"
+msgstr ""
+"Thiết lập điển hình ở đầu ``main.py``\\ , ngay trước vòng lặp mà nó bảo vệ::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:42
+msgid ""
+"``main.py`` is the right home for the watchdog because that is where the "
+"loop lives. A watchdog reset is a hardware reset, so the cold-boot path re-"
+"runs and ``main.py`` re-enters the loop on its own -- recovery works without"
+" any wiring in ``boot.py``. Starting the watchdog in ``boot.py`` instead "
+"means every soft reset (a developer's Ctrl-D, for instance) hands the "
+"application a hardware timer it has no way to stop, which is an annoyance at"
+" the bench and a trap in production setup code that runs before the loop is "
+"ready."
+msgstr ""
+"``main.py`` là nơi phù hợp cho watchdog vì đó là nơi vòng lặp tồn tại. Một "
+"lần đặt lại watchdog là một lần đặt lại phần cứng, vì vậy đường dẫn khởi "
+"động nguội chạy lại và ``main.py`` tự vào lại vòng lặp -- quá trình phục hồi"
+" hoạt động mà không cần bất kỳ kết nối nào trong ``boot.py``\\ . Thay vào đó"
+" khởi động watchdog trong ``boot.py`` có nghĩa là mỗi lần soft reset (ví dụ "
+"Ctrl-D của nhà phát triển) trao cho ứng dụng một bộ định thời phần cứng "
+"không có cách nào dừng lại, đây là sự bất tiện tại bàn làm việc và là bẫy "
+"trong mã thiết lập production chạy trước khi vòng lặp sẵn sàng."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:52
+msgid ""
+"Pick the timeout to be 2 to 3 times longer than the worst observed iteration"
+" time of the main loop. Frame-rate jitter, a slow sensor read on a cold "
+"sensor, a brief Wi-Fi hiccup -- none of those should trip the watchdog. A "
+"real hang (an infinite loop, a blocked I/O call) should. Too-short timeouts "
+"turn the watchdog into a source of false resets; too-long timeouts let the "
+"cam sit unresponsive for minutes before recovery fires."
+msgstr ""
+"Chọn thời gian chờ sao cho dài hơn 2 đến 3 lần so với thời gian lặp được "
+"quan sát tệ nhất của vòng lặp chính. Jitter tốc độ khung hình, đọc cảm biến "
+"chậm trên cảm biến lạnh, sự gián đoạn Wi-Fi ngắn -- không ai trong số đó nên"
+" kích hoạt watchdog. Một lần treo thực sự (vòng lặp vô tận, cuộc gọi I/O bị "
+"chặn) thì nên. Thời gian chờ quá ngắn biến watchdog thành nguồn đặt lại giả;"
+" thời gian chờ quá dài cho phép camera ngồi không phản hồi trong nhiều phút "
+"trước khi quá trình phục hồi kích hoạt."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:62
+msgid "Feeding it"
+msgstr "Cấp dưỡng cho nó"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:64
+msgid ""
+"``wdt.feed()`` resets the countdown. Call it once per iteration of the main "
+"loop, at the **top** of the loop body so the feed happens unconditionally "
+"before any work that might hang::"
+msgstr ""
+"``wdt.feed()`` đặt lại bộ đếm ngược. Gọi nó một lần cho mỗi lần lặp của vòng"
+" lặp chính, ở **đầu** phần thân vòng lặp để việc cấp dưỡng xảy ra vô điều "
+"kiện trước bất kỳ công việc nào có thể bị treo::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:75
+msgid "Surviving exceptions"
+msgstr "Sống sót qua các ngoại lệ"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:77
+msgid ""
+"The watchdog handles hangs. Exceptions are a different failure mode. An "
+"unhandled exception bubbles up to the script's top level, ``main.py`` exits,"
+" and the cam drops to the REPL. The watchdog then trips after its timeout "
+"because nothing is feeding it from the REPL, the cam resets, and ``main.py``"
+" runs again -- so recovery does work, but the field pays a full timeout-"
+"plus-reboot for every crash, the traceback goes to USB stdout that nothing "
+"reads, and any in-memory state the application was keeping is gone."
+msgstr ""
+"Watchdog xử lý các trường hợp treo. Ngoại lệ là một chế độ lỗi khác. Một "
+"ngoại lệ không được xử lý nổi lên đến cấp cao nhất của tập lệnh, ``main.py``"
+" thoát ra, và camera rơi xuống REPL. Sau đó watchdog kích hoạt sau thời gian"
+" chờ vì không có gì cấp dưỡng cho nó từ REPL, camera đặt lại, và ``main.py``"
+" chạy lại -- vì vậy quá trình phục hồi có hoạt động, nhưng thực địa phải trả"
+" một lần đặt lại đầy đủ thời gian chờ cho mỗi lần crash, traceback đi đến "
+"USB stdout mà không có gì đọc, và bất kỳ trạng thái trong bộ nhớ nào mà ứng "
+"dụng đang giữ đều biến mất."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:87
+msgid ""
+"Wrapping the main loop in a top-level ``try`` / ``except`` turns a crash "
+"into a logged event the application continues through, without paying for a "
+"reset::"
+msgstr ""
+"Bọc vòng lặp chính trong một ``try`` / ``except`` cấp cao nhất biến một lần "
+"crash thành một sự kiện được ghi nhật ký mà ứng dụng tiếp tục thông qua, mà "
+"không phải trả chi phí đặt lại::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:103
+msgid ""
+"Catching ``Exception`` (not ``BaseException``) keeps ``KeyboardInterrupt`` "
+"and :class:`SystemExit` working, which is what a developer attached over USB"
+" wants."
+msgstr ""
+"Bắt ``Exception`` (không phải ``BaseException``\\ ) giữ "
+"``KeyboardInterrupt`` và :class:`SystemExit` hoạt động, đó là những gì nhà "
+"phát triển kết nối qua USB muốn."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:107
+msgid ""
+"This pattern is the software half of liveness: the watchdog catches the "
+"hangs, the wrapper catches the crashes, and the log records what either of "
+"them caught."
+msgstr ""
+"Mẫu này là nửa phần mềm của liveness: watchdog bắt các trường hợp treo, "
+"wrapper bắt các crash, và log ghi lại những gì một trong hai bắt được."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:112
+msgid "Knowing why a boot happened"
+msgstr "Biết tại sao một lần khởi động xảy ra"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:114
+msgid ""
+"Every soft reset and every watchdog reset eventually shows up as a fresh "
+"boot. The boot-time diagnostics helper logs :func:`machine.reset_cause` on "
+"every cold start; the ``reset cause`` line is what tells the field whether "
+"recovery actually fired versus the cam just power-cycling normally."
+msgstr ""
+"Mỗi soft reset và mỗi lần đặt lại watchdog cuối cùng xuất hiện như một lần "
+"khởi động mới. Trợ lý diagnostics thời điểm khởi động ghi lại "
+":func:`machine.reset_cause` ở mỗi lần khởi động nguội; dòng ``reset cause`` "
+"là thứ cho biết thực địa liệu quá trình phục hồi có thực sự kích hoạt hay "
+"camera chỉ đang tắt/bật nguồn bình thường."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:120
+msgid ""
+"The reset-cause line is what makes the watchdog's work visible in the log. A"
+" log full of ``watchdog timeout`` resets says the application has been "
+"hanging and the watchdog has been recovering it. A log without them says the"
+" watchdog has not had to fire -- which usually means the application is "
+"healthy, but can also mean the timeout is set too long to catch the hangs "
+"that are actually happening."
+msgstr ""
+"Dòng reset-cause là thứ làm cho công việc của watchdog hiển thị trong log. "
+"Một log đầy các lần đặt lại ``watchdog timeout`` cho biết ứng dụng đã bị "
+"treo và watchdog đã phục hồi nó. Một log không có chúng cho biết watchdog "
+"chưa phải kích hoạt -- thường có nghĩa là ứng dụng ổn, nhưng cũng có thể có "
+"nghĩa là thời gian chờ được đặt quá dài để bắt các trường hợp treo thực sự "
+"đang xảy ra."
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:129
+msgid "A complete starter"
+msgstr "Một khởi đầu hoàn chỉnh"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:131
+msgid ""
+"A ``main.py`` that pulls watchdog, logging setup, boot-time diagnostics, and"
+" the wrapper together looks like::"
+msgstr ""
+"Một ``main.py`` kết hợp watchdog, thiết lập logging, diagnostics thời điểm "
+"khởi động và wrapper trông như sau::"
+
+#: ../../openmvcam/tutorial/production/hardening/watchdog.rst:153
+msgid ""
+"``step()`` is the application's per-iteration work; the rest of this "
+"scaffold does not change between products. Hardening is one watchdog, one "
+"wrapper, and a logged boot every cold start -- not much code, and the "
+"difference between a cam that recovers on its own and one that needs a "
+"service call."
+msgstr ""
+"``step()`` là công việc mỗi lần lặp của ứng dụng; phần còn lại của scaffold "
+"này không thay đổi giữa các sản phẩm. Hardening là một watchdog, một wrapper"
+" và một lần khởi động được ghi nhật ký mỗi lần khởi động nguội -- không "
+"nhiều mã, và đó là sự khác biệt giữa một camera tự phục hồi và một camera "
+"cần cuộc gọi bảo trì."

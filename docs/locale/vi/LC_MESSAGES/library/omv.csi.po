@@ -1,0 +1,2040 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../library/omv.csi.rst:4
+msgid ":mod:`csi` --- camera sensors"
+msgstr ":mod:`csi` --- cảm biến camera"
+
+#: ../../library/omv.csi.rst:9
+msgid ""
+"The :mod:`csi` module is the modern, object-oriented interface to the camera"
+" sensor(s) on an OpenMV Cam. Each physical sensor is represented by a "
+":class:`CSI` instance, so the multispectral imager boards that pair a colour"
+" sensor with a thermal or event sensor can drive each one independently by "
+"passing a different ``cid`` to the constructor. Single-sensor cams just "
+"instantiate one :class:`CSI`."
+msgstr ""
+"Module :mod:`csi` là giao diện hướng đối tượng hiện đại để giao tiếp với "
+"(các) cảm biến camera trên OpenMV Cam. Mỗi cảm biến vật lý được đại diện bởi"
+" một thể hiện :class:`CSI`\\ , vì vậy các bo mạch hình ảnh đa phổ kết hợp "
+"cảm biến màu sắc với cảm biến nhiệt hoặc cảm biến sự kiện có thể điều khiển "
+"từng cảm biến độc lập bằng cách truyền ``cid`` khác nhau vào hàm khởi tạo. "
+"Các cam có một cảm biến chỉ cần khởi tạo một :class:`CSI`\\ ."
+
+#: ../../library/omv.csi.rst:16
+msgid ""
+"A :class:`CSI` object owns the full sensor configuration -- pixel format, "
+"framesize / window, exposure / gain / white-balance, hardware mirror and "
+"flip, colour-bar test pattern, frame-rate clock, ROI for auto-exposure, and "
+"chip-specific :meth:`ioctl <CSI.ioctl>` commands. Frames are captured with "
+":meth:`CSI.snapshot`, which returns an :class:`image.Image` backed by the "
+"frame buffer."
+msgstr ""
+"Một đối tượng :class:`CSI` sở hữu toàn bộ cấu hình cảm biến -- định dạng "
+"điểm ảnh, kích thước khung hình / cửa sổ, thời gian phơi sáng / độ khuếch "
+"đại / cân bằng trắng, gương ngang và lật dọc phần cứng, mẫu thử thanh màu "
+"sắc, đồng hồ tốc độ khung hình, vùng quan tâm (ROI) cho phơi sáng tự động, "
+"và các lệnh :meth:`ioctl <CSI.ioctl>` riêng cho chip. Các khung hình được "
+"chụp bằng :meth:`CSI.snapshot`\\ , trả về một đối tượng :class:`image.Image`"
+" được hỗ trợ bởi bộ đệm khung hình."
+
+#: ../../library/omv.csi.rst:23
+msgid ""
+"This module supersedes the legacy :mod:`sensor` module (which exposed the "
+"same functionality as module-level functions tied to a single hidden "
+"sensor). New code should use :class:`CSI`."
+msgstr ""
+"Module này thay thế module kế thừa :mod:`sensor` (vốn cung cấp cùng chức "
+"năng nhưng dưới dạng các hàm cấp module gắn với một cảm biến ẩn duy nhất). "
+"Code mới nên sử dụng :class:`CSI`\\ ."
+
+#: ../../library/omv.csi.rst:27
+msgid "Example usage::"
+msgstr "Ví dụ sử dụng::"
+
+#: ../../library/omv.csi.rst:43
+msgid "Asyncio usage"
+msgstr "Sử dụng Asyncio"
+
+#: ../../library/omv.csi.rst:45
+msgid ""
+"The blocking :meth:`CSI.snapshot` loop above does not cooperate with the "
+":mod:`asyncio` event loop -- while ``snapshot`` is waiting on the next "
+"frame, every other coroutine in the program is frozen. To let a capture loop"
+" coexist with other concurrent work (a UART client, a button watcher, a "
+"network task) wrap :class:`CSI` in a small adapter that turns ``snapshot`` "
+"into an :keyword:`await`-friendly coroutine by polling "
+":meth:`snapshot(blocking=False) <CSI.snapshot>` and yielding to the event "
+"loop between checks::"
+msgstr ""
+"Vòng lặp :meth:`CSI.snapshot` chặn ở trên không hợp tác với vòng lặp sự kiện"
+" :mod:`asyncio` -- trong khi ``snapshot`` đang chờ khung hình tiếp theo, mọi"
+" coroutine khác trong chương trình đều bị đóng băng. Để cho vòng lặp chụp "
+"ảnh cùng tồn tại với các công việc đồng thời khác (một UART client, một bộ "
+"theo dõi nút nhấn, một tác vụ mạng), hãy bọc :class:`CSI` trong một bộ điều "
+"hợp nhỏ biến ``snapshot`` thành một coroutine thân thiện với "
+":keyword:`await` bằng cách thăm dò :meth:`snapshot(blocking=False) "
+"<CSI.snapshot>` và nhường quyền cho vòng lặp sự kiện giữa các lần kiểm tra::"
+
+#: ../../library/omv.csi.rst:72
+msgid ""
+"``__getattr__`` forwards every other attribute (``reset``, ``pixformat``, "
+"``framesize``, the sensor knobs) to the underlying :class:`CSI` so the "
+"wrapper is a drop-in replacement. The first non-blocking call also starts "
+"the camera's DMA capture if it was not already running, so no extra "
+"bootstrap is needed."
+msgstr ""
+"``__getattr__`` chuyển tiếp mọi thuộc tính khác (\\ ``reset``\\ , "
+"``pixformat``\\ , ``framesize``\\ , các nút chỉnh cảm biến) đến :class:`CSI`"
+" bên dưới, vì vậy wrapper có thể thay thế trực tiếp. Lần gọi không chặn đầu "
+"tiên cũng khởi động quá trình chụp DMA của camera nếu nó chưa chạy, vì vậy "
+"không cần khởi động thêm."
+
+#: ../../library/omv.csi.rst:78
+msgid ""
+"A capture loop then fits into a larger asyncio program as just another "
+"coroutine::"
+msgstr ""
+"Một vòng lặp chụp ảnh sau đó có thể tích hợp vào một chương trình asyncio "
+"lớn hơn như một coroutine thông thường::"
+
+#: ../../library/omv.csi.rst:97
+msgid ""
+"The :meth:`framebuffers <CSI.framebuffers>` setting still matters in this "
+"shape -- single-buffer mode makes ``snapshot(blocking=False)`` return "
+":data:`None` until the next frame is captured, while double or triple "
+"buffering smooths that over so the wrapper usually finds a buffered frame "
+"waiting on the first poll. See the *AsyncCSI* capstone on the asyncio "
+"tutorial for the full walkthrough."
+msgstr ""
+"Cài đặt :meth:`framebuffers <CSI.framebuffers>` vẫn quan trọng trong trường "
+"hợp này -- chế độ đơn bộ đệm khiến ``snapshot(blocking=False)`` trả về "
+":data:`None` cho đến khi khung hình tiếp theo được chụp, trong khi bộ đệm "
+"đôi hoặc ba làm giảm điều đó để wrapper thường tìm thấy một khung hình đệm "
+"đang chờ ở lần thăm dò đầu tiên. Xem phần hướng dẫn *AsyncCSI* trong hướng "
+"dẫn asyncio để có hướng dẫn đầy đủ."
+
+#: ../../library/omv.csi.rst:106
+msgid "class CSI -- Camera Sensor Interface"
+msgstr "class CSI -- Giao diện cảm biến camera"
+
+#: ../../library/omv.csi.rst:108
+msgid "The `CSI` class is used to control a camera sensor."
+msgstr "Lớp `CSI` được dùng để điều khiển một cảm biến camera."
+
+#: ../../library/omv.csi.rst:112
+msgid ""
+"Create an object to talk with a camera sensor. On boards with multiple "
+"sensors, the particular CSI object may be selected by passing a ``cid`` like"
+" `csi.LEPTON` to select a FLIR Lepton sensor module. If ``cid`` is -1 the "
+"primary sensor is selected (typically a color camera module on multi-sensor "
+"boards)."
+msgstr ""
+"Tạo một đối tượng để giao tiếp với cảm biến camera. Trên các bo mạch có "
+"nhiều cảm biến, có thể chọn đối tượng CSI cụ thể bằng cách truyền ``cid`` "
+"như `csi.LEPTON` để chọn module cảm biến FLIR Lepton. Nếu ``cid`` là -1, cảm"
+" biến chính sẽ được chọn (thường là module camera màu trên các bo mạch đa "
+"cảm biến)."
+
+#: ../../library/omv.csi.rst:117
+msgid ""
+"If ``delays`` is ``False`` then all settling time delays in the csi driver "
+"are disabled. By default the sensor driver delays after reset / mode change "
+"to prevent corrupt frames being returned by `CSI.snapshot`. Disabling delays"
+" lets you batch updates and apply a single delay at the end before calling "
+"`CSI.snapshot`."
+msgstr ""
+"Nếu ``delays`` là ``False`` thì tất cả các độ trễ ổn định trong driver csi "
+"sẽ bị vô hiệu hóa. Theo mặc định, driver cảm biến sẽ trì hoãn sau khi reset "
+"/ thay đổi chế độ để ngăn `CSI.snapshot` trả về các khung hình bị hỏng. Vô "
+"hiệu hóa độ trễ cho phép bạn gộp các cập nhật và áp dụng một độ trễ duy nhất"
+" vào cuối trước khi gọi `CSI.snapshot`\\ ."
+
+#: ../../library/omv.csi.rst:122
+msgid ""
+"If ``fflush`` is ``False`` then automatic framebuffer flushing mentioned in "
+"`CSI.framebuffers` is disabled. This removes any time limit on frames in the"
+" frame buffer fifo."
+msgstr ""
+"Nếu ``fflush`` là ``False`` thì tính năng xả bộ đệm khung hình tự động được "
+"đề cập trong `CSI.framebuffers` sẽ bị vô hiệu hóa. Điều này loại bỏ mọi giới"
+" hạn thời gian đối với các khung hình trong hàng đợi bộ đệm khung hình."
+
+#: ../../library/omv.csi.rst:125
+msgid ""
+"``stream`` selects whether this CSI is the stream source sent to the IDE. If"
+" ``None`` (default) the CSI becomes the stream source only if it is the "
+"primary (non-auxiliary) sensor. Pass ``True`` to force this CSI to be the "
+"stream source, or any false value to leave the existing stream source "
+"unchanged."
+msgstr ""
+"``stream`` chọn xem CSI này có phải là nguồn stream được gửi đến IDE hay "
+"không. Nếu là ``None`` (mặc định), CSI sẽ trở thành nguồn stream chỉ khi nó "
+"là cảm biến chính (không phải phụ). Truyền ``True`` để buộc CSI này trở "
+"thành nguồn stream, hoặc bất kỳ giá trị false nào để giữ nguyên nguồn stream"
+" hiện tại."
+
+#: ../../library/omv.csi.rst:131
+msgid "Methods"
+msgstr "Phương thức"
+
+#: ../../library/omv.csi.rst:135
+msgid ""
+"Initializes the camera sensor. Performs a hardware reset by toggling the "
+"RESET signal GPIO to the camera module if ``hard`` is ``True``. ``hard`` "
+"should be set to false when resetting auxiliary camera sensors that share "
+"the same RESET signal GPIO as the primary module."
+msgstr ""
+"Khởi tạo cảm biến camera. Thực hiện reset phần cứng bằng cách bật tắt GPIO "
+"tín hiệu RESET đến module camera nếu ``hard`` là ``True``\\ . ``hard`` nên "
+"được đặt thành false khi reset các cảm biến camera phụ chia sẻ cùng GPIO tín"
+" hiệu RESET với module chính."
+
+#: ../../library/omv.csi.rst:141
+msgid ""
+"Puts the camera into a lower power mode than sleep (but the camera must be "
+"reset on being woken up)."
+msgstr ""
+"Đưa camera vào chế độ tiết kiệm điện năng thấp hơn sleep (nhưng camera phải "
+"được reset khi được đánh thức)."
+
+#: ../../library/omv.csi.rst:146
+msgid ""
+"Puts the camera to sleep if ``enable`` is True. Otherwise, wakes it back up."
+msgstr ""
+"Đưa camera vào chế độ ngủ nếu ``enable`` là True. Ngược lại, đánh thức lại."
+
+#: ../../library/omv.csi.rst:150
+msgid ""
+"Copies the current frame buffer contents to the IDE preview. Call this after"
+" the last `CSI.snapshot` if the script terminates so the IDE shows the last "
+"frame."
+msgstr ""
+"Sao chép nội dung bộ đệm khung hình hiện tại vào bản xem trước IDE. Gọi hàm "
+"này sau lần `CSI.snapshot` cuối cùng nếu tập lệnh kết thúc để IDE hiển thị "
+"khung hình cuối cùng."
+
+#: ../../library/omv.csi.rst:155
+msgid "Takes a picture using the camera and returns an `image.Image` object."
+msgstr "Chụp ảnh bằng camera và trả về đối tượng `image.Image`\\ ."
+
+#: ../../library/omv.csi.rst:157
+msgid ""
+"If ``time`` and/or ``frames`` is passed snapshot will block for that many "
+"``time`` milliseconds and/or ``frames`` captured from the camera. Both "
+"arguments may be used at the same time. After ``time`` and/or ``frames`` has"
+" passed snapshot will return ``None``."
+msgstr ""
+"Nếu ``time`` và/hoặc ``frames`` được truyền, snapshot sẽ chặn trong số "
+"``time`` mili giây và/hoặc số ``frames`` được chụp từ camera. Cả hai đối số "
+"có thể được sử dụng cùng lúc. Sau khi ``time`` và/hoặc ``frames`` đã trôi "
+"qua, snapshot sẽ trả về ``None``\\ ."
+
+#: ../../library/omv.csi.rst:161
+msgid ""
+"``blocking`` may be ``False`` to enable non-blocking behavior which will "
+"cause snapshot to return ``None`` when the next image from the camera is not"
+" ready versus waiting."
+msgstr ""
+"``blocking`` có thể là ``False`` để kích hoạt hành vi không chặn, khiến "
+"snapshot trả về ``None`` khi ảnh tiếp theo từ camera chưa sẵn sàng thay vì "
+"chờ."
+
+#: ../../library/omv.csi.rst:164
+msgid ""
+"``image`` may be another `image.Image` object to update with the new image "
+"captured from the camera instead of returning a new `image.Image` object. "
+"The previous image contents are overwritten via a deep copy."
+msgstr ""
+"``image`` có thể là một đối tượng `image.Image` khác để cập nhật với ảnh mới"
+" được chụp từ camera thay vì trả về đối tượng `image.Image` mới. Nội dung "
+"ảnh trước đó bị ghi đè thông qua sao chép sâu."
+
+#: ../../library/omv.csi.rst:168
+msgid ""
+"If `CSI.auto_rotation` is enabled this method will return an already-rotated"
+" `image.Image`."
+msgstr ""
+"Nếu `CSI.auto_rotation` được bật, phương thức này sẽ trả về một "
+"`image.Image` đã được xoay sẵn."
+
+#: ../../library/omv.csi.rst:172
+msgid "Returns the sensor resolution width."
+msgstr "Trả về chiều rộng độ phân giải của cảm biến."
+
+#: ../../library/omv.csi.rst:176
+msgid "Returns the sensor resolution height."
+msgstr "Trả về chiều cao độ phân giải của cảm biến."
+
+#: ../../library/omv.csi.rst:180
+msgid ""
+"Returns the camera module chip ID. Compare against any of `csi.OV2640`, "
+"`csi.OV5640`, `csi.OV7670`, `csi.OV7690`, `csi.OV7725`, `csi.OV9650`, "
+"`csi.MT9V022`, `csi.MT9V024`, `csi.MT9V032`, `csi.MT9V034`, `csi.MT9M114`, "
+"`csi.BOSON320`, `csi.BOSON640`, `csi.LEPTON`, `csi.HM01B0`, `csi.HM0360`, "
+"`csi.GC2145`, `csi.GENX320ES`, `csi.GENX320`, `csi.PAG7920`, `csi.PAG7936`, "
+"`csi.PAJ6100`, `csi.FROGEYE2020`, or `csi.SOFTCSI`."
+msgstr ""
+"Trả về ID chip của module camera. So sánh với bất kỳ giá trị nào trong "
+"`csi.OV2640`\\ , `csi.OV5640`\\ , `csi.OV7670`\\ , `csi.OV7690`\\ , "
+"`csi.OV7725`\\ , `csi.OV9650`\\ , `csi.MT9V022`\\ , `csi.MT9V024`\\ , "
+"`csi.MT9V032`\\ , `csi.MT9V034`\\ , `csi.MT9M114`\\ , `csi.BOSON320`\\ , "
+"`csi.BOSON640`\\ , `csi.LEPTON`\\ , `csi.HM01B0`\\ , `csi.HM0360`\\ , "
+"`csi.GC2145`\\ , `csi.GENX320ES`\\ , `csi.GENX320`\\ , `csi.PAG7920`\\ , "
+"`csi.PAG7936`\\ , `csi.PAJ6100`\\ , `csi.FROGEYE2020`\\ , hoặc "
+"`csi.SOFTCSI`\\ ."
+
+#: ../../library/omv.csi.rst:188
+msgid ""
+"Returns ``True`` if there is an image ready to be returned by `CSI.snapshot`"
+" so a call to snapshot will not block."
+msgstr ""
+"Trả về ``True`` nếu có một ảnh sẵn sàng được trả về bởi `CSI.snapshot`\\ , "
+"nghĩa là lần gọi snapshot sẽ không chặn."
+
+#: ../../library/omv.csi.rst:193
+msgid ""
+"Sets the pixel format for the camera module to one of `csi.GRAYSCALE`, "
+"`csi.RGB565`, `csi.BAYER`, `csi.YUV422`, or `csi.JPEG` (only on the "
+"OV2640/OV5640)."
+msgstr ""
+"Đặt định dạng điểm ảnh cho module camera thành một trong `csi.GRAYSCALE`\\ ,"
+" `csi.RGB565`\\ , `csi.BAYER`\\ , `csi.YUV422`\\ , hoặc `csi.JPEG` (chỉ trên"
+" OV2640/OV5640)."
+
+#: ../../library/omv.csi.rst:196
+msgid "Returns the current pixformat if called with no arguments."
+msgstr "Trả về định dạng điểm ảnh hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:200
+msgid ""
+"Sets the frame size for the camera module to one of the size constants (e.g."
+" `csi.QVGA`, `csi.VGA`, `csi.HD`, etc. --- see the constants section)."
+msgstr ""
+"Đặt kích thước khung hình cho module camera thành một trong các hằng số kích"
+" thước (ví dụ: `csi.QVGA`\\ , `csi.VGA`\\ , `csi.HD`\\ , v.v. --- xem phần "
+"hằng số)."
+
+#: ../../library/omv.csi.rst:203
+msgid ""
+"Alternatively, you may pass a custom framesize as a ``(w, h)`` tuple. When "
+"`CSI.snapshot` is called the custom framesize will be evaluated against DMA "
+"rules. Generally framesizes need to be a multiple of 8 pixels and/or 16 "
+"bytes."
+msgstr ""
+"Ngoài ra, bạn có thể truyền kích thước khung hình tùy chỉnh dưới dạng tuple "
+"``(w, h)``\\ . Khi `CSI.snapshot` được gọi, kích thước khung hình tùy chỉnh "
+"sẽ được đánh giá theo các quy tắc DMA. Nhìn chung, kích thước khung hình cần"
+" là bội số của 8 điểm ảnh và/hoặc 16 byte."
+
+#: ../../library/omv.csi.rst:207
+msgid "Returns the current framesize if called with no arguments."
+msgstr "Trả về kích thước khung hình hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:211
+msgid "Sets the frame rate in Hz for the camera module."
+msgstr "Đặt tốc độ khung hình tính bằng Hz cho module camera."
+
+#: ../../library/omv.csi.rst:213
+msgid "Returns the current framerate if called with no arguments."
+msgstr "Trả về tốc độ khung hình hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:217
+msgid ""
+"`CSI.framerate` works by dropping frames received by the camera module to "
+"keep the frame rate at or below the rate specified. By default the camera "
+"will run at the maximum frame rate. If implemented for the particular camera"
+" sensor `CSI.framerate` will also reduce the camera sensor frame rate "
+"internally to save power and improve image quality by increasing the sensor "
+"exposure. `CSI.framerate` may conflict with `CSI.auto_exposure` on some "
+"cameras."
+msgstr ""
+"`CSI.framerate` hoạt động bằng cách bỏ qua các khung hình nhận từ module "
+"camera để giữ tốc độ khung hình ở mức hoặc dưới mức đã chỉ định. Theo mặc "
+"định, camera sẽ chạy ở tốc độ khung hình tối đa. Nếu được triển khai cho cảm"
+" biến camera cụ thể, `CSI.framerate` cũng sẽ giảm tốc độ khung hình nội bộ "
+"của cảm biến camera để tiết kiệm điện và cải thiện chất lượng ảnh bằng cách "
+"tăng thời gian phơi sáng của cảm biến. `CSI.framerate` có thể xung đột với "
+"`CSI.auto_exposure` trên một số camera."
+
+#: ../../library/omv.csi.rst:226
+msgid ""
+"Sets the resolution of the camera to a sub-region of the current resolution."
+" ``roi`` is a ``(x, y, w, h)`` tuple. You may also pass ``(w, h)`` and the "
+"window will be centered."
+msgstr ""
+"Đặt độ phân giải của camera thành vùng con của độ phân giải hiện tại. "
+"``roi`` là tuple ``(x, y, w, h)``\\ . Bạn cũng có thể truyền ``(w, h)`` và "
+"cửa sổ sẽ được căn giữa."
+
+#: ../../library/omv.csi.rst:229
+msgid ""
+"Returns the current ``(x, y, w, h)`` tuple if called with no arguments."
+msgstr "Trả về tuple ``(x, y, w, h)`` hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:233
+msgid ""
+"Set the camera image gainceiling to one of 2, 4, 8, 16, 32, 64, or 128."
+msgstr ""
+"Đặt trần độ khuếch đại của ảnh camera thành một trong 2, 4, 8, 16, 32, 64, "
+"hoặc 128."
+
+#: ../../library/omv.csi.rst:235 ../../library/omv.csi.rst:241
+#: ../../library/omv.csi.rst:247 ../../library/omv.csi.rst:253
+#: ../../library/omv.csi.rst:259 ../../library/omv.csi.rst:269
+#: ../../library/omv.csi.rst:390 ../../library/omv.csi.rst:398
+msgid "Returns ``True`` on success and ``False`` on failure."
+msgstr "Trả về ``True`` khi thành công và ``False`` khi thất bại."
+
+#: ../../library/omv.csi.rst:239
+msgid "Set the camera image brightness."
+msgstr "Đặt độ sáng ảnh của camera."
+
+#: ../../library/omv.csi.rst:245
+msgid "Set the camera image contrast."
+msgstr "Đặt độ tương phản ảnh của camera."
+
+#: ../../library/omv.csi.rst:251
+msgid "Set the camera image saturation."
+msgstr "Đặt độ bão hòa màu sắc ảnh của camera."
+
+#: ../../library/omv.csi.rst:257
+msgid "Set the camera image JPEG compression quality. 0 - 100."
+msgstr "Đặt chất lượng nén JPEG của ảnh camera. 0 - 100."
+
+#: ../../library/omv.csi.rst:263
+msgid "Only for the OV2640/OV5640 cameras."
+msgstr "Chỉ dành cho camera OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:267
+msgid ""
+"Turns color bar mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ thanh màu. Mặc định "
+"là tắt."
+
+#: ../../library/omv.csi.rst:273
+msgid ""
+"``enable`` turns auto gain control on (``True``) or off (``False``). The "
+"camera starts up with auto gain control on."
+msgstr ""
+"``enable`` bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) điều khiển độ "
+"khuếch đại tự động. Camera khởi động với điều khiển độ khuếch đại tự động "
+"được bật."
+
+#: ../../library/omv.csi.rst:276
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels with "
+"``gain_db``."
+msgstr ""
+"Nếu ``enable`` là ``False``\\ , bạn có thể đặt độ khuếch đại cố định tính "
+"bằng decibel với ``gain_db``\\ ."
+
+#: ../../library/omv.csi.rst:278
+msgid ""
+"If ``enable`` is ``True`` you may set the maximum gain ceiling in decibels "
+"with ``gain_db_ceiling`` for the automatic gain control algorithm."
+msgstr ""
+"Nếu ``enable`` là ``True``\\ , bạn có thể đặt trần độ khuếch đại tối đa tính"
+" bằng decibel với ``gain_db_ceiling`` cho thuật toán điều khiển độ khuếch "
+"đại tự động."
+
+#: ../../library/omv.csi.rst:283
+msgid "You need to turn off white balance too if you want to track colors."
+msgstr "Bạn cũng cần tắt cân bằng trắng nếu muốn theo dõi màu sắc."
+
+#: ../../library/omv.csi.rst:287
+msgid "Returns the current camera gain value in decibels."
+msgstr "Trả về giá trị độ khuếch đại camera hiện tại tính bằng decibel."
+
+#: ../../library/omv.csi.rst:291
+msgid ""
+"``enable`` turns auto exposure control on (``True``) or off (``False``). The"
+" camera starts up with auto exposure control on."
+msgstr ""
+"``enable`` bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) điều khiển phơi "
+"sáng tự động. Camera khởi động với điều khiển phơi sáng tự động được bật."
+
+#: ../../library/omv.csi.rst:294
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed exposure time in microseconds"
+" with ``exposure_us``."
+msgstr ""
+"Nếu ``enable`` là ``False``\\ , bạn có thể đặt thời gian phơi sáng cố định "
+"tính bằng micro giây với ``exposure_us``\\ ."
+
+#: ../../library/omv.csi.rst:299
+msgid ""
+"Camera auto exposure algorithms are pretty conservative about how much they "
+"adjust the exposure value by and will generally avoid changing the exposure "
+"value by much. Instead, they change the gain value a lot to deal with "
+"changing lighting."
+msgstr ""
+"Các thuật toán phơi sáng tự động của camera khá thận trọng về mức độ điều "
+"chỉnh giá trị phơi sáng và thường tránh thay đổi giá trị phơi sáng nhiều. "
+"Thay vào đó, chúng thay đổi giá trị độ khuếch đại nhiều để đối phó với điều "
+"kiện ánh sáng thay đổi."
+
+#: ../../library/omv.csi.rst:305
+msgid "Returns the current camera exposure value in microseconds."
+msgstr "Trả về giá trị phơi sáng camera hiện tại tính bằng micro giây."
+
+#: ../../library/omv.csi.rst:309
+msgid ""
+"``enable`` turns auto white balance on (``True``) or off (``False``). The "
+"camera starts up with auto white balance on."
+msgstr ""
+"``enable`` bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) cân bằng trắng tự"
+" động. Camera khởi động với cân bằng trắng tự động được bật."
+
+#: ../../library/omv.csi.rst:312
+msgid ""
+"If ``enable`` is ``False`` you may set a fixed gain in decibels for the red,"
+" green, and blue channels respectively with ``rgb_gain_db``."
+msgstr ""
+"Nếu ``enable`` là ``False``\\ , bạn có thể đặt độ khuếch đại cố định tính "
+"bằng decibel cho các kênh đỏ, xanh lá và xanh dương tương ứng với "
+"``rgb_gain_db``\\ ."
+
+#: ../../library/omv.csi.rst:317
+msgid "You need to turn off gain control too if you want to track colors."
+msgstr "Bạn cũng cần tắt điều khiển độ khuếch đại nếu muốn theo dõi màu sắc."
+
+#: ../../library/omv.csi.rst:321
+msgid ""
+"Returns a tuple ``(r, g, b)`` of the current camera red, green, and blue "
+"gain values in decibels."
+msgstr ""
+"Trả về tuple ``(r, g, b)`` của các giá trị độ khuếch đại đỏ, xanh lá và xanh"
+" dương hiện tại của camera tính bằng decibel."
+
+#: ../../library/omv.csi.rst:326
+msgid "Sets the auto black-level calibration (BLC) on the camera."
+msgstr "Đặt hiệu chỉnh mức đen tự động (BLC) trên camera."
+
+#: ../../library/omv.csi.rst:328
+msgid ""
+"``enable`` pass ``True`` or ``False`` to turn BLC on or off. You typically "
+"always want this on."
+msgstr ""
+"``enable`` truyền ``True`` hoặc ``False`` để bật hoặc tắt BLC. Thông thường "
+"bạn luôn muốn bật tính năng này."
+
+#: ../../library/omv.csi.rst:331
+msgid ""
+"``regs`` if disabled then you can manually set the BLC register values from "
+"a previous call to `CSI.blc_regs`."
+msgstr ""
+"``regs`` nếu bị vô hiệu hóa thì bạn có thể đặt thủ công các giá trị thanh "
+"ghi BLC từ lần gọi trước đó đến `CSI.blc_regs`\\ ."
+
+#: ../../library/omv.csi.rst:336
+msgid ""
+"Returns the sensor BLC registers as a list of integers. For use with "
+"`CSI.auto_blc`."
+msgstr ""
+"Trả về các thanh ghi BLC của cảm biến dưới dạng danh sách số nguyên. Dùng "
+"với `CSI.auto_blc`\\ ."
+
+#: ../../library/omv.csi.rst:340
+msgid ""
+"Turns horizontal mirror mode on (``True``) or off (``False``). Defaults to "
+"off."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ gương ngang. Mặc định"
+" là tắt."
+
+#: ../../library/omv.csi.rst:342 ../../library/omv.csi.rst:348
+#: ../../library/omv.csi.rst:359 ../../library/omv.csi.rst:365
+#: ../../library/omv.csi.rst:628
+msgid "Returns the current setting if called with no arguments."
+msgstr "Trả về cài đặt hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:346
+msgid ""
+"Turns vertical flip mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ lật dọc. Mặc định là "
+"tắt."
+
+#: ../../library/omv.csi.rst:352
+msgid ""
+"Turns transpose mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ hoán vị. Mặc định là "
+"tắt."
+
+#: ../../library/omv.csi.rst:354
+msgid "vflip=False, hmirror=False, transpose=False -> 0 degree rotation"
+msgstr "vflip=False, hmirror=False, transpose=False -> xoay 0 độ"
+
+#: ../../library/omv.csi.rst:355
+msgid "vflip=True,  hmirror=False, transpose=True  -> 90 degree rotation"
+msgstr "vflip=True,  hmirror=False, transpose=True  -> xoay 90 độ"
+
+#: ../../library/omv.csi.rst:356
+msgid "vflip=True,  hmirror=True,  transpose=False -> 180 degree rotation"
+msgstr "vflip=True,  hmirror=True,  transpose=False -> xoay 180 độ"
+
+#: ../../library/omv.csi.rst:357
+msgid "vflip=False, hmirror=True,  transpose=True  -> 270 degree rotation"
+msgstr "vflip=False, hmirror=True,  transpose=True  -> xoay 270 độ"
+
+#: ../../library/omv.csi.rst:363
+msgid ""
+"Turns auto rotation mode on (``True``) or off (``False``). Defaults to off."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ xoay tự động. Mặc "
+"định là tắt."
+
+#: ../../library/omv.csi.rst:369
+msgid ""
+"This method only works when the OpenMV Cam has an :py:mod:`imu` installed "
+"and is enabled automatically."
+msgstr ""
+"Phương thức này chỉ hoạt động khi OpenMV Cam có :py:mod:`imu` được cài đặt "
+"và được bật tự động."
+
+#: ../../library/omv.csi.rst:374
+msgid ""
+"Sets the number of frame buffers used to receive image data. By default the "
+"OpenMV Cam will try to allocate the maximum number of frame buffers it can. "
+"Reallocation occurs whenever `CSI.pixformat`, `CSI.framesize`, or "
+"`CSI.window` are called."
+msgstr ""
+"Đặt số lượng bộ đệm khung hình được sử dụng để nhận dữ liệu ảnh. Theo mặc "
+"định, OpenMV Cam sẽ cố gắng phân bổ số lượng bộ đệm khung hình tối đa có "
+"thể. Việc tái phân bổ xảy ra mỗi khi `CSI.pixformat`\\ , `CSI.framesize`\\ ,"
+" hoặc `CSI.window` được gọi."
+
+#: ../../library/omv.csi.rst:378
+msgid ""
+"``count`` of 1 (single buffer), 2 (double buffer), or 3 (triple buffer) "
+"selects the corresponding capture mode. Pass 4 or greater to put the driver "
+"into video FIFO mode where ``count`` buffers are queued --- useful for video"
+" recording to an SD card. On frame drop, all frame buffers except the active"
+" one are cleared so `CSI.snapshot` always returns a recent frame."
+msgstr ""
+"``count`` bằng 1 (đơn bộ đệm), 2 (đôi bộ đệm), hoặc 3 (ba bộ đệm) chọn chế "
+"độ chụp tương ứng. Truyền 4 hoặc lớn hơn để đưa driver vào chế độ FIFO video"
+" nơi ``count`` bộ đệm được xếp hàng --- hữu ích cho việc ghi video vào thẻ "
+"SD. Khi mất khung hình, tất cả các bộ đệm khung hình ngoại trừ bộ đệm đang "
+"hoạt động đều được xóa để `CSI.snapshot` luôn trả về khung hình gần nhất."
+
+#: ../../library/omv.csi.rst:384
+msgid "Returns the current count if called with no arguments."
+msgstr "Trả về số lượng hiện tại nếu được gọi không có đối số."
+
+#: ../../library/omv.csi.rst:388
+msgid ""
+"Sets the special digital effect (one of `csi.NORMAL` or `csi.NEGATIVE`)."
+msgstr ""
+"Đặt hiệu ứng kỹ thuật số đặc biệt (một trong `csi.NORMAL` hoặc "
+"`csi.NEGATIVE`\\ )."
+
+#: ../../library/omv.csi.rst:394
+msgid ""
+"``enable`` ``True`` to enable, ``False`` to disable. ``radi`` integer radius"
+" of pixels to correct. ``coef`` power of correction."
+msgstr ""
+"``enable`` ``True`` để bật, ``False`` để tắt. ``radi`` bán kính số nguyên "
+"của các điểm ảnh cần hiệu chỉnh. ``coef`` hệ số hiệu chỉnh."
+
+#: ../../library/omv.csi.rst:402
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame (but before the frame is received)."
+msgstr ""
+"Đăng ký hàm gọi lại ``cb`` để được thực thi (trong ngữ cảnh ngắt) bất cứ khi"
+" nào module camera tạo ra một khung hình mới (nhưng trước khi khung hình "
+"được nhận)."
+
+#: ../../library/omv.csi.rst:405
+msgid ""
+"``cb`` takes one argument and is passed the current state of the vsync pin "
+"after changing."
+msgstr ""
+"``cb`` nhận một đối số và được truyền trạng thái hiện tại của chân vsync sau"
+" khi thay đổi."
+
+#: ../../library/omv.csi.rst:407 ../../library/omv.csi.rst:418
+msgid ""
+"Returns the registered callback if called with no arguments. Pass any non-"
+"callable to clear the callback."
+msgstr ""
+"Trả về hàm gọi lại đã đăng ký nếu được gọi không có đối số. Truyền bất kỳ "
+"giá trị không thể gọi nào để xóa hàm gọi lại."
+
+#: ../../library/omv.csi.rst:412
+msgid ""
+"Registers callback ``cb`` to be executed (in interrupt context) whenever the"
+" camera module generates a new frame and the frame is ready to be read via "
+"`CSI.snapshot`."
+msgstr ""
+"Đăng ký hàm gọi lại ``cb`` để được thực thi (trong ngữ cảnh ngắt) bất cứ khi"
+" nào module camera tạo ra một khung hình mới và khung hình đó sẵn sàng được "
+"đọc qua `CSI.snapshot`\\ ."
+
+#: ../../library/omv.csi.rst:415
+msgid ""
+"``cb`` takes no arguments. Use this to schedule reading a frame later with "
+"``micropython.schedule()``."
+msgstr ""
+"``cb`` không nhận đối số. Dùng hàm này để lên lịch đọc khung hình sau với "
+"``micropython.schedule()``\\ ."
+
+#: ../../library/omv.csi.rst:423
+msgid ""
+"Execute a sensor-specific request. ``request`` is one of the :data:`IOCTL_*`"
+" constants; the remaining positional arguments and the return value depend "
+"on the request. The supported requests are grouped by sensor family below."
+msgstr ""
+"Thực thi một yêu cầu đặc thù của cảm biến. ``request`` là một trong các hằng"
+" số :data:`IOCTL_*`\\ ; các đối số vị trí còn lại và giá trị trả về phụ "
+"thuộc vào yêu cầu. Các yêu cầu được hỗ trợ được nhóm theo dòng cảm biến bên "
+"dưới."
+
+#: ../../library/omv.csi.rst:428
+msgid "**Generic (any sensor):**"
+msgstr "**Chung (mọi cảm biến):**"
+
+#: ../../library/omv.csi.rst:430
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:431
+msgid "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_SET_READOUT_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:433
+msgid ""
+"Set the sensor readout window. A smaller window raises the frame rate at the"
+" cost of field-of-view."
+msgstr ""
+"Đặt cửa sổ đọc của cảm biến. Cửa sổ nhỏ hơn làm tăng tốc độ khung hình nhưng"
+" giảm trường nhìn."
+
+#: ../../library/omv.csi.rst:436
+msgid "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+msgstr "``ioctl(IOCTL_GET_READOUT_WINDOW)``"
+
+#: ../../library/omv.csi.rst:437
+msgid "Returns the current readout window as an ``(x, y, w, h)`` tuple."
+msgstr "Trả về cửa sổ đọc hiện tại dưới dạng tuple ``(x, y, w, h)``\\ ."
+
+#: ../../library/omv.csi.rst:440
+msgid "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_TRIGGERED_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:441
+msgid ""
+"Enable (``True``) or disable (``False``) triggered mode on the MT9V034."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) chế độ kích hoạt trên "
+"MT9V034."
+
+#: ../../library/omv.csi.rst:444
+msgid "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+msgstr "``ioctl(IOCTL_GET_TRIGGERED_MODE)``"
+
+#: ../../library/omv.csi.rst:445
+msgid "Returns the current triggered-mode state as a ``bool``."
+msgstr "Trả về trạng thái chế độ kích hoạt hiện tại dưới dạng ``bool``\\ ."
+
+#: ../../library/omv.csi.rst:447
+msgid "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+msgstr "``ioctl(IOCTL_SET_FOV_WIDE, enable)``"
+
+#: ../../library/omv.csi.rst:448
+msgid ""
+"When ``True``, instruct :meth:`framesize` to optimize for field-of-view "
+"rather than frame rate."
+msgstr ""
+"Khi là ``True``\\ , hướng dẫn :meth:`framesize` tối ưu hóa cho trường nhìn "
+"thay vì tốc độ khung hình."
+
+#: ../../library/omv.csi.rst:451
+msgid "``ioctl(IOCTL_GET_FOV_WIDE)``"
+msgstr "``ioctl(IOCTL_GET_FOV_WIDE)``"
+
+#: ../../library/omv.csi.rst:452
+msgid "Returns the current FOV-wide state as a ``bool``."
+msgstr "Trả về trạng thái FOV rộng hiện tại dưới dạng ``bool``\\ ."
+
+#: ../../library/omv.csi.rst:454
+msgid "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+msgstr "``ioctl(IOCTL_SET_NIGHT_MODE, enable)``"
+
+#: ../../library/omv.csi.rst:455
+msgid ""
+"Enable (``True``) or disable (``False``) the sensor's low-light \"night "
+"mode\". OV7725 and OV5640 only."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) \"chế độ ban đêm\" ánh sáng "
+"thấp của cảm biến. Chỉ dành cho OV7725 và OV5640."
+
+#: ../../library/omv.csi.rst:458
+msgid "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+msgstr "``ioctl(IOCTL_GET_NIGHT_MODE)``"
+
+#: ../../library/omv.csi.rst:459
+msgid "Returns the current night-mode state as a ``bool``."
+msgstr "Trả về trạng thái chế độ ban đêm hiện tại dưới dạng ``bool``\\ ."
+
+#: ../../library/omv.csi.rst:461
+msgid "``ioctl(IOCTL_GET_RGB_STATS)``"
+msgstr "``ioctl(IOCTL_GET_RGB_STATS)``"
+
+#: ../../library/omv.csi.rst:462
+msgid ""
+"Returns a 4-tuple of raw RGB-channel statistics ``(r, gb, gr, b)`` read from"
+" the sensor (typically used for white-balance tuning)."
+msgstr ""
+"Trả về 4-tuple các thống kê kênh RGB thô ``(r, gb, gr, b)`` được đọc từ cảm "
+"biến (thường được dùng để chỉnh cân bằng trắng)."
+
+#: ../../library/omv.csi.rst:466
+msgid "**OV5640 FPC -- auto-focus:**"
+msgstr "**OV5640 FPC -- lấy nét tự động:**"
+
+#: ../../library/omv.csi.rst:468
+msgid "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_TRIGGER_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:469
+msgid "Start an auto-focus sweep on the OV5640 FPC module."
+msgstr "Bắt đầu quét lấy nét tự động trên module OV5640 FPC."
+
+#: ../../library/omv.csi.rst:471
+msgid "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_PAUSE_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:472
+msgid "Pause an in-progress auto-focus sweep."
+msgstr "Tạm dừng quét lấy nét tự động đang diễn ra."
+
+#: ../../library/omv.csi.rst:474
+msgid "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_RESET_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:475
+msgid "Reset the auto-focus position to the default."
+msgstr "Đặt lại vị trí lấy nét tự động về mặc định."
+
+#: ../../library/omv.csi.rst:477
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS)``"
+
+#: ../../library/omv.csi.rst:478
+msgid "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+msgstr "``ioctl(IOCTL_WAIT_ON_AUTO_FOCUS, timeout_ms)``"
+
+#: ../../library/omv.csi.rst:480
+msgid ""
+"Block until the current auto-focus sweep finishes. ``timeout_ms`` defaults "
+"to 5000 if omitted."
+msgstr ""
+"Chặn cho đến khi quét lấy nét tự động hiện tại hoàn thành. ``timeout_ms`` "
+"mặc định là 5000 nếu bị bỏ qua."
+
+#: ../../library/omv.csi.rst:483
+msgid "**FLIR Lepton:**"
+msgstr "**FLIR Lepton:**"
+
+#: ../../library/omv.csi.rst:485
+msgid "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_WIDTH)``"
+
+#: ../../library/omv.csi.rst:486
+msgid "Returns the Lepton image width in pixels."
+msgstr "Trả về chiều rộng ảnh Lepton tính bằng điểm ảnh."
+
+#: ../../library/omv.csi.rst:488
+msgid "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_HEIGHT)``"
+
+#: ../../library/omv.csi.rst:489
+msgid "Returns the Lepton image height in pixels."
+msgstr "Trả về chiều cao ảnh Lepton tính bằng điểm ảnh."
+
+#: ../../library/omv.csi.rst:491
+msgid "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RADIOMETRY)``"
+
+#: ../../library/omv.csi.rst:492
+msgid "Returns the Lepton's type (radiometric or not) as an int."
+msgstr "Trả về loại Lepton (đo bức xạ hay không) dưới dạng int."
+
+#: ../../library/omv.csi.rst:494
+msgid "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_REFRESH)``"
+
+#: ../../library/omv.csi.rst:495
+msgid "Returns the Lepton's refresh rate in Hz."
+msgstr "Trả về tốc độ làm mới của Lepton tính bằng Hz."
+
+#: ../../library/omv.csi.rst:497
+msgid "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RESOLUTION)``"
+
+#: ../../library/omv.csi.rst:498
+msgid "Returns the Lepton's ADC resolution in bits."
+msgstr "Trả về độ phân giải ADC của Lepton tính bằng bit."
+
+#: ../../library/omv.csi.rst:500
+msgid "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+msgstr "``ioctl(IOCTL_LEPTON_RUN_COMMAND, cmd)``"
+
+#: ../../library/omv.csi.rst:501
+msgid ""
+"Run a FLIR Lepton SDK command. ``cmd`` is the 16-bit command id defined by "
+"the SDK."
+msgstr ""
+"Chạy lệnh FLIR Lepton SDK. ``cmd`` là id lệnh 16-bit được định nghĩa bởi "
+"SDK."
+
+#: ../../library/omv.csi.rst:504
+msgid "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_ATTRIBUTE, attr_id, payload)``"
+
+#: ../../library/omv.csi.rst:505
+msgid ""
+"Write a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``payload`` is a ``bytes``/``bytearray`` whose length must be a multiple of "
+"16 bits."
+msgstr ""
+"Ghi một thuộc tính Lepton SDK. ``attr_id`` là id thuộc tính 16-bit; "
+"``payload`` là ``bytes``\\ /\\ ``bytearray`` có độ dài phải là bội số của 16"
+" bit."
+
+#: ../../library/omv.csi.rst:509
+msgid "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_ATTRIBUTE, attr_id, words)``"
+
+#: ../../library/omv.csi.rst:510
+msgid ""
+"Read a Lepton SDK attribute. ``attr_id`` is the 16-bit attribute id; "
+"``words`` is the number of 16-bit words to read. Returns a ``bytearray``."
+msgstr ""
+"Đọc một thuộc tính Lepton SDK. ``attr_id`` là id thuộc tính 16-bit; "
+"``words`` là số từ 16-bit cần đọc. Trả về ``bytearray``\\ ."
+
+#: ../../library/omv.csi.rst:514
+msgid "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_FPA_TEMP)``"
+
+#: ../../library/omv.csi.rst:515
+msgid "Returns the Lepton focal-plane-array temperature in degrees Celsius."
+msgstr ""
+"Trả về nhiệt độ mảng phẳng tiêu cự (FPA) của Lepton tính bằng độ Celsius."
+
+#: ../../library/omv.csi.rst:518
+msgid "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_AUX_TEMP)``"
+
+#: ../../library/omv.csi.rst:519
+msgid "Returns the Lepton auxiliary temperature in degrees Celsius."
+msgstr "Trả về nhiệt độ phụ của Lepton tính bằng độ Celsius."
+
+#: ../../library/omv.csi.rst:522
+msgid "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled)``"
+
+#: ../../library/omv.csi.rst:523
+msgid ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+msgstr ""
+"``ioctl(IOCTL_LEPTON_SET_MODE, measurement_enabled, high_temp_enabled)``"
+
+#: ../../library/omv.csi.rst:525
+msgid ""
+"Switch the Lepton between AGC and direct-temperature output. "
+"``measurement_enabled=True`` enables direct temperature output. The optional"
+" ``high_temp_enabled`` flag selects the high-temperature range."
+msgstr ""
+"Chuyển đổi Lepton giữa AGC và đầu ra nhiệt độ trực tiếp. "
+"``measurement_enabled=True`` bật đầu ra nhiệt độ trực tiếp. Cờ tùy chọn "
+"``high_temp_enabled`` chọn dải nhiệt độ cao."
+
+#: ../../library/omv.csi.rst:530
+msgid "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_MODE)``"
+
+#: ../../library/omv.csi.rst:531
+msgid "Returns a 2-tuple ``(measurement_enabled, high_temp_enabled)``."
+msgstr "Trả về 2-tuple ``(measurement_enabled, high_temp_enabled)``\\ ."
+
+#: ../../library/omv.csi.rst:534
+msgid "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+msgstr "``ioctl(IOCTL_LEPTON_SET_RANGE, (min_celsius, max_celsius))``"
+
+#: ../../library/omv.csi.rst:535
+msgid ""
+"Set the temperature range mapped to ``0..255`` when measurement mode is "
+"enabled."
+msgstr ""
+"Đặt dải nhiệt độ được ánh xạ tới ``0..255`` khi chế độ đo lường được bật."
+
+#: ../../library/omv.csi.rst:538
+msgid "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+msgstr "``ioctl(IOCTL_LEPTON_GET_RANGE)``"
+
+#: ../../library/omv.csi.rst:539
+msgid "Returns the current ``(min_celsius, max_celsius)`` range."
+msgstr "Trả về dải ``(min_celsius, max_celsius)`` hiện tại."
+
+#: ../../library/omv.csi.rst:541
+msgid "**Himax HM01B0 -- motion detection:**"
+msgstr "**Himax HM01B0 -- phát hiện chuyển động:**"
+
+#: ../../library/omv.csi.rst:543
+msgid "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:544
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's on-sensor motion-"
+"detection block."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) khối phát hiện chuyển động "
+"trên cảm biến của HM01B0."
+
+#: ../../library/omv.csi.rst:547
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (x, y, w, h))``"
+
+#: ../../library/omv.csi.rst:548
+msgid "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_WINDOW, (w, h))``"
+
+#: ../../library/omv.csi.rst:550
+msgid "Set the motion-detection window on the HM01B0."
+msgstr "Đặt cửa sổ phát hiện chuyển động trên HM01B0."
+
+#: ../../library/omv.csi.rst:552
+msgid "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_THRESHOLD, threshold)``"
+
+#: ../../library/omv.csi.rst:553
+msgid "Set the motion-detection threshold (``0`` -- ``255``)."
+msgstr "Đặt ngưỡng phát hiện chuyển động (\\ ``0`` -- ``255``\\ )."
+
+#: ../../library/omv.csi.rst:555
+msgid "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+msgstr "``ioctl(IOCTL_HIMAX_MD_CLEAR)``"
+
+#: ../../library/omv.csi.rst:556
+msgid "Clear the motion-detection interrupt latch."
+msgstr "Xóa chốt ngắt phát hiện chuyển động."
+
+#: ../../library/omv.csi.rst:558
+msgid "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+msgstr "``ioctl(IOCTL_HIMAX_OSC_ENABLE, enable)``"
+
+#: ../../library/omv.csi.rst:559
+msgid ""
+"Enable (``True``) or disable (``False``) the HM01B0's internal oscillator."
+msgstr ""
+"Bật (\\ ``True``\\ ) hoặc tắt (\\ ``False``\\ ) bộ dao động nội bộ của "
+"HM01B0."
+
+#: ../../library/omv.csi.rst:562
+msgid "**Prophesee GENX320 -- event sensor:**"
+msgstr "**Prophesee GENX320 -- cảm biến sự kiện:**"
+
+#: ../../library/omv.csi.rst:564
+msgid "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIASES, preset)``"
+
+#: ../../library/omv.csi.rst:565
+msgid ""
+"Apply a bias preset. ``preset`` is one of the :data:`GENX320_BIASES_*` "
+"constants."
+msgstr ""
+"Áp dụng preset độ lệch. ``preset`` là một trong các hằng số "
+":data:`GENX320_BIASES_*`\\ ."
+
+#: ../../library/omv.csi.rst:568
+msgid "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_BIAS, bias, value)``"
+
+#: ../../library/omv.csi.rst:569
+msgid ""
+"Set a single bias. ``bias`` is one of the :data:`GENX320_BIAS_*` constants; "
+"``value`` is the integer setting."
+msgstr ""
+"Đặt một độ lệch đơn. ``bias`` là một trong các hằng số "
+":data:`GENX320_BIAS_*`\\ ; ``value`` là giá trị nguyên."
+
+#: ../../library/omv.csi.rst:573
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable)``"
+
+#: ../../library/omv.csi.rst:574
+msgid "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_AFK, enable, freq_low_hz, freq_high_hz)``"
+
+#: ../../library/omv.csi.rst:576
+msgid ""
+"Configure the anti-flicker filter. ``enable`` is a bool; the optional "
+"frequency arguments set the filter passband."
+msgstr ""
+"Cấu hình bộ lọc chống nhấp nháy. ``enable`` là bool; các đối số tần số tùy "
+"chọn đặt dải thông của bộ lọc."
+
+#: ../../library/omv.csi.rst:580
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode)``"
+
+#: ../../library/omv.csi.rst:581
+msgid "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+msgstr "``ioctl(IOCTL_GENX320_SET_STC, mode, arg1[, arg2])``"
+
+#: ../../library/omv.csi.rst:583
+msgid ""
+"Configure the spatio-temporal contrast filter. ``mode`` is one of the "
+":data:`GENX320_STC_*` constants; up to two further arguments are mode-"
+"specific."
+msgstr ""
+"Cấu hình bộ lọc tương phản không gian-thời gian. ``mode`` là một trong các "
+"hằng số :data:`GENX320_STC_*`\\ ; tối đa hai đối số tiếp theo phụ thuộc vào "
+"chế độ."
+
+#: ../../library/omv.csi.rst:587
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode)``"
+
+#: ../../library/omv.csi.rst:588
+msgid "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+msgstr "``ioctl(IOCTL_GENX320_SET_MODE, mode, evt_res)``"
+
+#: ../../library/omv.csi.rst:590
+msgid ""
+"Switch the sensor between frame and event modes. ``mode`` is one of the "
+":data:`GENX320_MODE_*` constants. For event mode, ``evt_res`` is the row-"
+"axis length of the event buffer passed to :data:`IOCTL_GENX320_READ_EVENTS`."
+msgstr ""
+"Chuyển đổi cảm biến giữa chế độ khung hình và chế độ sự kiện. ``mode`` là "
+"một trong các hằng số :data:`GENX320_MODE_*`\\ . Đối với chế độ sự kiện, "
+"``evt_res`` là độ dài trục hàng của bộ đệm sự kiện được truyền đến "
+":data:`IOCTL_GENX320_READ_EVENTS`\\ ."
+
+#: ../../library/omv.csi.rst:595
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS, buf)``"
+
+#: ../../library/omv.csi.rst:596
+msgid ""
+"Read events into ``buf``, a ``uint16`` ``ndarray`` of shape ``(EVT_res, 6)``"
+" where ``EVT_res`` is a power of two between 1024 and 65536. The columns "
+"are:"
+msgstr ""
+"Đọc các sự kiện vào ``buf``\\ , một ``ndarray`` ``uint16`` có hình dạng "
+"``(EVT_res, 6)`` trong đó ``EVT_res`` là lũy thừa của hai từ 1024 đến 65536."
+" Các cột là:"
+
+#: ../../library/omv.csi.rst:600
+msgid ""
+"``[0]`` -- event type (:data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+msgstr ""
+"``[0]`` -- loại sự kiện (\\ :data:`PIX_OFF_EVENT` / :data:`PIX_ON_EVENT` / "
+"trigger)."
+
+#: ../../library/omv.csi.rst:603
+msgid "``[1]`` -- seconds."
+msgstr "``[1]`` -- giây."
+
+#: ../../library/omv.csi.rst:604
+msgid "``[2]`` -- milliseconds."
+msgstr "``[2]`` -- mili giây."
+
+#: ../../library/omv.csi.rst:605
+msgid "``[3]`` -- microseconds."
+msgstr "``[3]`` -- micro giây."
+
+#: ../../library/omv.csi.rst:606
+msgid "``[4]`` -- ``x`` coordinate."
+msgstr "``[4]`` -- tọa độ ``x``\\ ."
+
+#: ../../library/omv.csi.rst:607
+msgid "``[5]`` -- ``y`` coordinate."
+msgstr "``[5]`` -- tọa độ ``y``\\ ."
+
+#: ../../library/omv.csi.rst:609
+msgid "Returns the number of events written."
+msgstr "Trả về số lượng sự kiện đã ghi."
+
+#: ../../library/omv.csi.rst:611
+msgid "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+msgstr "``ioctl(IOCTL_GENX320_READ_EVENTS_RAW)``"
+
+#: ../../library/omv.csi.rst:612
+msgid ""
+"Returns an :class:`image.Image` containing the raw event frame from the "
+"GENX320."
+msgstr "Trả về một :class:`image.Image` chứa khung sự kiện thô từ GENX320."
+
+#: ../../library/omv.csi.rst:615
+msgid "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+msgstr "``ioctl(IOCTL_GENX320_CALIBRATE, iterations, sigma)``"
+
+#: ../../library/omv.csi.rst:616
+msgid ""
+"Turn off pixels whose noise is more than ``sigma`` standard deviations from "
+"the normal distribution. ``iterations`` is the integer number of calibration"
+" passes. Returns the number of pixels disabled."
+msgstr ""
+"Tắt các điểm ảnh có nhiễu vượt quá ``sigma`` độ lệch chuẩn so với phân phối "
+"chuẩn. ``iterations`` là số nguyên lần hiệu chỉnh. Trả về số điểm ảnh bị vô "
+"hiệu hóa."
+
+#: ../../library/omv.csi.rst:623
+msgid ""
+"Sets the color palette to use for things like FLIR Lepton grayscale to "
+"RGB565 conversion or GENX320 event visualization. One of "
+"`image.PALETTE_RAINBOW`, `image.PALETTE_IRONBOW`, and (when supported) "
+"`image.PALETTE_DEPTH`, `image.PALETTE_EVT_DARK`, or "
+"`image.PALETTE_EVT_LIGHT`."
+msgstr ""
+"Đặt bảng màu để sử dụng cho các mục đích như chuyển đổi thang xám FLIR "
+"Lepton sang RGB565 hoặc trực quan hóa sự kiện GENX320. Một trong "
+"`image.PALETTE_RAINBOW`\\ , `image.PALETTE_IRONBOW`\\ , và (khi được hỗ trợ)"
+" `image.PALETTE_DEPTH`\\ , `image.PALETTE_EVT_DARK`\\ , hoặc "
+"`image.PALETTE_EVT_LIGHT`\\ ."
+
+#: ../../library/omv.csi.rst:632
+msgid "Write ``value`` to the camera register at ``address``."
+msgstr "Ghi ``value`` vào thanh ghi camera tại địa chỉ ``address``\\ ."
+
+#: ../../library/omv.csi.rst:634 ../../library/omv.csi.rst:640
+msgid "See the camera data sheet for register info."
+msgstr "Xem bảng dữ liệu camera để biết thông tin thanh ghi."
+
+#: ../../library/omv.csi.rst:638
+msgid "Read the camera register at ``address``."
+msgstr "Đọc thanh ghi camera tại địa chỉ ``address``\\ ."
+
+#: ../../library/omv.csi.rst:643
+msgid "Functions"
+msgstr "Hàm"
+
+#: ../../library/omv.csi.rst:647
+msgid "Returns a list of the detected sensor chip IDs."
+msgstr "Trả về danh sách các ID chip cảm biến được phát hiện."
+
+#: ../../library/omv.csi.rst:650
+msgid "Constants"
+msgstr "Hằng số"
+
+#: ../../library/omv.csi.rst:655
+msgid ""
+"BINARY (bitmap) pixel format. Each pixel is 1-bit. Useful for mask storage; "
+"can be used with `image.Image()`."
+msgstr ""
+"Định dạng điểm ảnh BINARY (bitmap). Mỗi điểm ảnh là 1-bit. Hữu ích để lưu "
+"trữ mặt nạ; có thể dùng với `image.Image()`\\ ."
+
+#: ../../library/omv.csi.rst:661
+msgid "GRAYSCALE pixel format (Y from YUV422). Each pixel is 8-bits."
+msgstr "Định dạng điểm ảnh GRAYSCALE (Y từ YUV422). Mỗi điểm ảnh là 8-bit."
+
+#: ../../library/omv.csi.rst:666
+msgid ""
+"RGB565 pixel format. Each pixel is 16-bits (5-bits red, 6-bits green, 5-bits"
+" blue)."
+msgstr ""
+"Định dạng điểm ảnh RGB565. Mỗi điểm ảnh là 16-bit (5-bit đỏ, 6-bit xanh lá, "
+"5-bit xanh dương)."
+
+#: ../../library/omv.csi.rst:671
+msgid "RAW BAYER image pixel format."
+msgstr "Định dạng điểm ảnh ảnh RAW BAYER."
+
+#: ../../library/omv.csi.rst:676
+msgid ""
+"YUV422 pixel format. Each pixel is stored as a grayscale 8-bit Y value "
+"followed by alternating 8-bit U/V color values shared between two Y values "
+"(Y1, U, Y2, V, ...). Only some image processing methods work with YUV422."
+msgstr ""
+"Định dạng điểm ảnh YUV422. Mỗi điểm ảnh được lưu trữ dưới dạng giá trị Y "
+"8-bit thang xám theo sau là các giá trị màu U/V 8-bit xen kẽ được chia sẻ "
+"giữa hai giá trị Y (Y1, U, Y2, V, ...). Chỉ một số phương thức xử lý ảnh "
+"hoạt động với YUV422."
+
+#: ../../library/omv.csi.rst:683
+msgid ""
+"JPEG mode. The camera module outputs compressed JPEG images. Use "
+"`CSI.quality` to control the JPEG quality. Only works for the OV2640/OV5640 "
+"cameras."
+msgstr ""
+"Chế độ JPEG. Module camera xuất ra ảnh JPEG nén. Dùng `CSI.quality` để kiểm "
+"soát chất lượng JPEG. Chỉ hoạt động với camera OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:689
+msgid "`CSI.cid` returns this for the OV2640 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV2640."
+
+#: ../../library/omv.csi.rst:694
+msgid "`CSI.cid` returns this for the OV5640 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV5640."
+
+#: ../../library/omv.csi.rst:699
+msgid "`CSI.cid` returns this for the OV7670 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV7670."
+
+#: ../../library/omv.csi.rst:704
+msgid "`CSI.cid` returns this for the OV7690 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV7690."
+
+#: ../../library/omv.csi.rst:709
+msgid "`CSI.cid` returns this for the OV7725 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV7725."
+
+#: ../../library/omv.csi.rst:714
+msgid "`CSI.cid` returns this for the OV9650 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera OV9650."
+
+#: ../../library/omv.csi.rst:719
+msgid "`CSI.cid` returns this for the MT9V022 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera MT9V022."
+
+#: ../../library/omv.csi.rst:724
+msgid "`CSI.cid` returns this for the MT9V024 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera MT9V024."
+
+#: ../../library/omv.csi.rst:729
+msgid "`CSI.cid` returns this for the MT9V032 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera MT9V032."
+
+#: ../../library/omv.csi.rst:734
+msgid "`CSI.cid` returns this for the MT9V034 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera MT9V034."
+
+#: ../../library/omv.csi.rst:739
+msgid "`CSI.cid` returns this for the MT9M114 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera MT9M114."
+
+#: ../../library/omv.csi.rst:744
+msgid "`CSI.cid` returns this for the BOSON 320x256 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera BOSON 320x256."
+
+#: ../../library/omv.csi.rst:749
+msgid "`CSI.cid` returns this for the BOSON 640x512 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera BOSON 640x512."
+
+#: ../../library/omv.csi.rst:754
+msgid "`CSI.cid` returns this for the LEPTON1/2/3 cameras."
+msgstr "`CSI.cid` trả về giá trị này cho camera LEPTON1/2/3."
+
+#: ../../library/omv.csi.rst:759
+msgid "`CSI.cid` returns this for the HM01B0 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera HM01B0."
+
+#: ../../library/omv.csi.rst:764
+msgid "`CSI.cid` returns this for the HM0360 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera HM0360."
+
+#: ../../library/omv.csi.rst:769
+msgid "`CSI.cid` returns this for the GC2145 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera GC2145."
+
+#: ../../library/omv.csi.rst:774
+msgid "`CSI.cid` returns this for the GENX320 (engineering sample) camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera GENX320 (mẫu kỹ thuật)."
+
+#: ../../library/omv.csi.rst:779
+msgid "`CSI.cid` returns this for the GENX320 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera GENX320."
+
+#: ../../library/omv.csi.rst:784
+msgid "`CSI.cid` returns this for the PAG7920 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera PAG7920."
+
+#: ../../library/omv.csi.rst:789
+msgid "`CSI.cid` returns this for the PAG7936 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera PAG7936."
+
+#: ../../library/omv.csi.rst:794
+msgid "`CSI.cid` returns this for the PAJ6100 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera PAJ6100."
+
+#: ../../library/omv.csi.rst:799
+msgid "`CSI.cid` returns this for the FROGEYE2020 camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera FROGEYE2020."
+
+#: ../../library/omv.csi.rst:804
+msgid "`CSI.cid` returns this for the software CSI camera."
+msgstr "`CSI.cid` trả về giá trị này cho camera CSI phần mềm."
+
+#: ../../library/omv.csi.rst:809
+msgid "Normal mode for `CSI.special_effect`."
+msgstr "Chế độ thông thường cho `CSI.special_effect`\\ ."
+
+#: ../../library/omv.csi.rst:814
+msgid "Negative mode for `CSI.special_effect`."
+msgstr "Chế độ âm bản cho `CSI.special_effect`\\ ."
+
+#: ../../library/omv.csi.rst:819
+msgid "176x144 resolution for the camera sensor."
+msgstr "Độ phân giải 176x144 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:824
+msgid "352x288 resolution for the camera sensor."
+msgstr "Độ phân giải 352x288 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:829
+msgid "176x120 resolution for the camera sensor."
+msgstr "Độ phân giải 176x120 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:834
+msgid "352x240 resolution for the camera sensor."
+msgstr "Độ phân giải 352x240 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:839
+msgid "80x60 resolution for the camera sensor."
+msgstr "Độ phân giải 80x60 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:844
+msgid "160x120 resolution for the camera sensor."
+msgstr "Độ phân giải 160x120 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:849
+msgid "320x240 resolution for the camera sensor."
+msgstr "Độ phân giải 320x240 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:854
+msgid "640x480 resolution for the camera sensor."
+msgstr "Độ phân giải 640x480 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:859
+msgid "240x160 resolution for the camera sensor."
+msgstr "Độ phân giải 240x160 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:864
+msgid "480x320 resolution for the camera sensor."
+msgstr "Độ phân giải 480x320 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:869
+msgid "720x480 resolution for the MT9V034 camera sensor."
+msgstr "Độ phân giải 720x480 cho cảm biến camera MT9V034."
+
+#: ../../library/omv.csi.rst:874
+msgid "752x480 resolution for the MT9V034 camera sensor."
+msgstr "Độ phân giải 752x480 cho cảm biến camera MT9V034."
+
+#: ../../library/omv.csi.rst:879
+msgid "800x600 resolution for the camera sensor."
+msgstr "Độ phân giải 800x600 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:884
+msgid "1024x768 resolution for the camera sensor."
+msgstr "Độ phân giải 1024x768 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:889
+msgid "1280x768 resolution for the MT9M114 camera sensor."
+msgstr "Độ phân giải 1280x768 cho cảm biến camera MT9M114."
+
+#: ../../library/omv.csi.rst:894
+msgid ""
+"1280x1024 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr ""
+"Độ phân giải 1280x1024 cho cảm biến camera. Chỉ hoạt động với camera "
+"OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:899
+msgid "1280x960 resolution for the MT9M114 camera sensor."
+msgstr "Độ phân giải 1280x960 cho cảm biến camera MT9M114."
+
+#: ../../library/omv.csi.rst:904
+msgid ""
+"1600x1200 resolution for the camera sensor. Only works for the OV2640/OV5640"
+" cameras."
+msgstr ""
+"Độ phân giải 1600x1200 cho cảm biến camera. Chỉ hoạt động với camera "
+"OV2640/OV5640."
+
+#: ../../library/omv.csi.rst:909
+msgid "1280x720 resolution for the camera sensor."
+msgstr "Độ phân giải 1280x720 cho cảm biến camera."
+
+#: ../../library/omv.csi.rst:914
+msgid ""
+"1920x1080 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Độ phân giải 1920x1080 cho cảm biến camera. Chỉ hoạt động với camera OV5640."
+
+#: ../../library/omv.csi.rst:919
+msgid ""
+"2560x1440 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Độ phân giải 2560x1440 cho cảm biến camera. Chỉ hoạt động với camera OV5640."
+
+#: ../../library/omv.csi.rst:924
+msgid ""
+"2048x1536 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Độ phân giải 2048x1536 cho cảm biến camera. Chỉ hoạt động với camera OV5640."
+
+#: ../../library/omv.csi.rst:929
+msgid ""
+"2560x1600 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Độ phân giải 2560x1600 cho cảm biến camera. Chỉ hoạt động với camera OV5640."
+
+#: ../../library/omv.csi.rst:934
+msgid ""
+"2592x1944 resolution for the camera sensor. Only works for the OV5640 "
+"camera."
+msgstr ""
+"Độ phân giải 2592x1944 cho cảm biến camera. Chỉ hoạt động với camera OV5640."
+
+#: ../../library/omv.csi.rst:939
+msgid "Sets the readout window. See `CSI.ioctl`."
+msgstr "Đặt cửa sổ đọc. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:944
+msgid "Gets the readout window. See `CSI.ioctl`."
+msgstr "Lấy cửa sổ đọc. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:949
+msgid "Sets triggered mode for the MT9V034. See `CSI.ioctl`."
+msgstr "Đặt chế độ kích hoạt cho MT9V034. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:954
+msgid "Gets the triggered mode state for the MT9V034. See `CSI.ioctl`."
+msgstr "Lấy trạng thái chế độ kích hoạt cho MT9V034. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:959
+msgid ""
+"Enable `CSI.framesize` to optimize for field-of-view over FPS. See "
+"`CSI.ioctl`."
+msgstr ""
+"Bật `CSI.framesize` để tối ưu hóa trường nhìn so với FPS. Xem `CSI.ioctl`\\ "
+"."
+
+#: ../../library/omv.csi.rst:964
+msgid ""
+"Returns whether `CSI.framesize` is optimizing for field-of-view over FPS. "
+"See `CSI.ioctl`."
+msgstr ""
+"Trả về xem `CSI.framesize` có đang tối ưu hóa trường nhìn so với FPS hay "
+"không. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:969
+msgid "Trigger auto focus on the OV5640 FPC camera module. See `CSI.ioctl`."
+msgstr ""
+"Kích hoạt lấy nét tự động trên module camera OV5640 FPC. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:974
+msgid ""
+"Pause auto focus (while running) for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Tạm dừng lấy nét tự động (khi đang chạy) cho module camera OV5640 FPC. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:979
+msgid ""
+"Reset auto focus to default for the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Đặt lại lấy nét tự động về mặc định cho module camera OV5640 FPC. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:984
+msgid ""
+"Wait for auto focus to finish on the OV5640 FPC camera module. See "
+"`CSI.ioctl`."
+msgstr ""
+"Chờ lấy nét tự động hoàn thành trên module camera OV5640 FPC. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:989
+msgid ""
+"Turn night mode on or off. Reduces frame rate to increase exposure "
+"dynamically. See `CSI.ioctl`."
+msgstr ""
+"Bật hoặc tắt chế độ ban đêm. Giảm tốc độ khung hình để tăng thời gian phơi "
+"sáng một cách động. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:994
+msgid "Returns whether night mode is enabled. See `CSI.ioctl`."
+msgstr "Trả về xem chế độ ban đêm có được bật hay không. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:999
+msgid ""
+"Returns the FLIR Lepton image resolution width in pixels. See `CSI.ioctl`."
+msgstr ""
+"Trả về chiều rộng độ phân giải ảnh FLIR Lepton tính bằng điểm ảnh. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1004
+msgid ""
+"Returns the FLIR Lepton image resolution height in pixels. See `CSI.ioctl`."
+msgstr ""
+"Trả về chiều cao độ phân giải ảnh FLIR Lepton tính bằng điểm ảnh. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1009
+msgid "Returns the FLIR Lepton type (radiometric or not). See `CSI.ioctl`."
+msgstr "Trả về loại FLIR Lepton (đo bức xạ hay không). Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1014
+msgid "Returns the FLIR Lepton refresh rate in Hz. See `CSI.ioctl`."
+msgstr "Trả về tốc độ làm mới của FLIR Lepton tính bằng Hz. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1019
+msgid "Returns the FLIR Lepton ADC resolution in bits. See `CSI.ioctl`."
+msgstr ""
+"Trả về độ phân giải ADC của FLIR Lepton tính bằng bit. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1024
+msgid "Executes a 16-bit command from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "Thực thi lệnh 16-bit từ FLIR Lepton SDK. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1029
+msgid ""
+"Sets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "Đặt thuộc tính FLIR Lepton từ FLIR Lepton SDK. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1034
+msgid ""
+"Gets a FLIR Lepton attribute from the FLIR Lepton SDK. See `CSI.ioctl`."
+msgstr "Lấy thuộc tính FLIR Lepton từ FLIR Lepton SDK. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1039
+msgid "Gets the FLIR Lepton FPA temp in Celsius. See `CSI.ioctl`."
+msgstr "Lấy nhiệt độ FPA của FLIR Lepton tính bằng Celsius. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1044
+msgid "Gets the FLIR Lepton AUX temp in Celsius. See `CSI.ioctl`."
+msgstr "Lấy nhiệt độ AUX của FLIR Lepton tính bằng Celsius. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1049
+msgid ""
+"Sets the FLIR Lepton driver into a mode where each pixel is a temperature "
+"value. See `CSI.ioctl`."
+msgstr ""
+"Đặt driver FLIR Lepton vào chế độ trong đó mỗi điểm ảnh là một giá trị nhiệt"
+" độ. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1055
+msgid ""
+"Returns whether measurement mode is enabled for the FLIR Lepton sensor. See "
+"`CSI.ioctl`."
+msgstr ""
+"Trả về xem chế độ đo lường có được bật cho cảm biến FLIR Lepton hay không. "
+"Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1060
+msgid ""
+"Sets the temperature range mapped to pixel values in measurement mode. See "
+"`CSI.ioctl`."
+msgstr ""
+"Đặt dải nhiệt độ được ánh xạ tới các giá trị điểm ảnh trong chế độ đo lường."
+" Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1065
+msgid ""
+"Returns the temperature range used for measurement mode. See `CSI.ioctl`."
+msgstr "Trả về dải nhiệt độ được dùng cho chế độ đo lường. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1070
+msgid ""
+"Controls the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "Điều khiển ngắt phát hiện chuyển động trên HM01B0. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1075
+msgid "Sets the motion detection window on the HM01B0. See `CSI.ioctl`."
+msgstr "Đặt cửa sổ phát hiện chuyển động trên HM01B0. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1080
+msgid "Sets the motion detection threshold on the HM01B0. See `CSI.ioctl`."
+msgstr "Đặt ngưỡng phát hiện chuyển động trên HM01B0. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1085
+msgid "Clears the motion detection interrupt on the HM01B0. See `CSI.ioctl`."
+msgstr "Xóa ngắt phát hiện chuyển động trên HM01B0. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1090
+msgid "Controls the internal oscillator on the HM01B0. See `CSI.ioctl`."
+msgstr "Điều khiển bộ dao động nội bộ trên HM01B0. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1095
+msgid "Returns the RGB statistics from the camera sensor. See `CSI.ioctl`."
+msgstr "Trả về thống kê RGB từ cảm biến camera. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1100
+msgid ""
+"Sets the GENX320 sensor biases to one of the ``GENX320_BIASES_*`` presets. "
+"See `CSI.ioctl`. After `CSI.reset` the driver applies "
+"`csi.GENX320_BIASES_LOW_NOISE`, not `csi.GENX320_BIASES_DEFAULT` --- use "
+"this ioctl to switch to a different preset when the application needs more "
+"sensitivity or bandwidth."
+msgstr ""
+"Đặt các độ lệch cảm biến GENX320 thành một trong các preset "
+"``GENX320_BIASES_*``\\ . Xem `CSI.ioctl`\\ . Sau `CSI.reset`\\ , driver áp "
+"dụng `csi.GENX320_BIASES_LOW_NOISE`\\ , không phải "
+"`csi.GENX320_BIASES_DEFAULT` --- dùng ioctl này để chuyển sang preset khác "
+"khi ứng dụng cần độ nhạy hoặc băng thông cao hơn."
+
+#: ../../library/omv.csi.rst:1110
+msgid ""
+"GenX320 datasheet defaults --- balanced sensitivity, noise, and bandwidth "
+"for general scenes."
+msgstr ""
+"Giá trị mặc định theo bảng dữ liệu GenX320 --- độ nhạy, nhiễu và băng thông "
+"cân bằng cho các cảnh thông thường."
+
+#: ../../library/omv.csi.rst:1116
+msgid ""
+"Tuned for low-light conditions --- both contrast thresholds loosened for "
+"higher sensitivity, FO lowered, HPF disabled so slow brightness changes "
+"still register."
+msgstr ""
+"Được điều chỉnh cho điều kiện ánh sáng thấp --- cả hai ngưỡng tương phản đều"
+" được nới lỏng để tăng độ nhạy, FO giảm, HPF bị tắt để các thay đổi độ sáng "
+"chậm vẫn được ghi nhận."
+
+#: ../../library/omv.csi.rst:1123
+msgid ""
+"Tuned for tracking high-contrast blinking LEDs (active markers) --- contrast"
+" thresholds raised so only sharp transitions trigger, FO and HPF cranked "
+"high to maximize bandwidth and reject slow ambient drift, REFR=0 so every "
+"blink edge is captured."
+msgstr ""
+"Được điều chỉnh để theo dõi đèn LED nhấp nháy có tương phản cao (các điểm "
+"đánh dấu hoạt động) --- ngưỡng tương phản được nâng cao để chỉ các chuyển "
+"tiếp sắc nét mới kích hoạt, FO và HPF được tăng cao để tối đa băng thông và "
+"loại bỏ độ trôi môi trường chậm, REFR=0 để mọi cạnh nhấp nháy đều được ghi "
+"lại."
+
+#: ../../library/omv.csi.rst:1131
+msgid ""
+"Driver default --- lower sensitivity than ``DEFAULT`` (raised contrast "
+"thresholds) and a lower FO for less background-noise activity. Best for "
+"static or slow scenes where false events would dominate."
+msgstr ""
+"Mặc định driver --- độ nhạy thấp hơn ``DEFAULT`` (ngưỡng tương phản được "
+"nâng cao) và FO thấp hơn để giảm hoạt động nhiễu nền. Tốt nhất cho các cảnh "
+"tĩnh hoặc chậm nơi các sự kiện sai sẽ chiếm ưu thế."
+
+#: ../../library/omv.csi.rst:1139
+msgid ""
+"Tuned for fast-motion scenes --- higher FO for wider pixel bandwidth, higher"
+" HPF to reject slow changes, higher REFR for a longer dead time after each "
+"event so the readout doesn't saturate."
+msgstr ""
+"Được điều chỉnh cho các cảnh chuyển động nhanh --- FO cao hơn để băng thông "
+"điểm ảnh rộng hơn, HPF cao hơn để loại bỏ các thay đổi chậm, REFR cao hơn "
+"cho thời gian chết dài hơn sau mỗi sự kiện để việc đọc không bị bão hòa."
+
+#: ../../library/omv.csi.rst:1147
+msgid ""
+"Sets a single GENX320 sensor bias to a DAC value. Pass a ``GENX320_BIAS_*`` "
+"constant (`csi.GENX320_BIAS_DIFF_OFF`, `csi.GENX320_BIAS_DIFF_ON`, "
+"`csi.GENX320_BIAS_FO`, `csi.GENX320_BIAS_HPF`, or `csi.GENX320_BIAS_REFR`) "
+"and an integer DAC value. Each bias is independent --- call this ioctl "
+"repeatedly to tweak only the biases you need after applying a preset. See "
+"`CSI.ioctl`."
+msgstr ""
+"Đặt một độ lệch cảm biến GENX320 đơn lẻ thành giá trị DAC. Truyền một hằng "
+"số ``GENX320_BIAS_*`` (\\ `csi.GENX320_BIAS_DIFF_OFF`\\ , "
+"`csi.GENX320_BIAS_DIFF_ON`\\ , `csi.GENX320_BIAS_FO`\\ , "
+"`csi.GENX320_BIAS_HPF`\\ , hoặc `csi.GENX320_BIAS_REFR`\\ ) và một giá trị "
+"DAC nguyên. Mỗi độ lệch là độc lập --- gọi ioctl này nhiều lần để chỉ điều "
+"chỉnh các độ lệch bạn cần sau khi áp dụng preset. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1158
+msgid ""
+"Negative comparator contrast threshold --- controls how much a pixel has to "
+"darken before a `csi.PIX_OFF_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Ngưỡng tương phản bộ so sánh âm --- kiểm soát mức độ tối của một điểm ảnh "
+"trước khi `csi.PIX_OFF_EVENT` kích hoạt. Giá trị thấp hơn = nhạy hơn (nhiều "
+"sự kiện hơn)."
+
+#: ../../library/omv.csi.rst:1165
+msgid ""
+"Positive comparator contrast threshold --- controls how much a pixel has to "
+"brighten before a `csi.PIX_ON_EVENT` fires. Lower value = more sensitive "
+"(more events)."
+msgstr ""
+"Ngưỡng tương phản bộ so sánh dương --- kiểm soát mức độ sáng của một điểm "
+"ảnh trước khi `csi.PIX_ON_EVENT` kích hoạt. Giá trị thấp hơn = nhạy hơn "
+"(nhiều sự kiện hơn)."
+
+#: ../../library/omv.csi.rst:1172
+msgid ""
+"Pixel low-pass cut-off frequency --- trades pixel bandwidth (speed/latency) "
+"against background-noise activity. Higher value = faster pixel response, "
+"more noise."
+msgstr ""
+"Tần số cắt bộ lọc thông thấp của điểm ảnh --- đánh đổi giữa băng thông điểm "
+"ảnh (tốc độ/độ trễ) và hoạt động nhiễu nền. Giá trị cao hơn = phản hồi điểm "
+"ảnh nhanh hơn, nhiều nhiễu hơn."
+
+#: ../../library/omv.csi.rst:1179
+msgid ""
+"Pixel high-pass cut-off frequency --- rejects slow brightness changes. "
+"Higher value = slower changes filtered out (only fast transitions register)."
+msgstr ""
+"Tần số cắt bộ lọc thông cao của điểm ảnh --- loại bỏ các thay đổi độ sáng "
+"chậm. Giá trị cao hơn = lọc bỏ các thay đổi chậm hơn (chỉ các chuyển tiếp "
+"nhanh mới được ghi nhận)."
+
+#: ../../library/omv.csi.rst:1186
+msgid ""
+"Pixel refractory period --- dead time after a pixel emits an event during "
+"which it cannot fire again. Higher value = longer dead time, fewer events "
+"from a busy pixel."
+msgstr ""
+"Giai đoạn trơ của điểm ảnh --- thời gian chết sau khi điểm ảnh phát ra sự "
+"kiện mà trong đó nó không thể kích hoạt lại. Giá trị cao hơn = thời gian "
+"chết dài hơn, ít sự kiện hơn từ điểm ảnh bận."
+
+#: ../../library/omv.csi.rst:1193
+msgid ""
+"Sets the GENX320 anti-flicker (AFK) filter, which rejects events from pixels"
+" toggling at a periodic frequency band (fluorescent lighting, LED-driven "
+"displays, etc.). Pass ``enable`` (1 to enable, 0 to disable) and, when "
+"enabling, the band edges in hertz: ``(enable, freq_low_hz, freq_high_hz)``. "
+"See `CSI.ioctl`."
+msgstr ""
+"Đặt bộ lọc chống nhấp nháy (AFK) của GENX320, loại bỏ các sự kiện từ các "
+"điểm ảnh chuyển đổi ở một dải tần số tuần hoàn (đèn huỳnh quang, màn hình "
+"LED, v.v.). Truyền ``enable`` (1 để bật, 0 để tắt) và khi bật, các cạnh dải "
+"tính bằng hertz: ``(enable, freq_low_hz, freq_high_hz)``\\ . Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1203
+msgid ""
+"Sets the GENX320 spatio-temporal contrast (STC) filter mode. Pass a "
+"``GENX320_STC_*`` constant (`csi.GENX320_STC_DISABLE`, "
+"`csi.GENX320_STC_ONLY`, `csi.GENX320_STC_TRAIL_ONLY`, "
+"`csi.GENX320_STC_TRAIL`) followed by the threshold(s) the mode requires (in "
+"milliseconds). See `CSI.ioctl`."
+msgstr ""
+"Đặt chế độ bộ lọc tương phản không gian-thời gian (STC) của GENX320. Truyền "
+"một hằng số ``GENX320_STC_*`` (\\ `csi.GENX320_STC_DISABLE`\\ , "
+"`csi.GENX320_STC_ONLY`\\ , `csi.GENX320_STC_TRAIL_ONLY`\\ , "
+"`csi.GENX320_STC_TRAIL`\\ ) theo sau là (các) ngưỡng mà chế độ yêu cầu (tính"
+" bằng mili giây). Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1213
+msgid "Disable the GENX320 STC/trail filter --- every event passes through."
+msgstr "Vô hiệu hóa bộ lọc STC/trail của GENX320 --- mọi sự kiện đều đi qua."
+
+#: ../../library/omv.csi.rst:1219
+msgid ""
+"*Keeps the second event of a burst*; drops the first event and any later "
+"events. Takes one parameter, ``stc_threshold`` in milliseconds --- events "
+"within that window of a prior event on the same pixel are considered part of"
+" the same burst."
+msgstr ""
+"*Giữ sự kiện thứ hai của một loạt*\\ ; loại bỏ sự kiện đầu tiên và bất kỳ sự"
+" kiện nào sau đó. Nhận một tham số, ``stc_threshold`` tính bằng mili giây "
+"--- các sự kiện trong cửa sổ đó của một sự kiện trước đó trên cùng điểm ảnh "
+"được coi là một phần của cùng loạt."
+
+#: ../../library/omv.csi.rst:1227
+msgid ""
+"*Keeps the first event of a burst*; drops subsequent events on the same "
+"pixel until ``trail_threshold`` has elapsed. Takes one parameter, "
+"``trail_threshold`` in milliseconds."
+msgstr ""
+"*Giữ sự kiện đầu tiên của một loạt*\\ ; loại bỏ các sự kiện tiếp theo trên "
+"cùng điểm ảnh cho đến khi ``trail_threshold`` đã trôi qua. Nhận một tham số,"
+" ``trail_threshold`` tính bằng mili giây."
+
+#: ../../library/omv.csi.rst:1234
+msgid ""
+"*Keeps the first event of a burst plus subsequent edges* --- combines "
+"`csi.GENX320_STC_ONLY` and `csi.GENX320_STC_TRAIL_ONLY`. Takes two "
+"parameters, ``stc_threshold`` and ``trail_threshold`` (both ms); the sensor "
+"requires the two to stay within roughly a 13:1 ratio."
+msgstr ""
+"*Giữ sự kiện đầu tiên của một loạt cộng với các cạnh tiếp theo* --- kết hợp "
+"`csi.GENX320_STC_ONLY` và `csi.GENX320_STC_TRAIL_ONLY`\\ . Nhận hai tham số,"
+" ``stc_threshold`` và ``trail_threshold`` (cả hai tính bằng ms); cảm biến "
+"yêu cầu hai giá trị này duy trì tỷ lệ khoảng 13:1."
+
+#: ../../library/omv.csi.rst:1243
+msgid ""
+"Sets the GENX320 operating mode. Pass `csi.GENX320_MODE_HISTO` for the on-"
+"chip event histogram (the cam behaves like a regular grayscale camera at the"
+" configured framerate) or `csi.GENX320_MODE_EVENT` followed by the row-axis "
+"length of the event ``ndarray`` (a power of two between 1024 and 65536) for "
+"raw event streaming. See `CSI.ioctl`."
+msgstr ""
+"Đặt chế độ hoạt động của GENX320. Truyền `csi.GENX320_MODE_HISTO` cho biểu "
+"đồ tần suất sự kiện trên chip (cam hoạt động như camera thang xám thông "
+"thường ở tốc độ khung hình đã cấu hình) hoặc `csi.GENX320_MODE_EVENT` theo "
+"sau là độ dài trục hàng của ``ndarray`` sự kiện (lũy thừa của hai từ 1024 "
+"đến 65536) để stream sự kiện thô. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1253
+msgid ""
+"Histogram mode --- events are accumulated on-chip into per-pixel bins and "
+"reported as a 320x320 grayscale frame at the configured rate (~20-350 FPS). "
+"The cam looks like a regular camera, so all the standard image-processing "
+"routines work directly."
+msgstr ""
+"Chế độ biểu đồ tần suất --- các sự kiện được tích lũy trên chip vào các bin "
+"theo từng điểm ảnh và được báo cáo dưới dạng khung hình thang xám 320x320 ở "
+"tốc độ đã cấu hình (~20-350 FPS). Cam trông giống như một camera thông "
+"thường, vì vậy tất cả các quy trình xử lý ảnh tiêu chuẩn đều hoạt động trực "
+"tiếp."
+
+#: ../../library/omv.csi.rst:1262
+msgid ""
+"Event mode --- bypasses the on-chip histogram and streams raw events into a "
+"numpy ``ndarray`` with microsecond timestamps, for applications that need "
+"full temporal detail rather than a pre-binned frame."
+msgstr ""
+"Chế độ sự kiện --- bỏ qua biểu đồ tần suất trên chip và stream các sự kiện "
+"thô vào ``ndarray`` numpy với dấu thời gian micro giây, cho các ứng dụng cần"
+" đầy đủ chi tiết thời gian thay vì khung hình đã được phân bin sẵn."
+
+#: ../../library/omv.csi.rst:1270
+msgid ""
+"Reads raw events into a uint16 ``ndarray`` of shape ``(EVT_res, 6)`` (with "
+"``EVT_res`` matching the buffer size passed to "
+"`csi.IOCTL_GENX320_SET_MODE`). The columns are ``[0]`` event type "
+"(`csi.PIX_OFF_EVENT`, `csi.PIX_ON_EVENT`, "
+"`csi.EXT_TRIGGER_RISING`/``FALLING``, `csi.RST_TRIGGER_RISING`/``FALLING``),"
+" ``[1]`` seconds timestamp, ``[2]`` milliseconds, ``[3]`` microseconds, "
+"``[4]`` X coord (0-319), ``[5]`` Y coord (0-319). Returns the number of "
+"events written into the buffer, leaving older rows beyond that count "
+"untouched. See `CSI.ioctl`."
+msgstr ""
+"Đọc các sự kiện thô vào ``ndarray`` uint16 có hình dạng ``(EVT_res, 6)`` "
+"(với ``EVT_res`` khớp với kích thước bộ đệm được truyền đến "
+"`csi.IOCTL_GENX320_SET_MODE`\\ ). Các cột là ``[0]`` loại sự kiện (\\ "
+"`csi.PIX_OFF_EVENT`\\ , `csi.PIX_ON_EVENT`\\ , `csi.EXT_TRIGGER_RISING`\\ "
+"/\\ ``FALLING``\\ , `csi.RST_TRIGGER_RISING`\\ /\\ ``FALLING``\\ ), ``[1]`` "
+"dấu thời gian giây, ``[2]`` mili giây, ``[3]`` micro giây, ``[4]`` tọa độ X "
+"(0-319), ``[5]`` tọa độ Y (0-319). Trả về số lượng sự kiện được ghi vào bộ "
+"đệm, để các hàng cũ hơn ngoài số đếm đó không bị chạm vào. Xem `CSI.ioctl`\\"
+" ."
+
+#: ../../library/omv.csi.rst:1284
+msgid ""
+"Automatically disables hot pixels --- pixels that fire spuriously even on a "
+"static scene. The driver builds a 320x320 per-pixel hit count, computes the "
+"mean and standard deviation, and disables any pixel whose count exceeds "
+"``mean + sigma * stddev``. Pass an event-count budget (events to tally "
+"before computing statistics --- higher = more reliable estimate, slower; "
+"~10000 is a good default) and a sigma float (lower = more aggressive, ~0.5 "
+"default). Returns the number of pixels disabled. Aim the cam at a static "
+"scene first so motion-driven events don't get counted against pixels that "
+"are actually fine. See `CSI.ioctl`."
+msgstr ""
+"Tự động vô hiệu hóa các điểm ảnh nóng --- các điểm ảnh kích hoạt bừa bãi "
+"ngay cả trên một cảnh tĩnh. Driver xây dựng số lần nhấn theo từng điểm ảnh "
+"320x320, tính toán giá trị trung bình và độ lệch chuẩn, và vô hiệu hóa bất "
+"kỳ điểm ảnh nào có số lần vượt quá ``mean + sigma * stddev``\\ . Truyền ngân"
+" sách đếm sự kiện (số sự kiện cần tính trước khi tính toán thống kê --- cao "
+"hơn = ước tính đáng tin cậy hơn, chậm hơn; ~10000 là mặc định tốt) và một "
+"float sigma (thấp hơn = mạnh hơn, mặc định ~0.5). Trả về số điểm ảnh bị vô "
+"hiệu hóa. Hãy hướng cam vào một cảnh tĩnh trước để các sự kiện do chuyển "
+"động không bị tính vào các điểm ảnh thực ra là bình thường. Xem "
+"`CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1299
+msgid ""
+"Returns a raw event-frame `image.Image` from the GENX320, with the events "
+"still in the chip's native packed encoding --- useful if you want to forward"
+" the raw stream to a PC for off-line decoding rather than process it on the "
+"cam. See `CSI.ioctl`."
+msgstr ""
+"Trả về `image.Image` khung sự kiện thô từ GENX320, với các sự kiện vẫn ở "
+"định dạng mã hóa gốc của chip --- hữu ích nếu bạn muốn chuyển stream thô đến"
+" PC để giải mã ngoại tuyến thay vì xử lý trên cam. Xem `CSI.ioctl`\\ ."
+
+#: ../../library/omv.csi.rst:1308
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"decrease (the negative-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- một điểm ảnh phát hiện giảm độ "
+"sáng (ngưỡng tương phản âm bị vượt qua). Các cột ``[4]/[5]`` mang X/Y của "
+"điểm ảnh."
+
+#: ../../library/omv.csi.rst:1315
+msgid ""
+"GENX320 event type (column ``[0]``) --- a pixel detected a brightness "
+"increase (the positive-contrast threshold was crossed). Columns ``[4]/[5]`` "
+"carry the pixel's X/Y."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- một điểm ảnh phát hiện tăng độ "
+"sáng (ngưỡng tương phản dương bị vượt qua). Các cột ``[4]/[5]`` mang X/Y của"
+" điểm ảnh."
+
+#: ../../library/omv.csi.rst:1322
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, rising edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- trigger reset điểm ảnh, cạnh lên. "
+"X/Y không được sử dụng. Hiện không được tạo ra bởi firmware."
+
+#: ../../library/omv.csi.rst:1329
+msgid ""
+"GENX320 event type (column ``[0]``) --- pixel-reset trigger, falling edge. "
+"X/Y are unused. Not generated by the firmware at this time."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- trigger reset điểm ảnh, cạnh "
+"xuống. X/Y không được sử dụng. Hiện không được tạo ra bởi firmware."
+
+#: ../../library/omv.csi.rst:1336
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a rising edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- chân trigger ngoài của cảm biến "
+"nhận cạnh lên. Đầu vào trigger ngoài của GENX320 được nối với đường đồng bộ "
+"khung hình của camera, cũng được dẫn đến **P10** trên bộ xử lý và header "
+"chân. X/Y không được sử dụng."
+
+#: ../../library/omv.csi.rst:1345
+msgid ""
+"GENX320 event type (column ``[0]``) --- the sensor's external trigger pin "
+"saw a falling edge. The GENX320's external trigger input is wired to the "
+"camera's frame-sync line, also routed to **P10** on the processor and the "
+"pin header. X/Y are unused."
+msgstr ""
+"Loại sự kiện GENX320 (cột ``[0]``\\ ) --- chân trigger ngoài của cảm biến "
+"nhận cạnh xuống. Đầu vào trigger ngoài của GENX320 được nối với đường đồng "
+"bộ khung hình của camera, cũng được dẫn đến **P10** trên bộ xử lý và header "
+"chân. X/Y không được sử dụng."

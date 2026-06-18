@@ -1,0 +1,306 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:2
+msgid "Filesystem hygiene"
+msgstr "Vệ sinh hệ thống tệp"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:4
+msgid ""
+"Flash and SD storage on a shipped cam fill up with files no operator is "
+"going to clean out by hand. Two decisions about that storage stay with the "
+"product for its lifetime: *which surface holds which kind of data*, and *how"
+" the directories are structured so file operations keep working as the "
+"application accumulates records*."
+msgstr ""
+"Bộ nhớ flash và thẻ SD trên một camera đã xuất xưởng sẽ dần đầy với các tệp "
+"mà không có nhà vận hành nào dọn dẹp thủ công. Hai quyết định về bộ nhớ này "
+"sẽ gắn liền với sản phẩm suốt vòng đời: *bề mặt nào lưu loại dữ liệu nào*\\ "
+", và *cấu trúc thư mục như thế nào để các thao tác với tệp vẫn hoạt động khi"
+" ứng dụng tích lũy dữ liệu theo thời gian*\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:12
+msgid "Where things go"
+msgstr "Nơi lưu trữ dữ liệu"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:14
+msgid ""
+"Code and assets ride in the frozen modules and ROMFS the build commits at "
+"ship time. Application *state* -- anything the application writes at "
+"runtime, anything that grows, anything that changes between boots -- has to "
+"live somewhere else. The cam exposes two writable surfaces for it:"
+msgstr ""
+"Mã nguồn và tài nguyên được đặt trong các frozen module và ROMFS mà bản dựng"
+" cố định tại thời điểm xuất xưởng. *Trạng thái* của ứng dụng -- bất cứ thứ "
+"gì ứng dụng ghi lúc runtime, bất cứ thứ gì tăng dần, bất cứ thứ gì thay đổi "
+"giữa các lần khởi động -- phải lưu ở chỗ khác. Camera cung cấp hai bề mặt "
+"ghi được cho mục đích này:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:20
+msgid ""
+"**Internal flash** at ``/flash``: a small writable filesystem mounted before"
+" any application code runs. The right place for *small fixed-size records "
+"that survive reboots*: configuration the application updates at runtime, "
+"last-known calibration, a rolling counter, a one-line marker file saying "
+"\"this cam was provisioned.\" Limited write cycles -- modern internal flash "
+"tolerates thousands to tens of thousands of writes per sector, not millions,"
+" so writes need to be infrequent, not per frame."
+msgstr ""
+"**Bộ nhớ flash nội bộ** tại ``/flash``\\ : một filesystem ghi được nhỏ, được"
+" mount trước khi bất kỳ mã ứng dụng nào chạy. Phù hợp cho *các bản ghi kích "
+"thước cố định nhỏ tồn tại qua các lần khởi động lại*\\ : cấu hình mà ứng "
+"dụng cập nhật lúc runtime, hiệu chỉnh gần nhất, bộ đếm cuộn, tệp đánh dấu "
+"một dòng ghi \"camera này đã được cấp phép.\" Chu kỳ ghi có hạn -- flash nội"
+" bộ hiện đại chịu được hàng nghìn đến hàng chục nghìn lần ghi mỗi sector, "
+"không phải hàng triệu lần, vì vậy các lần ghi cần không thường xuyên, không "
+"phải mỗi khung hình."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:30
+msgid ""
+"**SD card** at ``/sdcard``: a larger writable filesystem mounted when a card"
+" is present. The right place for *bulky variable files*: image and video "
+"captures, log files, model fine-tuning data, anything that might grow to "
+"megabytes or gigabytes. Higher write capacity than internal flash but still "
+"finite; removable, replaceable, and the surface most likely to disappear "
+"when the application is mid-write."
+msgstr ""
+"**Thẻ SD** tại ``/sdcard``\\ : một filesystem ghi được lớn hơn, được mount "
+"khi có thẻ. Phù hợp cho *các tệp biến động cồng kềnh*\\ : ảnh và video chụp "
+"được, tệp nhật ký, dữ liệu tinh chỉnh mô hình (ML), bất cứ thứ gì có thể "
+"tăng đến megabyte hoặc gigabyte. Dung lượng ghi lớn hơn flash nội bộ nhưng "
+"vẫn có giới hạn; có thể tháo rời, thay thế, và đây là bề mặt có khả năng "
+"biến mất cao nhất khi ứng dụng đang ghi dở."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:38
+msgid ""
+"The right answer for *where to write something* is almost always \"flash for"
+" small fixed records, SD for everything else.\" The two are not "
+"interchangeable: an application that scribbles its rolling log file to "
+"``/flash`` will burn through the flash's write endurance in a deployment "
+"that would have been fine on SD."
+msgstr ""
+"Câu trả lời đúng cho *nơi ghi dữ liệu* hầu như luôn là \"flash cho các bản "
+"ghi cố định nhỏ, SD cho mọi thứ còn lại.\" Hai loại này không thể hoán đổi: "
+"một ứng dụng ghi tệp nhật ký cuộn của nó vào ``/flash`` sẽ làm cạn kiệt độ "
+"bền ghi của flash trong một quá trình triển khai mà nếu dùng SD sẽ ổn thỏa."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:46
+msgid "Treat both as can-fail"
+msgstr "Xem cả hai như có thể lỗi"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:48
+msgid ""
+"``/flash`` and ``/sdcard`` can both fail. The SD card can be ejected, the "
+"flash can be corrupted by a power loss mid-write, either can run out of "
+"space, and any operation on either can raise :exc:`OSError` for reasons the "
+"application will not get a chance to diagnose in the field."
+msgstr ""
+"``/flash`` và ``/sdcard`` đều có thể bị lỗi. Thẻ SD có thể bị rút ra, flash "
+"có thể bị hỏng do mất điện giữa chừng khi đang ghi, bất kỳ cái nào cũng có "
+"thể hết dung lượng, và bất kỳ thao tác nào trên cả hai đều có thể ném ra "
+":exc:`OSError` vì những lý do mà ứng dụng sẽ không có cơ hội chẩn đoán ngoài"
+" thực địa."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:54
+msgid "Two patterns make the application survive that:"
+msgstr "Hai mẫu thiết kế giúp ứng dụng vượt qua điều đó:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:56
+msgid ""
+"**Wrap mounts and operations in try blocks.** Every :func:`open`, "
+":func:`os.listdir`, :func:`os.rename` against user-data paths is potentially"
+" failing. Catch :exc:`OSError`, log it, and fall back to a defined "
+"alternative -- write to ``/flash`` if ``/sdcard`` is gone, skip the "
+"operation if neither is available."
+msgstr ""
+"**Bọc các thao tác mount và thao tác tệp trong khối try.** Mọi "
+":func:`open`\\ , :func:`os.listdir`\\ , :func:`os.rename` trên các đường dẫn"
+" dữ liệu người dùng đều có khả năng thất bại. Bắt :exc:`OSError`\\ , ghi "
+"nhật ký, và chuyển về phương án thay thế đã định sẵn -- ghi vào ``/flash`` "
+"nếu ``/sdcard`` không có, bỏ qua thao tác nếu cả hai đều không khả dụng."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:63
+msgid ""
+"**Atomic writes for files that must survive a power loss.** Write to a "
+"temporary path, close the handle, then :func:`os.rename` over the live name."
+" Either the rename succeeded and the file is the new version, or it did not "
+"and the file is the old version. There is no third state where the file is "
+"half-written::"
+msgstr ""
+"**Ghi nguyên tử cho các tệp phải tồn tại qua mất điện.** Ghi vào đường dẫn "
+"tạm, đóng handle, rồi dùng :func:`os.rename` để đặt đè lên tên thực. Hoặc là"
+" rename thành công và tệp là phiên bản mới, hoặc là không thành công và tệp "
+"là phiên bản cũ. Không có trạng thái thứ ba nơi tệp bị ghi dở::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:79
+msgid ""
+"The pattern works on both flash and SD. It does *not* work for files large "
+"enough that the tmp file uses up the filesystem's free space; reserve it for"
+" small records."
+msgstr ""
+"Mẫu này hoạt động trên cả flash và SD. Nó *không* hoạt động cho các tệp đủ "
+"lớn mà tệp tạm chiếm hết dung lượng trống của filesystem; hãy giữ nó cho các"
+" bản ghi nhỏ."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:84
+msgid "The slow-directory trap"
+msgstr "Bẫy thư mục chậm"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:86
+msgid ""
+"The MicroPython VFS does not index directory contents the way a desktop "
+"filesystem does. :func:`os.listdir` and :func:`os.stat` walk the underlying "
+"file table linearly. A directory with a hundred files is fine; a directory "
+"with ten thousand files is unusably slow, with every :func:`os.listdir` "
+"taking seconds and every :func:`open` checking against the table on its way "
+"through."
+msgstr ""
+"MicroPython VFS không lập chỉ mục nội dung thư mục theo cách một filesystem "
+"máy tính để bàn làm. :func:`os.listdir` và :func:`os.stat` duyệt bảng tệp "
+"bên dưới theo tuyến tính. Một thư mục với một trăm tệp vẫn ổn; một thư mục "
+"với mười nghìn tệp sẽ chậm không dùng được, với mỗi :func:`os.listdir` mất "
+"vài giây và mỗi :func:`open` phải kiểm tra qua bảng trên đường đi."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:94
+msgid ""
+"Applications that write logs or captures to disk hit this fastest. A naive "
+"``/sdcard/logs/<timestamp>.log`` scheme that opens one new file per minute "
+"fills the ``logs/`` directory with half a million files in a year of "
+"deployment. Long before then the application starts missing its frame rate "
+"because every file open is taking longer than a frame interval."
+msgstr ""
+"Các ứng dụng ghi nhật ký hoặc ảnh chụp vào đĩa sẽ gặp vấn đề này nhanh nhất."
+" Một sơ đồ ``/sdcard/logs/<timestamp>.log`` ngây thơ mở một tệp mới mỗi phút"
+" sẽ lấp đầy thư mục ``logs/`` với nửa triệu tệp trong một năm triển khai. "
+"Trước đó rất lâu, ứng dụng sẽ bắt đầu bỏ lỡ tốc độ khung hình vì mỗi lần mở "
+"tệp mất lâu hơn một khoảng thời gian của khung hình."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:102
+msgid ""
+"The right pattern is to split files across a tree of dated subdirectories so"
+" no single directory ever holds more than a few hundred entries::"
+msgstr ""
+"Mẫu đúng là phân tán các tệp qua một cây các thư mục con theo ngày để không "
+"có thư mục đơn lẻ nào chứa quá vài trăm mục::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:130
+msgid ""
+"A year of one-file-per-hour logging is now spread across 365 day-"
+"directories, each containing at most 24 files; :func:`os.listdir` against "
+"any one directory stays cheap, and the application's frame loop does not "
+"stall on file operations as the deployment ages."
+msgstr ""
+"Một năm ghi một tệp mỗi giờ giờ đây được phân tán qua 365 thư mục theo ngày,"
+" mỗi thư mục chứa tối đa 24 tệp; :func:`os.listdir` trên bất kỳ thư mục nào "
+"vẫn nhanh, và vòng lặp khung hình của ứng dụng không bị đình trệ vì các thao"
+" tác tệp khi quá trình triển khai lão hóa theo thời gian."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:136
+msgid ""
+"The same principle applies to image captures, sensor traces, or anything "
+"else the application writes a file per event for. If the event rate is high,"
+" the tree wants to be deeper (year/month/day/hour, or "
+"year/month/day/hour/minute) so each leaf directory stays small. If the event"
+" rate is low, a year/month tree is enough."
+msgstr ""
+"Nguyên tắc tương tự áp dụng cho các ảnh chụp, dấu vết cảm biến, hoặc bất cứ "
+"thứ gì khác mà ứng dụng ghi một tệp mỗi sự kiện. Nếu tốc độ sự kiện cao, cây"
+" cần sâu hơn (năm/tháng/ngày/giờ, hoặc năm/tháng/ngày/giờ/phút) để mỗi thư "
+"mục lá luôn nhỏ. Nếu tốc độ sự kiện thấp, một cây năm/tháng là đủ."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:144
+msgid "Per-device paths"
+msgstr "Đường dẫn theo thiết bị"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:146
+msgid ""
+"In a fleet of more than one cam, log files need to identify which physical "
+"unit they came from. :func:`machine.unique_id` returns a hardware identifier"
+" baked into the cam at the factory; it is the same value across reboots, "
+"across firmware updates, and across SD card swaps. Embed it in the log path "
+"or in the log records and an operator looking at a pile of SD cards or a "
+"centralised log can tell which one is which::"
+msgstr ""
+"Trong một đội camera nhiều hơn một chiếc, các tệp nhật ký cần xác định thiết"
+" bị vật lý nào tạo ra chúng. :func:`machine.unique_id` trả về một định danh "
+"phần cứng được ghi vào camera tại nhà máy; nó có cùng giá trị qua các lần "
+"khởi động lại, qua các lần cập nhật firmware, và qua các lần đổi thẻ SD. "
+"Nhúng nó vào đường dẫn nhật ký hoặc vào bản ghi nhật ký và một nhà vận hành "
+"nhìn vào một đống thẻ SD hoặc nhật ký tập trung có thể biết cái nào là của "
+"máy nào::"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:161
+msgid ""
+"Combined with the dated-subdirectory pattern, the layout becomes "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- one unit's hour of records, "
+"in a directory shallow enough to walk, on a path that names the unit on the "
+"file system itself."
+msgstr ""
+"Kết hợp với mẫu thư mục con theo ngày, bố cục trở thành "
+"``/sdcard/logs/<unit-id>/2026/06/09/14.log`` -- một giờ bản ghi của một "
+"thiết bị, trong một thư mục đủ nông để duyệt, trên một đường dẫn đặt tên "
+"thiết bị ngay trên hệ thống tệp."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:168
+msgid "Pulling it together"
+msgstr "Tổng hợp lại"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:170
+msgid "A shipped cam's writable storage looks roughly like this:"
+msgstr "Bộ nhớ ghi được của một camera đã xuất xưởng trông đại khái như sau:"
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:172
+msgid ""
+"``/flash`` -- configuration, calibration, a provisioning marker. Written "
+"rarely, read often. Atomic-rename pattern for any file whose loss would "
+"break the next boot."
+msgstr ""
+"``/flash`` -- cấu hình, hiệu chỉnh, một dấu cấp phép. Ghi không thường "
+"xuyên, đọc thường xuyên. Mẫu atomic-rename cho bất kỳ tệp nào mà mất đi sẽ "
+"làm hỏng lần khởi động tiếp theo."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:176
+msgid ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- the "
+"operational log. Written continuously, rotated by the path, never written "
+"through a directory with thousands of siblings."
+msgstr ""
+"``/sdcard/logs/<unit-id>/<year>/<month>/<day>/<hour>.log`` -- nhật ký vận "
+"hành. Ghi liên tục, xoay vòng theo đường dẫn, không bao giờ ghi qua một thư "
+"mục có hàng nghìn tệp cùng cấp."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:181
+msgid ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- image or video "
+"captures the application makes. Same tree shape, same reason."
+msgstr ""
+"``/sdcard/captures/<unit-id>/<year>/<month>/<day>/`` -- ảnh hoặc video mà "
+"ứng dụng chụp. Hình dạng cây tương tự, lý do tương tự."
+
+#: ../../openmvcam/tutorial/production/hardening/filesystem.rst:185
+msgid ""
+"That layout costs the application about twenty lines of code and saves it "
+"from the failure modes that take the cam down months into a deployment."
+msgstr ""
+"Bố cục đó tốn của ứng dụng khoảng hai mươi dòng code và cứu nó khỏi các chế "
+"độ lỗi khiến camera ngừng hoạt động sau vài tháng triển khai."

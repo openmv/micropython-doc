@@ -1,0 +1,170 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:2
+msgid "Cooperative concurrency"
+msgstr "Đồng thời hợp tác"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:4
+msgid ""
+"Asyncio's scheduling model is *cooperative*, not *preemptive*. The "
+"distinction is the single most important mental model the rest of this "
+"section builds on, so it is worth pinning down before any code appears."
+msgstr ""
+"Mô hình lập lịch của Asyncio là *hợp tác*\\ , không phải *ưu tiên*\\ . Sự "
+"phân biệt này là mô hình tư duy quan trọng nhất mà phần còn lại của mục này "
+"xây dựng dựa trên, vì vậy đáng để nắm vững trước khi có bất kỳ đoạn mã nào."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:10
+msgid "Preemptive vs cooperative"
+msgstr "Lập lịch ưu tiên so với hợp tác"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:12
+msgid ""
+"A *preemptive* scheduler -- the kind a desktop operating system uses to keep"
+" many programs running at once -- can pause whichever piece of code is "
+"currently running at *any* moment and switch to another. The running code "
+"does not have to do anything special; the scheduler interrupts it. That "
+"makes preemptive scheduling very flexible (no one piece of code can starve "
+"the others by being slow), but it also means any shared variable has to be "
+"defended carefully, because the switch could land anywhere -- even halfway "
+"through writing a value, or partway through reading a list."
+msgstr ""
+"Bộ lập lịch *ưu tiên* -- loại mà hệ điều hành máy tính để bàn sử dụng để giữ"
+" nhiều chương trình chạy cùng lúc -- có thể tạm dừng bất kỳ đoạn mã nào đang"
+" chạy tại *bất kỳ* thời điểm nào và chuyển sang đoạn khác. Mã đang chạy "
+"không cần làm gì đặc biệt; bộ lập lịch ngắt nó lại. Điều này làm cho lập "
+"lịch ưu tiên rất linh hoạt (không có đoạn mã nào có thể làm đói các đoạn "
+"khác bằng cách chạy chậm), nhưng cũng có nghĩa là bất kỳ biến được chia sẻ "
+"nào cũng phải được bảo vệ cẩn thận, vì việc chuyển đổi có thể xảy ra ở bất "
+"kỳ đâu -- thậm chí ngay giữa lúc ghi một giá trị hoặc đọc một danh sách."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:23
+msgid ""
+"A *cooperative* scheduler can only switch between pieces of code at points "
+"the currently running piece *explicitly hands control back*. On asyncio, "
+"those points are every ``await`` and every call to a coroutine that yields "
+"internally (most commonly :func:`asyncio.sleep`). Between two awaits, the "
+"running coroutine has the CPU to itself."
+msgstr ""
+"Bộ lập lịch *hợp tác* chỉ có thể chuyển đổi giữa các đoạn mã tại những điểm "
+"mà đoạn đang chạy *chủ động trả lại quyền kiểm soát*\\ . Trong asyncio, "
+"những điểm đó là mọi ``await`` và mọi lời gọi đến coroutine có yield nội bộ "
+"(thường gặp nhất là :func:`asyncio.sleep`\\ ). Giữa hai lần await, coroutine"
+" đang chạy chiếm hoàn toàn CPU."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:30
+msgid "Two consequences fall out of that:"
+msgstr "Hai hệ quả xuất phát từ điều đó:"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:32
+msgid ""
+"**A coroutine that never awaits never gets paused.** If a coroutine sits in "
+"a tight loop with no ``await`` inside, it monopolises the scheduler and "
+"nothing else makes progress. The fix is to ``await asyncio.sleep_ms(0)`` (or"
+" some other waiting call) at a sensible point in the loop."
+msgstr ""
+"**Một coroutine không bao giờ await sẽ không bao giờ bị tạm dừng.** Nếu một "
+"coroutine nằm trong vòng lặp chặt mà không có ``await`` bên trong, nó độc "
+"chiếm bộ lập lịch và không có gì khác tiến triển được. Cách khắc phục là "
+"thêm ``await asyncio.sleep_ms(0)`` (hoặc một lời gọi chờ đợi khác) tại một "
+"điểm hợp lý trong vòng lặp."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:37
+msgid ""
+"**Shared state is safe between awaits.** Two coroutines cannot interleave "
+"halfway through an operation that has no ``await`` in it. The kind of "
+"corruption that arises when preemption lands in the middle of a multi-step "
+"update -- one piece of code reading a value while another is partway through"
+" changing it -- simply cannot happen here. Coordination between coroutines "
+"is still needed when several of them have to share a resource *across* "
+"awaits, but the in-the-middle-of-a-line interleaving problem does not apply."
+msgstr ""
+"**Trạng thái được chia sẻ an toàn giữa các lần await.** Hai coroutine không "
+"thể xen kẽ nhau giữa chừng trong một thao tác không có ``await`` bên trong. "
+"Loại lỗi xảy ra khi bộ lập lịch ưu tiên dừng giữa một cập nhật nhiều bước --"
+" một đoạn mã đọc giá trị trong khi đoạn khác đang thay đổi nó -- đơn giản là"
+" không thể xảy ra ở đây. Vẫn cần phối hợp giữa các coroutine khi nhiều "
+"coroutine phải chia sẻ tài nguyên *xuyên qua* các lần await, nhưng vấn đề "
+"xen kẽ giữa chừng trong một dòng lệnh không áp dụng ở đây."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:49
+msgid "The three layers"
+msgstr "Ba lớp"
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:51
+msgid ""
+"Every asyncio script is built from the same three layers. The next two pages"
+" cover them in detail; these are the labels to keep in mind while reading "
+"them."
+msgstr ""
+"Mọi tập lệnh asyncio đều được xây dựng từ ba lớp giống nhau. Hai trang tiếp "
+"theo trình bày chi tiết về chúng; đây là các nhãn cần ghi nhớ khi đọc."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:55
+msgid ""
+"**Coroutines** -- functions declared with ``async def``, each one a self-"
+"contained unit of work that awaits where appropriate. The Python Overview "
+"introduced the ``async``/``await`` keywords; in asyncio they are how a "
+"coroutine yields back to the scheduler."
+msgstr ""
+"**Coroutine** -- các hàm được khai báo với ``async def``\\ , mỗi hàm là một "
+"đơn vị công việc độc lập có await ở những nơi thích hợp. Phần Tổng quan về "
+"Python đã giới thiệu các từ khóa ``async``\\ /\\ ``await``\\ ; trong "
+"asyncio, chúng là cách một coroutine trả quyền kiểm soát về cho bộ lập lịch."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:60
+msgid ""
+"**Tasks** -- a wrapper :func:`asyncio.create_task` puts around a coroutine "
+"to *schedule it concurrently with the current one*. The application "
+"typically creates a handful of tasks for the long-running jobs (the snapshot"
+" loop, the network client, the UART reader, ...)."
+msgstr ""
+"**Task** -- một wrapper mà :func:`asyncio.create_task` đặt xung quanh một "
+"coroutine để *lên lịch chạy đồng thời với coroutine hiện tại*\\ . Ứng dụng "
+"thường tạo một số task cho các công việc chạy dài (vòng lặp chụp ảnh, client"
+" mạng, bộ đọc UART, ...)."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:65
+msgid ""
+"**The event loop** -- the engine underneath that keeps track of which "
+"coroutines are waiting and which are ready to run, switching between tasks "
+"at every ``await``. The application doesn't write the loop; it hands a top-"
+"level coroutine to :func:`asyncio.run` and the loop drives everything from "
+"there."
+msgstr ""
+"**Vòng lặp sự kiện** -- bộ máy nền theo dõi các coroutine nào đang chờ và "
+"coroutine nào sẵn sàng chạy, chuyển đổi giữa các task tại mỗi lần "
+"``await``\\ . Ứng dụng không cần viết vòng lặp; nó chuyển một coroutine cấp "
+"cao nhất cho :func:`asyncio.run` và vòng lặp điều khiển mọi thứ từ đó."
+
+#: ../../openmvcam/tutorial/asyncio/basics/cooperative-concurrency.rst:72
+msgid ""
+"When the application is described that way -- as a small set of coroutines "
+"composed by an event loop -- *concurrency becomes a property of the shape of"
+" the program*, not something the application has to manage step by step."
+msgstr ""
+"Khi ứng dụng được mô tả theo cách đó -- như một tập hợp nhỏ các coroutine "
+"được kết hợp bởi một vòng lặp sự kiện -- *tính đồng thời trở thành thuộc "
+"tính của hình dạng chương trình*\\ , không phải là thứ ứng dụng phải quản lý"
+" từng bước một."

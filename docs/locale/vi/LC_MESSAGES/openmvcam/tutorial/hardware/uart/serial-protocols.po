@@ -1,0 +1,567 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Giao thức nối tiếp, đóng khung và CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` di chuyển các byte giữa hai đầu. Bản thân điều đó chưa đủ "
+"để xây dựng một liên kết đáng tin cậy. Ba vấn đề xuất hiện ngay khi có thiết"
+" bị thực ở đầu kia của dây:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Tin nhắn bắt đầu và kết thúc ở đâu?** Các byte đến dưới dạng luồng không "
+"có ký tự phân cách tích hợp sẵn. Nếu bộ nhận bỏ lỡ byte đầu tiên (khởi động "
+"sau bên gửi; nhiễu điện ngắn trên đường dây), mọi byte sau đó sẽ bị lệch một"
+" vị trí cho đến khi bộ nhận tìm thấy điểm đồng bộ lại mới."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Mỗi tin nhắn dài bao nhiêu?** Một giá trị đọc cảm biến 32 byte và một phản"
+" hồi trạng thái 4 byte trông giống hệt nhau ở cấp độ byte. Bộ nhận cần có "
+"cách biết bao nhiêu byte thuộc về tin nhắn hiện tại."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Các byte có đến nguyên vẹn không?** Nhiễu có thể lật các bit riêng lẻ. Nếu"
+" không có kiểm tra, bộ nhận sẽ vô tư xử lý dữ liệu bị hỏng."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Câu trả lời tiêu chuẩn cho cả ba vấn đề là bọc dữ liệu trong một khung gói "
+"tin: một chuỗi byte đã biết ở đầu, một trường độ dài, chính dữ liệu tải và "
+"một tổng kiểm tra ở cuối."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Đóng khung gói tin"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Một định dạng đóng khung điển hình:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Sáu trường được vẽ theo thứ tự: HEADER hai byte\n"
+"ký hiệu 0xAA 0x55, trường CMD một byte chọn\n"
+"lệnh mà gói tin này mang theo, trường LEN hai byte\n"
+"cho biết kích thước tải, trường HCRC một byte\n"
+"bao phủ HEADER cộng CMD cộng LEN, trường\n"
+"PAYLOAD độ dài biến đổi gồm LEN byte với định dạng phụ thuộc vào CMD,\n"
+"và trường DCRC bốn byte bao phủ tải."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ".. image:: ../figures/packet-frame.svg"
+msgstr ".. image:: ../figures/packet-frame.svg"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Một gói tin có khung với hai CRC riêng cho header và dữ liệu: header (magic "
+"byte), lệnh, độ dài, CRC header, tải, CRC dữ liệu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Mỗi trường thực hiện một nhiệm vụ:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Header (magic byte).** Một chuỗi byte cố định, bất thường -- thường là hai"
+" byte như ``0xAA 0x55`` -- mà bộ nhận quét trong luồng đến. Khi tìm thấy "
+"chuỗi đó, bộ nhận biết rằng một gói tin mới đang bắt đầu và có thể loại bỏ "
+"bất kỳ dữ liệu rác nào đến trước."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Lệnh.** Một byte duy nhất cho biết *nội dung* của gói tin. Các giá trị "
+"lệnh khác nhau sử dụng các định dạng tải khác nhau -- một lệnh có thể có "
+"nghĩa là \"đặt góc servo\" với hai byte tải, lệnh khác có thể là \"đọc cảm "
+"biến\" không có tải, lệnh khác có thể là \"ghi log tin nhắn\" với một chuỗi."
+" Bộ nhận phân phối theo byte lệnh để biết cách diễn giải phần còn lại của "
+"gói tin."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Độ dài.** Hai byte cho biết kích thước của tải tính bằng byte (little-"
+"endian ở đây), cho phép tải lên đến khoảng 64 KiB. Bộ nhận đọc chính xác số "
+"byte này sau khi CRC header đã được xác minh."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**CRC Header.** Tổng kiểm tra một byte trên các trường HEADER, CMD và LEN. "
+"Bộ nhận kiểm tra nó trước khi đọc bất kỳ tải nào, do đó một LEN bị hỏng sẽ "
+"bị phát hiện sau chỉ một vài byte (xem phần CRC bên dưới để hiểu tại sao "
+"điều này quan trọng)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Tải.** Dữ liệu ứng dụng theo từng lệnh cụ thể, chính xác LEN byte. Định "
+"dạng được xác định bởi byte lệnh: một bản ghi được đóng gói bởi "
+":mod:`struct` với các trường chiều rộng cố định, một chuỗi, bộ nhớ thô -- "
+"bất cứ điều gì cả hai bên đồng ý cho lệnh đó."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**CRC Dữ liệu.** Một CRC bốn byte trên các byte tải. Bộ nhận tính toán lại "
+"từ các byte vừa đọc và loại bỏ gói tin nếu không khớp."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"\"Tổng kiểm tra\" đơn giản nhất là tổng của tất cả các byte, modulo 256 hoặc"
+" 65536. Nó bắt được hầu hết các lần lật bit đơn nhưng bỏ lỡ nhiều lỗi nhiều "
+"bit và bỏ qua thứ tự byte."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"Một *kiểm tra dư theo chu kỳ* (CRC) là bản nâng cấp tiêu chuẩn. Nó coi đầu "
+"vào là một số nhị phân dài và chia nó (theo cách đặc biệt) cho một *đa thức*"
+" cố định; phần dư của phép chia là CRC. Các đa thức khác nhau bắt các lớp "
+"lỗi khác nhau; các đa thức 8-, 16- và 32-bit phổ biến đều bắt được mọi chuỗi"
+" lỗi ngắn hơn chiều rộng của chúng cộng với một phần lớn các chuỗi dài hơn."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Tại sao cần hai CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"Sơ đồ gói tin ở trên mang *hai* CRC riêng biệt -- một cho header (HEADER, "
+"CMD, LEN) và một cho tải. Đây là điều mà một cơ chế đóng khung mạnh mẽ thực "
+"sự cần, vì cách một CRC đuôi duy nhất thất bại khi chính trường LEN bị hỏng "
+"trong quá trình truyền:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Bộ nhận xử lý theo LEN bị hỏng và đọc số byte đó từ dây -- có thể nhiều hơn "
+"nhiều so với bên gửi dự định."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Chỉ đến khi CRC đuôi cuối cùng mới cho bộ nhận biết có gì đó sai, và chỉ sau"
+" khi tất cả các byte đó đã bị tiêu thụ."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Trong khi bộ phân tích bị kẹt chờ số byte sai, các gói tin thực đến sau gói "
+"bị hỏng bị nuốt vào tải, và bộ nhận mất nhiều gói tin thay vì chỉ một."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "Tách CRC sửa điều này:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**CRC header** bao phủ HEADER, CMD và LEN. Bộ nhận kiểm tra nó trước khi đọc"
+" bất kỳ tải nào, do đó một LEN bị hỏng sẽ bị phát hiện sau một vài byte và "
+"bộ phân tích tái đồng bộ ngay lập tức, chỉ làm hỏng một gói tin xấu duy "
+"nhất."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**CRC dữ liệu** bao phủ tải. Sau khi CRC header đã thông qua, bộ nhận biết "
+"rằng nó có thể tin tưởng LEN, đọc chính xác số byte tải đó và xác minh chúng"
+" với CRC dữ liệu."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"Kích thước phổ biến -- và những gì trang này sử dụng -- là một byte cho CRC "
+"header (CRC-8 là quá đủ cho một header năm byte) và bốn byte cho CRC dữ liệu"
+" (CRC-32 bao phủ nhiều kilobyte tải với tỷ lệ va chạm cực kỳ thấp)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Các hàm hỗ trợ"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython đi kèm :func:`binascii.crc32` cho CRC bốn byte trực tiếp. Đối "
+"với CRC header một byte, một hàm trợ giúp nhỏ sử dụng đa thức mà các thiết "
+"bị 1-wire của Maxim dùng (\\ ``0x8C`` ở dạng phản chiếu) ngắn gọn đủ để viết"
+" inline:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "Một bộ mã hóa hoàn chỉnh kết hợp hai CRC trong một hàm:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Hàm nghịch đảo khôi phục lệnh và tải từ một gói tin hoàn chỉnh, hoặc trả về "
+"``None`` nếu một trong hai kiểm tra CRC thất bại:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"Trong thực tế, bộ nhận không nhận được toàn bộ gói tin cùng lúc -- các byte "
+"đến từng cái một qua UART, và một bên gửi tạm dừng giữa chừng (hoặc một "
+"đường dây nhiễu mất một byte) không thể chỉ đơn giản là ``read()`` vào bộ "
+"đệm có kích thước đúng. Phần tiếp theo chạy cùng logic giải mã từng byte "
+"bằng một máy trạng thái."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "Bộ nhận dùng máy trạng thái"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Bộ nhận không thể chỉ gọi ``uart.read(N)`` với một ``N`` cố định nào đó -- "
+"nó không biết gói tin tiếp theo sẽ có bao nhiêu byte, và bất kỳ rác nào trên"
+" đường dây sẽ làm mất căn chỉnh. Giải pháp là một máy trạng thái nhỏ tiêu "
+"thụ các byte từng cái một và phản ứng dựa trên vị trí trong gói tin. Vòng "
+"lặp chính thăm dò :meth:`~machine.UART.any` để xem có bao nhiêu byte được "
+"đệm, thoát hết chúng trong một lần gọi :meth:`~machine.UART.read`\\ , và đưa"
+" từng byte qua máy trạng thái:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Mỗi byte tiến máy trạng thái một bước, hoặc quay lại ``HUNT_FOR_HEADER`` sau"
+" khi gói tin hoàn chỉnh, CRC header xấu hoặc CRC dữ liệu xấu. Rác trên đường"
+" dây không khớp với header sẽ bị loại bỏ âm thầm; header hợp lệ tiếp theo "
+"tái đồng bộ bộ nhận. Tính an toàn chính đến từ CRC header: nếu trường LEN bị"
+" hỏng, bộ phân tích bắt nó sau khi kiểm tra CRC header (chỉ một vài byte), "
+"không phải sau khi cam kết đọc số byte tải sai hoàn toàn."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Ngoài mức cơ bản"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Cơ chế đóng khung ở trên là *mức tối thiểu* một liên kết nối tiếp cần để "
+"phục hồi sau nhiễu đường dây: magic header, độ dài, lệnh và hai CRC. Nó phát"
+" hiện hỏng hóc và tái đồng bộ sau các byte bị nhiễu, nhưng bỏ cuộc với các "
+"gói tin bị hỏng thay vì truyền chúng qua, và bên gửi không biết bộ nhận thực"
+" sự đã nhận được gì."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Các giao thức nối tiếp thực tế xếp chồng các tính năng trên nền tảng đó. "
+"Không phải mọi liên kết nhúng đều cần tất cả chúng -- hãy chọn những gì ứng "
+"dụng thực sự cần:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Số thứ tự.** Một bộ đếm nhỏ tăng lên sau mỗi lần gửi. Bộ nhận phát hiện "
+"khoảng trống (một gói tin bị mất), trùng lặp (bên gửi truyền lại nhưng bộ "
+"nhận đã chấp nhận bản đầu tiên), và -- ở nơi kênh có thể sắp xếp lại -- các "
+"lần đến không theo thứ tự."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Xác nhận.** Một gói ACK chuyên dụng (hoặc bit piggyback trong một phản "
+"hồi) mà bộ nhận gửi lại để xác nhận từng gói tin. Nếu không có ACK, bên gửi "
+"không có cách nào biết dữ liệu của mình đã đến."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Xác nhận phủ định.** Một NACK được gửi khi bộ nhận phát hiện lỗi CRC hoặc "
+"khoảng trống thứ tự. Bên gửi truyền lại ngay lập tức, thay vì chờ ACK "
+"timeout kích hoạt."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Truyền lại.** Bên gửi giữ mỗi gói tin chưa được xác nhận trong một hàng "
+"đợi nhỏ và gửi lại sau timeout (hoặc khi nhận NACK). Giới hạn thử lại và "
+"khoảng nghỉ giữa các lần thử ngăn một liên kết bị hỏng vĩnh viễn lặp mãi "
+"mãi."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Cửa sổ trượt.** Cho phép nhiều gói tin đang truyền trước khi yêu cầu ACK "
+"giúp duy trì thông lượng trên các liên kết có thời gian round-trip dài so "
+"với thời gian gửi mỗi gói tin. Chi phí là nhiều trạng thái phía bên gửi hơn "
+"-- một slot cho mỗi gói tin đang truyền."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Kiểm soát luồng.** Một tín hiệu từ bộ nhận yêu cầu bên gửi giảm tốc hoặc "
+"tạm dừng khi bộ đệm của nó đang đầy. Các cách triển khai khác nhau -- byte "
+"XON / XOFF rõ ràng, cấp phát dựa trên tín dụng nơi bộ nhận cấp phép thêm N "
+"gói tin mỗi lần, hoặc các đường phần cứng RTS / CTS trên chính dây. Nếu "
+"không có kiểm soát luồng, bên gửi nhanh cuối cùng sẽ vượt quá bộ nhận chậm "
+"và các gói tin bị rớt."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Phiên bản giao thức.** Một trường phiên bản sớm trong gói tin cho phép "
+"định dạng phát triển. Mỗi bên có thể thương lượng phiên bản cao nhất mà cả "
+"hai hỗ trợ khi khởi động, hoặc từ chối các gói tin từ các đầu nối không "
+"tương thích."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Phân mảnh và tái lắp ghép.** Một LEN hai byte giới hạn gói tin ở 64 KiB; "
+"các tin nhắn lớn hơn được chia thành nhiều gói tin và tái lắp ghép ở bên "
+"kia. Siêu dữ liệu phân mảnh (chỉ số mảnh, tổng số, hoặc cờ \"còn mảnh\") nằm"
+" bên trong tải."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Heartbeat.** Một gói tin nhỏ định kỳ nói \"Tôi vẫn ở đây\". Bên kia nhận "
+"thấy khi các heartbeat dừng lại và kết nối lại (hoặc báo lỗi rõ ràng) thay "
+"vì treo im lặng."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Kênh.** Một ID kênh hoặc luồng trong header để một liên kết vật lý mang "
+"nhiều luồng logic -- một kênh điều khiển, một kênh đo từ xa, một kênh log --"
+" được phân biệt chỉ bởi trường đó."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Xác thực.** Một thẻ ngắn được tính từ tải và một giá trị bí mật mà chỉ bên"
+" gửi và bên nhận hợp lệ biết. Bộ nhận tính lại thẻ từ các byte nhận được và "
+"từ chối gói tin nếu hai thẻ không khớp. Điều này phát hiện cả việc giả mạo "
+"(kẻ tấn công đã sửa đổi các byte) và -- nếu số thứ tự hoặc dấu thời gian là "
+"một phần của những gì thẻ bao phủ -- replay, nơi kẻ tấn công ghi lại một gói"
+" tin thực từ dây và gửi lại sau để bộ nhận xử lý nó hai lần."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Mã hóa.** Xáo trộn các byte tải bằng một khóa bí mật chia sẻ để bất kỳ ai "
+"đọc đường dây mà không có khóa đó chỉ thấy nhiễu. Thường kết hợp với thẻ xác"
+" thực ở trên -- nếu không có nó, kẻ tấn công có thể đưa vào rác ngẫu nhiên "
+"vẫn vượt qua CRC và bộ nhận lãng phí chu kỳ cố giải mã vô nghĩa."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Một giao thức \"tốt\" điển hình cho thiết bị công nghiệp kết thúc với đóng "
+"khung, CRC kép, số thứ tự, ACK / NACK với truyền lại và heartbeat. Các ví dụ"
+" thực tế đáng tham khảo: *MAVLink* (đo từ xa máy bay không người lái, với số"
+" thứ tự, ID hệ thống / thành phần và chữ ký gói tin tùy chọn), *Modbus* (PLC"
+" công nghiệp, với mã hàm và CRC), và *NMEA 0183* (giao thức ASCII mà mọi bộ "
+"thu GPS tiêu dùng đều nói -- tin nhắn dựa trên dòng với tổng kiểm tra sau ký"
+" tự dấu hoa thị)."

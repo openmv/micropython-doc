@@ -1,0 +1,193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:2
+msgid "Building a ROMFS image"
+msgstr "Tạo ảnh ROMFS"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:4
+msgid ""
+"A *ROMFS image* is a flash-resident, read-only filesystem the runtime auto-"
+"mounts at ``/rom``. It solves the asset problem the previous page closed on:"
+" machine-learning model files, label tables, JSON configuration, image "
+"templates -- anything the application opens and reads but never writes -- "
+"ride into the build without paying the cost of being embedded as Python "
+"literals."
+msgstr ""
+"Một *ảnh ROMFS* là hệ thống tệp chỉ đọc trên flash mà runtime tự động gắn "
+"kết tại ``/rom``\\ . Nó giải quyết vấn đề tài nguyên mà trang trước kết thúc"
+" với: tệp mô hình (ML), bảng nhãn, cấu hình JSON, mẫu ảnh -- bất kỳ thứ gì "
+"ứng dụng mở và đọc nhưng không bao giờ ghi -- được đưa vào build mà không "
+"phải trả giá của việc nhúng dưới dạng Python literals."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:12
+msgid "Three things make ROMFS the right tool for shipped assets:"
+msgstr "Ba điều làm cho ROMFS là công cụ phù hợp cho tài nguyên xuất xưởng:"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:14
+msgid ""
+"The filesystem is *part of the firmware image*. End users cannot delete a "
+"file out of ``/rom``, edit one, or replace one with their own."
+msgstr ""
+"Hệ thống tệp là *một phần của ảnh firmware*\\ . Người dùng cuối không thể "
+"xóa tệp khỏi ``/rom``\\ , chỉnh sửa, hay thay thế bằng tệp của riêng họ."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:17
+msgid ""
+"Files in ``/rom`` are accessible *in place*. Consumers like the :mod:`ml` "
+"module loading a model file get a direct view into flash with no RAM copy --"
+" a multi-megabyte model on ``/rom`` \"loads\" essentially for free, where "
+"the same file on ``/sdcard`` is read into RAM at load time and stays there "
+"for the lifetime of the reference. Ordinary :func:`open` + ``read`` copies "
+"on demand: each ``read(n)`` call copies ``n`` bytes from flash to RAM at the"
+" moment of the call, with a bare ``read()`` asking for the whole file."
+msgstr ""
+"Các tệp trong ``/rom`` có thể truy cập *tại chỗ*\\ . Các consumer như module"
+" :mod:`ml` tải tệp mô hình có chế độ xem trực tiếp vào flash mà không cần "
+"sao chép RAM -- một mô hình nhiều megabyte trên ``/rom`` \"tải\" về cơ bản "
+"miễn phí, trong khi cùng tệp đó trên ``/sdcard`` được đọc vào RAM tại thời "
+"điểm tải và ở đó suốt thời gian tham chiếu tồn tại. :func:`open` + ``read`` "
+"thông thường sao chép theo yêu cầu: mỗi lần gọi ``read(n)`` sao chép ``n`` "
+"byte từ flash sang RAM tại thời điểm gọi, với ``read()`` không có tham số "
+"yêu cầu toàn bộ tệp."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:26
+msgid ""
+"``/rom`` and ``/rom/lib`` are added to :data:`sys.path` at boot. Python "
+"packages dropped into the image are importable by name; nothing special at "
+"the call site."
+msgstr ""
+"``/rom`` và ``/rom/lib`` được thêm vào :data:`sys.path` khi khởi động. Các "
+"gói Python được đưa vào ảnh có thể import theo tên; không cần gì đặc biệt "
+"tại nơi gọi."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:31
+msgid "Building an image"
+msgstr "Tạo ảnh"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:33
+msgid ""
+"ROMFS images are created, edited, and flashed through the IDE. Use it as the"
+" source of truth for the contents of every shipped ROMFS partition."
+msgstr ""
+"Ảnh ROMFS được tạo, chỉnh sửa, và nạp qua IDE. Hãy sử dụng nó làm nguồn "
+"thông tin chính xác cho nội dung của mọi phân vùng ROMFS xuất xưởng."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:37
+msgid ""
+"The reason this matters: model files come with alignment requirements that "
+"the loader at runtime enforces. ``.tflite`` files must be padded to 16-byte "
+"boundaries, and the N6's NPU requires 32-byte alignment for compiled models."
+" The IDE applies that padding automatically when it writes the image. Tools "
+"that walk the source tree without applying the padding -- ``mpremote romfs``"
+" in particular -- produce an image that mounts cleanly but whose models fail"
+" at the first inference call."
+msgstr ""
+"Lý do điều này quan trọng: tệp mô hình đi kèm với yêu cầu căn chỉnh mà bộ "
+"nạp thực thi lúc runtime. Tệp ``.tflite`` phải được đệm đến ranh giới 16 "
+"byte, và NPU của N6 yêu cầu căn chỉnh 32 byte cho các mô hình đã biên dịch. "
+"IDE áp dụng đệm đó tự động khi ghi ảnh. Các công cụ duyệt cây nguồn mà không"
+" áp dụng đệm -- đặc biệt là ``mpremote romfs`` -- tạo ra ảnh gắn kết sạch "
+"nhưng các mô hình của nó thất bại tại lần gọi suy luận đầu tiên."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:47
+msgid ""
+"The IDE's ROMFS editor is an interactive view of the image's contents. Files"
+" and folders can be added, renamed, and deleted in memory; saving writes the"
+" result out as an ``.img`` file ready to flash. A typical structure for an "
+"application that ships a model alongside some assets and a Python package "
+"looks like::"
+msgstr ""
+"Trình soạn thảo ROMFS của IDE là chế độ xem tương tác về nội dung của ảnh. "
+"Các tệp và thư mục có thể được thêm, đổi tên, và xóa trong bộ nhớ; lưu sẽ "
+"ghi kết quả ra dưới dạng tệp ``.img`` sẵn sàng để nạp. Cấu trúc điển hình "
+"cho ứng dụng xuất xưởng một mô hình cùng với một số tài nguyên và gói Python"
+" trông như::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:66
+msgid ""
+"Both the IDE and ``mpremote`` cross-compile ``.py`` files to ``.mpy`` "
+"bytecode on the way into a ROMFS image, so the cam imports them without "
+"paying the parse cost at load time. Source files in the editor stay ``.py``;"
+" the image contains ``.mpy``."
+msgstr ""
+"Cả IDE và ``mpremote`` đều biên dịch chéo các tệp ``.py`` thành bytecode "
+"``.mpy`` khi đưa vào ảnh ROMFS, nên camera import chúng mà không phải trả "
+"chi phí phân tích cú pháp tại thời điểm tải. Các tệp nguồn trong trình soạn "
+"thảo vẫn là ``.py``\\ ; ảnh chứa ``.mpy``\\ ."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:72
+msgid ""
+"Once the image is flashed, the tree is visible from MicroPython at "
+"``/rom/``::"
+msgstr "Khi ảnh đã được nạp, cây tệp hiển thị từ MicroPython tại ``/rom/``\\ ::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:83
+msgid "Most of the application lives in ROMFS"
+msgstr "Phần lớn ứng dụng nằm trong ROMFS"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:85
+msgid ""
+"ROMFS is the right home for almost everything an application ships: the "
+"libraries it imports, the model files it loads, the configuration it reads, "
+"any asset whose output came from a build tool that emits a file tree (model "
+"converters, image pipelines, asset packers), and -- importantly -- the "
+"application code itself."
+msgstr ""
+"ROMFS là nơi phù hợp cho hầu hết mọi thứ một ứng dụng xuất xưởng: các thư "
+"viện nó import, các tệp mô hình nó tải, cấu hình nó đọc, bất kỳ tài nguyên "
+"nào mà đầu ra đến từ một công cụ build phát ra cây tệp (bộ chuyển đổi mô "
+"hình, pipeline ảnh, packer tài nguyên), và -- quan trọng -- bản thân mã ứng "
+"dụng."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:92
+msgid ""
+"The frozen-modules side should stay small: ``boot.py`` for pre-REPL setup, "
+"``main.py`` as a thin entry point, and only the libraries the cam genuinely "
+"cannot boot without. Everything else goes in ROMFS, where iterating on it is"
+" a fresh ``.img`` saved out of the IDE and reflashed -- no firmware rebuild "
+"required, no toolchain on hand to do it."
+msgstr ""
+"Phần module đóng băng nên giữ nhỏ: ``boot.py`` cho thiết lập trước REPL, "
+"``main.py`` là điểm vào mỏng, và chỉ những thư viện mà camera thực sự không "
+"thể khởi động mà không có. Mọi thứ khác vào ROMFS, nơi việc lặp lại trên đó "
+"chỉ là lưu ``.img`` mới từ IDE và reflash -- không cần rebuild firmware, "
+"không cần toolchain để làm điều đó."
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:99
+msgid ""
+"The pattern that falls out is a ``main.py`` that does nothing but delegate "
+"into the ROMFS-resident application::"
+msgstr ""
+"Mẫu xuất hiện là một ``main.py`` không làm gì ngoài việc ủy quyền vào ứng "
+"dụng nằm trong ROMFS::"
+
+#: ../../openmvcam/tutorial/production/shipping/romfs-image.rst:110
+msgid ""
+"A change to ``app`` is a ROMFS edit and a reflash. The firmware build stays "
+"put for the lifetime of the product unless something on the frozen side "
+"actually has to change."
+msgstr ""
+"Một thay đổi đối với ``app`` là một chỉnh sửa ROMFS và một lần reflash. "
+"Build firmware không thay đổi trong suốt vòng đời sản phẩm trừ khi thứ gì đó"
+" ở phía đóng băng thực sự cần thay đổi."

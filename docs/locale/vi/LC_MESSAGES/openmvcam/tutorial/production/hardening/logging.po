@@ -1,0 +1,634 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:2
+msgid "Logging"
+msgstr "Ghi nhật ký"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:4
+msgid ""
+"A shipped product cannot phone home with :func:`print`. ``print()`` writes "
+"to USB stdout, which only exists when the cam is on a developer's bench with"
+" a terminal open. In the field nothing reads it; every line is dropped on "
+"the floor. The :mod:`logging` library is the replacement -- a level filter, "
+"a destination of the application's choice, and a format that says what "
+"happened and when."
+msgstr ""
+"Một sản phẩm đã xuất xưởng không thể gửi dữ liệu về máy chủ bằng "
+":func:`print`\\ . ``print()`` ghi vào stdout USB, chỉ tồn tại khi cam đang "
+"trên bàn của nhà phát triển với một terminal đang mở. Ở thực địa, không có "
+"gì đọc nó; mỗi dòng đều bị bỏ qua. Thư viện :mod:`logging` là sự thay thế --"
+" một bộ lọc mức độ, một đích đến do ứng dụng lựa chọn, và một định dạng cho "
+"biết điều gì đã xảy ra và khi nào."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:12
+msgid ""
+"The :mod:`logging` module on the cam is a slimmed port of CPython's -- same "
+"mental model, smaller surface, a few differences that matter for production "
+"setup."
+msgstr ""
+"Module :mod:`logging` trên cam là một bản port thu gọn từ CPython -- cùng mô"
+" hình tư duy, bề mặt nhỏ hơn, một vài điểm khác biệt quan trọng cho việc "
+"thiết lập môi trường sản xuất."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:17
+msgid "The mental model"
+msgstr "Mô hình tư duy"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:19
+msgid ""
+"Logging is built out of four pieces. Each piece has one job; the separation "
+"is what lets one logger fan out to multiple destinations, each with its own "
+"format and level:"
+msgstr ""
+"Ghi nhật ký được xây dựng từ bốn thành phần. Mỗi thành phần có một nhiệm vụ;"
+" sự tách biệt này cho phép một logger phân nhánh đến nhiều đích, mỗi đích có"
+" định dạng và mức độ riêng:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:23
+#, python-format
+msgid ""
+"A **Logger** is what the application calls. Code says ``log.info(\"frame "
+"%d\", n)``; the logger is the object that call lands on. Loggers are looked "
+"up by name with :func:`logging.getLogger`."
+msgstr ""
+"**Logger** là thứ ứng dụng gọi. Code viết ``log.info(\"frame %d\", n)``\\ ; "
+"logger là đối tượng mà lệnh gọi đó đến. Các logger được tra cứu theo tên "
+"bằng :func:`logging.getLogger`\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:28
+msgid ""
+"A **Handler** decides *where* a record goes. A "
+":class:`~logging.StreamHandler` writes to a stream (:data:`sys.stderr` by "
+"default); a :class:`~logging.FileHandler` appends to a file on disk. A "
+"logger can have any number of handlers."
+msgstr ""
+"**Handler** quyết định *nơi* một bản ghi đến. "
+":class:`~logging.StreamHandler` ghi vào một luồng (\\ :data:`sys.stderr` mặc"
+" định); :class:`~logging.FileHandler` thêm vào một tệp trên đĩa. Một logger "
+"có thể có bất kỳ số lượng handler nào."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:36
+msgid ""
+"On the cam, ``sys.stdout`` and ``sys.stderr`` are wired to the same USB CDC "
+"pipe -- writes to either show up on the same terminal a developer has open "
+"over USB. A handler that writes to ``sys.stderr`` is, in practice, a handler"
+" that writes to the same place ``print()`` writes to. The handler "
+"abstraction still gives you per-destination filtering and formatting; it "
+"just does not give you a physically separate channel."
+msgstr ""
+"Trên cam, ``sys.stdout`` và ``sys.stderr`` được nối vào cùng một đường ống "
+"USB CDC -- các lần ghi vào một trong hai đều hiển thị trên cùng terminal mà "
+"nhà phát triển đang mở qua USB. Một handler ghi vào ``sys.stderr`` thực chất"
+" là một handler ghi vào cùng nơi ``print()`` ghi vào. Sự trừu tượng hóa "
+"handler vẫn cho phép lọc và định dạng theo từng đích; chỉ là nó không cung "
+"cấp một kênh vật lý riêng biệt."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:45
+msgid ""
+"A **Formatter** decides *how* a record renders to text. It takes a record "
+"and returns the line that gets written. One format string per formatter; one"
+" formatter per handler."
+msgstr ""
+"**Formatter** quyết định *cách* một bản ghi được hiển thị thành văn bản. Nó "
+"nhận một bản ghi và trả về dòng được ghi. Một chuỗi định dạng mỗi formatter;"
+" một formatter mỗi handler."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:49
+msgid ""
+"A **level filter** sits on every logger and every handler. Records carry a "
+"level (``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``). Only "
+"records at or above the filter level pass through."
+msgstr ""
+"**Bộ lọc mức độ** nằm trên mỗi logger và mỗi handler. Các bản ghi mang một "
+"mức độ (\\ ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / ``CRITICAL``\\ "
+"). Chỉ các bản ghi ở mức độ bằng hoặc cao hơn mức lọc mới được thông qua."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:54
+msgid ""
+"That separation matters because a typical production setup has more than one"
+" destination: a file on the SD card that holds everything down to ``DEBUG`` "
+"for post-mortem analysis, and a stream to USB that surfaces only ``WARNING``"
+" and worse so a developer attached to the cam sees the highlights without "
+"drowning in detail. Same code, two destinations, two filters."
+msgstr ""
+"Sự tách biệt đó quan trọng vì một thiết lập sản xuất điển hình có nhiều hơn "
+"một đích: một tệp trên thẻ SD chứa tất cả mọi thứ từ ``DEBUG`` trở xuống cho"
+" phân tích sau sự cố, và một luồng đến USB chỉ hiển thị ``WARNING`` và "
+"nghiêm trọng hơn để nhà phát triển kết nối với cam thấy được điểm nổi bật mà"
+" không bị chìm trong chi tiết. Cùng một code, hai đích, hai bộ lọc."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:62
+msgid "Levels and what each one means"
+msgstr "Các mức độ và ý nghĩa của từng mức"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:64
+msgid ""
+"The five levels are an ordered scale. Records carry a level so that the "
+"filter on each handler can drop the ones it does not care about."
+msgstr ""
+"Năm mức độ là một thang đo có thứ tự. Các bản ghi mang một mức độ để bộ lọc "
+"trên mỗi handler có thể loại bỏ những bản ghi nó không quan tâm."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:68
+msgid ""
+"``DEBUG`` -- tracing, per-frame counters, internal state dumps. The lowest "
+"level; volume is high."
+msgstr ""
+"``DEBUG`` -- theo dõi, bộ đếm theo khung hình, kết xuất trạng thái nội bộ. "
+"Mức thấp nhất; khối lượng cao."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:70
+msgid ""
+"``INFO`` -- normal operational events. Wi-Fi connected, a model loaded, the "
+"watchdog started, a new log file rotated in."
+msgstr ""
+"``INFO`` -- các sự kiện vận hành bình thường. Wi-Fi đã kết nối, mô hình đã "
+"tải, watchdog đã khởi động, một tệp nhật ký mới đã được xoay vòng."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:73
+msgid ""
+"``WARNING`` -- something unexpected but the application handled it. A "
+"dropped frame, a retried network request."
+msgstr ""
+"``WARNING`` -- điều gì đó không mong đợi nhưng ứng dụng đã xử lý được. Một "
+"khung hình bị bỏ, một yêu cầu mạng đã thử lại."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:75
+msgid ""
+"``ERROR`` -- an operation failed and the application could not complete it. "
+"A model file missing, an SD-card write refused."
+msgstr ""
+"``ERROR`` -- một thao tác đã thất bại và ứng dụng không thể hoàn thành nó. "
+"Một tệp mô hình bị thiếu, một lần ghi thẻ SD bị từ chối."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:78
+msgid ""
+"``CRITICAL`` -- the application cannot continue at all. Out of memory, "
+"mandatory mount missing."
+msgstr ""
+"``CRITICAL`` -- ứng dụng hoàn toàn không thể tiếp tục. Hết bộ nhớ, thiếu "
+"điểm gắn kết bắt buộc."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:81
+msgid ""
+"One important default to remember: the cam's :mod:`logging` module starts "
+"every logger at ``WARNING``. Records at ``DEBUG`` and ``INFO`` are silently "
+"dropped unless :meth:`Logger.setLevel` is called -- usually as part of the "
+":func:`basicConfig` call below. A common first symptom of a logging setup "
+"that \"is not working\" is that the application emitted at ``INFO`` and the "
+"default filter ate the record."
+msgstr ""
+"Một mặc định quan trọng cần nhớ: module :mod:`logging` của cam khởi động mỗi"
+" logger ở mức ``WARNING``\\ . Các bản ghi ở ``DEBUG`` và ``INFO`` bị âm thầm"
+" loại bỏ trừ khi :meth:`Logger.setLevel` được gọi -- thường là trong lệnh "
+"gọi :func:`basicConfig` bên dưới. Triệu chứng đầu tiên phổ biến của một "
+"thiết lập ghi nhật ký \"không hoạt động\" là ứng dụng phát ở ``INFO`` và bộ "
+"lọc mặc định đã loại bỏ bản ghi."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:91
+msgid ""
+"Level is the only filter the cam's :mod:`logging` offers. There are no "
+":class:`Filter` objects for richer per-record rules; if a record's level "
+"passes, it is emitted."
+msgstr ""
+"Mức độ là bộ lọc duy nhất mà :mod:`logging` của cam cung cấp. Không có đối "
+"tượng :class:`Filter` cho các quy tắc phong phú hơn theo từng bản ghi; nếu "
+"mức độ của bản ghi vượt qua, nó sẽ được phát ra."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:97
+msgid "basicConfig: the quickstart"
+msgstr "basicConfig: bước khởi đầu nhanh"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:99
+msgid ""
+":func:`logging.basicConfig` configures the root logger in one call. Two "
+"shapes show up most:"
+msgstr ""
+":func:`logging.basicConfig` cấu hình root logger trong một lệnh gọi. Hai "
+"dạng thường xuất hiện nhất:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:102
+msgid "A development setup, everything to USB stderr at ``INFO``::"
+msgstr "Thiết lập phát triển, tất cả ra USB stderr ở mức ``INFO``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:108
+msgid ""
+"A production setup, everything to a file on the SD card with a timestamped "
+"format::"
+msgstr ""
+"Thiết lập sản xuất, tất cả vào một tệp trên thẻ SD với định dạng có dấu thời"
+" gian::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:119
+msgid ""
+"Pass either ``filename=`` for a :class:`FileHandler` or ``stream=`` for a "
+":class:`StreamHandler`; the two are mutually exclusive in "
+":func:`basicConfig`."
+msgstr ""
+"Truyền ``filename=`` cho :class:`FileHandler` hoặc ``stream=`` cho "
+":class:`StreamHandler`\\ ; hai tùy chọn này loại trừ lẫn nhau trong "
+":func:`basicConfig`\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:123
+#, python-format
+msgid ""
+"The format string is a ``%(field)s``-style template. The fields the cam's "
+"formatter supports:"
+msgstr ""
+"Chuỗi định dạng là một mẫu kiểu ``%(field)s``\\ . Các trường mà formatter "
+"của cam hỗ trợ:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:126
+#, python-format
+msgid ""
+"``%(asctime)s`` -- timestamp formatted from :func:`time.localtime`. Default "
+"format is ``%Y-%m-%d %H:%M:%S``; pass ``datefmt=`` to override."
+msgstr ""
+"``%(asctime)s`` -- dấu thời gian được định dạng từ :func:`time.localtime`\\ "
+". Định dạng mặc định là ``%Y-%m-%d %H:%M:%S``\\ ; truyền ``datefmt=`` để ghi"
+" đè."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:129
+#, python-format
+msgid ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``."
+msgstr ""
+"``%(levelname)s`` -- ``DEBUG`` / ``INFO`` / ``WARNING`` / ``ERROR`` / "
+"``CRITICAL``\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:131
+#, python-format
+msgid "``%(name)s`` -- the logger's name (see the next section)."
+msgstr "``%(name)s`` -- tên của logger (xem phần tiếp theo)."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:132
+#, python-format
+msgid "``%(message)s`` -- the record's formatted message."
+msgstr "``%(message)s`` -- thông điệp được định dạng của bản ghi."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:133
+#, python-format
+msgid "``%(msecs)d`` -- the millisecond fraction of the record's timestamp."
+msgstr "``%(msecs)d`` -- phần mili-giây của dấu thời gian bản ghi."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:136
+#, python-format
+msgid ""
+"The default format if none is given is "
+"``%(levelname)s:%(name)s:%(message)s`` -- which is fine for the development "
+"setup and inadequate for a field log, where the timestamp is what makes the "
+"file useful weeks later."
+msgstr ""
+"Định dạng mặc định nếu không có định dạng nào được cung cấp là "
+"``%(levelname)s:%(name)s:%(message)s`` -- phù hợp cho thiết lập phát triển "
+"và không đủ cho nhật ký thực địa, nơi dấu thời gian là thứ làm cho tệp hữu "
+"ích vài tuần sau."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:141
+msgid ""
+":func:`basicConfig` is a no-op on subsequent calls unless ``force=True`` is "
+"passed. Configure once at startup; do not call it again to \"switch "
+"destinations\" mid-run."
+msgstr ""
+":func:`basicConfig` là một lệnh không làm gì ở các lần gọi tiếp theo trừ khi"
+" ``force=True`` được truyền. Cấu hình một lần khi khởi động; không gọi lại "
+"để \"chuyển đích\" trong khi chạy."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:147
+msgid ""
+"The cam's :mod:`logging` has no :func:`dictConfig` or :func:`fileConfig`. "
+"Configuration is always programmatic -- one ``setup_logging()`` helper "
+"called once from ``main.py`` is the convention."
+msgstr ""
+"Cam's :mod:`logging` không có :func:`dictConfig` hay :func:`fileConfig`\\ . "
+"Cấu hình luôn theo chương trình -- một helper ``setup_logging()`` được gọi "
+"một lần từ ``main.py`` là quy ước."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:153
+msgid "Named loggers per module"
+msgstr "Logger được đặt tên theo module"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:155
+msgid ""
+"Application code should not call the module-level shortcuts "
+"(:func:`logging.info`, :func:`logging.warning`, and so on). Those all funnel"
+" through the root logger, and the resulting log records carry the name "
+"``root`` -- useless for telling *where* the record came from."
+msgstr ""
+"Code ứng dụng không nên gọi các phím tắt cấp module (\\ "
+":func:`logging.info`\\ , :func:`logging.warning`\\ , và các hàm tương tự). "
+"Tất cả chúng đều đi qua root logger, và các bản ghi nhật ký kết quả mang tên"
+" ``root`` -- vô dụng khi muốn biết *bản ghi đến từ đâu*\\ ."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:161
+msgid "The convention is one logger per module, named after the module::"
+msgstr "Quy ước là một logger mỗi module, đặt tên theo module::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:172
+#, python-format
+msgid ""
+"Every record then carries ``app.detector`` in ``%(name)s`` and the log line "
+"says who emitted it."
+msgstr ""
+"Mỗi bản ghi sau đó mang ``app.detector`` trong ``%(name)s`` và dòng nhật ký "
+"cho biết ai đã phát ra nó."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:175
+msgid ""
+"The cam's :mod:`logging` differs from CPython in one important way: the "
+"logger namespace is **flat**. ``getLogger('app')`` and "
+"``getLogger('app.detector')`` are independent loggers with no parent / child"
+" relationship -- setting a level on ``app`` does *not* propagate to "
+"``app.detector``. The mechanism that does work: a named logger with no "
+"handlers of its own borrows the root logger's handlers and level. That is "
+"how a single :func:`basicConfig` call on root sets up every "
+":func:`getLogger` call elsewhere in the application."
+msgstr ""
+"Cam's :mod:`logging` khác với CPython ở một điểm quan trọng: không gian tên "
+"logger là **phẳng**\\ . ``getLogger('app')`` và "
+"``getLogger('app.detector')`` là các logger độc lập không có quan hệ cha / "
+"con -- đặt mức độ trên ``app`` *không* lan truyền đến ``app.detector``\\ . "
+"Cơ chế hoạt động được: một logger được đặt tên không có handler của riêng nó"
+" sẽ mượn handler và mức độ của root logger. Đó là cách một lệnh gọi "
+":func:`basicConfig` duy nhất trên root thiết lập mọi lệnh gọi "
+":func:`getLogger` ở nơi khác trong ứng dụng."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:186
+msgid "Lazy %-arg formatting"
+msgstr "Định dạng %-arg lười biếng"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:188
+msgid "Write::"
+msgstr "Viết::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:192
+msgid "Not::"
+msgstr "Không viết::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:196
+msgid ""
+"The ``%``-arg form lets the logger interpolate the arguments *after* the "
+"level filter has decided whether to emit the record. A filtered-out "
+"``DEBUG`` call in a hot loop pays nothing for its format string. An f-string"
+" evaluates first, every time, before the call even reaches the logger."
+msgstr ""
+"Dạng ``%``\\ -arg cho phép logger nội suy các đối số *sau* khi bộ lọc mức độ"
+" đã quyết định có phát bản ghi hay không. Một lệnh gọi ``DEBUG`` bị lọc ra "
+"trong một vòng lặp nóng không tốn chi phí nào cho chuỗi định dạng của nó. "
+"Một f-string được đánh giá trước, mỗi lần, trước khi lệnh gọi ngay cả đến "
+"logger."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:202
+msgid ""
+"CPython's ``extra=`` keyword for structured fields is not supported on the "
+"cam; pass the values as message arguments instead."
+msgstr ""
+"Từ khóa ``extra=`` của CPython cho các trường có cấu trúc không được hỗ trợ "
+"trên cam; thay vào đó hãy truyền các giá trị dưới dạng đối số thông điệp."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:207
+msgid "Logging exceptions"
+msgstr "Ghi nhật ký ngoại lệ"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:209
+msgid ""
+"Inside an :keyword:`except` block, :meth:`Logger.exception` logs the message"
+" at ``ERROR`` level *and* appends the current exception's traceback to the "
+"record::"
+msgstr ""
+"Bên trong một khối :keyword:`except`\\ , :meth:`Logger.exception` ghi thông "
+"điệp ở mức ``ERROR`` *và* thêm traceback của ngoại lệ hiện tại vào bản ghi::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:220
+msgid ""
+"The traceback is captured via :func:`sys.print_exception`, which is what "
+"gives an exception log its multi-line ``Traceback (most recent call last):``"
+" block. This is the right tool for top-level exception handling -- catch, "
+"log, and carry on."
+msgstr ""
+"Traceback được thu thập qua :func:`sys.print_exception`\\ , đó là thứ tạo ra"
+" khối ``Traceback (most recent call last):`` nhiều dòng của nhật ký ngoại "
+"lệ. Đây là công cụ phù hợp cho xử lý ngoại lệ cấp cao nhất -- bắt, ghi nhật "
+"ký, và tiếp tục."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:227
+msgid "Multiple handlers"
+msgstr "Nhiều handler"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:229
+msgid ""
+"The production split mentioned at the top -- everything to a file at "
+"``DEBUG``, highlights to stderr at ``WARNING`` -- is two handlers attached "
+"to the same logger, each with its own level and formatter::"
+msgstr ""
+"Sự phân chia sản xuất đã đề cập ở đầu -- tất cả vào một tệp ở mức "
+"``DEBUG``\\ , điểm nổi bật ra stderr ở mức ``WARNING`` -- là hai handler gắn"
+" vào cùng một logger, mỗi cái có mức độ và formatter riêng::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:251
+msgid ""
+"The root logger's level is the *first* filter every record hits. Set it to "
+"the lowest level any handler wants to see -- ``DEBUG`` here -- so neither "
+"handler is starved by the logger itself. The per-handler levels then decide "
+"which records actually get emitted to which destination."
+msgstr ""
+"Mức độ của root logger là bộ lọc *đầu tiên* mà mỗi bản ghi gặp phải. Đặt nó "
+"ở mức thấp nhất mà bất kỳ handler nào muốn thấy -- ``DEBUG`` ở đây -- để "
+"không handler nào bị bỏ đói bởi chính logger. Sau đó các mức độ per-handler "
+"quyết định bản ghi nào thực sự được phát ra đến đích nào."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:258
+msgid "Rotating log files"
+msgstr "Xoay vòng tệp nhật ký"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:260
+msgid ""
+"The cam's :mod:`logging` does not have :class:`RotatingFileHandler` or "
+":class:`TimedRotatingFileHandler`. Rotation is the application's job."
+msgstr ""
+"Cam's :mod:`logging` không có :class:`RotatingFileHandler` hay "
+":class:`TimedRotatingFileHandler`\\ . Xoay vòng là công việc của ứng dụng."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:265
+msgid ""
+"The pattern is to keep the current :class:`FileHandler` in a known place, "
+"swap it for a new one when the rollover criterion fires, and let a dated "
+"path provide the natural file boundary. For an hourly rollover into "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``::"
+msgstr ""
+"Mẫu là giữ :class:`FileHandler` hiện tại ở một nơi đã biết, hoán đổi nó với "
+"một cái mới khi tiêu chí xoay vòng kích hoạt, và để một đường dẫn có ngày "
+"tháng cung cấp ranh giới tệp tự nhiên. Cho xoay vòng hàng giờ vào "
+"``/sdcard/logs/<year>/<month>/<day>/<hour>.log``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:299
+msgid ""
+"Call ``rotate_if_needed()`` once per main-loop iteration; the path check is "
+"cheap and the swap only happens at the hour boundary. The directory tree "
+"must exist before :class:`FileHandler` can open the file."
+msgstr ""
+"Gọi ``rotate_if_needed()`` một lần mỗi vòng lặp chính; kiểm tra đường dẫn rẻ"
+" và việc hoán đổi chỉ xảy ra tại ranh giới giờ. Cây thư mục phải tồn tại "
+"trước khi :class:`FileHandler` có thể mở tệp."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:305
+msgid "Flushing on power-sensitive deployments"
+msgstr "Xả bộ đệm trên các triển khai nhạy cảm với nguồn điện"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:307
+msgid ""
+":class:`FileHandler` writes go through the underlying file object's Python "
+"buffering. A power loss between a write and a flush loses the trailing "
+"records. For battery-powered or pull-the-plug deployments, call ``flush()`` "
+"on the handler's stream after critical records, or on a timer."
+msgstr ""
+"Các lần ghi :class:`FileHandler` đi qua bộ đệm Python của đối tượng tệp bên "
+"dưới. Mất nguồn điện giữa một lần ghi và một lần xả bộ đệm sẽ mất các bản "
+"ghi cuối cùng. Đối với các triển khai dùng pin hoặc rút nguồn đột ngột, hãy "
+"gọi ``flush()`` trên luồng của handler sau các bản ghi quan trọng, hoặc theo"
+" bộ định thời."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:313
+msgid ""
+"A small helper that flushes every handler attached to the root logger::"
+msgstr "Một helper nhỏ xả bộ đệm mọi handler gắn với root logger::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:323
+msgid ""
+"Call ``flush_handlers()`` right after a record the application cannot afford"
+" to lose::"
+msgstr ""
+"Gọi ``flush_handlers()`` ngay sau một bản ghi mà ứng dụng không thể để mất::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:329
+msgid ""
+"For background safety, call it from the main loop on whatever cadence "
+"balances log freshness against flash wear -- once a second is usually "
+"plenty. :meth:`Logger.critical` does *not* trigger a flush by itself."
+msgstr ""
+"Để an toàn trong nền, hãy gọi nó từ vòng lặp chính theo nhịp cân bằng giữa "
+"độ tươi của nhật ký và độ hao mòn flash -- một lần mỗi giây thường là đủ. "
+":meth:`Logger.critical` *không* tự kích hoạt xả bộ đệm."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:335
+msgid "Boot-time diagnostics"
+msgstr "Chẩn đoán lúc khởi động"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:337
+msgid ""
+"A field log without context is nearly useless. The first records on every "
+"cold boot should identify *which* cam, *what build* is running, and *how* "
+"the cam got to this boot. Three on-device sources between them cover all of "
+"that:"
+msgstr ""
+"Một nhật ký thực địa không có ngữ cảnh gần như vô dụng. Các bản ghi đầu tiên"
+" mỗi lần khởi động lạnh nên xác định *cam nào*\\ , *bản build nào* đang "
+"chạy, và *cách* cam đến lần khởi động này. Ba nguồn trên thiết bị cùng nhau "
+"bao gồm tất cả những điều đó:"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:342
+msgid ":mod:`omv` -- the OpenMV firmware version."
+msgstr ":mod:`omv` -- phiên bản firmware OpenMV."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:343
+msgid ""
+":func:`os.uname` -- MicroPython version, board name + MCU, and the git tag "
+"and build date of the source the firmware was built from."
+msgstr ""
+":func:`os.uname` -- phiên bản MicroPython, tên bo mạch + MCU, và tag git và "
+"ngày build của mã nguồn mà firmware được xây dựng từ đó."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:346
+msgid ""
+":mod:`machine` -- the MCU's unique silicon ID and the reset cause that "
+"triggered this boot."
+msgstr ""
+":mod:`machine` -- ID silicon duy nhất của MCU và nguyên nhân reset đã kích "
+"hoạt lần khởi động này."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:348
+msgid ""
+":func:`os.listdir` against each mount point -- the filesystems that actually"
+" came up."
+msgstr ""
+":func:`os.listdir` đối với từng điểm gắn kết -- các hệ thống tệp thực sự đã "
+"khởi động."
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:351
+msgid ""
+"A helper that pulls every one of those into the first records of the log::"
+msgstr ""
+"Một helper kéo tất cả những điều đó vào các bản ghi đầu tiên của nhật ký::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:389
+msgid "A typical log opens with something like::"
+msgstr "Một nhật ký điển hình mở đầu với nội dung như::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:400
+msgid ""
+"Eight lines into every log file, the operator knows the physical unit, the "
+"firmware lineage, why the cam booted, and which storage came up. ``unique "
+"id`` is the MCU's factory-programmed silicon serial number; it is the same "
+"across reflashes and across SD-card swaps. ``build`` is the git tag and date"
+" of the firmware tree the image was built from -- the single field that says"
+" \"this is exactly the binary that shipped to this unit at this point in "
+"time.\""
+msgstr ""
+"Tám dòng đầu mỗi tệp nhật ký, người vận hành biết đơn vị vật lý, dòng dõi "
+"firmware, lý do cam khởi động, và bộ nhớ nào đã khởi động. ``unique id`` là "
+"số sê-ri silicon được lập trình tại nhà máy của MCU; nó giống nhau qua các "
+"lần nạp lại firmware và qua các lần đổi thẻ SD. ``build`` là tag git và ngày"
+" của cây firmware mà ảnh được xây dựng từ đó -- trường duy nhất nói rằng "
+"\"đây chính xác là nhị phân được giao đến đơn vị này tại thời điểm này.\""
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:410
+msgid "Putting it together"
+msgstr "Kết hợp lại"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:412
+msgid ""
+"A complete production logging setup, factored into a helper that ``main.py``"
+" calls once at startup::"
+msgstr ""
+"Một thiết lập ghi nhật ký sản xuất hoàn chỉnh, được tổ chức vào một helper "
+"mà ``main.py`` gọi một lần khi khởi động::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:433
+msgid "Then at the top of ``main.py``::"
+msgstr "Sau đó ở đầu ``main.py``\\ ::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:440
+msgid "Every module elsewhere in the application just does::"
+msgstr "Mỗi module khác trong ứng dụng chỉ cần làm::"
+
+#: ../../openmvcam/tutorial/production/hardening/logging.rst:446
+msgid ""
+"and gets the configured output for free -- file with full detail, stream "
+"with warnings, named records, timestamped formatter, and a documented boot "
+"every cold start."
+msgstr ""
+"và nhận được kết quả đầu ra đã cấu hình miễn phí -- tệp với chi tiết đầy đủ,"
+" luồng với các cảnh báo, bản ghi được đặt tên, formatter có dấu thời gian, "
+"và một lần khởi động được ghi lại mỗi lần khởi động lạnh."

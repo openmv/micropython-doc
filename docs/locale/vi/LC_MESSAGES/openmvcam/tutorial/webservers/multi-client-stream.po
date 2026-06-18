@@ -1,0 +1,160 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:2
+msgid "Sharing one capture loop across viewers"
+msgstr "Chia sẻ một vòng lặp capture cho nhiều người xem"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:4
+msgid ""
+"Each connected client calling ``csi0.snapshot()`` independently is wasteful,"
+" and once two streams are open at once it gets worse: the sensor delivers "
+"frames at its own rate, and every duplicated capture slows everybody down. "
+"The right approach is one capture coroutine that publishes \"the latest "
+"frame\" to a shared slot, plus per-client iterators that read from the slot."
+msgstr ""
+"Mỗi client kết nối gọi ``csi0.snapshot()`` độc lập là lãng phí, và khi có "
+"hai luồng mở cùng lúc thì còn tệ hơn: cảm biến cung cấp khung hình theo tốc "
+"độ của chính nó, và mỗi lần capture trùng lặp làm chậm tất cả mọi người. "
+"Cách tiếp cận đúng là một coroutine capture duy nhất xuất bản \"khung hình "
+"mới nhất\" vào một slot dùng chung, cộng với các iterator trên mỗi client "
+"đọc từ slot đó."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:11
+msgid ""
+"One capture task writes JPEG bytes to a single latest_jpeg\n"
+"slot; three stream-client iterators read from the slot and\n"
+"each wait on the shared new_frame event."
+msgstr ""
+"Một capture task ghi các byte JPEG vào một slot latest_jpeg\n"
+"duy nhất; ba iterator stream-client đọc từ slot và\n"
+"mỗi iterator chờ trên sự kiện new_frame dùng chung."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:11
+msgid ".. image:: figures/shared-capture-loop.svg"
+msgstr ".. image:: figures/shared-capture-loop.svg"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:18
+msgid "The capture task"
+msgstr "Capture task"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:20
+msgid ""
+"A background coroutine grabs frames as fast as the sensor delivers them, "
+"JPEG-compresses each one into a shared ``bytes``, and pulses an event so any"
+" waiting client wakes up:"
+msgstr ""
+"Một coroutine nền lấy khung hình nhanh nhất khi cảm biến cung cấp, nén JPEG "
+"từng cái vào một ``bytes`` dùng chung, và phát tín hiệu sự kiện để bất kỳ "
+"client nào đang chờ đều thức dậy:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:37
+msgid ""
+"The ``set()`` / ``clear()`` pair is the *pulse* pattern. ``set()`` unblocks "
+"every coroutine currently waiting on the event in one go; ``clear()`` "
+"immediately resets the event so the next ``wait()`` blocks again. With "
+"multiple consumers (a viewer, another viewer, any other coroutine that needs"
+" to react to a new frame), no single consumer is responsible for resetting "
+"the event, and nobody steals a wake-up from anybody else."
+msgstr ""
+"Cặp ``set()`` / ``clear()`` là pattern *pulse*\\ . ``set()`` giải phóng mọi "
+"coroutine hiện đang chờ trên sự kiện cùng lúc; ``clear()`` ngay lập tức "
+"reset sự kiện để lần ``wait()`` tiếp theo sẽ bị chặn lại. Với nhiều consumer"
+" (một người xem, một người xem khác, bất kỳ coroutine nào khác cần phản ứng "
+"với khung hình mới), không có consumer đơn lẻ nào chịu trách nhiệm reset sự "
+"kiện, và không ai chiếm mất tín hiệu thức dậy của người khác."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:47
+msgid ""
+"The ``bytes(...)`` wrap around the JPEG is load-bearing here. "
+":meth:`~image.Image.bytearray` returns a view into the camera's image "
+"buffer; the very next :meth:`~csi.CSI.snapshot` call rewrites that buffer in"
+" place with the next frame. ``latest_jpeg`` outlives the local ``img``, so "
+"without the copy every reader would see the slot shift under them on every "
+"capture."
+msgstr ""
+"Việc bọc ``bytes(...)`` quanh JPEG là thiết yếu ở đây. "
+":meth:`~image.Image.bytearray` trả về một view vào bộ đệm ảnh của camera; "
+"lần gọi :meth:`~csi.CSI.snapshot` ngay tiếp theo sẽ ghi đè bộ đệm đó tại chỗ"
+" với khung hình tiếp theo. ``latest_jpeg`` tồn tại lâu hơn biến cục bộ "
+"``img``\\ , vì vậy nếu không sao chép thì mọi reader sẽ thấy slot thay đổi "
+"dưới chân mình sau mỗi lần capture."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:56
+msgid "Per-client iterators read from the slot"
+msgstr "Iterator trên mỗi client đọc từ slot"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:58
+msgid ""
+"The MJPEG stream handler stops calling ``csi0.snapshot()`` itself. Instead, "
+"each ``FrameStream`` instance waits on the shared event and reads from the "
+"shared bytes:"
+msgstr ""
+"Handler luồng MJPEG không còn tự gọi ``csi0.snapshot()``\\ . Thay vào đó, "
+"mỗi instance ``FrameStream`` chờ trên sự kiện dùng chung và đọc từ bytes "
+"dùng chung:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:80
+msgid ""
+"The snapshot route changes too: it no longer triggers a capture, it returns "
+"whatever ``latest_jpeg`` currently holds:"
+msgstr ""
+"Route snapshot cũng thay đổi: nó không còn kích hoạt capture nữa, nó trả về "
+"bất cứ thứ gì ``latest_jpeg`` hiện đang giữ:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:94
+msgid ""
+"The ``(body, status)`` tuple is microdot's shorthand for setting an HTTP "
+"status code without constructing a :class:`microdot.Response`. 503 says *I'm"
+" here but not ready* -- the right code for \"ask again in a moment.\""
+msgstr ""
+"Tuple ``(body, status)`` là cú pháp tắt của microdot để đặt HTTP status code"
+" mà không cần xây dựng một :class:`microdot.Response`\\ . 503 có nghĩa là "
+"*Tôi đang ở đây nhưng chưa sẵn sàng* -- mã đúng cho trường hợp \"hỏi lại sau"
+" một lúc\"."
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:100
+msgid "Running capture alongside the server"
+msgstr "Chạy capture song song với server"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:102
+msgid ""
+"``main`` now has two top-level coroutines: the capture loop and the HTTP "
+"server. :func:`asyncio.gather` runs them both, and if either crashes the "
+"other is cancelled:"
+msgstr ""
+"``main`` giờ có hai coroutine cấp cao nhất: vòng lặp capture và HTTP server."
+" :func:`asyncio.gather` chạy cả hai, và nếu một cái bị crash thì cái kia sẽ "
+"bị hủy:"
+
+#: ../../openmvcam/tutorial/webservers/multi-client-stream.rst:116
+msgid ""
+"Now the sensor reads one frame per cycle no matter how many viewers are "
+"connected. The first browser to ``/stream.jpg`` sees frames; so does the "
+"second, the third, the tenth -- they all share the same capture, and the cam"
+" stays as responsive on its other routes."
+msgstr ""
+"Giờ đây cảm biến đọc một khung hình mỗi chu kỳ bất kể có bao nhiêu người xem"
+" đang kết nối. Trình duyệt đầu tiên vào ``/stream.jpg`` thấy khung hình; "
+"trình duyệt thứ hai, thứ ba, thứ mười cũng vậy -- tất cả đều chia sẻ cùng "
+"một capture, và cam vẫn phản hồi tốt trên các route khác của nó."

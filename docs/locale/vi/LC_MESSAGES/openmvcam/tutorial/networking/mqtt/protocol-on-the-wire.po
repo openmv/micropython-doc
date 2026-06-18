@@ -1,0 +1,447 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: vi <LL@li.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:2
+msgid "MQTT, byte by byte"
+msgstr "MQTT, từng byte một"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:4
+msgid ""
+"By this point the cam has every piece it needs to talk to a real service on "
+"the open internet: a TCP socket, TLS to wrap it, DNS to name the peer, and "
+"asyncio to let the same script do other work while the connection is open. "
+"MQTT is the first wire protocol that pulls all of those together into "
+"something a deployed product actually uses."
+msgstr ""
+"Đến đây, camera đã có đủ mọi thứ cần thiết để giao tiếp với một dịch vụ thực"
+" sự trên internet: một TCP socket, TLS để bảo vệ kết nối, DNS để tra cứu địa"
+" chỉ đối tác, và asyncio để cho phép cùng một tập lệnh thực hiện các công "
+"việc khác trong khi kết nối đang mở. MQTT là giao thức dây đầu tiên kết hợp "
+"tất cả những thứ đó thành thứ gì đó mà một sản phẩm triển khai thực sự sử "
+"dụng."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:11
+msgid ""
+"This page covers the protocol itself -- the on-the-wire format, the roles "
+"each participant plays, and the trade-offs in its design -- honestly enough "
+"that the bundled :mod:`mqtt` client looks like an obvious wrapping of what's"
+" already known instead of a leap of faith."
+msgstr ""
+"Trang này đề cập đến bản thân giao thức -- định dạng trên đường truyền, vai "
+"trò mà mỗi bên tham gia đóng, và các đánh đổi trong thiết kế của nó -- đủ "
+"trung thực để client :mod:`mqtt` đi kèm trông như một lớp bọc hiển nhiên của"
+" những gì đã biết thay vì một bước nhảy vọt của niềm tin."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:17
+msgid "Pub/sub vs request/response"
+msgstr "Pub/sub so với request/response"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:19
+msgid ""
+"HTTP -- the protocol most cam projects reach for first -- is "
+"*request/response*. A client asks a specific server for a specific resource;"
+" the server answers. Every exchange is one-to-one, and both ends know each "
+"other's address in advance."
+msgstr ""
+"HTTP -- giao thức mà hầu hết các dự án camera tiếp cận đầu tiên -- là "
+"*request/response*\\ . Một client yêu cầu một tài nguyên cụ thể từ một máy "
+"chủ cụ thể; máy chủ trả lời. Mỗi trao đổi là một-một, và cả hai đầu đều biết"
+" địa chỉ của nhau từ trước."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:24
+msgid ""
+"MQTT is *publish/subscribe*. Clients connect to a third party in the middle "
+"called the **broker**. A *publisher* sends a message to a named **topic** "
+"without knowing or caring who is listening. A *subscriber* tells the broker "
+"which topics it wants and receives every message published to those topics "
+"afterwards. The broker is the fan-out: one publish on ``yard-cam/motion`` "
+"reaches every device subscribed to ``yard-cam/motion``, even if there are "
+"zero, one, or fifty of them."
+msgstr ""
+"MQTT là *publish/subscribe*\\ . Các client kết nối đến một bên thứ ba ở giữa"
+" gọi là **broker**\\ . Một *publisher* gửi thông điệp đến một **topic** được"
+" đặt tên mà không cần biết hay quan tâm ai đang lắng nghe. Một *subscriber* "
+"thông báo cho broker những topic nó muốn và nhận mọi thông điệp được công bố"
+" đến những topic đó. Broker là bộ phân phối: một lần publish trên ``yard-"
+"cam/motion`` sẽ đến mọi thiết bị đã subscribe ``yard-cam/motion``\\ , dù có "
+"không, một hay năm mươi thiết bị như vậy."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:33
+msgid "Three things follow from that change of model:"
+msgstr "Ba điều theo sau từ sự thay đổi mô hình đó:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:35
+msgid ""
+"**Decoupling.** Publishers don't have to know subscribers exist. Subscribers"
+" can come and go without the publisher noticing. Adding a second dashboard "
+"is one line of code on the new dashboard; the cam doesn't change."
+msgstr ""
+"**Tách rời.** Các publisher không cần biết subscriber tồn tại. Subscriber có"
+" thể đến và đi mà publisher không nhận thấy. Thêm một dashboard thứ hai chỉ "
+"cần một dòng code trên dashboard mới; camera không thay đổi."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:39
+msgid ""
+"**Fan-out.** The broker handles every duplicate, so the cam sends one packet"
+" regardless of how many devices read it. That's the use case MQTT was built "
+"for."
+msgstr ""
+"**Fan-out.** Broker xử lý mọi bản sao, nên camera chỉ gửi một gói tin bất kể"
+" có bao nhiêu thiết bị đọc nó. Đó là trường hợp sử dụng mà MQTT được xây "
+"dựng cho."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:42
+msgid ""
+"**Asymmetry.** The broker is now a required piece of infrastructure -- "
+"without one, the protocol doesn't work. For home projects this is usually a "
+"free public broker (``test.mosquitto.org``, ``broker.hivemq.com``) or a "
+"small one you run yourself."
+msgstr ""
+"**Bất đối xứng.** Broker bây giờ là một thành phần cơ sở hạ tầng bắt buộc --"
+" không có nó, giao thức không hoạt động. Đối với các dự án tại nhà, đây "
+"thường là một broker công cộng miễn phí (\\ ``test.mosquitto.org``\\ , "
+"``broker.hivemq.com``\\ ) hoặc một broker nhỏ bạn tự chạy."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ""
+"One cam publishing to a yard-cam/motion topic on a broker\n"
+"while two browser dashboards and one cloud archiver each\n"
+"receive the same message."
+msgstr ""
+"Một camera publish đến topic yard-cam/motion trên một broker\n"
+"trong khi hai browser dashboard và một cloud archiver mỗi cái\n"
+"nhận cùng một thông điệp."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:47
+msgid ".. image:: figures/mqtt-fanout.svg"
+msgstr ".. image:: figures/mqtt-fanout.svg"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:54
+msgid "Topics"
+msgstr "Topics"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:56
+msgid ""
+"Topics are slash-separated strings. The convention is most-general on the "
+"left, most-specific on the right::"
+msgstr ""
+"Các topic là các chuỗi được phân tách bằng dấu gạch chéo. Quy ước là tổng "
+"quát nhất ở bên trái, cụ thể nhất ở bên phải::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:64
+msgid "Two wildcards work in *subscriptions* (not in publishes):"
+msgstr ""
+"Hai ký tự đại diện hoạt động trong *subscription* (không phải trong "
+"publish):"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:66
+msgid ""
+"``+`` matches a single level. ``+/motion`` subscribes to every cam's motion "
+"topic; ``yard-cam/+`` subscribes to every yard-cam sub-topic."
+msgstr ""
+"``+`` khớp với một cấp đơn. ``+/motion`` subscribe đến topic motion của mọi "
+"camera; ``yard-cam/+`` subscribe đến mọi sub-topic của yard-cam."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:69
+msgid ""
+"``#`` matches one or more trailing levels. ``yard-cam/#`` subscribes to "
+"``yard-cam/motion``, ``yard-cam/temperature``, ``yard-"
+"cam/temperature/sensor-3``, and anything else under ``yard-cam/``. It must "
+"appear at the end of the subscription."
+msgstr ""
+"``#`` khớp với một hoặc nhiều cấp cuối. ``yard-cam/#`` subscribe đến ``yard-"
+"cam/motion``\\ , ``yard-cam/temperature``\\ , ``yard-"
+"cam/temperature/sensor-3``\\ , và bất cứ thứ gì khác dưới ``yard-cam/``\\ . "
+"Nó phải xuất hiện ở cuối subscription."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:74
+msgid ""
+"Topic strings are case-sensitive. Per the spec a leading ``$`` marks broker-"
+"internal topics (``$SYS/...``) that publishers should not write to."
+msgstr ""
+"Các chuỗi topic phân biệt chữ hoa chữ thường. Theo spec, ``$`` dẫn đầu đánh "
+"dấu các topic nội bộ của broker (\\ ``$SYS/...``\\ ) mà các publisher không "
+"nên ghi vào."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:79
+msgid "The packet format"
+msgstr "Định dạng gói tin"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:81
+msgid ""
+"MQTT runs over TCP. Every control packet starts with a one-byte *fixed "
+"header* followed by a variable-length *Remaining Length* field, then a "
+"packet-type-specific *variable header*, then the *payload*. The same outer "
+"format covers every command -- CONNECT, PUBLISH, SUBSCRIBE, PUBACK, "
+"DISCONNECT, and the rest -- which is why an MQTT client can be written in a "
+"few hundred lines."
+msgstr ""
+"MQTT chạy trên TCP. Mỗi gói tin điều khiển bắt đầu bằng một byte *fixed "
+"header* theo sau là trường *Remaining Length* có độ dài biến đổi, sau đó là "
+"*variable header* dành riêng cho từng loại gói tin, rồi đến *payload*\\ . "
+"Cùng một định dạng bên ngoài bao gồm mọi lệnh -- CONNECT, PUBLISH, "
+"SUBSCRIBE, PUBACK, DISCONNECT, và các lệnh khác -- đó là lý do tại sao một "
+"MQTT client có thể được viết trong vài trăm dòng."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ""
+"The byte layout of an MQTT PUBLISH packet showing the\n"
+"fixed-header type and flags byte, the variable-length\n"
+"Remaining Length field, the topic name, the optional packet\n"
+"identifier, and the payload bytes."
+msgstr ""
+"Bố cục byte của một gói tin MQTT PUBLISH cho thấy\n"
+"byte loại và cờ của fixed-header, trường Remaining Length\n"
+"có độ dài biến đổi, tên topic, packet identifier tùy chọn,\n"
+"và các byte payload."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:88
+msgid ".. image:: figures/mqtt-publish-packet.svg"
+msgstr ".. image:: figures/mqtt-publish-packet.svg"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:95
+msgid "The fixed header is one byte:"
+msgstr "Fixed header có một byte:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:97
+msgid ""
+"Bits 7..4 are the **control packet type**. ``0x3`` is PUBLISH (so the first "
+"byte usually starts ``0x3?``). ``0x1`` is CONNECT, ``0x2`` CONNACK, ``0x8`` "
+"SUBSCRIBE, ``0xC`` PINGREQ, ``0xE`` DISCONNECT, etc."
+msgstr ""
+"Các bit 7..4 là **loại gói tin điều khiển**\\ . ``0x3`` là PUBLISH (vì vậy "
+"byte đầu tiên thường bắt đầu bằng ``0x3?``\\ ). ``0x1`` là CONNECT, ``0x2`` "
+"là CONNACK, ``0x8`` là SUBSCRIBE, ``0xC`` là PINGREQ, ``0xE`` là DISCONNECT,"
+" v.v."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:101
+msgid ""
+"Bits 3..0 are packet-type-specific **flags**. For PUBLISH the flags encode "
+"the DUP retransmit flag, the QoS level (2 bits), and the RETAIN flag."
+msgstr ""
+"Các bit 3..0 là **cờ** dành riêng cho loại gói tin. Đối với PUBLISH, các cờ "
+"mã hóa cờ DUP retransmit, mức QoS (2 bit), và cờ RETAIN."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:105
+msgid ""
+"The Remaining Length is a 1-to-4-byte variable-length integer that counts "
+"every byte after itself. Each byte's top bit is a continuation marker -- 1 "
+"means \"another length byte follows\", 0 means \"this is the last\". A "
+"length under 128 fits in one byte; larger payloads use more. The maximum "
+"encoded length is 256 MiB."
+msgstr ""
+"Remaining Length là một số nguyên có độ dài biến đổi 1 đến 4 byte đếm mọi "
+"byte sau chính nó. Bit đầu của mỗi byte là marker tiếp nối -- 1 nghĩa là "
+"\"còn một byte độ dài nữa\", 0 nghĩa là \"đây là byte cuối cùng\". Độ dài "
+"dưới 128 vừa với một byte; các payload lớn hơn dùng nhiều byte hơn. Độ dài "
+"mã hóa tối đa là 256 MiB."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:111
+msgid ""
+"For a PUBLISH the variable header is the topic name -- a 2-byte length, then"
+" UTF-8 bytes -- followed by a 2-byte *packet identifier* that only exists "
+"when QoS is 1 or 2. The remaining bytes are the payload, treated as opaque "
+"bytes by the protocol."
+msgstr ""
+"Đối với một PUBLISH, variable header là tên topic -- 2 byte độ dài, rồi các "
+"byte UTF-8 -- theo sau là 2 byte *packet identifier* chỉ tồn tại khi QoS là "
+"1 hoặc 2. Các byte còn lại là payload, được giao thức coi như các byte mờ "
+"đục."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:116
+msgid "A minimal QoS-0 PUBLISH of ``ok`` to ``a/b`` is::"
+msgstr "Một gói tin PUBLISH QoS-0 tối giản của ``ok`` đến ``a/b`` là::"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:120
+msgid "``30`` -- PUBLISH, all flags zero."
+msgstr "``30`` -- PUBLISH, tất cả cờ bằng không."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:121
+msgid "``07`` -- 7 bytes follow."
+msgstr "``07`` -- 7 byte theo sau."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:122
+msgid "``00 03`` -- topic length 3."
+msgstr "``00 03`` -- độ dài topic là 3."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:123
+msgid "``'a' '/' 'b'`` -- topic."
+msgstr "``'a' '/' 'b'`` -- topic."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:124
+msgid "``'o' 'k'`` -- payload."
+msgstr "``'o' 'k'`` -- payload."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:126
+msgid ""
+"Nine bytes on the wire and the message lands at every subscriber to ``a/b`` "
+"on the broker."
+msgstr ""
+"Chín byte trên đường truyền và thông điệp đến mọi subscriber của ``a/b`` "
+"trên broker."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:130
+msgid "QoS levels"
+msgstr "Các mức QoS"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:132
+msgid ""
+"Quality-of-Service controls how hard the broker (and client) work to ensure "
+"delivery. The three levels:"
+msgstr ""
+"Quality-of-Service kiểm soát mức độ nỗ lực mà broker (và client) thực hiện "
+"để đảm bảo giao hàng. Ba mức:"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:135
+msgid ""
+"**QoS 0 -- at most once.** Fire and forget. The PUBLISH packet is sent and "
+"never confirmed. If TCP delivers, the broker forwards. If the connection "
+"drops mid-send, the message is gone. Most sensor telemetry is fine at QoS 0 "
+"-- a single missed temperature reading in a stream that emits every 30 "
+"seconds doesn't matter."
+msgstr ""
+"**QoS 0 -- nhiều nhất một lần.** Gửi và quên. Gói tin PUBLISH được gửi đi và"
+" không bao giờ được xác nhận. Nếu TCP giao hàng, broker chuyển tiếp. Nếu kết"
+" nối bị ngắt trong khi gửi, thông điệp mất. Hầu hết dữ liệu telemetry từ cảm"
+" biến là ổn với QoS 0 -- một lần đọc nhiệt độ bị bỏ lỡ trong một luồng phát "
+"mỗi 30 giây không quan trọng."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:141
+msgid ""
+"**QoS 1 -- at least once.** The publisher includes a packet identifier and "
+"waits for a PUBACK. If no PUBACK arrives before a timeout, the publisher "
+"retransmits with the DUP flag set. The broker may end up delivering the same"
+" message twice to a subscriber on the same level; the subscriber has to be "
+"willing to handle duplicates."
+msgstr ""
+"**QoS 1 -- ít nhất một lần.** Publisher bao gồm một packet identifier và chờ"
+" PUBACK. Nếu không có PUBACK đến trước khi hết thời gian, publisher phát lại"
+" với cờ DUP được đặt. Broker có thể giao cùng một thông điệp hai lần cho một"
+" subscriber ở cùng mức; subscriber phải sẵn sàng xử lý các bản sao."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:148
+msgid ""
+"**QoS 2 -- exactly once.** A four-step handshake (PUBREC / PUBREL / PUBCOMP)"
+" makes sure the message lands exactly once, even across reconnects. "
+"Expensive in round-trips and broker state. Few cam apps need it."
+msgstr ""
+"**QoS 2 -- đúng một lần.** Bắt tay bốn bước (PUBREC / PUBREL / PUBCOMP) đảm "
+"bảo thông điệp đến đúng một lần, ngay cả sau khi kết nối lại. Tốn kém về "
+"round-trip và trạng thái broker. Ít ứng dụng camera nào cần nó."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:153
+msgid ""
+"The bundled :mod:`mqtt` client implements QoS 0 and QoS 1; QoS 2 raises if "
+"you ask for it. For a cam reporting sensor readings, QoS 0 is almost always "
+"the right answer."
+msgstr ""
+"Client :mod:`mqtt` đi kèm triển khai QoS 0 và QoS 1; QoS 2 sẽ báo lỗi nếu "
+"bạn yêu cầu. Đối với một camera báo cáo kết quả đọc cảm biến, QoS 0 hầu như "
+"luôn là câu trả lời đúng."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:158
+msgid "Retained messages and last will"
+msgstr "Retained message và last will"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:160
+msgid ""
+"Two features are worth knowing about because they change what the broker "
+"remembers about your topic."
+msgstr ""
+"Hai tính năng đáng biết vì chúng thay đổi những gì broker nhớ về topic của "
+"bạn."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:163
+msgid ""
+"**RETAIN.** If a PUBLISH has the RETAIN flag set, the broker stores the "
+"message and forwards it to every *future* subscriber the moment they "
+"subscribe. That's how MQTT handles \"what's the current value?\" -- a sensor"
+" publishes its latest reading retained, and a dashboard that subscribes ten "
+"minutes later still receives the most recent value instead of waiting for "
+"the next publish. Re-publishing with the same topic overwrites the retained "
+"value; publishing an empty payload clears it."
+msgstr ""
+"**RETAIN.** Nếu một gói tin PUBLISH có cờ RETAIN được đặt, broker lưu trữ "
+"thông điệp và chuyển tiếp đến mọi *subscriber trong tương lai* ngay khi họ "
+"subscribe. Đó là cách MQTT xử lý câu hỏi \"giá trị hiện tại là gì?\" -- một "
+"cảm biến publish kết quả đọc mới nhất với retain, và một dashboard subscribe"
+" mười phút sau vẫn nhận được giá trị gần đây nhất thay vì phải chờ lần "
+"publish tiếp theo. Publish lại với cùng topic sẽ ghi đè giá trị retained; "
+"publish payload rỗng sẽ xóa nó."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:172
+msgid ""
+"**Last will.** When a client connects it can give the broker a \"last will "
+"and testament\": a topic, a payload, a QoS, and a retain flag. If that "
+"client disconnects *uncleanly* -- TCP RESET, power loss, network drop with "
+"no DISCONNECT packet -- the broker publishes the will on the client's "
+"behalf. Subscribers see it as the cam's notification that it has gone "
+"offline. The cam itself never sends the will; the broker does, because by "
+"then the cam is gone."
+msgstr ""
+"**Last will.** Khi client kết nối, nó có thể cung cấp cho broker một \"di "
+"chúc\": một topic, một payload, một QoS và một cờ retain. Nếu client đó ngắt"
+" kết nối *không sạch* -- TCP RESET, mất điện, mạng bị ngắt mà không có gói "
+"tin DISCONNECT -- broker sẽ publish will thay mặt client. Subscriber thấy nó"
+" như thông báo của camera rằng nó đã ngoại tuyến. Bản thân camera không bao "
+"giờ gửi will; broker làm điều đó, vì lúc đó camera đã biến mất."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:182
+msgid "Keepalive and reconnect"
+msgstr "Keepalive và kết nối lại"
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:184
+msgid ""
+"CONNECT carries a *keepalive* interval in seconds. If the client has been "
+"silent for that long the broker considers it dead. To prevent that, the "
+"client periodically sends a PINGREQ (one byte: ``0xC0``) and gets back a "
+"PINGRESP (``0xD0``) -- the smallest, cheapest heartbeat the protocol can "
+"carry. Most cam apps set keepalive to 30 or 60 seconds."
+msgstr ""
+"CONNECT mang theo một khoảng thời gian *keepalive* tính bằng giây. Nếu "
+"client im lặng trong khoảng thời gian đó, broker coi nó đã chết. Để ngăn "
+"điều đó, client định kỳ gửi PINGREQ (một byte: ``0xC0``\\ ) và nhận lại "
+"PINGRESP (\\ ``0xD0``\\ ) -- nhịp tim nhỏ nhất và rẻ nhất mà giao thức có "
+"thể mang. Hầu hết ứng dụng camera đặt keepalive là 30 hoặc 60 giây."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:191
+msgid ""
+"If the TCP connection drops, both sides notice and reconnect from scratch. "
+"Subscriptions made before the drop are lost unless the client used a "
+"*persistent session* on connect; for simple cam apps the resubscribe-on-"
+"reconnect pattern is shorter and just as good."
+msgstr ""
+"Nếu kết nối TCP bị ngắt, cả hai phía nhận thấy và kết nối lại từ đầu. Các "
+"subscription thực hiện trước khi ngắt kết nối bị mất trừ khi client sử dụng "
+"*persistent session* khi kết nối; đối với các ứng dụng camera đơn giản, mẫu "
+"resubscribe-on-reconnect ngắn hơn và cũng tốt như vậy."
+
+#: ../../openmvcam/tutorial/networking/mqtt/protocol-on-the-wire.rst:196
+msgid ""
+"This is enough to read the MQTT spec or hand-roll a client over a "
+":class:`socket.socket`. The bundled client in :mod:`mqtt` does exactly that,"
+" plus a sensible API for application code."
+msgstr ""
+"Điều này đủ để đọc MQTT spec hoặc tự viết một client qua "
+":class:`socket.socket`\\ . Client đi kèm trong :mod:`mqtt` làm chính xác "
+"điều đó, cùng với một API hợp lý cho code ứng dụng."
