@@ -1,0 +1,195 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: uk <LL@li.org>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:2
+msgid "Auth for programmatic clients"
+msgstr "Авторизація для програмних клієнтів"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:4
+msgid ""
+"Bearer tokens are how phones, companion microcontrollers, and cloud workers "
+"authenticate to a server -- the client puts a token in the ``Authorization``"
+" header on every request and the server checks it. The companion phone app "
+"POSTs an \"ack\" when the owner taps \"seen\" on a motion notification; "
+"those requests need a token."
+msgstr ""
+"Токени-носії — це спосіб, яким телефони, супутні мікроконтролери та хмарні "
+"обробники автентифікуються на сервері: клієнт передає токен у заголовку "
+"``Authorization`` при кожному запиті, а сервер його перевіряє. Супутній "
+"додаток на телефоні надсилає POST з підтвердженням \"ack\", коли власник "
+"натискає \"переглянуто\" на сповіщенні про рух; ці запити потребують токена."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:11
+msgid "The signing secret"
+msgstr "Секрет підпису"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:13
+msgid ""
+"The secret is the cam's private key for signing and verifying tokens. "
+"Generate 32 random bytes from the hardware RNG on the cam's first boot, "
+"persist them to the filesystem, and reuse the same bytes on every subsequent"
+" boot:"
+msgstr ""
+"Секрет — це приватний ключ камери для підписання та верифікації токенів. "
+"Згенеруйте 32 випадкові байти з апаратного генератора випадкових чисел "
+"камери при першому завантаженні, збережіть їх у файловій системі та повторно"
+" використовуйте ті самі байти при кожному наступному завантаженні:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:31
+msgid ""
+":func:`os.urandom` is the cryptographically suitable random source on each "
+"cam port -- on most ports it reads the chip's hardware random-number "
+"generator directly. The file lives in the cam's working directory "
+"(``/sdcard`` if an SD card is mounted, ``/flash`` otherwise) and never "
+"leaves the cam. Deleting ``secret.bin`` and rebooting rotates the secret and"
+" invalidates every token issued under the old one."
+msgstr ""
+":func:`os.urandom` є криптографічно придатним джерелом випадкових чисел на "
+"кожному порті камери — на більшості портів він безпосередньо зчитує "
+"апаратний генератор випадкових чисел чипа. Файл зберігається у робочому "
+"каталозі камери (\\ ``/sdcard``\\ , якщо вставлена SD-картка, або ``/flash``"
+" інакше) і ніколи не залишає камеру. Видалення ``secret.bin`` та "
+"перезавантаження ротує секрет і анулює всі токени, видані під старим."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:41
+msgid ""
+":func:`machine.unique_id` is *not* a substitute. On some cam ports it is "
+"also used to derive the network MAC address, which means its value travels "
+"with every packet the cam sends -- not the property a signing secret needs."
+msgstr ""
+":func:`machine.unique_id` *не* є заміною. На деяких портах камери він також "
+"використовується для отримання мережевої MAC-адреси, що означає, що його "
+"значення передається з кожним пакетом, відправленим камерою — а це не та "
+"властивість, яку повинен мати секрет підпису."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:47
+msgid "Issuing tokens"
+msgstr "Видача токенів"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:49
+msgid ""
+"The phone needs a way to *get* a token in the first place. A short-lived "
+"*JSON Web Token* (JWT) -- a base64-encoded JSON payload with a signature "
+"appended -- is enough for a first pass: the owner trades a password for a "
+"token, then uses the token until it expires:"
+msgstr ""
+"Телефону спочатку потрібен спосіб *отримати* токен. *JSON Web Token* (JWT) з"
+" коротким терміном дії — кодоване в base64 JSON-навантаження з доданим "
+"підписом — достатньо для першого проходу: власник обмінює пароль на токен, а"
+" потім використовує токен до його закінчення:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:71
+#, python-brace-format
+msgid ""
+"The phone POSTs ``{user, pass}`` once, stores the returned token in local "
+"storage, and includes it as ``Authorization: Bearer <token>`` on every "
+"subsequent request."
+msgstr ""
+"Телефон один раз надсилає POST з ``{user, pass}``\\ , зберігає повернений "
+"токен у локальному сховищі та включає його як ``Authorization: Bearer "
+"<token>`` у кожному наступному запиті."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:75
+msgid ""
+"The ``exp`` claim is a Unix timestamp. The verifier on the next section "
+"relies on this claim to reject expired tokens automatically -- which means "
+"the cam's wall clock has to be set, because otherwise every token will look "
+"either far in the future or already expired. See "
+":doc:`/openmvcam/tutorial/networking/names/ntp` for the NTP-sync recipe."
+msgstr ""
+"Поле ``exp`` — це Unix-мітка часу. Верифікатор у наступному розділі "
+"покладається на це поле для автоматичного відхилення прострочених токенів — "
+"а це означає, що годинник камери має бути встановлений, інакше кожен токен "
+"виглядатиме або далеко в майбутньому, або вже простроченим. Дивіться "
+":doc:`/openmvcam/tutorial/networking/names/ntp` для рецепту синхронізації "
+"NTP."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:83
+msgid "Verifying tokens with TokenAuth"
+msgstr "Перевірка токенів за допомогою TokenAuth"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:85
+msgid ""
+":class:`microdot.auth.TokenAuth` is the decorator factory for routes that "
+"require an ``Authorization: Bearer <token>`` header. The verifier callback "
+"receives the token string and returns whatever identity object should be "
+"attached to the request -- or :data:`None` to reject:"
+msgstr ""
+":class:`microdot.auth.TokenAuth` — це фабрика декораторів для маршрутів, що "
+"вимагають заголовка ``Authorization: Bearer <token>``\\ . Зворотний виклик "
+"верифікатора отримує рядок токена та повертає будь-який об'єкт ідентичності,"
+" який слід прикріпити до запиту, або :data:`None` для відхилення:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:113
+msgid ""
+":func:`jwt.decode` raises :exc:`jwt.exceptions.PyJWTError` (or a subclass) "
+"when the signature is wrong, the token is malformed, or the ``exp`` claim "
+"has passed. The verifier swallows all of those and returns :data:`None`, so "
+"microdot responds 401 without the handler seeing anything."
+msgstr ""
+":func:`jwt.decode` генерує виняток :exc:`jwt.exceptions.PyJWTError` (або "
+"підклас) коли підпис неправильний, токен має невірний формат або поле "
+"``exp`` минуло. Верифікатор перехоплює всі ці випадки та повертає "
+":data:`None`\\ , тому microdot відповідає 401, і обробник нічого не бачить."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:119
+msgid ""
+"When the verifier returns a non-:data:`None` value, microdot stores it on "
+":attr:`request.g.current_user` so the handler can read it -- in this case "
+"it's the JWT ``sub`` (subject) claim."
+msgstr ""
+"Коли верифікатор повертає значення, відмінне від :data:`None`\\ , microdot "
+"зберігає його в :attr:`request.g.current_user`\\ , щоб обробник міг його "
+"прочитати — у цьому випадку це поле ``sub`` (тема) JWT."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:124
+msgid "BasicAuth for closed networks"
+msgstr "BasicAuth для закритих мереж"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:126
+msgid ""
+"For an admin endpoint that's only ever hit from a trusted network, "
+":class:`microdot.auth.BasicAuth` is simpler -- the browser pops a native "
+"username/password dialog and sends them in the ``Authorization: Basic ...`` "
+"header on every request:"
+msgstr ""
+"Для адміністративного кінцевої точки, до якої звертаються лише з довіреної "
+"мережі, :class:`microdot.auth.BasicAuth` є простішим варіантом — браузер "
+"показує нативний діалог введення імені користувача/пароля та надсилає їх у "
+"заголовку ``Authorization: Basic ...`` при кожному запиті:"
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:148
+msgid ""
+"The credentials travel in the clear unless the connection is HTTPS, so this "
+"approach only makes sense on a trusted network or with HTTPS in place."
+msgstr ""
+"Облікові дані передаються у відкритому вигляді, якщо з'єднання не є HTTPS, "
+"тому цей підхід має сенс лише у довіреній мережі або за наявності HTTPS."
+
+#: ../../openmvcam/tutorial/webservers/auth-headers.rst:152
+msgid ""
+"``/api/ack`` and ``/api/login`` now understand tokens; ``/admin`` requires "
+"Basic auth."
+msgstr ""
+"``/api/ack`` та ``/api/login`` тепер розуміють токени; ``/admin`` вимагає "
+"Basic-автентифікації."

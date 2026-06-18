@@ -1,0 +1,578 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: uk <LL@li.org>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:2
+msgid "Serial protocols, framing, and CRCs"
+msgstr "Послідовні протоколи, формати пакетів і CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:4
+msgid ""
+":doc:`uart-code` moved bytes between two ends. By itself, that is not enough"
+" to build a reliable link. Three problems show up the moment a real device "
+"is at the other end of the wire:"
+msgstr ""
+":doc:`uart-code` переміщував байти між двома кінцями. Самого по собі цього "
+"недостатньо для побудови надійного зв'язку. Щойно реальний пристрій "
+"опиняється на іншому кінці дроту, виникають три проблеми:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:9
+msgid ""
+"**Where does a message start and end?** Bytes arrive in a stream with no "
+"built-in delimiter. If the receiver misses the first byte (powered up after "
+"the sender; brief electrical glitch on the line), every byte after it is "
+"off-by-one until the receiver finds a fresh resync point."
+msgstr ""
+"**Де починається і закінчується повідомлення?** Байти надходять потоком без "
+"вбудованого роздільника. Якщо приймач пропускає перший байт (увімкнувся "
+"пізніше відправника; короткий електричний збій на лінії), кожен наступний "
+"байт зміщується на одиницю, доки приймач не знайде нову точку синхронізації."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:14
+msgid ""
+"**How long is each message?** A 32-byte sensor reading and a 4-byte status "
+"reply look identical at the byte level. The receiver needs a way to know how"
+" many bytes belong to the current message."
+msgstr ""
+"**Яка довжина кожного повідомлення?** 32-байтове зчитування з датчика і "
+"4-байтова відповідь стану виглядають однаково на рівні байтів. Приймачу "
+"потрібен спосіб визначити, скільки байтів належить поточному повідомленню."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:18
+msgid ""
+"**Did the bytes arrive intact?** Noise can flip individual bits. Without a "
+"check, the receiver happily acts on corrupted data."
+msgstr ""
+"**Чи прийшли байти без пошкоджень?** Шуми можуть перевертати окремі біти. "
+"Без перевірки приймач без вагань діє на підставі пошкоджених даних."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:22
+msgid ""
+"The standard answer to all three is to wrap the data in a packet frame: a "
+"known byte sequence at the start, a length field, the payload itself, and a "
+"checksum at the end."
+msgstr ""
+"Стандартна відповідь на всі три проблеми — загорнути дані у кадр пакета: "
+"відома послідовність байтів на початку, поле довжини, власне корисне "
+"навантаження і контрольна сума в кінці."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:27
+msgid "Packet framing"
+msgstr "Формат кадру пакета"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:29
+msgid "A typical framing format:"
+msgstr "Типовий формат кадру:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ""
+"Six fields drawn in sequence: a two-byte HEADER\n"
+"labelled 0xAA 0x55, a one-byte CMD field selecting\n"
+"which command this packet carries, a two-byte LEN\n"
+"field giving the payload size, a one-byte HCRC field\n"
+"covering HEADER plus CMD plus LEN, a variable-length\n"
+"PAYLOAD of LEN bytes whose format depends on the CMD,\n"
+"and a four-byte DCRC field covering the payload."
+msgstr ""
+"Шість полів, розміщених послідовно: двобайтовий HEADER\n"
+"зі значеннями 0xAA 0x55, однобайтове поле CMD, що вказує\n"
+"яку команду несе цей пакет, двобайтове поле LEN,\n"
+"яке задає розмір корисного навантаження, однобайтове поле HCRC,\n"
+"що охоплює HEADER, CMD і LEN, змінне за довжиною\n"
+"PAYLOAD розміром LEN байтів, формат якого залежить від CMD,\n"
+"і чотирибайтове поле DCRC, що охоплює корисне навантаження."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:31
+msgid ".. image:: ../figures/packet-frame.svg"
+msgstr ".. image:: ../figures/packet-frame.svg"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:40
+msgid ""
+"A framed packet with separate header and data CRCs: header (magic bytes), "
+"command, length, header CRC, payload, data CRC."
+msgstr ""
+"Кадрований пакет з окремими CRC для заголовка і даних: заголовок (магічні "
+"байти), команда, довжина, CRC заголовка, корисне навантаження, CRC даних."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:44
+msgid "Each field does one job:"
+msgstr "Кожне поле виконує одне завдання:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:46
+msgid ""
+"**Header (magic bytes).** A fixed, unusual byte sequence -- often two bytes "
+"like ``0xAA 0x55`` -- that the receiver scans for in the incoming stream. "
+"When it finds the sequence, it knows a new packet is starting and can throw "
+"away any garbage that came before."
+msgstr ""
+"**Заголовок (магічні байти).** Фіксована, нетипова послідовність байтів -- "
+"зазвичай два байти, наприклад ``0xAA 0x55`` -- яку приймач шукає у вхідному "
+"потоці. Коли послідовність знайдено, він знає, що починається новий пакет, і"
+" може відкинути весь «сміттєвий» вміст, що надійшов раніше."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:51
+msgid ""
+"**Command.** A single byte that says *what* the packet is. Different command"
+" values use different payload formats -- one command might mean \"set servo "
+"angle\" with two payload bytes, another might mean \"read sensor\" with no "
+"payload, another might be \"log message\" with a string. The receiver "
+"dispatches on the command byte to know how to interpret the rest of the "
+"packet."
+msgstr ""
+"**Команда.** Один байт, що вказує, *що* містить пакет. Різні значення команд"
+" використовують різні формати корисного навантаження -- одна команда може "
+"означати «встановити кут серво» з двома байтами навантаження, інша -- "
+"«зчитати датчик» без навантаження, ще одна -- «записати повідомлення» з "
+"рядком. Приймач виконує диспетчеризацію за байтом команди, щоб знати, як "
+"інтерпретувати решту пакета."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:58
+msgid ""
+"**Length.** Two bytes giving the size of the payload in bytes (little-endian"
+" here), allowing payloads up to about 64 KiB. The receiver reads exactly "
+"this many bytes once the header CRC has been verified."
+msgstr ""
+"**Довжина.** Два байти, що задають розмір корисного навантаження у байтах "
+"(тут — у форматі little-endian), що дозволяє навантаження до приблизно 64 "
+"КіБ. Приймач зчитує рівно стільки байтів після перевірки CRC заголовка."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:62
+msgid ""
+"**Header CRC.** A one-byte checksum over the HEADER, CMD, and LEN fields. "
+"The receiver checks it before reading any payload, so a corrupted LEN is "
+"caught after just a handful of bytes (see the CRC section below for why this"
+" matters)."
+msgstr ""
+"**CRC заголовка.** Однобайтова контрольна сума полів HEADER, CMD і LEN. "
+"Приймач перевіряє її до зчитування будь-якого навантаження, тому пошкоджений"
+" LEN виявляється вже після декількох байтів (чому це важливо — дивіться "
+"розділ про CRC нижче)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:66
+msgid ""
+"**Payload.** Command-specific application data, exactly LEN bytes long. The "
+"format is determined by the command byte: a :mod:`struct`-packed record of "
+"fixed-width fields, a string, raw memory -- whatever both sides agree on for"
+" that command."
+msgstr ""
+"**Корисне навантаження.** Специфічні для команди дані застосунку, рівно LEN "
+"байтів. Формат визначається байтом команди: запакований за допомогою "
+":mod:`struct` запис полів фіксованої ширини, рядок, сирі дані пам'яті -- "
+"все, про що домовились обидві сторони для цієї команди."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:70
+msgid ""
+"**Data CRC.** A four-byte CRC over the payload bytes. The receiver re-"
+"computes it from the bytes it just read and drops the packet if it does not "
+"match."
+msgstr ""
+"**CRC даних.** Чотирибайтовий CRC над байтами корисного навантаження. "
+"Приймач обчислює його повторно з щойно прийнятих байтів і відкидає пакет, "
+"якщо значення не збігається."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:75
+msgid "CRCs"
+msgstr "CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:77
+msgid ""
+"The simplest \"checksum\" is the sum of all the bytes, modulo 256 or 65536. "
+"It catches most single-bit flips but misses a lot of multi-bit errors and "
+"ignores byte ordering."
+msgstr ""
+"Найпростіша «контрольна сума» -- це сума всіх байтів за модулем 256 або "
+"65536. Вона відловлює більшість одиночних бітових помилок, але пропускає "
+"чимало багатобітових і не враховує порядок байтів."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:81
+msgid ""
+"A *cyclic redundancy check* (CRC) is the standard upgrade. It treats the "
+"input as one long binary number and divides it (in a special way) by a fixed"
+" *polynomial*; the remainder of the division is the CRC. Different "
+"polynomials catch different classes of errors; the common 8-, 16- and 32-bit"
+" polynomials each catch every burst of errors shorter than their width plus "
+"a large fraction of longer bursts."
+msgstr ""
+"*Циклічний надлишковий код* (CRC) є стандартним покращенням. Він розглядає "
+"вхідні дані як одне велике двійкове число і ділить його (особливим чином) на"
+" фіксований *поліном*\\ ; залишок від ділення і є CRC. Різні поліноми "
+"відловлюють різні класи помилок; поширені 8-, 16- і 32-бітові поліноми кожен"
+" з них відловлюють будь-який пакет помилок коротший за їхню ширину, а також "
+"значну частку довших пакетів."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:90
+msgid "Why two CRCs"
+msgstr "Навіщо два CRC"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:92
+msgid ""
+"The packet diagram above carries *two* separate CRCs -- one over the header "
+"(HEADER, CMD, LEN) and one over the payload. This is what a robust framing "
+"actually needs, because of how a single trailing CRC fails when the LEN "
+"field itself gets corrupted in transit:"
+msgstr ""
+"У схемі пакета вище є *два* окремих CRC -- один для заголовка (HEADER, CMD, "
+"LEN) і один для корисного навантаження. Саме це й потрібно надійному формату"
+" кадру, оскільки єдиний завершальний CRC не справляється, коли під час "
+"передачі пошкоджується поле LEN:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:98
+msgid ""
+"The receiver acts on the corrupt LEN and reads that many bytes from the wire"
+" -- possibly far more than the sender intended."
+msgstr ""
+"Приймач діє на підставі пошкодженого LEN і зчитує стільки байтів з лінії -- "
+"можливо, значно більше, ніж відправляв відправник."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:101
+msgid ""
+"Only the trailing CRC eventually tells the receiver something went wrong, "
+"and only after all those bytes have been consumed."
+msgstr ""
+"Лише завершальний CRC з часом повідомляє приймачу, що щось пішло не так, і "
+"лише після того, як усі ці байти вже спожито."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:104
+msgid ""
+"While the parser is stuck waiting for the wrong number of bytes, real "
+"packets arriving behind the corrupt one get swallowed as payload, and the "
+"receiver loses several packets rather than just the one."
+msgstr ""
+"Поки аналізатор очікує неправильну кількість байтів, реальні пакети, що "
+"надходять за пошкодженим, поглинаються як навантаження, і приймач втрачає "
+"кілька пакетів замість одного."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:109
+msgid "Splitting the CRC fixes this:"
+msgstr "Розподіл CRC вирішує цю проблему:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:111
+msgid ""
+"The **header CRC** covers HEADER, CMD, and LEN. The receiver checks it "
+"before reading any payload, so a corrupt LEN is caught after a handful of "
+"bytes and the parser resyncs immediately, taking down only the one bad "
+"packet."
+msgstr ""
+"**CRC заголовка** охоплює HEADER, CMD і LEN. Приймач перевіряє його до "
+"зчитування будь-якого навантаження, тому пошкоджений LEN виявляється вже "
+"після кількох байтів, і аналізатор негайно повторно синхронізується, "
+"«збиваючи» лише один поганий пакет."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:116
+msgid ""
+"The **data CRC** covers the payload. Once the header CRC has passed, the "
+"receiver knows it can trust LEN, reads exactly that many payload bytes, and "
+"verifies them against the data CRC."
+msgstr ""
+"**CRC даних** охоплює корисне навантаження. Після проходження перевірки CRC "
+"заголовка приймач знає, що може довіряти LEN, зчитує рівно стільки байтів "
+"навантаження і звіряє їх з CRC даних."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:121
+msgid ""
+"A common sizing -- and what this page uses -- is one byte for the header CRC"
+" (a CRC-8 is plenty for a five-byte header) and four bytes for the data CRC "
+"(a CRC-32 covers many kilobytes of payload with a vanishingly low collision "
+"rate)."
+msgstr ""
+"Поширений вибір розмірів -- і те, що використовується на цій сторінці -- "
+"один байт для CRC заголовка (CRC-8 цілком достатньо для п'ятибайтового "
+"заголовка) і чотири байти для CRC даних (CRC-32 покриває багато кілобайтів "
+"навантаження з надзвичайно низькою ймовірністю колізії)."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:127
+msgid "Helpers"
+msgstr "Допоміжні функції"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:129
+msgid ""
+"MicroPython ships :func:`binascii.crc32` for the four-byte CRC directly. For"
+" the one-byte header CRC, a small helper using the polynomial Maxim's 1-wire"
+" devices use (``0x8C`` in reflected form) is short enough to write inline:"
+msgstr ""
+"MicroPython постачає :func:`binascii.crc32` для чотирибайтового CRC "
+"безпосередньо. Для однобайтового CRC заголовка невелика допоміжна функція, "
+"що використовує поліном пристроїв Maxim 1-wire (\\ ``0x8C`` у відображеній "
+"формі), достатньо коротка, щоб написати її прямо в коді:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:144
+msgid "A complete encoder combines the two CRCs in one function:"
+msgstr "Повний кодувальник поєднує два CRC в одній функції:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:157
+msgid ""
+"The inverse function recovers the command and payload from a complete "
+"packet, or returns ``None`` if either CRC check fails:"
+msgstr ""
+"Зворотна функція відновлює команду і корисне навантаження з повного пакета "
+"або повертає ``None``\\ , якщо будь-яка з перевірок CRC не проходить:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:184
+msgid ""
+"In practice the receiver does not get a whole packet handed to it -- bytes "
+"arrive one at a time over the UART, and a sender that pauses mid-packet (or "
+"a noisy line that loses a byte) cannot just be ``read()``-ed into a buffer "
+"of the right size. The next section runs the same decode logic byte by byte "
+"as a state machine."
+msgstr ""
+"На практиці приймач не отримує одразу весь пакет -- байти надходять по "
+"одному через UART, і відправник, що робить паузу посеред пакета (або шумна "
+"лінія, що втрачає байт), не може просто бути зчитаним за допомогою "
+"``read()`` у буфер потрібного розміру. Наступний розділ виконує ту саму "
+"логіку декодування побайтово у вигляді скінченного автомата."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:192
+msgid "A state-machine receiver"
+msgstr "Приймач на основі скінченного автомата"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:194
+msgid ""
+"The receiver cannot just call ``uart.read(N)`` for some fixed ``N`` -- it "
+"does not know how many bytes the next packet will be, and any junk on the "
+"line throws the alignment off. The solution is a small state machine that "
+"consumes the bytes one at a time and reacts based on where it is in the "
+"packet. The main loop polls :meth:`~machine.UART.any` to see how many bytes "
+"are buffered, drains them in one :meth:`~machine.UART.read` call, and feeds "
+"each byte through the state machine:"
+msgstr ""
+"Приймач не може просто викликати ``uart.read(N)`` для якогось фіксованого "
+"``N`` -- він не знає, скільки байтів буде в наступному пакеті, і будь-який "
+"«сміттєвий» вміст на лінії порушує вирівнювання. Рішення -- невеликий "
+"скінченний автомат, який поглинає байти по одному і реагує залежно від того,"
+" де він знаходиться в пакеті. Головний цикл опитує "
+":meth:`~machine.UART.any`\\ , щоб дізнатися, скільки байтів буферовано, "
+"зчитує їх за один виклик :meth:`~machine.UART.read` і передає кожен байт "
+"через скінченний автомат:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:298
+msgid ""
+"Each byte advances the state machine by one step, or falls back to "
+"``HUNT_FOR_HEADER`` after a complete packet, a bad header CRC, or a bad data"
+" CRC. Junk on the line that does not match the header is silently discarded;"
+" the next valid header re-syncs the receiver. The key safety property comes "
+"from the header CRC: if the LEN field is corrupted, the parser catches it "
+"after the header-CRC check (a handful of bytes), not after committing to "
+"read a wildly wrong number of payload bytes."
+msgstr ""
+"Кожен байт просуває скінченний автомат на один крок або повертає його до "
+"стану ``HUNT_FOR_HEADER`` після повного пакета, поганого CRC заголовка або "
+"поганого CRC даних. «Сміттєвий» вміст на лінії, що не відповідає заголовку, "
+"мовчки відкидається; наступний дійсний заголовок повторно синхронізує "
+"приймач. Ключова властивість безпеки пов'язана з CRC заголовка: якщо поле "
+"LEN пошкоджене, аналізатор виявляє це після перевірки CRC заголовка (через "
+"кілька байтів), а не після зобов'язання прочитати абсурдно неправильну "
+"кількість байтів навантаження."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:308
+msgid "Beyond the baseline"
+msgstr "Поза базовим рівнем"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:310
+msgid ""
+"The framing above is the *minimum* a serial link needs to recover from line "
+"noise: header magic, length, command, and two CRCs. It detects corruption "
+"and resyncs after garbled bytes, but it gives up on damaged packets rather "
+"than getting them through, and it leaves the sender with no idea what the "
+"receiver actually heard."
+msgstr ""
+"Наведений вище формат кадру є *мінімальним* для того, щоб послідовний "
+"зв'язок міг відновитися від шуму лінії: магічні байти заголовка, довжина, "
+"команда і два CRC. Він виявляє пошкодження і повторно синхронізується після "
+"зіпсованих байтів, але відмовляється від пошкоджених пакетів, не намагаючись"
+" їх доставити, і залишає відправника без інформації про те, що насправді "
+"почув приймач."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:317
+msgid ""
+"Real-world serial protocols layer features on top of that baseline. Not "
+"every embedded link needs all of them -- pick what the application actually "
+"requires:"
+msgstr ""
+"Реальні послідовні протоколи нашаровують функції поверх цього базового "
+"рівня. Не кожен вбудований канал зв'язку потребує всіх з них -- обирайте те,"
+" що дійсно необхідно для застосунку:"
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:321
+msgid ""
+"**Sequence numbers.** A small counter that increments on every send. The "
+"receiver detects gaps (a packet was lost), duplicates (the sender "
+"retransmitted but the receiver had already accepted the first copy), and -- "
+"where the channel can reorder -- out-of-order arrivals."
+msgstr ""
+"**Порядкові номери.** Невеликий лічильник, що збільшується з кожним "
+"надсиланням. Приймач виявляє прогалини (пакет загублено), дублікати "
+"(відправник повторно передав, але приймач вже прийняв першу копію), а там, "
+"де канал може переставляти пакети, -- надходження не в тому порядку."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:327
+msgid ""
+"**Acknowledgements.** A dedicated ACK packet (or piggyback bit in a reply) "
+"the receiver sends back to confirm each packet. Without ACKs the sender has "
+"no way of knowing its data arrived."
+msgstr ""
+"**Підтвердження.** Окремий ACK-пакет (або прапорець-вставка у відповіді), "
+"який приймач надсилає назад для підтвердження кожного пакета. Без ACK "
+"відправник не має змоги дізнатися, чи надійшли його дані."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:332
+msgid ""
+"**Negative acknowledgements.** A NACK sent when the receiver sees a CRC "
+"failure or a sequence gap. The sender retransmits immediately, instead of "
+"waiting for an ACK timeout to fire."
+msgstr ""
+"**Негативні підтвердження.** NACK, що надсилається, коли приймач бачить збій"
+" CRC або прогалину в послідовності. Відправник повторно передає негайно, "
+"замість того щоб чекати спрацювання тайм-ауту ACK."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:337
+msgid ""
+"**Retransmission.** The sender keeps each unacked packet in a small queue "
+"and re-sends it after a timeout (or on a NACK). A retry limit and some "
+"backoff between retries stops a permanently broken link from looping "
+"forever."
+msgstr ""
+"**Повторна передача.** Відправник зберігає кожен непідтверджений пакет у "
+"невеликій черзі і повторно надсилає його після тайм-ауту (або за NACK). "
+"Ліміт спроб і деяка затримка між ними запобігають нескінченному циклу при "
+"постійно несправному каналі."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:342
+msgid ""
+"**Sliding windows.** Allowing several packets in flight before requiring an "
+"ACK keeps throughput up on links where the round-trip is long compared to "
+"the per-packet send time. The cost is more sender-side state -- one slot per"
+" in-flight packet."
+msgstr ""
+"**Ковзаючі вікна.** Дозвіл кільком пакетам перебувати в дорозі до отримання "
+"ACK підтримує пропускну здатність на каналах, де час кругового обходу значно"
+" більший за час надсилання одного пакета. Ціна -- більший стан на стороні "
+"відправника: один слот на пакет у дорозі."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:348
+msgid ""
+"**Flow control.** A signal from the receiver telling the sender to slow down"
+" or pause when its buffer is filling up. Implementations vary -- explicit "
+"XON / XOFF bytes, credit-based grants where the receiver licences N more "
+"packets at a time, or the RTS / CTS hardware lines on the wire itself. "
+"Without flow control a fast sender eventually overruns a slow receiver and "
+"packets get dropped."
+msgstr ""
+"**Управління потоком.** Сигнал від приймача, що наказує відправнику "
+"сповільнитися або зупинитися, коли буфер приймача заповнюється. Реалізації "
+"різняться -- явні байти XON / XOFF, надання кредитів, де приймач дозволяє N "
+"додаткових пакетів за раз, або апаратні лінії RTS / CTS на самому дроті. Без"
+" управління потоком швидкий відправник врешті-решт переповнює повільний "
+"приймач і пакети відкидаються."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:356
+msgid ""
+"**Protocol version.** A version field early in the packet lets the format "
+"evolve. Each side can negotiate the highest version both support at startup,"
+" or reject packets from incompatible peers."
+msgstr ""
+"**Версія протоколу.** Поле версії на початку пакета дозволяє формату "
+"розвиватися. Кожна сторона може погодити найвищу версію, підтримувану обома,"
+" під час запуску або відхиляти пакети від несумісних вузлів."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:361
+msgid ""
+"**Fragmentation and reassembly.** A two-byte LEN caps the packet at 64 KiB; "
+"messages larger than that get split into multiple packets and reassembled on"
+" the other side. The fragmentation metadata (fragment index, total count, or"
+" a \"more fragments\" flag) lives inside the payload."
+msgstr ""
+"**Фрагментація та збирання.** Двобайтовий LEN обмежує пакет 64 КіБ; "
+"повідомлення більшого розміру розбиваються на кілька пакетів і збираються на"
+" іншому кінці. Метадані фрагментації (індекс фрагмента, загальна кількість "
+"або прапорець «ще є фрагменти») розміщуються всередині корисного "
+"навантаження."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:367
+msgid ""
+"**Heartbeats.** A small periodic packet that says \"I'm still here\". The "
+"other side notices when the heartbeats stop and reconnects (or fails loudly)"
+" instead of hanging silently."
+msgstr ""
+"**Пульси.** Невеликий періодичний пакет, що означає «я ще тут». Інша сторона"
+" помічає, коли пульси зупиняються, і відновлює з'єднання (або явно "
+"повідомляє про помилку) замість того, щоб мовчки зависнути."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:372
+msgid ""
+"**Channels.** A channel or stream ID in the header so one physical link "
+"carries several logical streams -- a control channel, a telemetry channel, a"
+" log channel -- distinguished only by that field."
+msgstr ""
+"**Канали.** Ідентифікатор каналу або потоку в заголовку дозволяє одному "
+"фізичному каналу нести кілька логічних потоків -- канал управління, канал "
+"телеметрії, канал журналювання -- які розрізняються лише за цим полем."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:377
+msgid ""
+"**Authentication.** A short tag computed from the payload and a secret value"
+" that only the legitimate sender and receiver know. The receiver computes "
+"the tag again from the bytes it received and rejects the packet if the two "
+"do not match. This catches both tampering (an attacker modified the bytes) "
+"and -- if a sequence number or timestamp is part of what the tag covers -- "
+"replay, where an attacker records a real packet off the wire and re-sends it"
+" later to make the receiver act on it twice."
+msgstr ""
+"**Автентифікація.** Короткий тег, обчислений з корисного навантаження і "
+"секретного значення, відомого лише законному відправнику і приймачу. Приймач"
+" знову обчислює тег з отриманих байтів і відхиляє пакет, якщо вони не "
+"збігаються. Це відловлює як підробку (зловмисник змінив байти), так -- якщо "
+"порядковий номер або мітка часу входить до того, що охоплює тег -- і повтор,"
+" де зловмисник записує справжній пакет з лінії і повторно надсилає його "
+"пізніше, змушуючи приймача діяти двічі."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:387
+msgid ""
+"**Encryption.** Scrambling the payload bytes with a shared secret key so "
+"anyone reading the line without that key sees only noise. Usually combined "
+"with the authentication tag above -- without it, an attacker can feed "
+"garbage that happens to pass the CRC and the receiver wastes cycles trying "
+"to decrypt nonsense."
+msgstr ""
+"**Шифрування.** Перемішування байтів корисного навантаження за допомогою "
+"спільного секретного ключа, щоб будь-хто, хто читає лінію без цього ключа, "
+"бачив лише шум. Зазвичай поєднується з наведеним вище тегом автентифікації "
+"-- без нього зловмисник може надсилати «сміттєві» дані, які випадково "
+"проходять CRC, і приймач витрачає цикли на спробу розшифрувати безглуздя."
+
+#: ../../openmvcam/tutorial/hardware/uart/serial-protocols.rst:394
+msgid ""
+"A typical \"good\" protocol for industrial gear ends up with framing, dual "
+"CRC, sequence numbers, ACK / NACK with retransmit, and heartbeats. Real-"
+"world examples worth a look: *MAVLink* (drone telemetry, with sequence "
+"numbers, system / component IDs, and optional packet signatures), *Modbus* "
+"(industrial PLCs, with function codes and CRC), and *NMEA 0183* (the ASCII "
+"protocol every consumer GPS receiver speaks -- line-based messages with a "
+"checksum after a star delimiter)."
+msgstr ""
+"Типовий «хороший» протокол для промислового обладнання включає кадрування, "
+"подвійний CRC, порядкові номери, ACK / NACK із повторною передачею та "
+"пульси. Варті уваги реальні приклади: *MAVLink* (телеметрія дронів, із "
+"порядковими номерами, ідентифікаторами системи / компонента і "
+"необов'язковими підписами пакетів), *Modbus* (промислові PLC, з кодами "
+"функцій і CRC) і *NMEA 0183* (ASCII-протокол, яким розмовляє кожен споживчий"
+" GPS-приймач -- рядкові повідомлення з контрольною сумою після роздільника-"
+"зірочки)."
