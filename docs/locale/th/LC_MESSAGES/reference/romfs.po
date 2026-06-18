@@ -1,0 +1,709 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: th <LL@li.org>\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../reference/romfs.rst:4
+msgid "Working with ROMFS"
+msgstr "การทำงานกับ ROMFS"
+
+#: ../../reference/romfs.rst:7
+msgid "Overview"
+msgstr "ภาพรวม"
+
+#: ../../reference/romfs.rst:9
+msgid ""
+"ROMFS (Read-Only Memory Filesystem) is a lightweight, read-only filesystem "
+"designed for MicroPython devices.  It is optimised for microcontrollers and "
+"embedded systems where code and data need to be stored in flash memory and "
+"accessed efficiently without being copied into RAM."
+msgstr ""
+"ROMFS (Read-Only Memory Filesystem) "
+"คือระบบไฟล์แบบอ่านอย่างเดียวที่มีน้ำหนักเบา ออกแบบมาสำหรับอุปกรณ์ "
+"MicroPython โดยเฉพาะ "
+"เหมาะสำหรับไมโครคอนโทรลเลอร์และระบบฝังตัวที่ต้องเก็บโค้ดและข้อมูลไว้ในหน่วยความจำแฟลช"
+" และเข้าถึงได้อย่างมีประสิทธิภาพโดยไม่ต้องคัดลอกเข้า RAM"
+
+#: ../../reference/romfs.rst:14
+msgid "The key benefits of ROMFS are:"
+msgstr "ประโยชน์หลักของ ROMFS ได้แก่:"
+
+#: ../../reference/romfs.rst:16
+msgid ""
+"**Zero-copy imports**: ``.mpy`` bytecode files stored in a ROMFS can be "
+"executed directly from flash memory (memory-mapped) rather than being copied"
+" into RAM first.  This is similar to how :ref:`frozen modules <manifest>` "
+"work, but does not require reflashing the entire firmware."
+msgstr ""
+"**การนำเข้าแบบ Zero-copy**\\ : ไฟล์ไบต์โค้ด ``.mpy`` ที่เก็บอยู่ใน ROMFS "
+"สามารถรันได้โดยตรงจากหน่วยความจำแฟลช (memory-mapped) โดยไม่ต้องคัดลอกเข้า "
+"RAM ก่อน ซึ่งคล้ายกับวิธีการทำงานของ :ref:`frozen modules <manifest>` "
+"แต่ไม่จำเป็นต้องแฟลช เฟิร์มแวร์ทั้งหมดใหม่"
+
+#: ../../reference/romfs.rst:20
+msgid ""
+"**Low RAM overhead**: Constant objects (strings, bytes, etc.) in ``.mpy`` "
+"files loaded from ROMFS are referenced directly from flash, not duplicated "
+"in RAM."
+msgstr ""
+"**RAM overhead ต่ำ**\\ : อ็อบเจกต์ค่าคงที่ (สตริง, bytes เป็นต้น) ในไฟล์ "
+"``.mpy`` ที่โหลดจาก ROMFS จะอ้างอิงโดยตรงจากแฟลช ไม่มีการซ้ำซ้อนใน RAM"
+
+#: ../../reference/romfs.rst:23
+msgid ""
+"**Flexible deployment**: A ROMFS image can be built on a host PC and "
+"deployed to the device using :ref:`mpremote <mpremote>`, without rebuilding "
+"the firmware."
+msgstr ""
+"**การปรับใช้ที่ยืดหยุ่น**\\ : สามารถสร้างอิมเมจ ROMFS บน PC "
+"แม่ข่ายแล้วปรับใช้กับอุปกรณ์ผ่าน :ref:`mpremote <mpremote>` โดยไม่ต้องสร้าง "
+"เฟิร์มแวร์ใหม่"
+
+#: ../../reference/romfs.rst:26
+msgid ""
+"**Standard filesystem interface**: A ROMFS is mounted in the :ref:`VFS "
+"<filesystem>` and accessed via normal Python file operations (``open``, "
+"``os.listdir``, ``import``, etc.)."
+msgstr ""
+"**อินเทอร์เฟซระบบไฟล์มาตรฐาน**\\ : ROMFS ถูก mount ใน :ref:`VFS "
+"<filesystem>` และเข้าถึงได้ผ่านการดำเนินการไฟล์ Python ปกติ (\\ ``open``\\ ,"
+" ``os.listdir``\\ , ``import`` เป็นต้น)"
+
+#: ../../reference/romfs.rst:30
+msgid ""
+"ROMFS is complementary to both the read-write FAT/LittleFS filesystems "
+"(which live in other flash partitions) and to :ref:`frozen modules "
+"<manifest>` (which are compiled into the firmware itself)."
+msgstr ""
+"ROMFS เป็นส่วนเสริมทั้งระบบไฟล์ FAT/LittleFS แบบอ่าน-เขียน "
+"(ซึ่งอยู่ในพาร์ทิชันแฟลชอื่น) และ :ref:`frozen modules <manifest>` "
+"(ซึ่งถูกคอมไพล์เข้าไปใน เฟิร์มแวร์โดยตรง)"
+
+#: ../../reference/romfs.rst:35
+msgid "Board support"
+msgstr "การรองรับบอร์ด"
+
+#: ../../reference/romfs.rst:37
+msgid ""
+"ROMFS is enabled in the OpenMV firmware on every camera board that has a "
+"ROMFS partition reserved in its flash layout. On these boards the ROMFS "
+"partition is auto-detected at boot and mounted at ``/rom``; both ``/rom`` "
+"and ``/rom/lib`` are added to ``sys.path`` so modules stored there can be "
+"imported directly."
+msgstr ""
+"ROMFS ถูกเปิดใช้งานใน เฟิร์มแวร์ OpenMV บนบอร์ดกล้องทุกรุ่นที่มีพาร์ทิชัน "
+"ROMFS สำรองไว้ในเลย์เอาต์แฟลช บนบอร์ดเหล่านี้ พาร์ทิชัน ROMFS "
+"จะถูกตรวจจับอัตโนมัติตอนบูตและ mount ที่ ``/rom`` พร้อมกันนั้น ``/rom`` และ "
+"``/rom/lib`` จะถูกเพิ่มเข้า ``sys.path`` เพื่อให้สามารถ import "
+"โมดูลที่เก็บอยู่ที่นั่นได้โดยตรง"
+
+#: ../../reference/romfs.rst:47
+msgid "Board"
+msgstr "บอร์ด"
+
+#: ../../reference/romfs.rst:48
+msgid "ROMFS support"
+msgstr "การรองรับ ROMFS"
+
+#: ../../reference/romfs.rst:49
+msgid "OpenMV Cam N6"
+msgstr "OpenMV Cam N6"
+
+#: ../../reference/romfs.rst:50 ../../reference/romfs.rst:52
+#: ../../reference/romfs.rst:54 ../../reference/romfs.rst:56
+#: ../../reference/romfs.rst:58 ../../reference/romfs.rst:60
+#: ../../reference/romfs.rst:62 ../../reference/romfs.rst:64
+msgid "Yes"
+msgstr "ใช่"
+
+#: ../../reference/romfs.rst:51
+msgid "OpenMV AE3"
+msgstr "OpenMV AE3"
+
+#: ../../reference/romfs.rst:53
+msgid "OpenMV Cam RT1062"
+msgstr "OpenMV Cam RT1062"
+
+#: ../../reference/romfs.rst:55
+msgid "OpenMV Cam Pure Thermal"
+msgstr "OpenMV Cam Pure Thermal"
+
+#: ../../reference/romfs.rst:57
+msgid "OpenMV Cam M4 / M7 / H7 / H7 Plus"
+msgstr "OpenMV Cam M4 / M7 / H7 / H7 Plus"
+
+#: ../../reference/romfs.rst:59
+msgid "Arduino Giga"
+msgstr "Arduino Giga"
+
+#: ../../reference/romfs.rst:61
+msgid "Arduino Portenta H7"
+msgstr "Arduino Portenta H7"
+
+#: ../../reference/romfs.rst:63
+msgid "Arduino Nicla Vision"
+msgstr "Arduino Nicla Vision"
+
+#: ../../reference/romfs.rst:65
+msgid "Arduino Nano 33 BLE Sense"
+msgstr "Arduino Nano 33 BLE Sense"
+
+#: ../../reference/romfs.rst:66 ../../reference/romfs.rst:68
+msgid "No (no ROMFS partition)"
+msgstr "ไม่ (ไม่มีพาร์ทิชัน ROMFS)"
+
+#: ../../reference/romfs.rst:67
+msgid "Arduino Nano RP2040 Connect"
+msgstr "Arduino Nano RP2040 Connect"
+
+#: ../../reference/romfs.rst:70
+msgid ""
+"See :mod:`romfs` for an OpenMV-specific helper that inspects the mounted "
+"ROMFS at ``/rom``."
+msgstr ""
+"ดู :mod:`romfs` สำหรับตัวช่วยเฉพาะ OpenMV ที่ตรวจสอบ ROMFS ที่ mount ไว้ที่ "
+"``/rom``"
+
+#: ../../reference/romfs.rst:74
+msgid "Workflow"
+msgstr "ขั้นตอนการทำงาน"
+
+#: ../../reference/romfs.rst:76
+msgid "The typical workflow for using ROMFS is:"
+msgstr "ขั้นตอนทั่วไปสำหรับการใช้ ROMFS มีดังนี้:"
+
+#: ../../reference/romfs.rst:78
+msgid ""
+"Create a directory on your PC with the Python files (or ``.mpy`` files) you "
+"want to deploy."
+msgstr ""
+"สร้างไดเรกทอรีบน PC ของคุณพร้อมไฟล์ Python (หรือไฟล์ ``.mpy``\\ ) "
+"ที่ต้องการปรับใช้"
+
+#: ../../reference/romfs.rst:80
+msgid ""
+"Use ``mpremote romfs deploy <directory>`` to build and deploy the ROMFS "
+"image to the device."
+msgstr ""
+"ใช้ ``mpremote romfs deploy <directory>`` เพื่อสร้างและปรับใช้อิมเมจ ROMFS "
+"กับอุปกรณ์"
+
+#: ../../reference/romfs.rst:82
+msgid ""
+"The ROMFS will be mounted at ``/rom`` on next boot (or can be mounted "
+"immediately if the device is rebooted)."
+msgstr ""
+"ROMFS จะถูก mount ที่ ``/rom`` ในการบูตครั้งถัดไป (หรือสามารถ mount "
+"ได้ทันทีหากรีบูตอุปกรณ์)"
+
+#: ../../reference/romfs.rst:84
+msgid ""
+"Python code on the device can then ``import`` modules from the ROMFS just "
+"like from any other filesystem."
+msgstr ""
+"โค้ด Python บนอุปกรณ์สามารถ ``import`` โมดูลจาก ROMFS "
+"ได้เหมือนกับระบบไฟล์อื่น ๆ"
+
+#: ../../reference/romfs.rst:87
+msgid "For example::"
+msgstr "ตัวอย่าง::"
+
+#: ../../reference/romfs.rst:92
+msgid ""
+"After a soft-reset, the device will have ``/rom/app.py`` (or "
+"``/rom/app.mpy`` if ``mpy_cross`` is installed) available for import."
+msgstr ""
+"หลังจาก soft-reset อุปกรณ์จะมี ``/rom/app.py`` (หรือ ``/rom/app.mpy`` "
+"หากติดตั้ง ``mpy_cross`` ไว้) พร้อมสำหรับการ import"
+
+#: ../../reference/romfs.rst:95
+msgid ""
+"See the :ref:`mpremote romfs sub-commands <romfs_mpremote_commands>` section"
+" below for full details of the ``mpremote`` sub-commands."
+msgstr ""
+"ดูส่วน :ref:`mpremote romfs sub-commands <romfs_mpremote_commands>` "
+"ด้านล่างสำหรับรายละเอียดทั้งหมดของ sub-commands ``mpremote``"
+
+#: ../../reference/romfs.rst:99
+msgid "Python API"
+msgstr "Python API"
+
+#: ../../reference/romfs.rst:101
+msgid "The ROMFS Python API is provided via the :mod:`vfs` module."
+msgstr "ROMFS Python API ให้บริการผ่านโมดูล :mod:`vfs`"
+
+#: ../../reference/romfs.rst:106
+msgid ""
+"Create a ROMFS filesystem object from *buffer*, which must be an object "
+"supporting the buffer protocol (e.g. a ``bytes``, ``bytearray``, or "
+"``memoryview`` object) that contains a valid ROMFS image."
+msgstr ""
+"สร้าง อ็อบเจกต์ระบบไฟล์ ROMFS จาก *buffer* ซึ่งต้องเป็นอ็อบเจกต์ที่รองรับ "
+"buffer protocol (เช่น อ็อบเจกต์ ``bytes``\\ , ``bytearray`` หรือ "
+"``memoryview``\\ ) ที่ประกอบด้วยอิมเมจ ROMFS ที่ถูกต้อง"
+
+#: ../../reference/romfs.rst:110
+msgid ""
+"The constructor validates that *buffer* begins with the ROMFS magic bytes "
+"(``b\"\\xd2\\xcd\\x31\"``).  If the buffer is too small or not a valid ROMFS"
+" then ``OSError(ENODEV)`` is raised."
+msgstr ""
+"คอนสตรักเตอร์จะตรวจสอบว่า *buffer* เริ่มต้นด้วย magic bytes ของ ROMFS (\\ "
+"``b\"\\xd2\\xcd\\x31\"``\\ ) หาก buffer มีขนาดเล็กเกินไปหรือไม่ใช่ ROMFS "
+"ที่ถูกต้อง จะเกิด ``OSError(ENODEV)``"
+
+#: ../../reference/romfs.rst:114
+msgid ""
+"Objects created by this constructor can be mounted using :func:`vfs.mount`."
+msgstr ""
+"อ็อบเจกต์ที่สร้างโดยคอนสตรักเตอร์นี้สามารถ mount ได้โดยใช้ :func:`vfs.mount`"
+
+#: ../../reference/romfs.rst:116 ../../reference/romfs.rst:275
+#: ../../reference/romfs.rst:311
+msgid "Example::"
+msgstr "ตัวอย่าง::"
+
+#: ../../reference/romfs.rst:125
+msgid "Or, to mount a ROMFS image stored in a file::"
+msgstr "หรือ mount อิมเมจ ROMFS ที่เก็บอยู่ในไฟล์::"
+
+#: ../../reference/romfs.rst:134
+msgid "The following methods are available on a ``VfsRom`` object:"
+msgstr "เมธอดต่อไปนี้ใช้ได้กับอ็อบเจกต์ ``VfsRom``\\ :"
+
+#: ../../reference/romfs.rst:139
+msgid ""
+"Open a file from the ROMFS.  Only read modes (``''``, ``'r'``, ``'rt'``, "
+"``'rb'``) are supported.  Attempting to open a file for writing will raise "
+"``OSError(EROFS)``."
+msgstr ""
+"เปิดไฟล์จาก ROMFS รองรับเฉพาะโหมดอ่าน (\\ ``''``\\ , ``'r'``\\ , ``'rt'``\\ "
+", ``'rb'``\\ ) การพยายามเปิดไฟล์เพื่อเขียนจะเกิด ``OSError(EROFS)``"
+
+#: ../../reference/romfs.rst:143
+msgid ""
+"The returned file object supports ``read()``, ``seek()``, ``tell()``, and "
+"``close()``.  For binary files opened in read mode, the returned object also"
+" supports the buffer protocol so that a ``memoryview`` of the file data can "
+"be obtained, which refers directly into the ROMFS memory (zero-copy)."
+msgstr ""
+"อ็อบเจกต์ไฟล์ที่ส่งกลับมารองรับ ``read()``\\ , ``seek()``\\ , ``tell()`` และ"
+" ``close()`` สำหรับไฟล์ไบนารีที่เปิดในโหมดอ่าน "
+"อ็อบเจกต์ที่ส่งกลับมายังรองรับ buffer protocol เพื่อให้สามารถรับ "
+"``memoryview`` ของข้อมูลไฟล์ได้ ซึ่งอ้างอิงโดยตรงไปยังหน่วยความจำ ROMFS "
+"(zero-copy)"
+
+#: ../../reference/romfs.rst:152
+msgid ""
+"Return an iterator over the entries in the directory *path*.  Each entry is "
+"a tuple ``(name, type, inode, size)`` where *type* is ``0x8000`` for a file "
+"or ``0x4000`` for a directory."
+msgstr ""
+"ส่งคืนตัววนซ้ำผ่านรายการในไดเรกทอรี *path* แต่ละรายการเป็น tuple ``(name, "
+"type, inode, size)`` โดย *type* คือ ``0x8000`` สำหรับไฟล์หรือ ``0x4000`` "
+"สำหรับไดเรกทอรี"
+
+#: ../../reference/romfs.rst:159
+msgid ""
+"Return an ``os.stat``-like 10-tuple for *path*.  Raises ``OSError(ENOENT)`` "
+"if the path does not exist."
+msgstr ""
+"ส่งคืน tuple 10 ค่าคล้าย ``os.stat`` สำหรับ *path* เกิด ``OSError(ENOENT)`` "
+"หากไม่พบ path"
+
+#: ../../reference/romfs.rst:165
+msgid ""
+"Return filesystem statistics.  The block size is reported as 1 and the block"
+" count represents the total size of the ROMFS image in bytes. Free blocks "
+"and free files are always 0 (read-only filesystem)."
+msgstr ""
+"ส่งคืนสถิติระบบไฟล์ ขนาดบล็อกถูกรายงานเป็น 1 "
+"และจำนวนบล็อกแสดงขนาดรวมของอิมเมจ ROMFS เป็นไบต์ บล็อกว่างและไฟล์ว่างจะเป็น "
+"0 เสมอ (ระบบไฟล์แบบอ่านอย่างเดียว)"
+
+#: ../../reference/romfs.rst:172
+msgid ""
+"Change directory within the ROMFS.  Only the root (``'/'``) is supported; "
+"changing to any subdirectory raises ``OSError(EOPNOTSUPP)``."
+msgstr ""
+"เปลี่ยนไดเรกทอรีภายใน ROMFS รองรับเฉพาะ root (\\ ``'/'``\\ ) เท่านั้น "
+"การเปลี่ยนไปยัง subdirectory ใด ๆ จะเกิด ``OSError(EOPNOTSUPP)``"
+
+#: ../../reference/romfs.rst:178
+msgid ""
+"Return the current working directory within the ROMFS.  Always returns "
+"``'/'``."
+msgstr "ส่งคืนไดเรกทอรีทำงานปัจจุบันภายใน ROMFS จะส่งคืน ``'/'`` เสมอ"
+
+#: ../../reference/romfs.rst:184
+msgid ""
+"Low-level interface for accessing the read-only memory (ROM) partition(s) of"
+" the device."
+msgstr ""
+"อินเทอร์เฟซระดับต่ำสำหรับเข้าถึงพาร์ทิชัน read-only memory (ROM) ของอุปกรณ์"
+
+#: ../../reference/romfs.rst:187
+msgid "The supported operations are:"
+msgstr "การดำเนินการที่รองรับมีดังนี้:"
+
+#: ../../reference/romfs.rst:189
+msgid "``vfs.rom_ioctl(1)`` -- Return the number of available ROM partitions."
+msgstr "``vfs.rom_ioctl(1)`` -- ส่งคืนจำนวนพาร์ทิชัน ROM ที่มีอยู่"
+
+#: ../../reference/romfs.rst:190
+msgid ""
+"``vfs.rom_ioctl(2, id)`` -- Return the ROM partition with index *id* as a "
+"``memoryview`` object.  The memory can be read but not written directly."
+msgstr ""
+"``vfs.rom_ioctl(2, id)`` -- ส่งคืนพาร์ทิชัน ROM ที่มี index *id* "
+"เป็นอ็อบเจกต์ ``memoryview`` "
+"หน่วยความจำสามารถอ่านได้แต่ไม่สามารถเขียนโดยตรงได้"
+
+#: ../../reference/romfs.rst:192
+msgid ""
+"``vfs.rom_ioctl(3, id, length)`` -- Prepare a ROM partition for writing. "
+"Erases the first *length* bytes of the partition with index *id*. Returns "
+"the minimum write size in bytes (the alignment required for subsequent "
+"writes)."
+msgstr ""
+"``vfs.rom_ioctl(3, id, length)`` -- เตรียมพาร์ทิชัน ROM สำหรับการเขียน ลบ "
+"*length* ไบต์แรกของพาร์ทิชันที่มี index *id* "
+"ส่งคืนขนาดการเขียนขั้นต่ำเป็นไบต์ "
+"(การจัดตำแหน่งที่จำเป็นสำหรับการเขียนครั้งถัดไป)"
+
+#: ../../reference/romfs.rst:196
+msgid ""
+"``vfs.rom_ioctl(4, id, offset, buf)`` -- Write *buf* (a bytes-like object) "
+"to the ROM partition with index *id* at byte *offset*."
+msgstr ""
+"``vfs.rom_ioctl(4, id, offset, buf)`` -- เขียน *buf* (อ็อบเจกต์คล้าย bytes) "
+"ไปยังพาร์ทิชัน ROM ที่มี index *id* ที่ byte *offset*"
+
+#: ../../reference/romfs.rst:198
+msgid ""
+"``vfs.rom_ioctl(5, id)`` -- Complete a write sequence to partition *id* "
+"(performs any finalisation needed after writing, such as cache flushing)."
+msgstr ""
+"``vfs.rom_ioctl(5, id)`` -- เสร็จสิ้นลำดับการเขียนไปยังพาร์ทิชัน *id* "
+"(ดำเนินการสรุปผลที่จำเป็นหลังการเขียน เช่น การล้างแคช)"
+
+#: ../../reference/romfs.rst:201
+msgid ""
+"These operations are used internally by ``mpremote`` to deploy ROMFS images."
+" Most users do not need to call ``vfs.rom_ioctl()`` directly."
+msgstr ""
+"การดำเนินการเหล่านี้ถูกใช้ภายในโดย ``mpremote`` เพื่อปรับใช้อิมเมจ ROMFS "
+"ผู้ใช้ส่วนใหญ่ไม่จำเป็นต้องเรียก ``vfs.rom_ioctl()`` โดยตรง"
+
+#: ../../reference/romfs.rst:204
+msgid "Example (querying available partitions)::"
+msgstr "ตัวอย่าง (การสอบถามพาร์ทิชันที่มีอยู่)::"
+
+#: ../../reference/romfs.rst:215
+msgid "Automatic mounting at boot"
+msgstr "การ mount อัตโนมัติตอนบูต"
+
+#: ../../reference/romfs.rst:217
+msgid ""
+"When ROMFS support is enabled in the firmware, MicroPython will "
+"automatically attempt to mount the first ROM partition at ``/rom`` during "
+"initialisation. If the partition contains a valid ROMFS image, it is mounted"
+" and both ``/rom`` and ``/rom/lib`` are added to ``sys.path`` automatically."
+msgstr ""
+"เมื่อเปิดใช้งานการรองรับ ROMFS ใน เฟิร์มแวร์ MicroPython จะพยายาม mount "
+"พาร์ทิชัน ROM แรกที่ ``/rom`` โดยอัตโนมัติระหว่างการเริ่มต้นระบบ "
+"หากพาร์ทิชันมีอิมเมจ ROMFS ที่ถูกต้อง ระบบจะ mount และเพิ่มทั้ง ``/rom`` และ"
+" ``/rom/lib`` เข้า ``sys.path`` โดยอัตโนมัติ"
+
+#: ../../reference/romfs.rst:222
+msgid ""
+"This means that after deploying a ROMFS image with ``mpremote``, a soft-"
+"reset is sufficient to make the new modules importable."
+msgstr ""
+"ซึ่งหมายความว่าหลังจากปรับใช้อิมเมจ ROMFS ด้วย ``mpremote`` การ soft-reset "
+"เพียงครั้งเดียวก็เพียงพอที่จะทำให้โมดูลใหม่ import ได้"
+
+#: ../../reference/romfs.rst:225
+msgid ""
+"If no valid ROMFS image is found in the partition (e.g. on a freshly-"
+"programmed board), the mount is silently skipped."
+msgstr ""
+"หากไม่พบอิมเมจ ROMFS ที่ถูกต้องในพาร์ทิชัน (เช่น บนบอร์ดที่เพิ่งโปรแกรมใหม่)"
+" การ mount จะถูกข้ามอย่างเงียบ ๆ"
+
+#: ../../reference/romfs.rst:231
+msgid "Using mpremote to manage ROMFS"
+msgstr "การใช้ mpremote เพื่อจัดการ ROMFS"
+
+#: ../../reference/romfs.rst:233
+msgid ""
+"The :ref:`mpremote <mpremote>` tool provides three sub-commands for managing"
+" ROMFS images on a connected device."
+msgstr ""
+"เครื่องมือ :ref:`mpremote <mpremote>` มี sub-commands "
+"สามรายการสำหรับจัดการอิมเมจ ROMFS บนอุปกรณ์ที่เชื่อมต่อ"
+
+#: ../../reference/romfs.rst:239
+msgid "romfs query"
+msgstr "romfs query"
+
+#: ../../reference/romfs.rst:245
+msgid ""
+"Lists all available ROMFS partitions on the device and their sizes.  Also "
+"shows the first 12 bytes of each partition in hex and reports whether a "
+"valid ROMFS image is present."
+msgstr ""
+"แสดงรายการพาร์ทิชัน ROMFS ทั้งหมดที่มีอยู่บนอุปกรณ์และขนาดของแต่ละพาร์ทิชัน "
+"นอกจากนี้ยังแสดง 12 ไบต์แรกของแต่ละพาร์ทิชันในรูปแบบ hex "
+"และรายงานว่ามีอิมเมจ ROMFS ที่ถูกต้องหรือไม่"
+
+#: ../../reference/romfs.rst:249
+msgid "Example output::"
+msgstr "ตัวอย่างผลลัพธ์::"
+
+#: ../../reference/romfs.rst:258
+msgid "romfs build"
+msgstr "romfs build"
+
+#: ../../reference/romfs.rst:264
+msgid ""
+"Build a ROMFS image from the directory *source* on the host PC.  The image "
+"is written to *output* (default: ``<source>.romfs``)."
+msgstr ""
+"สร้างอิมเมจ ROMFS จากไดเรกทอรี *source* บน PC แม่ข่าย อิมเมจจะถูกเขียนไปยัง "
+"*output* (ค่าเริ่มต้น: ``<source>.romfs``\\ )"
+
+#: ../../reference/romfs.rst:267 ../../reference/romfs.rst:300
+msgid "Options:"
+msgstr "ตัวเลือก:"
+
+#: ../../reference/romfs.rst:269
+msgid "``-o <output>``, ``--output <output>``: Specify the output file path."
+msgstr "``-o <output>``\\ , ``--output <output>``\\ : ระบุ path ไฟล์ผลลัพธ์"
+
+#: ../../reference/romfs.rst:270
+msgid ""
+"``-m``, ``--mpy`` (default): Automatically compile ``.py`` files to ``.mpy``"
+" using ``mpy_cross`` before adding them to the image.  Requires the "
+"``mpy_cross`` Python package (``pip install mpy_cross``)."
+msgstr ""
+"``-m``\\ , ``--mpy`` (ค่าเริ่มต้น): คอมไพล์ไฟล์ ``.py`` เป็น ``.mpy`` "
+"โดยอัตโนมัติโดยใช้ ``mpy_cross`` ก่อนเพิ่มเข้าอิมเมจ ต้องติดตั้ง Python "
+"package ``mpy_cross`` (\\ ``pip install mpy_cross``\\ )"
+
+#: ../../reference/romfs.rst:273 ../../reference/romfs.rst:306
+msgid "``--no-mpy``: Disable automatic compilation of ``.py`` files."
+msgstr "``--no-mpy``\\ : ปิดการคอมไพล์ไฟล์ ``.py`` อัตโนมัติ"
+
+#: ../../reference/romfs.rst:288
+msgid "romfs deploy"
+msgstr "romfs deploy"
+
+#: ../../reference/romfs.rst:294
+msgid "Deploy a ROMFS image to the device.  *source* can be either:"
+msgstr "ปรับใช้อิมเมจ ROMFS ไปยังอุปกรณ์ *source* สามารถเป็น:"
+
+#: ../../reference/romfs.rst:296
+msgid ""
+"A directory on the host: the ROMFS image is built in memory and deployed "
+"directly."
+msgstr ""
+"ไดเรกทอรีบนเครื่องแม่ข่าย: อิมเมจ ROMFS "
+"ถูกสร้างในหน่วยความจำและปรับใช้โดยตรง"
+
+#: ../../reference/romfs.rst:298
+msgid ""
+"A ``.romfs`` or ``.img`` file: the image is read from disk and deployed."
+msgstr "ไฟล์ ``.romfs`` หรือ ``.img``\\ : อิมเมจถูกอ่านจากดิสก์และปรับใช้"
+
+#: ../../reference/romfs.rst:302
+msgid ""
+"``-p <partition>``, ``--partition <partition>``: Specify the target "
+"partition index (default: ``0``)."
+msgstr ""
+"``-p <partition>``\\ , ``--partition <partition>``\\ : ระบุ index "
+"พาร์ทิชันเป้าหมาย (ค่าเริ่มต้น: ``0``\\ )"
+
+#: ../../reference/romfs.rst:304
+msgid ""
+"``-m``, ``--mpy`` (default): Compile ``.py`` to ``.mpy`` when *source* is a "
+"directory."
+msgstr ""
+"``-m``\\ , ``--mpy`` (ค่าเริ่มต้น): คอมไพล์ ``.py`` เป็น ``.mpy`` เมื่อ "
+"*source* เป็นไดเรกทอรี"
+
+#: ../../reference/romfs.rst:308
+msgid ""
+"After deployment, the device must be soft-reset for the new ROMFS to be "
+"mounted at ``/rom``."
+msgstr ""
+"หลังการปรับใช้ อุปกรณ์ต้องถูก soft-reset เพื่อให้ ROMFS ใหม่ถูก mount ที่ "
+"``/rom``"
+
+#: ../../reference/romfs.rst:328
+msgid "Examples"
+msgstr "ตัวอย่าง"
+
+#: ../../reference/romfs.rst:331
+msgid "Deploying a simple application"
+msgstr "การปรับใช้แอปพลิเคชันธรรมดา"
+
+#: ../../reference/romfs.rst:333
+msgid ""
+"Suppose you have a project directory ``myapp/`` with the following "
+"structure::"
+msgstr "สมมติว่าคุณมีไดเรกทอรีโปรเจกต์ ``myapp/`` ที่มีโครงสร้างดังนี้::"
+
+#: ../../reference/romfs.rst:341
+msgid "To deploy it to the device's ROMFS::"
+msgstr "เพื่อปรับใช้กับ ROMFS ของอุปกรณ์::"
+
+#: ../../reference/romfs.rst:345
+msgid "After a soft-reset, the modules are importable from the ROMFS::"
+msgstr "หลังจาก soft-reset โมดูลสามารถ import ได้จาก ROMFS::"
+
+#: ../../reference/romfs.rst:352
+msgid "Listing ROMFS contents from Python"
+msgstr "การแสดงเนื้อหา ROMFS จาก Python"
+
+#: ../../reference/romfs.rst:354
+msgid ""
+"After mounting, the ROMFS contents can be explored like any other "
+"filesystem::"
+msgstr "หลังจาก mount สามารถสำรวจเนื้อหา ROMFS ได้เหมือนกับระบบไฟล์อื่น ๆ::"
+
+#: ../../reference/romfs.rst:365
+msgid ""
+"OpenMV also ships a small :mod:`romfs` helper that prints a formatted "
+"listing including each file's memory-mapped address and alignment::"
+msgstr ""
+"OpenMV ยังมี helper :mod:`romfs` "
+"ขนาดเล็กที่แสดงรายการที่จัดรูปแบบรวมถึงที่อยู่ memory-mapped "
+"และการจัดตำแหน่งของแต่ละไฟล์::"
+
+#: ../../reference/romfs.rst:372
+msgid "Nesting a ROMFS within a ROMFS"
+msgstr "การซ้อน ROMFS ภายใน ROMFS"
+
+#: ../../reference/romfs.rst:374
+msgid ""
+"A ROMFS image stored as a file within an outer ROMFS can be mounted as a "
+"nested filesystem.  For example, if ``/rom/inner.romfs`` exists.  Because "
+"``/rom`` is a ROMFS, file objects opened from it support the buffer "
+"protocol, so a zero-copy ``memoryview`` can be obtained directly::"
+msgstr ""
+"อิมเมจ ROMFS ที่เก็บเป็นไฟล์ภายใน ROMFS ภายนอกสามารถ mount "
+"เป็นระบบไฟล์ซ้อนกันได้ ตัวอย่างเช่น หากมี ``/rom/inner.romfs`` เนื่องจาก "
+"``/rom`` เป็น ROMFS อ็อบเจกต์ไฟล์ที่เปิดจากมันจะรองรับ buffer protocol "
+"ดังนั้นจึงสามารถรับ ``memoryview`` แบบ zero-copy ได้โดยตรง::"
+
+#: ../../reference/romfs.rst:388
+msgid "ROMFS image format"
+msgstr "รูปแบบอิมเมจ ROMFS"
+
+#: ../../reference/romfs.rst:390
+msgid ""
+"The ROMFS image format is a compact binary format designed for memory-mapped"
+" access on microcontrollers.  A brief overview:"
+msgstr ""
+"รูปแบบอิมเมจ ROMFS เป็นรูปแบบไบนารีขนาดกะทัดรัดออกแบบมาสำหรับการเข้าถึงแบบ "
+"memory-mapped บนไมโครคอนโทรลเลอร์ ภาพรวมสั้น ๆ:"
+
+#: ../../reference/romfs.rst:393
+msgid ""
+"The image starts with the magic bytes ``0xd2 0xcd 0x31`` (encoded as "
+"``\"RM1\"`` with the high bits of the first two bytes set)."
+msgstr ""
+"อิมเมจเริ่มต้นด้วย magic bytes ``0xd2 0xcd 0x31`` (เข้ารหัสเป็น ``\"RM1\"`` "
+"โดยมีบิตสูงของสองไบต์แรกถูกตั้งค่า)"
+
+#: ../../reference/romfs.rst:395
+msgid ""
+"The remainder of the image is composed of *records*, each with a type tag "
+"(varuint), a length (varuint), and a payload."
+msgstr ""
+"ส่วนที่เหลือของอิมเมจประกอบด้วย *records* แต่ละรายการมี type tag (varuint), "
+"ความยาว (varuint) และ payload"
+
+#: ../../reference/romfs.rst:397
+msgid ""
+"Record types include: padding, verbatim data, indirect data pointer, "
+"directory, file."
+msgstr ""
+"ประเภทของ record ได้แก่: padding, verbatim data, indirect data pointer, "
+"directory, file"
+
+#: ../../reference/romfs.rst:399
+msgid "Directory and file names are stored as length-prefixed byte strings."
+msgstr "ชื่อไดเรกทอรีและไฟล์ถูกเก็บเป็น byte strings ที่นำหน้าด้วยความยาว"
+
+#: ../../reference/romfs.rst:400
+msgid ""
+"File data can be stored verbatim (inline) or via an indirect pointer to "
+"elsewhere in the image, which enables alignment for memory-mapped access."
+msgstr ""
+"ข้อมูลไฟล์สามารถเก็บแบบ verbatim (inline) หรือผ่าน indirect pointer "
+"ไปยังตำแหน่งอื่นในอิมเมจ ซึ่งช่วยให้จัดตำแหน่งสำหรับการเข้าถึงแบบ memory-"
+"mapped"
+
+#: ../../reference/romfs.rst:402
+msgid ""
+"Unknown record types are silently skipped, providing forwards compatibility."
+msgstr ""
+"ประเภท record ที่ไม่รู้จักจะถูกข้ามอย่างเงียบ ๆ "
+"เพื่อรองรับความเข้ากันได้ในอนาคต"
+
+#: ../../reference/romfs.rst:404
+msgid ""
+"This format is defined in ``extmod/vfs_rom.c`` in the MicroPython source. "
+"The Python implementation used by ``mpremote`` to build images is in "
+"``tools/mpremote/mpremote/romfs.py``."
+msgstr ""
+"รูปแบบนี้ถูกกำหนดไว้ใน ``extmod/vfs_rom.c`` ในซอร์สโค้ดของ MicroPython "
+"การใช้งาน Python ที่ ``mpremote`` ใช้สร้างอิมเมจอยู่ใน "
+"``tools/mpremote/mpremote/romfs.py``"
+
+#: ../../reference/romfs.rst:410
+msgid ""
+":ref:`filesystem` -- Overview of the MicroPython VFS and available "
+"filesystem types."
+msgstr ""
+":ref:`filesystem` -- ภาพรวมของ MicroPython VFS และประเภทระบบไฟล์ที่รองรับ"
+
+#: ../../reference/romfs.rst:413
+msgid ":ref:`manifest` -- How to freeze Python modules into firmware."
+msgstr ":ref:`manifest` -- วิธีการ freeze โมดูล Python เข้าใน เฟิร์มแวร์"
+
+#: ../../reference/romfs.rst:415
+msgid ":ref:`mpy_files` -- MicroPython ``.mpy`` binary file format."
+msgstr ":ref:`mpy_files` -- รูปแบบไฟล์ไบนารี ``.mpy`` ของ MicroPython"
+
+#: ../../reference/romfs.rst:417
+msgid ":ref:`mpremote` -- The full ``mpremote`` command reference."
+msgstr ":ref:`mpremote` -- เอกสารอ้างอิงคำสั่ง ``mpremote`` ฉบับสมบูรณ์"
+
+#: ../../reference/romfs.rst:419
+msgid ""
+":mod:`romfs` -- OpenMV helper for inspecting the mounted ``/rom`` "
+"filesystem."
+msgstr ""
+":mod:`romfs` -- helper ของ OpenMV สำหรับตรวจสอบระบบไฟล์ ``/rom`` ที่ mount "
+"ไว้"

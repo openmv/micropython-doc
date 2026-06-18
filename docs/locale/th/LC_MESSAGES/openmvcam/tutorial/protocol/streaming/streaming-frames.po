@@ -1,0 +1,309 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) The OpenMV MicroPython Documentation is Copyright ©
+# 2014-2026 by OpenMV, Damien P. George, and others.
+# This file is distributed under the same license as the OpenMV MicroPython
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenMV MicroPython 1.28\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-17 22:21-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: th <LL@li.org>\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:2
+msgid "Streaming frames"
+msgstr "การสตรีมเฟรม"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:4
+msgid ""
+"The most common real use of a custom channel is streaming image frames from "
+"the cam to a host program at the cam's frame rate. The mechanics are subtler"
+" than they look: a JPEG can run to 25 KB or more, so the host reads it as "
+"several fragments, and the cam's capture loop must be prevented from "
+"overwriting the buffer mid-read. The right pattern -- shown here and used by"
+" the tools in ``openmv-projects/tools/`` -- *latches* the buffer until the "
+"host finishes pulling the last byte."
+msgstr ""
+"การใช้งานช่องสัญญาณแบบกำหนดเองที่พบบ่อยที่สุดคือการสตรีมเฟรมภาพจากกล้องไปยังโปรแกรมโฮสต์ตามอัตราเฟรมของกล้อง"
+" กลไกนี้ซับซ้อนกว่าที่เห็น: JPEG อาจมีขนาดถึง 25 KB หรือมากกว่า "
+"ดังนั้นโฮสต์จึงอ่านเป็นหลายชิ้นส่วน "
+"และลูปการจับภาพของกล้องต้องถูกป้องกันไม่ให้เขียนทับบัฟเฟอร์ระหว่างการอ่าน "
+"รูปแบบที่ถูกต้อง -- แสดงไว้ที่นี่และใช้โดยเครื่องมือใน ``openmv-"
+"projects/tools/`` -- *ล็อก* บัฟเฟอร์ไว้จนกว่าโฮสต์จะดึงไบต์สุดท้ายเสร็จ"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:14
+msgid "The cam side"
+msgstr "ด้านกล้อง"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:16
+msgid ""
+"A frame channel that captures into a single framebuffer, latches it on the "
+"host's first read, and only takes the next snapshot once the host has "
+"consumed the full image::"
+msgstr ""
+"ช่องสัญญาณเฟรมที่จับภาพลงในบัฟเฟอร์เฟรมเดียว "
+"ล็อกบัฟเฟอร์เมื่อโฮสต์อ่านครั้งแรก "
+"และจะรับสแนปช็อตถัดไปก็ต่อเมื่อโฮสต์ดึงข้อมูลภาพทั้งหมดแล้วเท่านั้น::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:65
+msgid "Four pieces are doing real work here:"
+msgstr "มีสี่ส่วนที่ทำงานจริงที่นี่:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:67
+msgid ""
+"``frame_available`` is the *latch*. The capture loop only takes a new "
+"snapshot when it is :data:`False` -- meaning the host has pulled the last "
+"byte of the previous frame. The host's read sets it back to :data:`False` "
+"from inside ``readp`` once the final offset has been served. Without this "
+"guard, the next ``csi0.snapshot()`` would overwrite the buffer mid-read and "
+"the host would receive a frame stitched together from two captures."
+msgstr ""
+"``frame_available`` คือ *กลไกล็อก* "
+"ลูปการจับภาพจะรับสแนปช็อตใหม่ก็ต่อเมื่อค่านี้เป็น :data:`False` เท่านั้น -- "
+"หมายความว่าโฮสต์ดึงไบต์สุดท้ายของเฟรมก่อนหน้าแล้ว "
+"การอ่านของโฮสต์จะตั้งค่ากลับเป็น :data:`False` ภายใน ``readp`` เมื่อ offset "
+"สุดท้ายถูกส่งออกไป หากไม่มีการป้องกันนี้ ``csi0.snapshot()`` "
+"ถัดไปจะเขียนทับบัฟเฟอร์ระหว่างการอ่าน "
+"และโฮสต์จะได้รับเฟรมที่ประกอบขึ้นจากการจับภาพสองครั้ง"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:74
+msgid ""
+"``readp`` rather than ``read`` is what the backend implements. The protocol "
+"library treats the returned buffer as authoritative and reads its bytes "
+"directly into the outgoing packet -- no copy. For frame-sized payloads "
+"``readp`` is noticeably faster than ``read``, which forces an intermediate "
+"copy."
+msgstr ""
+"``readp`` rather than ``read`` คือสิ่งที่แบ็กเอนด์ใช้งาน "
+"ไลบรารีโปรโตคอลจะถือว่าบัฟเฟอร์ที่ส่งคืนมีความถูกต้องและอ่านไบต์โดยตรงลงในแพ็กเก็ตขาออก"
+" -- ไม่มีการคัดลอก สำหรับเพย์โหลดขนาดเท่าเฟรม ``readp`` จะเร็วกว่า ``read`` "
+"อย่างเห็นได้ชัด ซึ่งบังคับให้มีการคัดลอกชั่วคราว"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:79
+msgid ""
+"``size`` returns the cached JPEG length without recomputing anything; the "
+"capture loop maintains it whenever it refreshes the buffer. The host calls "
+"``size`` between ``poll`` and ``readp`` to know how many bytes to pull."
+msgstr ""
+"``size`` คืนค่าความยาว JPEG ที่แคชไว้โดยไม่คำนวณใหม่ "
+"ลูปการจับภาพจะอัปเดตค่านี้เมื่อรีเฟรชบัฟเฟอร์ โฮสต์เรียก ``size`` ระหว่าง "
+"``poll`` และ ``readp`` เพื่อทราบจำนวนไบต์ที่ต้องดึง"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:83
+msgid ""
+":meth:`~protocol.ProtocolChannel.send_event` notifies the host the instant a"
+" new frame lands so it can begin pulling without polling. The event ID "
+"``0x01`` is application-defined (\"frame ready\" in this case); use a "
+"different small integer for each kind of notification."
+msgstr ""
+":meth:`~protocol.ProtocolChannel.send_event` "
+"แจ้งโฮสต์ทันทีที่เฟรมใหม่มาถึงเพื่อให้โฮสต์เริ่มดึงข้อมูลได้โดยไม่ต้องโพล "
+"รหัสเหตุการณ์ ``0x01`` ถูกกำหนดโดยแอปพลิเคชัน (\"เฟรมพร้อม\" ในกรณีนี้) "
+"ใช้จำนวนเต็มขนาดเล็กที่แตกต่างกันสำหรับการแจ้งเตือนแต่ละประเภท"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:90
+msgid "Fragmentation"
+msgstr "การแบ่งส่วนข้อมูล"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:92
+msgid ""
+"QVGA RGB565 at JPEG quality 85 compresses to roughly 10-25 KB, depending on "
+"the scene -- much bigger than the negotiated max payload on any cam (see the"
+" per-board table in :func:`protocol.init`). One JPEG read won't fit in one "
+"packet, and that's fine, because the protocol library fragments it "
+"transparently."
+msgstr ""
+"QVGA RGB565 ที่คุณภาพ JPEG 85 บีบอัดได้ประมาณ 10-25 KB ขึ้นอยู่กับฉาก -- "
+"ใหญ่กว่าเพย์โหลดสูงสุดที่เจรจาไว้บนกล้องใดๆ มาก (ดูตารางต่อบอร์ดใน "
+":func:`protocol.init`\\ ) การอ่าน JPEG หนึ่งครั้งจะไม่พอดีในหนึ่งแพ็กเก็ต "
+"และนั่นก็ไม่เป็นปัญหา เพราะไลบรารีโปรโตคอลแบ่งส่วนข้อมูลแบบโปร่งใส"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:99
+msgid "When the host asks for ``channel_read('frame', 12000)``:"
+msgstr "เมื่อโฮสต์ขอ ``channel_read('frame', 12000)``\\ :"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:101
+msgid ""
+"The cam's ``readp`` is called *once* with ``offset=0`` and the full "
+"12000-byte request. It returns one memoryview covering the whole range."
+msgstr ""
+"``readp`` ของกล้องถูกเรียก *ครั้งเดียว* ด้วย ``offset=0`` และคำขอขนาด 12000 "
+"ไบต์เต็ม โดยส่งคืน memoryview หนึ่งตัวที่ครอบคลุมช่วงทั้งหมด"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:104
+msgid ""
+"The protocol library breaks that memoryview into max-payload- sized "
+"fragments on the wire, one ``CHANNEL_READ`` reply packet per fragment, each "
+"with its own header and CRC. The bytes are streamed out of the backend's "
+"buffer directly -- no copy."
+msgstr ""
+"ไลบรารีโปรโตคอลแบ่ง memoryview "
+"นั้นออกเป็นชิ้นส่วนขนาดเพย์โหลดสูงสุดบนสายสัญญาณ โดยมีหนึ่งแพ็กเก็ตตอบกลับ "
+"``CHANNEL_READ`` ต่อชิ้นส่วน แต่ละชิ้นมีส่วนหัวและ CRC ของตัวเอง "
+"ไบต์จะถูกสตรีมออกจากบัฟเฟอร์ของแบ็กเอนด์โดยตรง -- ไม่มีการคัดลอก"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:108
+msgid ""
+"The host receives the fragments in order, the reliability layer retransmits "
+"any one chunk that fails its CRC, and the host SDK glues the chunks into the"
+" 12000-byte result returned to the caller."
+msgstr ""
+"โฮสต์รับชิ้นส่วนตามลำดับ ชั้นความน่าเชื่อถือจะส่งซ้ำชิ้นส่วนที่ CRC ล้มเหลว "
+"และ SDK ของโฮสต์จะประกอบชิ้นส่วนเป็นผลลัพธ์ขนาด 12000 "
+"ไบต์ที่ส่งคืนให้ผู้เรียก"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:115
+msgid ""
+"This is the key practical difference between ``readp`` and ``read``. "
+"``readp`` is called *once per host request*; the protocol layer fragments "
+"and transmits out of the single returned buffer. ``read`` is called *once "
+"per fragment*, and the library copies each returned chunk into its own "
+"packet buffer. For frame-sized payloads ``readp`` saves both the per-"
+"fragment Python-level call overhead and the copy."
+msgstr ""
+"นี่คือความแตกต่างที่สำคัญในทางปฏิบัติระหว่าง ``readp`` และ ``read`` "
+"``readp`` ถูกเรียก *ครั้งเดียวต่อคำขอโฮสต์* "
+"โดยชั้นโปรโตคอลจะแบ่งส่วนและส่งจากบัฟเฟอร์ที่ส่งคืนเพียงตัวเดียว ``read`` "
+"ถูกเรียก *ครั้งเดียวต่อชิ้นส่วน* "
+"และไลบรารีจะคัดลอกแต่ละชิ้นส่วนที่ส่งคืนลงในบัฟเฟอร์แพ็กเก็ตของตัวเอง "
+"สำหรับเพย์โหลดขนาดเท่าเฟรม ``readp`` ช่วยประหยัดทั้งค่าใช้จ่ายในการเรียก "
+"Python ต่อชิ้นส่วนและการคัดลอก"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:125
+msgid ""
+"Want to see the gap for yourself? Rename the backend's ``readp`` method to "
+"``read`` -- nothing else changes; the library will pick up the ``read`` "
+"capability instead -- and compare the host's frame-rate counter before and "
+"after. The slower number is the per-fragment copy and Python-call cost you "
+"avoid by using ``readp``."
+msgstr ""
+"ต้องการดูความแตกต่างด้วยตัวเองไหม? เปลี่ยนชื่อเมธอด ``readp`` "
+"ของแบ็กเอนด์เป็น ``read`` -- ไม่มีอะไรเปลี่ยนแปลงอื่น ไลบรารีจะใช้ความสามารถ"
+" ``read`` แทน -- แล้วเปรียบเทียบตัวนับอัตราเฟรมของโฮสต์ก่อนและหลัง "
+"ตัวเลขที่ช้ากว่าคือค่าใช้จ่ายจากการคัดลอกและการเรียก Python "
+"ต่อชิ้นส่วนที่คุณหลีกเลี่ยงได้ด้วย ``readp``"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:132
+msgid ""
+"The latch in ``FrameChannel.readp`` releases the buffer when ``offset + size"
+" == img_size`` -- the moment the host has pulled the last byte. Until then, "
+"the buffer must stay valid, which is why the capture loop only takes the "
+"next snapshot once ``frame_available`` flips back to :data:`False`."
+msgstr ""
+"การล็อกใน ``FrameChannel.readp`` จะปล่อยบัฟเฟอร์เมื่อ ``offset + size == "
+"img_size`` -- ขณะที่โฮสต์ดึงไบต์สุดท้ายแล้ว จนกว่าจะถึงจุดนั้น "
+"บัฟเฟอร์ต้องยังคงใช้งานได้ "
+"นั่นเป็นเหตุผลว่าทำไมลูปการจับภาพจึงรับสแนปช็อตถัดไปก็ต่อเมื่อ "
+"``frame_available`` กลับเป็น :data:`False`"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:139
+msgid "The host side"
+msgstr "ด้านโฮสต์"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:141
+msgid "The host pulls frames in a tight loop::"
+msgstr "โฮสต์ดึงเฟรมในลูปแน่น::"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:158
+msgid ""
+"The :meth:`~openmv.camera.Camera.channel_size` call doubles as a \"is "
+"anything ready\" check -- zero means the cam hasn't captured yet -- so the "
+"loop skips read attempts on an empty buffer. For GUI applications that "
+"already poll on a timer, this is the natural pattern."
+msgstr ""
+"การเรียก :meth:`~openmv.camera.Camera.channel_size` ทำหน้าที่เป็นการตรวจสอบ "
+"\"มีอะไรพร้อมหรือไม่\" ด้วย -- ศูนย์หมายความว่ากล้องยังไม่ได้จับภาพ -- "
+"ดังนั้นลูปจึงข้ามการพยายามอ่านบัฟเฟอร์ว่าง สำหรับแอปพลิเคชัน GUI "
+"ที่โพลอยู่บนตัวจับเวลาอยู่แล้ว นี่คือรูปแบบที่เป็นธรรมชาติ"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:164
+msgid ""
+"Pillow's ``Image.open`` decodes the JPEG; the cam already JPEG-compressed it"
+" so the host doesn't have to redo expensive bit-packing on RGB565. The host "
+"script could just as easily save the bytes to disk, hand them to OpenCV, or "
+"push them through a web view."
+msgstr ""
+"``Image.open`` ของ Pillow ถอดรหัส JPEG กล้องบีบอัดเป็น JPEG "
+"ไว้แล้วดังนั้นโฮสต์ไม่ต้องทำการบีบแพ็กบิตบน RGB565 ซ้ำ "
+"สคริปต์โฮสต์อาจบันทึกไบต์ลงดิสก์ ส่งให้ OpenCV หรือแสดงผ่านเว็บวิวก็ได้"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:171
+msgid "Throughput thinking"
+msgstr "การคิดเรื่องปริมาณงานที่ผ่านได้"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:173
+msgid "Three things bound the achievable frame rate:"
+msgstr "สามสิ่งที่จำกัดอัตราเฟรมที่ทำได้:"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:175
+msgid ""
+"The cam's capture rate. The protocol can't deliver frames faster than the "
+"sensor produces them; whatever cap the chosen pixel format and frame size "
+"impose on capture is the ceiling."
+msgstr ""
+"อัตราการจับภาพของกล้อง โปรโตคอลไม่สามารถส่งเฟรมได้เร็วกว่าที่เซนเซอร์ผลิต "
+"ไม่ว่าขีดจำกัดที่รูปแบบพิกเซลและขนาดเฟรมที่เลือกกำหนดให้กับการจับภาพคือเพดาน"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:178
+msgid ""
+"The negotiated max payload. Bigger payloads mean fewer fragments per frame "
+"and less framing overhead, so cams with larger protocol buffers move bytes "
+"faster than smaller ones."
+msgstr ""
+"เพย์โหลดสูงสุดที่เจรจาไว้ "
+"เพย์โหลดที่ใหญ่กว่าหมายถึงชิ้นส่วนต่อเฟรมน้อยลงและค่าใช้จ่ายในการกำหนดกรอบน้อยลง"
+" "
+"ดังนั้นกล้องที่มีบัฟเฟอร์โปรโตคอลขนาดใหญ่จึงเคลื่อนย้ายไบต์ได้เร็วกว่ากล้องที่บัฟเฟอร์ขนาดเล็ก"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:181
+msgid ""
+"CRC and ACK overhead. Each packet costs 14 bytes of framing plus one ACK "
+"round-trip. For long fragments the per-payload overhead is small; for tiny "
+"payloads it dominates."
+msgstr ""
+"ค่าใช้จ่าย CRC และ ACK แต่ละแพ็กเก็ตใช้ 14 ไบต์สำหรับกรอบและ ACK "
+"หนึ่งรอบทริป สำหรับชิ้นส่วนยาว ค่าใช้จ่ายต่อเพย์โหลดน้อย "
+"สำหรับเพย์โหลดเล็กจะครอบงำ"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:185
+msgid ""
+"For most cam-to-laptop GUI work the limiting factor is the cam's capture and"
+" JPEG compression time, not the protocol stack. Where the protocol does "
+"become the bottleneck -- streaming uncompressed raw frames at high frame "
+"rates, for example -- the levers are turning off ACKs "
+"(``protocol.init(ack=False)``), increasing the protocol buffer if the cam "
+"supports it, or capturing in GRAYSCALE so each compressed JPEG carries one "
+"channel instead of three and the encoded frame ends up noticeably smaller on"
+" the wire."
+msgstr ""
+"สำหรับงาน GUI กล้องถึงแล็ปท็อปส่วนใหญ่ "
+"ปัจจัยจำกัดคือเวลาการจับภาพและการบีบอัด JPEG ของกล้อง ไม่ใช่สแต็กโปรโตคอล "
+"เมื่อโปรโตคอลกลายเป็นคอขวด -- เช่น "
+"การสตรีมเฟรมดิบที่ไม่ได้บีบอัดในอัตราเฟรมสูง -- คันโยกคือการปิด ACK (\\ "
+"``protocol.init(ack=False)``\\ ), เพิ่มบัฟเฟอร์โปรโตคอลหากกล้องรองรับ "
+"หรือจับภาพใน GRAYSCALE เพื่อให้แต่ละ JPEG "
+"บีบอัดมีช่องสัญญาณเดียวแทนสามช่องและเฟรมที่เข้ารหัสมีขนาดเล็กลงอย่างเห็นได้ชัดบนสายสัญญาณ"
+
+#: ../../openmvcam/tutorial/protocol/streaming/streaming-frames.rst:194
+msgid ""
+"The frame channel is the canonical cam-to-host data flow. The same backend "
+"interface, with a ``write`` method added, lets the host push data the other "
+"way too -- which is what an interactive cam tool needs as soon as the "
+"operator wants to *change* something rather than just watch."
+msgstr ""
+"ช่องสัญญาณเฟรมคือการไหลข้อมูลมาตรฐานจากกล้องไปโฮสต์ "
+"อินเทอร์เฟซแบ็กเอนด์เดียวกัน โดยเพิ่มเมธอด ``write`` "
+"ช่วยให้โฮสต์ส่งข้อมูลในทิศทางตรงกันข้ามด้วย -- "
+"ซึ่งเป็นสิ่งที่เครื่องมือกล้องแบบโต้ตอบต้องการทันทีที่ผู้ใช้ต้องการ "
+"*เปลี่ยนแปลง* บางสิ่ง ไม่ใช่แค่ดูเฉยๆ"
