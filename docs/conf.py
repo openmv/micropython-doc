@@ -42,6 +42,13 @@ micropython_version = "1.28"
 _build_date_value = _dt.date.today()
 build_date = _build_date_value.strftime("%d %b %Y")
 
+# Documentation version channel for this build -- the top-level URL segment the
+# site is hosted under (docs.openmv.io/<channel>/...). The CI sets it: "dev" for
+# the rolling master build, "v5.0.0" etc. for a tagged release snapshot. Old
+# release snapshots are frozen HTML and never rebuilt; "/latest/" and "/" are
+# redirect shims to the newest release. Defaults to "dev" for local builds.
+doc_channel = os.environ.get("OPENMV_DOCS_CHANNEL", "dev")
+
 # Values exposed to topindex.html and footer templates.
 # Resolve this submodule's HEAD SHA at build time so "Edit this
 # page" and the AI dropdown's raw-source link both pin to the exact
@@ -75,8 +82,9 @@ html_context = {
 
 # Site root — used by sphinx-llms-txt to emit absolute URLs in
 # /llms.txt and by Shibuya's "Copy page" / "Open in ChatGPT" dropdown
-# to fetch raw page source from /_sources/.
-html_baseurl = "https://docs.openmv.io/"
+# to fetch raw page source from /_sources/. Version-channel aware: every build
+# is hosted under docs.openmv.io/<channel>/.
+html_baseurl = "https://docs.openmv.io/{}/".format(doc_channel)
 
 # -- Landing page code examples (rendered via Pygments to match site code style) --
 from pygments import highlight as _pygments_highlight
@@ -356,37 +364,56 @@ suppress_warnings = ["i18n.inconsistent_references"]
 #   sphinx-build -b html -D language=zh_CN . _build/html/zh_CN
 #   sphinx-build -b html -D language=zh_TW . _build/html/zh_TW
 #
-# The zh_CN / zh_TW entries below go live once those builds are deployed.
-# English first (default), then A–Z by English language name.
-html_context["languages"] = [
-    ("English",    "/%s.html",       "en"),
-    ("العربية",    "/ar/%s.html",    "ar"),       # Arabic
-    ("简体中文",    "/zh_CN/%s.html", "zh-Hans"),  # Chinese (Simplified)
-    ("繁體中文",    "/zh_TW/%s.html", "zh-Hant"),  # Chinese (Traditional)
-    ("Hrvatski",   "/hr/%s.html",    "hr"),       # Croatian
-    ("Čeština",    "/cs/%s.html",    "cs"),       # Czech
-    ("Nederlands", "/nl/%s.html",    "nl"),       # Dutch
-    ("Suomi",      "/fi/%s.html",    "fi"),       # Finnish
-    ("Français",   "/fr/%s.html",    "fr"),       # French
-    ("Deutsch",    "/de/%s.html",    "de"),       # German
-    ("עברית",      "/he/%s.html",    "he"),       # Hebrew
-    ("Magyar",     "/hu/%s.html",    "hu"),       # Hungarian
-    ("Bahasa Indonesia", "/id/%s.html", "id"),    # Indonesian
-    ("Italiano",   "/it/%s.html",    "it"),       # Italian
-    ("日本語",      "/ja/%s.html",    "ja"),       # Japanese
-    ("한국어",      "/ko/%s.html",    "ko"),       # Korean
-    ("Polski",     "/pl/%s.html",    "pl"),       # Polish
-    ("Português (Brasil)",   "/pt_BR/%s.html", "pt-BR"),  # Portuguese (Brazil)
-    ("Português (Portugal)", "/pt_PT/%s.html", "pt-PT"),  # Portuguese (Portugal)
-    ("Română",     "/ro/%s.html",    "ro"),       # Romanian
-    ("Русский",    "/ru/%s.html",    "ru"),       # Russian
-    ("Español",    "/es/%s.html",    "es"),       # Spanish
-    ("Svenska",    "/sv/%s.html",    "sv"),       # Swedish
-    ("ไทย",        "/th/%s.html",    "th"),       # Thai
-    ("Türkçe",     "/tr/%s.html",    "tr"),       # Turkish
-    ("Українська", "/uk/%s.html",    "uk"),       # Ukrainian
-    ("Tiếng Việt", "/vi/%s.html",    "vi"),       # Vietnamese
+# (display name, language subdirectory, hreflang). English is the bare root of
+# the version channel; each translation lives under <subdir>/. English first,
+# then A–Z by English language name.
+_languages = [
+    ("English",              "",      "en"),
+    ("العربية",              "ar",    "ar"),       # Arabic
+    ("简体中文",              "zh_CN", "zh-Hans"),  # Chinese (Simplified)
+    ("繁體中文",              "zh_TW", "zh-Hant"),  # Chinese (Traditional)
+    ("Hrvatski",             "hr",    "hr"),       # Croatian
+    ("Čeština",              "cs",    "cs"),       # Czech
+    ("Nederlands",           "nl",    "nl"),       # Dutch
+    ("Suomi",                "fi",    "fi"),       # Finnish
+    ("Français",             "fr",    "fr"),       # French
+    ("Deutsch",              "de",    "de"),       # German
+    ("עברית",                "he",    "he"),       # Hebrew
+    ("Magyar",               "hu",    "hu"),       # Hungarian
+    ("Bahasa Indonesia",     "id",    "id"),       # Indonesian
+    ("Italiano",             "it",    "it"),       # Italian
+    ("日本語",                "ja",    "ja"),       # Japanese
+    ("한국어",                "ko",    "ko"),       # Korean
+    ("Polski",               "pl",    "pl"),       # Polish
+    ("Português (Brasil)",   "pt_BR", "pt-BR"),    # Portuguese (Brazil)
+    ("Português (Portugal)", "pt_PT", "pt-PT"),    # Portuguese (Portugal)
+    ("Română",               "ro",    "ro"),       # Romanian
+    ("Русский",              "ru",    "ru"),       # Russian
+    ("Español",              "es",    "es"),       # Spanish
+    ("Svenska",              "sv",    "sv"),       # Swedish
+    ("ไทย",                  "th",    "th"),       # Thai
+    ("Türkçe",               "tr",    "tr"),       # Turkish
+    ("Українська",           "uk",    "uk"),       # Ukrainian
+    ("Tiếng Việt",           "vi",    "vi"),       # Vietnamese
 ]
+# Channel-prefixed URL patterns; %s is the page name (filled by Shibuya's
+# i18n_link). Switching language keeps the current version + page, e.g.
+# "/dev/de/%s.html". English is "/dev/%s.html".
+html_context["languages"] = [
+    (label,
+     "/{c}/{p}%s.html".format(c=doc_channel, p=(sub + "/" if sub else "")),
+     hreflang)
+    for (label, sub, hreflang) in _languages
+]
+
+# Documentation-version switcher (Shibuya's nav-versions component, rendered
+# left of the language switcher). ``current_version`` is the button label.
+# ``versions`` is only a bootstrap so the element renders; the real,
+# always-current list -- with per-page links that keep the current language --
+# is populated client-side from /versions.json by static/nav-versions.js, so
+# even frozen old snapshots show the full, current version list.
+html_context["current_version"] = doc_channel
+html_context["versions"] = [(doc_channel, "")]
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -577,6 +604,10 @@ html_js_files = [
     # Re-publish --sy-s-offset-top from the real header height so sticky
     # elements stay aligned when the navbar wraps (long translated labels).
     "navbar-height.js",
+    # Populate the version switcher from /versions.json (per-page links that
+    # keep the current language), so even frozen old snapshots list every
+    # version. See static/nav-versions.js.
+    "nav-versions.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
