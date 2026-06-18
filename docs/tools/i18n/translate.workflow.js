@@ -18,7 +18,8 @@ const A = (typeof args === 'string') ? JSON.parse(args) : args
 const code = A.code
 const native = A.native
 const nbatches = A.nbatches
-log(`JOB code=${code} native=${native} nbatches=${nbatches}`)
+const MODEL = A.model || undefined   // e.g. "sonnet" to translate cheaper; omit to inherit
+log(`JOB code=${code} native=${native} nbatches=${nbatches} model=${MODEL || 'inherit'}`)
 
 const RULES = `
 - Translate the PROSE only. Produce natural, fluent technical writing in ${native} -- not literal word-for-word.
@@ -44,7 +45,7 @@ Produce a concise glossary giving the SINGLE canonical ${native} rendering for e
 frame buffer, machine vision, snapshot, blob, threshold, image, frame, sensor, camera, pixel, grayscale, color, resolution, firmware, bootloader, flash, sketch, script, REPL, exposure, gain, region of interest (ROI), histogram, contour, edge, feature, model (ML), inference, neural network, dataset, label, bounding box, classification, detection, segmentation, keypoint, descriptor, draw, overlay, buffer, callback, interrupt, peripheral, register, pin, timer, baud rate, throughput, latency.
 Also give a short list of terms to ALWAYS keep in English (product/proper names + APIs).
 Output as compact markdown: a "Term | ${native}" table, then a "Keep in English:" line. No preamble.`,
-  { label: `glossary:${code}`, phase: 'Glossary' }
+  { label: `glossary:${code}`, phase: 'Glossary', model: MODEL }
 )
 
 phase('Translate')
@@ -89,7 +90,7 @@ const SCHEMA = {
 const idx = Array.from({ length: nbatches }, (_, i) => i)
 const results = await parallel(
   idx.map((i) => () =>
-    agent(batchPrompt(i), { label: `tr:${code}:${i}`, phase: 'Translate', schema: SCHEMA })
+    agent(batchPrompt(i), { label: `tr:${code}:${i}`, phase: 'Translate', schema: SCHEMA, model: MODEL })
   )
 )
 
