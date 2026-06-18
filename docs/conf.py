@@ -362,16 +362,21 @@ html_context["languages"] = [
     ("Deutsch",    "/de/%s.html",    "de"),       # German
     ("עברית",      "/he/%s.html",    "he"),       # Hebrew
     ("Magyar",     "/hu/%s.html",    "hu"),       # Hungarian
+    ("Bahasa Indonesia", "/id/%s.html", "id"),    # Indonesian
     ("Italiano",   "/it/%s.html",    "it"),       # Italian
     ("日本語",      "/ja/%s.html",    "ja"),       # Japanese
     ("한국어",      "/ko/%s.html",    "ko"),       # Korean
     ("Polski",     "/pl/%s.html",    "pl"),       # Polish
-    ("Português",  "/pt_BR/%s.html", "pt-BR"),    # Portuguese
+    ("Português (Brasil)",   "/pt_BR/%s.html", "pt-BR"),  # Portuguese (Brazil)
+    ("Português (Portugal)", "/pt_PT/%s.html", "pt-PT"),  # Portuguese (Portugal)
     ("Română",     "/ro/%s.html",    "ro"),       # Romanian
     ("Русский",    "/ru/%s.html",    "ru"),       # Russian
     ("Español",    "/es/%s.html",    "es"),       # Spanish
     ("Svenska",    "/sv/%s.html",    "sv"),       # Swedish
+    ("ไทย",        "/th/%s.html",    "th"),       # Thai
     ("Türkçe",     "/tr/%s.html",    "tr"),       # Turkish
+    ("Українська", "/uk/%s.html",    "uk"),       # Ukrainian
+    ("Tiếng Việt", "/vi/%s.html",    "vi"),       # Vietnamese
 ]
 
 # There are two options for replacing |today|: either, you set today to some
