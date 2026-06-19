@@ -302,14 +302,20 @@ extensions = [
     "sphinx.ext.coverage",
 ]
 
-# Auto-generates /llms.txt + /llms-full.txt during the build so LLMs can
-# discover and ingest the docs without any per-page maintenance. The dump is
-# English source regardless of build language, so emitting it in every one of
-# the 26 per-language builds just duplicates ~5 MB x26. Gate it to the English
-# (channel-root) build only: CI sets OPENMV_DOCS_EMIT_LLMS=1 on that step and
-# leaves it unset for the per-language builds. Unset locally too, so set it if
-# you want to regenerate the dumps from a local English build.
-if os.environ.get("OPENMV_DOCS_EMIT_LLMS"):
+# llms.txt / llms-full.txt is English source regardless of build language and
+# only belongs at the channel root, so emitting it in all 26 per-language builds
+# just duplicates ~5 MB x26. CI sets OPENMV_DOCS_ROOT_BUILD=1 on the single
+# English (channel-root) build and leaves it unset for the per-language builds,
+# which then skip the extension entirely -- no duplicates to clean up. Set it
+# locally to regenerate the dumps from a local English build.
+#
+# NOTE: _sources/ is deliberately NOT gated this way. The Shibuya "Copy page /
+# Open in ChatGPT" dropdown only renders its source links when html_copy_source
+# is on, so every build must keep it (default True). The per-language _sources
+# copies are byte-identical to the root and never referenced locally (the
+# dropdown uses an absolute channel-root URL via the channel-aware html_baseurl),
+# so they are removed after the build by .ci/dedup_assets.py instead.
+if os.environ.get("OPENMV_DOCS_ROOT_BUILD"):
     extensions.append("sphinx_llms_txt")
 
 # Add any paths that contain templates here, relative to this directory.
