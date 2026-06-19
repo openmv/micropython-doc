@@ -300,6 +300,9 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
+    # Inline, autoplaying <video> embeds (replaces heavy animated GIFs). Copies
+    # the source file into the build like an image, so it's deduped per channel.
+    "sphinxcontrib.video",
 ]
 
 # llms.txt / llms-full.txt is English source regardless of build language and
