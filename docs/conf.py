@@ -300,10 +300,17 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
-    # Auto-generates /llms.txt + /llms-full.txt during the build so LLMs
-    # can discover and ingest the docs without any per-page maintenance.
-    "sphinx_llms_txt",
 ]
+
+# Auto-generates /llms.txt + /llms-full.txt during the build so LLMs can
+# discover and ingest the docs without any per-page maintenance. The dump is
+# English source regardless of build language, so emitting it in every one of
+# the 26 per-language builds just duplicates ~5 MB x26. Gate it to the English
+# (channel-root) build only: CI sets OPENMV_DOCS_EMIT_LLMS=1 on that step and
+# leaves it unset for the per-language builds. Unset locally too, so set it if
+# you want to regenerate the dumps from a local English build.
+if os.environ.get("OPENMV_DOCS_EMIT_LLMS"):
+    extensions.append("sphinx_llms_txt")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["templates"]
