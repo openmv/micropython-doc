@@ -623,6 +623,10 @@ html_js_files = [
     # keep the current language), so even frozen old snapshots list every
     # version. See static/nav-versions.js.
     "nav-versions.js",
+    # Re-scroll to the #anchor after the page settles -- images/fonts/MathJax
+    # shift the target after the browser's one-shot fragment jump, so deep
+    # links (e.g. IDE F1) land short. See static/anchor-scroll.js.
+    "anchor-scroll.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
