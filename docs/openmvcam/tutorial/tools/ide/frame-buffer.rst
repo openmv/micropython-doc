@@ -40,10 +40,9 @@ trade-off:
   uncompressed. The mode starts out at whichever the
   connected camera prefers -- JPG for most. JPG mode
   is much faster; RAW mode shows the exact pixel
-  values at the cost of frame rate. The button appears
-  for cameras running recent firmware, with a greyed
-  label beside it naming the format the current frame
-  arrived in.
+  values at the cost of frame rate. On newer cameras a
+  greyed label beside the button names the format the
+  current frame arrived in.
 
 The pane's title reads *Frame Buffer* and, once frames
 are arriving, the resolution of the displayed image.

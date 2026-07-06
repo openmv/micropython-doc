@@ -69,7 +69,7 @@ of the window becomes the camera's dashboard:
 * *FPS* -- the rate at which frames are arriving at the
   IDE. This is the preview rate, not necessarily the
   camera's capture rate -- a script can run faster than
-  the USB link can stream its frames. v5.0.0 cameras
+  the USB link can stream its frames. Newer cameras
   report both rates: the on-camera capture rate and the
   slower rate at which frames reach the IDE.
 
