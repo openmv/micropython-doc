@@ -34,9 +34,8 @@ unrelated upstream Qt Creator commits are not.
    </details>
 
    <details class="changelog-major">
-     <summary>v4 <span class="count">(40 releases)</span></summary>
+     <summary>v4 <span class="count">(39 releases)</span></summary>
      <ul class="changelog-versions">
-       <li><a href="v4.9.0.html">v4.9.0</a></li>
        <li><a href="v4.8.11.html">v4.8.11</a></li>
        <li><a href="v4.8.10.html">v4.8.10</a></li>
        <li><a href="v4.8.9.html">v4.8.9</a></li>
