@@ -28,11 +28,11 @@ its three actions.
 
 .. figure:: figures/settings-editor.png
    :class: framed
-   :alt: PLACEHOLDER -- the OpenMV Cam Settings Editor window showing a generated form with tabs and several control types, and the Save button
+   :alt: The OpenMV Cam Settings Editor showing the default demo configuration -- Camera, Processing, Network, and System tabs, with the Camera tab's exposure and gain sliders, resolution and pixel-format dropdowns, mirror and flip checkboxes, and a digital-zoom slider, above the Save and Cancel buttons
 
-   PLACEHOLDER: the settings editor with a configuration
-   open -- the controls from the JSON file laid out as a
-   form, with the Save button at the bottom.
+   The settings editor with the default configuration open --
+   the JSON file's controls laid out as a form (tabs, sliders,
+   dropdowns, checkboxes), with Save and Cancel at the bottom.
 
 How it works
 ------------
