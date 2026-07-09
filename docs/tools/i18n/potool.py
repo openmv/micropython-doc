@@ -69,11 +69,63 @@ def untranslated_entries(po):
 _SEP = '\\ '
 
 
+def _trim_inner_ws(s):
+    """Relocate whitespace sitting *immediately inside* an inline-markup
+    delimiter to just outside it. docutils requires a start-string to be
+    followed by non-whitespace and an end-string to be preceded by
+    non-whitespace, so a translator's ``**) **`` (from restructured nested
+    bold, e.g. dropping the word between the delimiters) parses as
+    "start-string without end-string". Moving the space out — ``**)** `` —
+    fixes parsing while leaving the visible text identical. Applies to
+    ``literal``/**strong**/*emphasis* spans (the ones translators actually
+    break this way); roles/links are left untouched."""
+    spans = list(_INLINE_RE.finditer(s))
+    if not spans:
+        return s
+    res, prev = '', 0
+    for m in spans:
+        res += s[prev:m.start()]
+        span = m.group(0)
+        rebuilt = lead = trail = None
+        for od, cd in (('``', '``'), ('**', '**'), ('*', '*')):
+            if span.startswith(od) and span.endswith(cd) and len(span) > len(od) + len(cd):
+                inner = span[len(od):len(span) - len(cd)]
+                core = inner.strip()
+                if core:  # skip degenerate all-whitespace spans (not fixable here)
+                    lead = inner[:len(inner) - len(inner.lstrip())]
+                    trail = inner[len(inner.rstrip()):]
+                    rebuilt = od + core + cd
+                break
+        if rebuilt is None:
+            res += span
+        else:
+            # Relocate the inner edge whitespace outside, collapsing it into any
+            # whitespace already adjacent so we never introduce a double space.
+            if lead and not (res and res[-1].isspace()):
+                res += lead
+            res += rebuilt
+            nxt = s[m.end()] if m.end() < len(s) else ''
+            if trail and nxt != '' and not nxt.isspace():
+                res += trail
+        prev = m.end()
+    res += s[prev:]
+    return res
+
+
 def cjk_pad(s):
-    """Insert a reST escaped-space wherever inline markup butts directly
-    against a CJK ideograph/kana/hangul/punctuation char, so docutils can
-    parse the markup. Invisible in output. Idempotent: skips edges that are
-    already preceded/followed by whitespace (incl. an existing escaped-space)."""
+    """Normalize inline-markup boundaries so docutils can parse them; invisible
+    in output and idempotent.
+
+    Two boundary defects are handled:
+      1. markup butting directly against a non-whitespace neighbour (a CJK
+         ideograph/kana/hangul, CJK/fullwidth punctuation, a non-ASCII letter
+         suffixed to a role like the German ``:doc:`Bild <t>`es``, or an ASCII
+         opener like ``(`` right after a ``literal``) -- separated with a reST
+         escaped-space ``\\ ``;
+      2. whitespace sitting immediately inside a delimiter (``**) **``) -- moved
+         outside via ``_trim_inner_ws`` before padding.
+    """
+    s = _trim_inner_ws(s)
     spans = [(m.start(), m.end()) for m in _INLINE_RE.finditer(s)]
     if not spans:
         return s
