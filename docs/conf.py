@@ -627,6 +627,9 @@ html_js_files = [
     # shift the target after the browser's one-shot fragment jump, so deep
     # links (e.g. IDE F1) land short. See static/anchor-scroll.js.
     "anchor-scroll.js",
+    # Tag the legacy (CMUcam) pages so their images/videos get framed corners.
+    # See static/legacy-frame.js.
+    "legacy-frame.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
