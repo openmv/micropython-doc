@@ -77,6 +77,8 @@ Constructors
    The CAN peripheral provides logic-level signals only; an external CAN
    transceiver is required to drive a real CAN bus.
 
+   ``pyb.CAN`` is not available on the OpenMV Cam N6.
+
    Methods
    -------
 
