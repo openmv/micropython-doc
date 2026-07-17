@@ -630,6 +630,10 @@ html_js_files = [
     # Tag the legacy (CMUcam) pages so their images/videos get framed corners.
     # See static/legacy-frame.js.
     "legacy-frame.js",
+    # Controls-less looping demo videos pop out into an enlarged lightbox on
+    # click, so fine text unreadable at column width can be read. See
+    # static/video-lightbox.js.
+    "video-lightbox.js",
 ]
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
