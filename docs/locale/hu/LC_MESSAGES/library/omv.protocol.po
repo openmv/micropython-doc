@@ -94,15 +94,18 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Inicializálja (vagy újrakonfigurálja) a protokollvermet, és regisztrálja az "
 "alapértelmezett logikai adatcsatornákat (\\ ``stdin``\\ , ``stdout``\\ , "
-"``stream`` és, ha be van fordítva, ``profile``\\ ). ``RuntimeError`` "
-"kivételt vált ki, ha az inicializálás meghiúsul. A firmware egy már futó, "
-"alapértelmezett USB-protokollveremmel indul, így ennek hívására csak a "
-"transzport megváltoztatásához vagy az alapértelmezett keretezési paraméterek"
-" felülbírálásához van szükség."
+"``stream`` és, ha be van fordítva, ``profile``\\ ). ``RuntimeError`` hibát "
+"vált ki, ha az inicializálás sikertelen. A firmware indulásakor már fut egy "
+"alapértelmezett USB protokollverem, így ezt csak akkor kell meghívni, ha meg"
+" szeretné változtatni a transzportot vagy felül szeretné bírálni az "
+"alapértelmezett keretezési paramétereket. Az ismételt meghívás "
+"újrainicializálja a vermet: az előző lekérdezési időzítő eltávolításra "
+"kerül, és a csatornák újra regisztrálódnak."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -255,6 +258,31 @@ msgid ""
 msgstr ""
 "``True`` értéket ad vissza, ha jelenleg csatlakozik egy gazda, és a "
 "protokollverem aktív, egyébként ``False`` értéket."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Lefuttatja a protokollfeladat egy iterációját: kiüríti a transzport vételi "
+"pufferét, feldolgozza a beérkezett teljes kereteket, továbbítja a "
+"parancsokat és kiszolgálja a csatornaeseményeket. Ezt a firmware normál "
+"esetben elvégzi Ön helyett az USB-megszakításból és a ``poll_ms`` "
+"időzítőből, így csak olyan egyéni transzportokhoz szükséges, amelyeket egyik"
+" sem hajt meg -- például amikor ``poll_ms=0``\\ , és a transzportot a "
+"szkript fő ciklusa kérdezi le."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Siker esetén ``0``\\ -t ad vissza, ``-1``\\ -et pedig akkor, ha nincs aktív "
+"transzport regisztrálva, vagy a hívás megszakítási kontextusból történt."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -451,20 +479,22 @@ msgstr ""
 "Transzportcsatornák esetén ``True`` értéket ad vissza, ha a mögöttes "
 "transzport jelenleg csatlakozik."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Egy magasabb szintű Python-háttérprogram (amelyet a befagyasztott "
-"``protocol`` csomag biztosít), amely a megnevezett mezőket CBOR-ba sorosítja"
-" SenML-kompatibilis egész kulcsok használatával. Támogat megjelenítő "
-"widgeteket (\\ ``label``\\ , ``depth``\\ ) és interaktív vezérlőket (\\ "
-"``toggle``\\ , ``slider``\\ , ``select``\\ ) ``on_read``\\ /\\ ``on_write`` "
-"visszahívásokkal."
+"Magasabb szintű Python háttérrendszer (a befagyasztott ``protocol`` csomag "
+"biztosítja), amely a nevesített mezőket SenML-kompatibilis egész kulcsokkal "
+"CBOR formátumba sorosítja. Támogatja a megjelenítő widgeteket (\\ "
+"``label``\\ , ``text``\\ , ``depth``\\ , ``waveform``\\ ) és az interaktív "
+"vezérlőket (\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , "
+"``spinbox``\\ , ``select``\\ , ``radio``\\ , ``lineedit``\\ ) ``on_read``\\ "
+"/\\ ``on_write`` visszahívásokkal."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -494,42 +524,112 @@ msgstr ""
 "A ``name`` a megjelenítendő név; ezen a csatornán belül egyedinek kell "
 "lennie."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "A ``type`` a widget típusa:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr ""
+"``\"label\"`` -- csak olvasható numerikus kijelző opcionális ``unit`` "
+"mértékegységgel."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- csak olvasható karakterlánc-kijelző."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- logikai kapcsoló."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"A ``type`` a widget típusa: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` vagy ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- pillanatnyi művelet (indítás, kalibrálás, ...). A host"
+" kattintáskor ``True`` értéket ír, és nem jelenít meg állapotot."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
 msgstr ""
-"A ``value`` a kezdőérték. Az alapértelmezés a ``type`` értékétől függ."
+"``\"slider\"`` -- numerikus vezérlő ``min``\\ /\\ ``max``\\ /\\ ``step`` "
+"értékekkel."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"A ``unit`` a ``label``\\ /\\ ``slider`` mértékegység-karakterlánca (pl. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- pontos, lépésköz szerinti numerikus bevitel; a slider "
+"mezőit és a ``(min, max, value)`` tuple-es frissítési formát használja."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "A ``min`` a minimális érték (csúszka- vagy mélységtartomány)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- legördülő lista az ``options`` karakterláncokból."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "A ``max`` a maximális érték (csúszka- vagy mélységtartomány)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- az ``options`` választógomb-csoportként megjelenítve."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "A ``step`` a lépésköz (csúszka)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- írható karakterlánc-bevitel."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "Az ``options`` az opció-karakterláncok listája (select)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` -- ``width`` x ``height`` méretű 2D mélységtérkép-kijelző."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- átlapolt mintákból álló 1D idősor-diagram."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"A ``value`` a kezdőérték. Az alapértelmezés a ``type`` értékétől függ: ``0``"
+" a ``label``\\ , ``\"\"`` a ``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ /"
+" ``radio``\\ , ``False`` a ``toggle``\\ /\\ ``pushbutton``\\ , ``min`` a "
+"``slider``\\ /\\ ``spinbox`` esetén."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"A ``unit`` a mértékegység karakterlánca a ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` esetén (pl. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"A ``min`` a minimális érték (slider/spinbox tartomány, illetve "
+"depth/waveform megjelenítési tartomány)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"A ``max`` a maximális érték (slider/spinbox tartomány, illetve "
+"depth/waveform megjelenítési tartomány)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "A ``step`` a lépésköz (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"Az ``options`` az opciók karakterláncainak listája (select/radio), vagy a "
+"sorozatonkénti nevek listája (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -539,23 +639,59 @@ msgstr "A ``width`` a képpontban megadott szélesség (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "A ``height`` a képpontban megadott magasság (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Visszaadja a megnevezett mező aktuális értékét. ``depth`` mezők esetén a "
-"bináris adatpuffert adja vissza, egyébként a skalárértéket."
+"A ``sample_rate`` a mintavételi frekvencia másodpercenkénti mintában "
+"(waveform). A host felé mintavételi periódusként kerül elküldésre."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Beállítja a megnevezett mező értékét. ``slider`` mezők esetén egy ``(min, "
-"max, value)`` rekord egyszerre frissíti a tartományt és az aktuális értéket."
-" ``depth`` mezők esetén a ``value`` a bináris adatpuffer."
+"A ``series`` az egyes mintablokkokban átlapolt sorozatok száma (waveform), "
+"pl. ``3`` egy XYZ gyorsulásmérő-görbe esetén."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"A ``typecode`` a waveform minták :mod:`array` típuskódja (pl. ``\"H\"``\\ , "
+"``\"h\"``\\ , ``\"f\"``\\ ). Alapértelmezése ``\"H\"`` (előjel nélküli 16 "
+"bites)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Visszaadja a megnevezett mező aktuális értékét. A ``depth`` és ``waveform`` "
+"mezők esetén a bináris adatpuffer, egyébként a skalár érték kerül "
+"visszaadásra."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Beállítja a megnevezett mező értékét. A ``slider`` és ``spinbox`` mezők "
+"esetén egy ``(min, max, value)`` tuple egyszerre frissíti a tartományt és az"
+" aktuális értéket. A ``depth`` mezők esetén a ``value`` a bináris "
+"adatpuffer. A ``waveform`` mezők esetén a ``value`` egy bájtszerű blokk, "
+"amely a mező ``typecode`` típuskódja szerinti átlapolt mintákat tartalmaz; a"
+" sorozatonkénti mintaszám a hosszából kerül kiszámításra, és egy monoton "
+"időbélyeg (mikroszekundumban, a :func:`time.ticks_us` alapján halmozva) "
+"kapcsolódik hozzá, hogy a host el tudja helyezni a darabot az időtengelyén."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

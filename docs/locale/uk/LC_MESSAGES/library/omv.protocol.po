@@ -93,14 +93,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Ініціалізує (або переналаштовує) стек протоколу та реєструє стандартні "
 "логічні канали даних (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` і, якщо "
-"скомпільовано, ``profile``\\ ). Генерує ``RuntimeError`` у разі помилки "
-"ініціалізації. Мікропрограма завантажується із вже запущеним стандартним "
-"стеком протоколу USB, тому виклик цієї функції потрібен лише для зміни "
-"транспорту або перевизначення стандартних параметрів фреймування."
+"скомпільовано, ``profile``\\ ). Викликає ``RuntimeError``\\ , якщо "
+"ініціалізація не вдалася. Мікропрограма завантажується з уже запущеним "
+"стандартним стеком протоколу USB, тому цей виклик потрібен лише для зміни "
+"транспорту або перевизначення стандартних параметрів фреймування. Повторний "
+"виклик повторно ініціалізує стек: попередній таймер опитування видаляється, "
+"а канали реєструються заново."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -253,6 +256,30 @@ msgid ""
 msgstr ""
 "Повертає ``True``\\ , якщо хост наразі підключений і стек протоколу "
 "активний, інакше ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Виконує одну ітерацію задачі протоколу: спорожняє приймальний буфер "
+"транспорту, розбирає всі повні фрейми, диспетчеризує команди та обслуговує "
+"події каналів. Зазвичай мікропрограма робить це за вас із переривання USB та"
+" з таймера ``poll_ms``\\ , тому це потрібно лише для власних транспортів, "
+"які не керуються жодним із них -- наприклад, коли ``poll_ms=0`` і транспорт "
+"опитується з головного циклу скрипта."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Повертає ``0`` у разі успіху та ``-1``\\ , якщо не зареєстровано активного "
+"транспорту або виклик було зроблено з контексту переривання."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -446,20 +473,22 @@ msgstr ""
 "Для транспортних каналів повертає ``True``\\ , якщо базовий транспорт наразі"
 " підключений."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Бекенд Python вищого рівня (надається замороженим пакетом ``protocol``\\ ), "
-"який серіалізує іменовані поля до CBOR з використанням цілочисельних ключів,"
-" сумісних із SenML. Підтримує відображувальні віджети (\\ ``label``\\ , "
-"``depth``\\ ) та інтерактивні елементи керування (\\ ``toggle``\\ , "
-"``slider``\\ , ``select``\\ ) із зворотними викликами ``on_read``\\ /\\ "
-"``on_write``\\ ."
+"Високорівневий Python-бекенд (надається замороженим пакетом ``protocol``\\ "
+"), який серіалізує іменовані поля в CBOR, використовуючи цілочисельні ключі,"
+" сумісні з SenML. Підтримує віджети відображення (\\ ``label``\\ , "
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) та інтерактивні елементи "
+"керування (\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\"
+" , ``select``\\ , ``radio``\\ , ``lineedit``\\ ) зі зворотними викликами "
+"``on_read``\\ /\\ ``on_write``\\ ."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -488,45 +517,116 @@ msgstr ""
 "``name`` --- відображувана назва; повинна бути унікальною в межах цього "
 "каналу."
 
-#: ../../library/omv.protocol.rst:322
-msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
-msgstr ""
-"``type`` --- тип віджета: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` або ``\"depth\"``\\ ."
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` --- тип віджета:"
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr ""
+"``\"label\"`` -- числовий індикатор лише для читання з необов'язковим "
+"``unit``\\ ."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- рядковий індикатор лише для читання."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- логічний перемикач."
+
+#: ../../library/omv.protocol.rst:342
+msgid ""
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
+msgstr ""
+"``\"pushbutton\"`` -- миттєва дія (запуск, калібрування, ...). Хост записує "
+"``True`` при натисканні і не відображає жодного стану."
+
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr ""
+"``\"slider\"`` -- числовий елемент керування з ``min``\\ /\\ ``max``\\ /\\ "
+"``step``\\ ."
+
+#: ../../library/omv.protocol.rst:345
+msgid ""
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
+msgstr ""
+"``\"spinbox\"`` -- точне покрокове числове введення; має ті самі поля, що й "
+"повзунок, і ту саму форму оновлення кортежем ``(min, max, value)``\\ ."
+
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- розкривний список рядків ``options``\\ ."
+
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr ""
+"``\"radio\"`` -- ``options``\\ , відображені як група перемикачів (radio "
+"buttons)."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- рядкове поле введення з можливістю запису."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- відображення 2D-карти глибини розміром ``width`` x "
+"``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D-графік часового ряду з чергованих вибірок."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
 msgstr ""
 "``value`` --- початкове значення. Стандартне значення залежить від "
-"``type``\\ ."
+"``type``\\ : ``0`` для ``label``\\ , ``\"\"`` для ``text``\\ /\\ "
+"``lineedit``\\ /\\ ``select``\\ / ``radio``\\ , ``False`` для ``toggle``\\ "
+"/\\ ``pushbutton``\\ , ``min`` для ``slider``\\ /\\ ``spinbox``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:358
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
 msgstr ""
-"``unit`` --- рядок одиниці вимірювання для ``label``\\ /\\ ``slider`` "
-"(наприклад, ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``unit`` --- рядок одиниці вимірювання для ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (наприклад, ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
 msgstr ""
-"``min`` --- мінімальне значення (діапазон слайдера або діапазон глибини)."
+"``min`` --- мінімальне значення (діапазон slider/spinbox або діапазон "
+"відображення depth/waveform)."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
 msgstr ""
-"``max`` --- максимальне значення (діапазон слайдера або діапазон глибини)."
+"``max`` --- максимальне значення (діапазон slider/spinbox або діапазон "
+"відображення depth/waveform)."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` --- крок зміни значення (слайдер)."
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` --- розмір кроку (slider/spinbox)."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` --- список рядків варіантів (select)."
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` --- список рядків варіантів (select/radio) або список назв "
+"окремих серій (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -536,23 +636,59 @@ msgstr "``width`` --- ширина в пікселях (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` --- висота в пікселях (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Повертає поточне значення іменованого поля. Для полів типу ``depth`` "
-"повертається буфер бінарних даних, для інших --- скалярне значення."
+"``sample_rate`` --- частота дискретизації у вибірках за секунду (waveform). "
+"Надсилається хосту як період дискретизації."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Встановлює значення іменованого поля. Для полів типу ``slider`` кортеж "
-"``(min, max, value)`` одночасно оновлює діапазон і поточне значення. Для "
-"полів типу ``depth`` ``value`` --- це буфер бінарних даних."
+"``series`` --- кількість чергованих серій у кожному блоці вибірок "
+"(waveform), наприклад ``3`` для запису акселерометра XYZ."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` --- код типу :mod:`array` вибірок сигналу (наприклад, "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Стандартно ``\"H\"`` (беззнакове "
+"16-бітне)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Повертає поточне значення іменованого поля. Для полів ``depth`` і "
+"``waveform`` повертається буфер двійкових даних, інакше --- скалярне "
+"значення."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Встановлює значення іменованого поля. Для полів ``slider`` і ``spinbox`` "
+"кортеж ``(min, max, value)`` оновлює діапазон і поточне значення одночасно. "
+"Для полів ``depth`` ``value`` --- це буфер двійкових даних. Для полів "
+"``waveform`` ``value`` --- це байтоподібний блок чергованих вибірок у "
+"``typecode`` поля; кількість вибірок на серію визначається з його довжини, і"
+" додається монотонна мітка часу (у мікросекундах, накопичена з "
+":func:`time.ticks_us`\\ ), щоб хост міг розмістити фрагмент на своїй осі "
+"часу."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

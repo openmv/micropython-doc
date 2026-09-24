@@ -92,14 +92,16 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Khởi tạo (hoặc cấu hình lại) ngăn xếp giao thức và đăng ký các kênh dữ liệu "
 "logic mặc định (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` và, nếu được biên"
-" dịch vào, ``profile``\\ ). Phát sinh ``RuntimeError`` nếu khởi tạo thất "
-"bại. Firmware khởi động với ngăn xếp giao thức USB mặc định đã chạy, vì vậy "
-"chỉ cần gọi hàm này khi muốn thay đổi phương tiện truyền tải hoặc ghi đè các"
-" tham số đóng khung mặc định."
+" dịch kèm, ``profile``\\ ). Ném ra ``RuntimeError`` nếu khởi tạo thất bại. "
+"Firmware khởi động với một ngăn xếp giao thức USB mặc định đã chạy sẵn, nên "
+"chỉ cần gọi hàm này khi muốn đổi transport hoặc ghi đè các tham số đóng "
+"khung mặc định. Gọi lại hàm này sẽ khởi tạo lại ngăn xếp: bộ hẹn giờ polling"
+" trước đó bị gỡ bỏ và các kênh được đăng ký lại từ đầu."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -250,6 +252,30 @@ msgid ""
 msgstr ""
 "Trả về ``True`` nếu máy chủ đang kết nối và ngăn xếp giao thức đang hoạt "
 "động, ngược lại trả về ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Chạy một vòng lặp của tác vụ giao thức: xả bộ đệm nhận của transport, phân "
+"tích mọi khung đã hoàn chỉnh, điều phối các lệnh và xử lý các sự kiện kênh. "
+"Thông thường firmware tự làm việc này cho bạn từ ngắt USB và từ bộ hẹn giờ "
+"``poll_ms``\\ , nên hàm này chỉ cần thiết cho các transport tùy chỉnh không "
+"được điều khiển bởi cả hai cơ chế đó -- ví dụ khi ``poll_ms=0`` và transport"
+" được poll từ vòng lặp chính của tập lệnh."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Trả về ``0`` khi thành công và ``-1`` nếu không có transport đang hoạt động "
+"nào được đăng ký hoặc lời gọi được thực hiện từ ngữ cảnh ngắt."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -436,19 +462,21 @@ msgstr ""
 "Đối với các kênh truyền tải, trả về ``True`` nếu phương tiện truyền tải cơ "
 "bản hiện đang kết nối."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Một backend Python cấp cao hơn (được cung cấp bởi gói ``protocol`` đóng "
-"băng) để tuần tự hóa các trường có tên thành CBOR bằng khóa nguyên số tương "
-"thích SenML. Hỗ trợ tiện ích hiển thị (\\ ``label``\\ , ``depth``\\ ) và "
-"điều khiển tương tác (\\ ``toggle``\\ , ``slider``\\ , ``select``\\ ) với "
-"hàm gọi lại ``on_read``\\ /\\ ``on_write``\\ ."
+"Một backend Python cấp cao hơn (do gói ``protocol`` đóng băng cung cấp) tuần"
+" tự hóa các trường có tên sang CBOR bằng các khóa số nguyên tương thích "
+"SenML. Hỗ trợ các widget hiển thị (\\ ``label``\\ , ``text``\\ , ``depth``\\"
+" , ``waveform``\\ ) và các điều khiển tương tác (\\ ``toggle``\\ , "
+"``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , ``select``\\ , ``radio``\\"
+" , ``lineedit``\\ ) với các callback ``on_read``\\ /\\ ``on_write``\\ ."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -474,42 +502,110 @@ msgstr "Thêm một trường có tên vào kênh."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` là tên hiển thị; phải là duy nhất trong kênh này."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` là loại widget:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` -- hiển thị số chỉ đọc với ``unit`` tùy chọn."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- hiển thị chuỗi chỉ đọc."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- công tắc boolean."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` là loại tiện ích: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"``\\ , hoặc ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- hành động tức thời (kích hoạt, hiệu chuẩn, ...). Máy "
+"chủ ghi ``True`` khi nhấp và không hiển thị trạng thái nào."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr ""
-"``value`` là giá trị ban đầu. Giá trị mặc định phụ thuộc vào ``type``\\ ."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- điều khiển số với ``min``\\ /\\ ``max``\\ /\\ ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` là chuỗi đơn vị cho ``label``\\ /\\ ``slider`` (ví dụ: "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- nhập số chính xác theo bước; dùng chung các trường của "
+"slider và dạng cập nhật bằng tuple ``(min, max, value)``\\ ."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` là giá trị tối thiểu (phạm vi slider hoặc phạm vi depth)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- danh sách thả xuống gồm các chuỗi ``options``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` là giá trị tối đa (phạm vi slider hoặc phạm vi depth)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` được hiển thị dưới dạng một nhóm nút radio."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` là kích thước bước (slider)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- ô nhập chuỗi có thể ghi."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` là danh sách các chuỗi tùy chọn (select)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- hiển thị bản đồ độ sâu 2D kích thước ``width`` x "
+"``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- đồ thị chuỗi thời gian 1D của các mẫu xen kẽ."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` là giá trị ban đầu. Giá trị mặc định phụ thuộc vào ``type``\\ : "
+"``0`` cho ``label``\\ , ``\"\"`` cho ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` cho ``toggle``\\ /\\ ``pushbutton``\\"
+" , ``min`` cho ``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` là chuỗi đơn vị cho ``label``\\ /\\ ``slider``\\ /\\ ``spinbox``\\ "
+"/ ``waveform`` (ví dụ ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` là giá trị nhỏ nhất (phạm vi của slider/spinbox, hoặc phạm vi hiển "
+"thị của depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` là giá trị lớn nhất (phạm vi của slider/spinbox, hoặc phạm vi hiển "
+"thị của depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` là kích thước bước (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` là danh sách các chuỗi tùy chọn (select/radio), hoặc danh sách "
+"tên của từng chuỗi dữ liệu (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -519,23 +615,59 @@ msgstr "``width`` là chiều rộng tính bằng điểm ảnh (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` là chiều cao tính bằng điểm ảnh (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Trả về giá trị hiện tại của trường có tên. Đối với trường ``depth``\\ , bộ "
-"đệm dữ liệu nhị phân được trả về; ngược lại là giá trị vô hướng."
+"``sample_rate`` là tốc độ lấy mẫu tính bằng số mẫu mỗi giây (waveform). Được"
+" gửi tới máy chủ dưới dạng chu kỳ lấy mẫu."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Đặt giá trị của trường có tên. Đối với trường ``slider``\\ , một tuple "
-"``(min, max, value)`` cập nhật phạm vi và giá trị hiện tại cùng lúc. Đối với"
-" trường ``depth``\\ , ``value`` là bộ đệm dữ liệu nhị phân."
+"``series`` là số chuỗi dữ liệu xen kẽ trong mỗi khối mẫu (waveform), ví dụ "
+"``3`` cho một đường ghi gia tốc kế XYZ."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` là typecode :mod:`array` của các mẫu waveform (ví dụ "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Mặc định là ``\"H\"`` (16-bit "
+"không dấu)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Trả về giá trị hiện tại của trường có tên đã cho. Với các trường ``depth`` "
+"và ``waveform`` thì bộ đệm dữ liệu nhị phân được trả về, ngược lại là giá "
+"trị vô hướng."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Đặt giá trị của trường có tên đã cho. Với các trường ``slider`` và "
+"``spinbox``\\ , một tuple ``(min, max, value)`` cập nhật đồng thời phạm vi "
+"và giá trị hiện tại. Với các trường ``depth``\\ , ``value`` là bộ đệm dữ "
+"liệu nhị phân. Với các trường ``waveform``\\ , ``value`` là một khối dạng "
+"bytes gồm các mẫu xen kẽ theo ``typecode`` của trường; số mẫu trên mỗi chuỗi"
+" dữ liệu được suy ra từ độ dài của khối và một dấu thời gian đơn điệu (tính "
+"bằng micro giây, tích lũy từ :func:`time.ticks_us`\\ ) được đính kèm để máy "
+"chủ có thể đặt khối dữ liệu lên trục thời gian của nó."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

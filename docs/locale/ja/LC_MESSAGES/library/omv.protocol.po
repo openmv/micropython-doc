@@ -86,12 +86,13 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "プロトコルスタックを初期化（または再構成）し、デフォルトの論理データチャネル（\\ ``stdin``\\ 、\\ ``stdout``\\ 、\\ "
-"``stream``\\ 、およびコンパイルされていれば ``profile``\\ ）を登録します。初期化に失敗した場合は "
-"``RuntimeError`` "
-"を送出します。ファームウェアはデフォルトのUSBプロトコルスタックがすでに動作している状態で起動するため、これを呼び出す必要があるのはトランスポートを変更する場合やデフォルトのフレーミングパラメータをオーバーライドする場合のみです。"
+"``stream``\\ 、およびコンパイル時に組み込まれていれば ``profile``\\ ）を登録します。初期化に失敗した場合は "
+"``RuntimeError`` を発生させます。ファームウェアはデフォルトの USB "
+"プロトコルスタックがすでに動作している状態で起動するため、これを呼び出す必要があるのは、トランスポートを変更する場合やデフォルトのフレーミングパラメータを上書きする場合だけです。再度呼び出すとスタックが再初期化されます。以前のポーリングタイマーは削除され、チャネルが新たに登録されます。"
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -233,6 +234,28 @@ msgid ""
 "Return ``True`` if a host is currently connected and the protocol stack is "
 "active, otherwise ``False``."
 msgstr "ホストが現在接続されておりプロトコルスタックがアクティブな場合は ``True`` を、そうでない場合は ``False`` を返します。"
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"プロトコルタスクを 1 "
+"回分実行します。トランスポートの受信バッファを読み出し、完成したフレームを解析し、コマンドをディスパッチしてチャネルイベントを処理します。通常はファームウェアが"
+" USB 割り込みと ``poll_ms`` "
+"タイマーから自動的にこれを行うため、必要になるのはそのどちらからも駆動されないカスタムトランスポートの場合だけです -- たとえば "
+"``poll_ms=0`` にして、スクリプトのメインループからトランスポートをポーリングする場合などです。"
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"成功時は ``0`` を返し、アクティブなトランスポートが登録されていない場合や割り込みコンテキストから呼び出された場合は ``-1`` を返します。"
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -397,18 +420,21 @@ msgid ""
 "currently connected."
 msgstr "トランスポートチャネルの場合、基盤となるトランスポートが現在接続されていれば ``True`` を返します。"
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"名前付きフィールドをSenML互換の整数キーを使用してCBORにシリアライズする、より高水準のPythonバックエンド（フリーズされた "
-"``protocol`` パッケージが提供）です。表示ウィジェット（\\ ``label``\\ 、\\ ``depth``\\ ）と、\\ "
-"``on_read``/``on_write`` コールバックを備えた対話型コントロール（\\ ``toggle``\\ 、\\ "
-"``slider``\\ 、\\ ``select``\\ ）をサポートします。"
+"名前付きフィールドを SenML 互換の整数キーを使って CBOR にシリアライズする、高レベルの Python バックエンド（フローズンの "
+"``protocol`` パッケージが提供）です。表示ウィジェット（\\ ``label``\\ 、\\ ``text``\\ 、\\ "
+"``depth``\\ 、\\ ``waveform``\\ ）と、\\ ``on_read``\\ /\\ ``on_write`` "
+"コールバックを持つ対話型コントロール（\\ ``toggle``\\ 、\\ ``pushbutton``\\ 、\\ ``slider``\\ 、\\"
+" ``spinbox``\\ 、\\ ``select``\\ 、\\ ``radio``\\ 、\\ ``lineedit``\\ "
+"）をサポートします。"
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -434,39 +460,102 @@ msgstr "名前付きフィールドをチャネルに追加します。"
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` は表示名です。このチャネル内で一意である必要があります。"
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` はウィジェットの種類です:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` -- 読み取り専用の数値表示。省略可能な ``unit`` を持ちます。"
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- 読み取り専用の文字列表示。"
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- ブール値のスイッチ。"
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` はウィジェットの種類です: ``\"label\"``\\ 、\\ ``\"toggle\"``\\ 、\\ "
-"``\"slider\"``\\ 、\\ ``\"select\"``\\ 、または ``\"depth\"``\\ 。"
+"``\"pushbutton\"`` -- 瞬時的なアクション（トリガー、キャリブレーションなど）。ホストはクリック時に ``True`` "
+"を書き込み、状態は表示しません。"
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` は初期値です。デフォルトは ``type`` によって異なります。"
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- ``min``\\ /\\ ``max``\\ /\\ ``step`` を持つ数値コントロール。"
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
-msgstr "``unit`` は ``label``/``slider`` の単位文字列（\\ ``\"Cel\"``\\ 、\\ ``\"%RH\"`` など）です。"
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
+msgstr ""
+"``\"spinbox\"`` -- ステップ単位の精密な数値入力。スライダーのフィールドと ``(min, max, value)`` "
+"タプルによる更新形式を共有します。"
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` は最小値（スライダー範囲またはdepth範囲）です。"
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- ``options`` の文字列からなるドロップダウン。"
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` は最大値（スライダー範囲またはdepth範囲）です。"
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` をラジオボタンのグループとして表示します。"
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` はステップサイズ（スライダー）です。"
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- 書き込み可能な文字列入力。"
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` はオプション文字列のリスト（select）です。"
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` -- ``width`` x ``height`` の 2D 深度マップ表示。"
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- インターリーブされたサンプルの 1D 時系列プロット。"
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` は初期値です。デフォルトは ``type`` によって異なります。\\ ``label`` では ``0``\\ 、\\ "
+"``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ / ``radio`` では ``\"\"``\\ 、\\"
+" ``toggle``\\ /\\ ``pushbutton`` では ``False``\\ 、\\ ``slider``\\ /\\ "
+"``spinbox`` では ``min`` です。"
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` は ``label``\\ /\\ ``slider``\\ /\\ ``spinbox``\\ / ``waveform`` "
+"用の単位文字列です（例: ``\"Cel\"``\\ 、\\ ``\"%RH\"``\\ ）。"
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``min`` は最小値です（slider/spinbox の範囲、または depth/waveform の表示範囲）。"
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``max`` は最大値です（slider/spinbox の範囲、または depth/waveform の表示範囲）。"
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` はステップサイズです（slider/spinbox）。"
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr "``options`` は選択肢文字列のリスト（select/radio）、または系列ごとの名前のリスト（waveform）です。"
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -476,21 +565,54 @@ msgstr "``width`` はピクセル幅（depth）です。"
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` はピクセル高さ（depth）です。"
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"名前付きフィールドの現在の値を返します。\\ ``depth`` フィールドの場合はバイナリデータバッファが、それ以外の場合はスカラー値が返されます。"
+"``sample_rate`` は 1 秒あたりのサンプル数で表したサンプルレートです（waveform）。ホストにはサンプル周期として送信されます。"
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"名前付きフィールドの値を設定します。\\ ``slider`` フィールドの場合、\\ ``(min, max, value)`` "
-"タプルは範囲と現在値を同時に更新します。\\ ``depth`` フィールドの場合、\\ ``value`` はバイナリデータバッファです。"
+"``series`` は各サンプルブロック内でインターリーブされる系列の数です（waveform）。たとえば XYZ 加速度計のトレースなら ``3``"
+" です。"
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` は波形サンプルの :mod:`array` 型コードです（例: ``\"H\"``\\ 、\\ ``\"h\"``\\ 、\\"
+" ``\"f\"``\\ ）。デフォルトは ``\"H\"``\\ （符号なし 16 ビット）です。"
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"指定した名前のフィールドの現在の値を返します。\\ ``depth`` および ``waveform`` "
+"フィールドではバイナリデータバッファが返され、それ以外ではスカラー値が返されます。"
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"指定した名前のフィールドの値を設定します。\\ ``slider`` および ``spinbox`` フィールドでは、\\ ``(min, max, "
+"value)`` タプルを渡すと範囲と現在値が同時に更新されます。\\ ``depth`` フィールドでは、\\ ``value`` "
+"はバイナリデータバッファです。\\ ``waveform`` フィールドでは、\\ ``value`` はフィールドの ``typecode`` "
+"形式でインターリーブされたサンプルの bytes "
+"ライクなブロックです。系列ごとのサンプル数はその長さから導出され、ホストがそのチャンクを時間軸上に配置できるように、単調増加するタイムスタンプ（マイクロ秒単位、\\"
+" :func:`time.ticks_us` から累積）が付加されます。"
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

@@ -92,15 +92,18 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Protokol yığınını başlatır (veya yeniden yapılandırır) ve varsayılan "
 "mantıksal veri kanallarını (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` ve "
-"derlenmişse ``profile``\\ ) kaydeder. Başlatma başarısız olursa "
-"``RuntimeError`` yükseltir. Aygıt yazılımı, halihazırda çalışan varsayılan "
-"bir USB protokol yığınıyla başlar, bu nedenle bunu çağırmak yalnızca "
-"taşımayı değiştirmek veya varsayılan çerçeveleme parametrelerini geçersiz "
-"kılmak için gereklidir."
+"derlemeye dahil edilmişse ``profile``\\ ) kaydeder. Başlatma başarısız "
+"olursa ``RuntimeError`` yükseltir. Aygıt yazılımı, varsayılan bir USB "
+"protokol yığını zaten çalışır durumdayken açılır; bu nedenle bunun "
+"çağrılması yalnızca aktarımı değiştirmek veya varsayılan çerçeveleme "
+"parametrelerini geçersiz kılmak için gereklidir. Yeniden çağrılması yığını "
+"yeniden başlatır: önceki yoklama zamanlayıcısı kaldırılır ve kanallar "
+"yeniden kaydedilir."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -253,6 +256,31 @@ msgid ""
 msgstr ""
 "Bir ana bilgisayar şu anda bağlıysa ve protokol yığını etkinse ``True``\\ , "
 "aksi takdirde ``False`` döndürür."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Protokol görevinin bir yinelemesini çalıştırır: aktarımın alma arabelleğini "
+"boşaltır, tamamlanmış çerçeveleri ayrıştırır, komutları dağıtır ve kanal "
+"olaylarına hizmet verir. Aygıt yazılımı bunu normalde sizin için USB "
+"kesmesinden ve ``poll_ms`` zamanlayıcısından yapar; bu nedenle yalnızca "
+"bunların hiçbiri tarafından sürülmeyen özel aktarımlar için gereklidir -- "
+"örneğin ``poll_ms=0`` olduğunda ve aktarım betiğin ana döngüsünden "
+"yoklandığında."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Başarı durumunda ``0``\\ , kayıtlı etkin bir aktarım yoksa veya çağrı bir "
+"kesme bağlamından yapıldıysa ``-1`` döndürür."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -447,20 +475,22 @@ msgstr ""
 "Taşıma kanalları için, altta yatan taşıma şu anda bağlıysa ``True`` "
 "döndürür."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"SenML uyumlu tam sayı anahtarları kullanarak adlandırılmış alanları CBOR "
-"formatına serileştiren daha üst düzey bir Python arka ucu (dondurulmuş "
-"``protocol`` paketi tarafından sağlanır). ``on_read``\\ /\\ ``on_write`` "
-"geri çağırmaları (callback) ile görüntüleme widget'larını (\\ ``label``\\ , "
-"``depth``\\ ) ve etkileşimli denetimleri (\\ ``toggle``\\ , ``slider``\\ , "
-"``select``\\ ) destekler."
+"Adlandırılmış alanları SenML uyumlu tamsayı anahtarlar kullanarak CBOR'a "
+"serileştiren, daha üst düzey bir Python arka ucu (dondurulmuş ``protocol`` "
+"paketi tarafından sağlanır). Görüntüleme widget'larını (\\ ``label``\\ , "
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) ve ``on_read``\\ /\\ "
+"``on_write`` geri çağrılarına sahip etkileşimli denetimleri (\\ ``toggle``\\"
+" , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , ``select``\\ , "
+"``radio``\\ , ``lineedit``\\ ) destekler."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -488,43 +518,115 @@ msgstr "Kanala adlandırılmış bir alan ekler."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name``\\ , görüntülenen addır; bu kanal içinde benzersiz olmalıdır."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` widget türüdür:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr ""
+"``\"label\"`` -- isteğe bağlı bir ``unit`` ile salt okunur sayısal gösterge."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- salt okunur dize göstergesi."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- boolean anahtar."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type``\\ , widget türüdür: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` veya ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- anlık eylem (tetikleme, kalibrasyon, ...). Ana "
+"bilgisayar tıklandığında ``True`` yazar ve herhangi bir durum göstermez."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr ""
-"``value``\\ , başlangıç değeridir. Varsayılan değer ``type`` türüne "
-"bağlıdır."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- ``min``\\ /\\ ``max``\\ /\\ ``step`` ile sayısal denetim."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit``\\ , ``label``\\ /\\ ``slider`` için birim dizesidir (ör. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- hassas adımlı sayısal giriş; kaydırıcı alanlarını ve "
+"``(min, max, value)`` demet güncelleme biçimini paylaşır."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min``\\ , minimum değerdir (slider aralığı veya depth aralığı)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- ``options`` dizelerinden oluşan açılır liste."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max``\\ , maksimum değerdir (slider aralığı veya depth aralığı)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr ""
+"``\"radio\"`` -- bir radyo düğmesi grubu olarak gösterilen ``options`` "
+"seçenekleri."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step``\\ , adım boyutudur (slider)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- yazılabilir dize girişi."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options``\\ , seçenek dizelerinin listesidir (select)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- ``width`` x ``height`` boyutunda 2B derinlik haritası "
+"göstergesi."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr ""
+"``\"waveform\"`` -- aralıklı (interleaved) örneklerden oluşan 1B zaman "
+"serisi grafiği."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` başlangıç değeridir. Varsayılan, ``type`` değerine bağlıdır: "
+"``label`` için ``0``\\ , ``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ / "
+"``radio`` için ``\"\"``\\ , ``toggle``\\ /\\ ``pushbutton`` için ``False``\\"
+" , ``slider``\\ /\\ ``spinbox`` için ``min``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit``\\ , ``label``\\ /\\ ``slider``\\ /\\ ``spinbox``\\ / ``waveform`` "
+"için birim dizesidir (ör. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` minimum değerdir (slider/spinbox aralığı veya depth/waveform "
+"görüntüleme aralığı)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` maksimum değerdir (slider/spinbox aralığı veya depth/waveform "
+"görüntüleme aralığı)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` adım boyutudur (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` seçenek dizelerinin listesi (select/radio) veya seri başına "
+"adların listesidir (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -534,23 +636,58 @@ msgstr "``width``\\ , piksel cinsinden genişliktir (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height``\\ , piksel cinsinden yüksekliktir (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Adlandırılmış alanın mevcut değerini döndürür. ``depth`` alanları için ikili"
-" veri arabelleği, aksi takdirde skaler değer döndürülür."
+"``sample_rate`` saniyedeki örnek sayısı cinsinden örnekleme hızıdır "
+"(waveform). Ana bilgisayara örnekleme periyodu olarak gönderilir."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Adlandırılmış alanın değerini ayarlar. ``slider`` alanları için bir ``(min, "
-"max, value)`` demeti, aralığı ve mevcut değeri aynı anda günceller. "
-"``depth`` alanları için ``value``\\ , ikili veri arabelleğidir."
+"``series`` her örnek bloğundaki aralıklı (interleaved) seri sayısıdır "
+"(waveform), ör. bir XYZ ivmeölçer izi için ``3``\\ ."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` dalga biçimi örneklerinin :mod:`array` tür kodudur (ör. "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Varsayılan ``\"H\"`` (işaretsiz "
+"16 bit)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Adlandırılmış alanın geçerli değerini döndürür. ``depth`` ve ``waveform`` "
+"alanları için ikili veri arabelleği, aksi halde skaler değer döndürülür."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Adlandırılmış alanın değerini ayarlar. ``slider`` ve ``spinbox`` alanları "
+"için bir ``(min, max, value)`` demeti aralığı ve geçerli değeri aynı anda "
+"günceller. ``depth`` alanları için ``value`` ikili veri arabelleğidir. "
+"``waveform`` alanları için ``value``\\ , alanın ``typecode`` türünde "
+"aralıklı örneklerden oluşan bayt benzeri bir bloktur; seri başına örnek "
+"sayısı bloğun uzunluğundan türetilir ve ana bilgisayarın parçayı zaman "
+"eksenine yerleştirebilmesi için monoton bir zaman damgası (mikrosaniye "
+"cinsinden, :func:`time.ticks_us` üzerinden biriktirilen) eklenir."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

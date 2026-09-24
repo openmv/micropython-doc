@@ -93,14 +93,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Inicijalizira (ili ponovno konfigurira) protokolni stog i registrira zadane "
-"logičke podatkovne kanale (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` te, "
-"ako je ugrađen, ``profile``\\ ). Podiže ``RuntimeError`` ako inicijalizacija"
-" ne uspije. Ugrađeni program se pokreće sa zadanim USB protokolnim stogom "
-"koji već radi, pa je pozivanje ovoga potrebno samo za promjenu transporta "
-"ili nadjačavanje zadanih parametara uokvirivanja."
+"logičke podatkovne kanale (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` i, ako"
+" je ugrađen u prijevod, ``profile``\\ ). Podiže ``RuntimeError`` ako "
+"inicijalizacija ne uspije. Ugrađeni program pokreće se s već aktivnim "
+"zadanim USB protokolnim stogom, pa je ovo potrebno pozvati samo za promjenu "
+"transporta ili nadjačavanje zadanih parametara uokvirivanja. Ponovni poziv "
+"ponovno inicijalizira stog: prethodni timer za prozivanje se uklanja, a "
+"kanali se iznova registriraju."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -251,6 +254,30 @@ msgid ""
 msgstr ""
 "Vraća ``True`` ako je host trenutno povezan i protokolni stog aktivan, inače"
 " ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Izvodi jednu iteraciju protokolnog zadatka: prazni prijamni međuspremnik "
+"transporta, raščlanjuje sve potpune okvire, otprema naredbe i opslužuje "
+"događaje kanala. Ugrađeni program to inače obavlja za vas iz USB prekida i "
+"iz ``poll_ms`` timera, pa je ovo potrebno samo za prilagođene transporte "
+"koje ne pokreće ni jedno od toga -- na primjer kada je ``poll_ms=0`` i "
+"transport se proziva iz glavne petlje skripte."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Vraća ``0`` u slučaju uspjeha i ``-1`` ako nijedan aktivni transport nije "
+"registriran ili je poziv upućen iz konteksta prekida."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -438,19 +465,22 @@ msgstr ""
 "Za transportne kanale, vraća ``True`` ako je temeljni transport trenutno "
 "povezan."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Python backend više razine (koji pruža ugrađeni ``protocol`` paket) koji "
-"serijalizira imenovana polja u CBOR pomoću cjelobrojnih ključeva "
-"kompatibilnih sa SenML-om. Podržava prikazne widgete (\\ ``label``\\ , "
-"``depth``\\ ) i interaktivne kontrole (\\ ``toggle``\\ , ``slider``\\ , "
-"``select``\\ ) s ``on_read``\\ /\\ ``on_write`` povratnim pozivima."
+"Backend više razine u Pythonu (koji pruža zamrznuti paket ``protocol``\\ ) "
+"koji serijalizira imenovana polja u CBOR pomoću cjelobrojnih ključeva "
+"kompatibilnih sa SenML. Podržava widgete za prikaz (\\ ``label``\\ , "
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) i interaktivne kontrole (\\ "
+"``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , "
+"``select``\\ , ``radio``\\ , ``lineedit``\\ ) s ``on_read``\\ /\\ "
+"``on_write`` povratnim pozivima."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -477,41 +507,112 @@ msgstr "Dodaje imenovano polje u kanal."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` je prikazni naziv; mora biti jedinstven unutar ovog kanala."
 
-#: ../../library/omv.protocol.rst:322
-msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` je vrsta widgeta:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
 msgstr ""
-"``type`` je tip widgeta: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` ili ``\"depth\"``\\ ."
+"``\"label\"`` -- numerički prikaz samo za čitanje s neobaveznom jedinicom "
+"``unit``\\ ."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` je početna vrijednost. Zadana vrijednost ovisi o ``type``\\ ."
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- prikaz niza znakova samo za čitanje."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- logička sklopka."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``unit`` je niz jedinice za ``label``\\ /\\ ``slider`` (npr. ``\"Cel\"``\\ ,"
-" ``\"%RH\"``\\ )."
+"``\"pushbutton\"`` -- trenutna radnja (okidanje, kalibracija, ...). Host pri"
+" kliku zapisuje ``True`` i ne prikazuje stanje."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` je minimalna vrijednost (raspon klizača ili raspon dubine)."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- numerička kontrola s ``min``\\ /\\ ``max``\\ /\\ ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` je maksimalna vrijednost (raspon klizača ili raspon dubine)."
+#: ../../library/omv.protocol.rst:345
+msgid ""
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
+msgstr ""
+"``\"spinbox\"`` -- precizan numerički unos u koracima; dijeli polja klizača "
+"i oblik ažuriranja n-torkom ``(min, max, value)``\\ ."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` je veličina koraka (klizač)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- padajući popis nizova ``options``\\ ."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` je popis nizova opcija (select)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` prikazane kao skupina radijskih gumba."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- zapisivi unos niza znakova."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- 2D prikaz dubinske karte veličine ``width`` x ``height``\\ "
+"."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D graf vremenskog niza isprepletenih uzoraka."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` je početna vrijednost. Zadana ovisi o ``type``\\ : ``0`` za "
+"``label``\\ , ``\"\"`` za ``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ / "
+"``radio``\\ , ``False`` za ``toggle``\\ /\\ ``pushbutton``\\ , ``min`` za "
+"``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` je niz znakova jedinice za ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (npr. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` je najmanja vrijednost (raspon klizača/spinboxa ili raspon prikaza "
+"dubine/valnog oblika)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` je najveća vrijednost (raspon klizača/spinboxa ili raspon prikaza "
+"dubine/valnog oblika)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` je veličina koraka (klizač/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` je popis nizova opcija (select/radio) ili popis naziva pojedinih"
+" serija (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -521,23 +622,59 @@ msgstr "``width`` je širina u pikselima (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` je visina u pikselima (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Vraća trenutnu vrijednost imenovanog polja. Za ``depth`` polja vraća se "
-"binarni podatkovni međuspremnik, inače skalarna vrijednost."
+"``sample_rate`` je brzina uzorkovanja u uzorcima po sekundi (waveform). "
+"Hostu se šalje kao razdoblje uzorkovanja."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Postavlja vrijednost imenovanog polja. Za ``slider`` polja, n-torka ``(min, "
-"max, value)`` istovremeno ažurira raspon i trenutnu vrijednost. Za ``depth``"
-" polja, ``value`` je binarni podatkovni međuspremnik."
+"``series`` je broj isprepletenih serija u svakom bloku uzoraka (waveform), "
+"npr. ``3`` za XYZ trag akcelerometra."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` je :mod:`array` kod tipa uzoraka valnog oblika (npr. "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Zadano je ``\"H\"`` (16-bitni bez"
+" predznaka)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Vraća trenutnu vrijednost imenovanog polja. Za polja ``depth`` i "
+"``waveform`` vraća se binarni podatkovni međuspremnik, inače skalarna "
+"vrijednost."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Postavlja vrijednost imenovanog polja. Za polja ``slider`` i ``spinbox`` "
+"n-torka ``(min, max, value)`` istodobno ažurira raspon i trenutnu "
+"vrijednost. Za polja ``depth`` ``value`` je binarni podatkovni međuspremnik."
+" Za polja ``waveform`` ``value`` je blok isprepletenih uzoraka nalik "
+"bajtovima u ``typecode`` polja; broj uzoraka po seriji izvodi se iz njegove "
+"duljine, a prilaže se monotona vremenska oznaka (u mikrosekundama, "
+"akumulirana iz :func:`time.ticks_us`\\ ) kako bi host mogao smjestiti blok "
+"na svoju vremensku os."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

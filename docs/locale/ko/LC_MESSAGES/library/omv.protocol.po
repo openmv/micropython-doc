@@ -87,12 +87,14 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "프로토콜 스택을 초기화(또는 재구성)하고 기본 논리 데이터 채널(\\ ``stdin``\\ , ``stdout``\\ , "
-"``stream`` 및 컴파일된 경우 ``profile``\\ )을 등록합니다. 초기화에 실패하면 ``RuntimeError`` 를 "
-"발생시킵니다. 펌웨어는 기본 USB 프로토콜 스택이 이미 실행된 상태로 부팅되므로, 전송 방식을 변경하거나 기본 프레이밍 매개변수를 "
-"재정의할 때만 이 함수를 호출하면 됩니다."
+"``stream``\\ , 그리고 컴파일에 포함된 경우 ``profile``\\ )을 등록합니다. 초기화에 실패하면 "
+"``RuntimeError``\\ 를 발생시킵니다. 펌웨어는 기본 USB 프로토콜 스택이 이미 실행 중인 상태로 부팅되므로, 이 함수는 "
+"전송 방식을 바꾸거나 기본 프레이밍 매개변수를 재정의할 때만 호출하면 됩니다. 다시 호출하면 스택이 재초기화됩니다. 즉, 이전 폴링 "
+"타이머가 제거되고 채널이 새로 등록됩니다."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -235,6 +237,28 @@ msgid ""
 "active, otherwise ``False``."
 msgstr ""
 "호스트가 현재 연결되어 있고 프로토콜 스택이 활성 상태이면 ``True`` 를, 그렇지 않으면 ``False`` 를 반환합니다."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"프로토콜 태스크를 한 번 실행합니다. 전송 계층의 수신 버퍼를 비우고, 완성된 프레임을 파싱하고, 명령을 디스패치하고, 채널 이벤트를 "
+"처리합니다. 펌웨어는 보통 USB 인터럽트와 ``poll_ms`` 타이머에서 이 작업을 대신 수행하므로, 이 함수는 둘 중 어느 쪽으로도"
+" 구동되지 않는 사용자 정의 전송 방식에만 필요합니다. 예를 들어 ``poll_ms=0``\\ 으로 설정하고 스크립트의 메인 루프에서 "
+"전송 계층을 폴링하는 경우입니다."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"성공하면 ``0``\\ 을 반환하고, 활성 전송 계층이 등록되어 있지 않거나 인터럽트 컨텍스트에서 호출된 경우 ``-1``\\ 을 "
+"반환합니다."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -401,18 +425,20 @@ msgid ""
 "currently connected."
 msgstr "전송 채널의 경우, 기반 전송이 현재 연결되어 있으면 ``True`` 를 반환합니다."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"(고정된 ``protocol`` 패키지가 제공하는) 더 상위 수준의 Python 백엔드로, 이름이 지정된 필드를 SenML 호환 정수 "
-"키를 사용해 CBOR로 직렬화합니다. 디스플레이 위젯(\\ ``label``\\ , ``depth``\\ )과 ``on_read``\\ "
-"/\\ ``on_write`` 콜백을 갖춘 대화형 컨트롤(\\ ``toggle``\\ , ``slider``\\ , "
-"``select``\\ )을 지원합니다."
+"이름이 지정된 필드를 SenML 호환 정수 키를 사용해 CBOR로 직렬화하는 상위 수준 Python 백엔드입니다(프로즌 "
+"``protocol`` 패키지가 제공). 표시 위젯(\\ ``label``\\ , ``text``\\ , ``depth``\\ , "
+"``waveform``\\ )과 대화형 컨트롤(\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ "
+", ``spinbox``\\ , ``select``\\ , ``radio``\\ , ``lineedit``\\ )을 "
+"``on_read``\\ /\\ ``on_write`` 콜백과 함께 지원합니다."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -438,41 +464,102 @@ msgstr "이름이 지정된 필드를 채널에 추가합니다."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` 은 표시 이름입니다. 이 채널 내에서 고유해야 합니다."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type``\\ 은 위젯 유형입니다:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` -- 선택적 ``unit``\\ 이 있는 읽기 전용 숫자 표시."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- 읽기 전용 문자열 표시."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- 불리언 스위치."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` 은 위젯 유형입니다: ``\"label\"``\\ , ``\"toggle\"``\\ , ``\"slider\"``\\ ,"
-" ``\"select\"``\\ , 또는 ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- 순간 동작(트리거, 보정 등). 호스트는 클릭 시 ``True``\\ 를 쓰며 상태를 표시하지 "
+"않습니다."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` 는 초기 값입니다. 기본값은 ``type`` 에 따라 달라집니다."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- ``min``\\ /\\ ``max``\\ /\\ ``step``\\ 이 있는 숫자 컨트롤."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` 은 ``label``\\ /\\ ``slider`` 에 대한 단위 문자열입니다(예: ``\"Cel\"``\\ , "
-"``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- 정밀한 단계별 숫자 입력. 슬라이더 필드와 ``(min, max, value)`` 튜플 업데이트 형식을"
+" 공유합니다."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` 은 최솟값입니다(슬라이더 범위 또는 깊이 범위)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- ``options`` 문자열의 드롭다운."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` 는 최댓값입니다(슬라이더 범위 또는 깊이 범위)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options``\\ 를 라디오 버튼 그룹으로 표시."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` 은 단계 크기입니다(슬라이더)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- 쓰기 가능한 문자열 입력."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` 는 옵션 문자열 목록입니다(셀렉트)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` -- ``width`` x ``height`` 크기의 2D 깊이 맵 표시."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 인터리브된 샘플의 1D 시계열 플롯."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value``\\ 는 초기값입니다. 기본값은 ``type``\\ 에 따라 다릅니다. ``label``\\ 은 ``0``\\ , "
+"``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ / ``radio``\\ 는 ``\"\"``\\ , "
+"``toggle``\\ /\\ ``pushbutton``\\ 은 ``False``\\ , ``slider``\\ /\\ "
+"``spinbox``\\ 는 ``min``\\ 입니다."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit``\\ 은 ``label``\\ /\\ ``slider``\\ /\\ ``spinbox``\\ / ``waveform``\\"
+" 의 단위 문자열입니다(예: ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``min``\\ 은 최소값입니다(slider/spinbox 범위, 또는 depth/waveform 표시 범위)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``max``\\ 는 최대값입니다(slider/spinbox 범위, 또는 depth/waveform 표시 범위)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step``\\ 은 단계 크기입니다(slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr "``options``\\ 는 옵션 문자열 목록(select/radio) 또는 시리즈별 이름 목록(waveform)입니다."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -482,22 +569,53 @@ msgstr "``width`` 는 픽셀 너비입니다(깊이)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` 는 픽셀 높이입니다(깊이)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"이름이 지정된 필드의 현재 값을 반환합니다. ``depth`` 필드의 경우 바이너리 데이터 버퍼가 반환되고, 그 외에는 스칼라 값이 "
-"반환됩니다."
+"``sample_rate``\\ 는 초당 샘플 수 단위의 샘플 레이트입니다(waveform). 호스트에는 샘플 주기로 전송됩니다."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"이름이 지정된 필드의 값을 설정합니다. ``slider`` 필드의 경우 ``(min, max, value)`` 튜플이 범위와 현재 값을 "
-"동시에 갱신합니다. ``depth`` 필드의 경우 ``value`` 는 바이너리 데이터 버퍼입니다."
+"``series``\\ 는 각 샘플 블록에 인터리브된 시리즈의 개수입니다(waveform). 예를 들어 XYZ 가속도계 트레이스라면 "
+"``3``\\ 입니다."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode``\\ 는 waveform 샘플의 :mod:`array` 타입코드입니다(예: ``\"H\"``\\ , "
+"``\"h\"``\\ , ``\"f\"``\\ ). 기본값은 ``\"H\"``\\ (부호 없는 16비트)입니다."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"이름이 지정된 필드의 현재 값을 반환합니다. ``depth`` 및 ``waveform`` 필드의 경우 바이너리 데이터 버퍼가, 그 외에는"
+" 스칼라 값이 반환됩니다."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"이름이 지정된 필드의 값을 설정합니다. ``slider`` 및 ``spinbox`` 필드의 경우 ``(min, max, value)`` "
+"튜플을 주면 범위와 현재 값이 동시에 업데이트됩니다. ``depth`` 필드의 경우 ``value``\\ 는 바이너리 데이터 버퍼입니다."
+" ``waveform`` 필드의 경우 ``value``\\ 는 필드의 ``typecode``\\ 로 인터리브된 샘플들의 bytes 계열 "
+"블록입니다. 시리즈당 샘플 수는 그 길이로부터 계산되며, 호스트가 청크를 시간축 위에 배치할 수 있도록 단조 증가하는 타임스탬프(\\ "
+":func:`time.ticks_us`\\ 로부터 누적한 마이크로초 단위)가 첨부됩니다."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

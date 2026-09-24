@@ -85,11 +85,12 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "初始化（或重新配置）协议栈，并注册默认的逻辑数据通道（\\ ``stdin``\\ 、\\ ``stdout``\\ 、\\ ``stream``\\ "
-"，以及在编译启用时的 ``profile``\\ ）。如果初始化失败则抛出 ``RuntimeError``\\ 。固件启动时已经运行着一个默认的 "
-"USB 协议栈，因此只有在需要更改传输方式或覆盖默认的帧封装参数时才需要调用此函数。"
+"，以及在编译时启用的 ``profile``\\ ）。如果初始化失败则引发 ``RuntimeError``\\ 。固件启动时已经运行着一个默认的 "
+"USB 协议栈，因此只有在需要更换传输层或覆盖默认分帧参数时才需要调用此函数。再次调用它会重新初始化协议栈：先前的轮询定时器会被移除，各通道会重新注册。"
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -230,6 +231,24 @@ msgid ""
 "Return ``True`` if a host is currently connected and the protocol stack is "
 "active, otherwise ``False``."
 msgstr "如果当前有主机已连接且协议栈处于活动状态，则返回 ``True``\\ ，否则返回 ``False``\\ 。"
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"运行一次协议任务迭代：清空传输层的接收缓冲区、解析所有完整的帧、分派命令并处理通道事件。固件通常会在 USB 中断和 ``poll_ms`` "
+"定时器中替你完成这些工作，因此只有在自定义传输层不由这两者驱动时才需要调用它——例如当 ``poll_ms=0`` 且传输层由脚本主循环轮询时。"
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr "成功时返回 ``0``\\ ；如果没有注册活动的传输层，或者是在中断上下文中调用的，则返回 ``-1``\\ 。"
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -386,17 +405,20 @@ msgid ""
 "currently connected."
 msgstr "对于传输通道，如果底层传输当前已连接，则返回 ``True``\\ 。"
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"一个更高层级的 Python 后端（由冻结的 ``protocol`` 包提供），它使用 SenML 兼容的整数键将命名字段序列化为 "
-"CBOR。支持显示控件（\\ ``label``\\ 、\\ ``depth``\\ ）以及带有 ``on_read``/``on_write`` "
-"回调的交互式控件（\\ ``toggle``\\ 、\\ ``slider``\\ 、\\ ``select``\\ ）。"
+"一个更高层的 Python 后端（由固化的 ``protocol`` 包提供），使用与 SenML 兼容的整数键将命名字段序列化为 "
+"CBOR。支持显示控件（\\ ``label``\\ 、\\ ``text``\\ 、\\ ``depth``\\ 、\\ ``waveform``\\"
+" ）和交互控件（\\ ``toggle``\\ 、\\ ``pushbutton``\\ 、\\ ``slider``\\ 、\\ "
+"``spinbox``\\ 、\\ ``select``\\ 、\\ ``radio``\\ 、\\ ``lineedit``\\ ），并带有 "
+"``on_read``\\ /\\ ``on_write`` 回调。"
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -421,39 +443,100 @@ msgstr "向通道添加一个命名字段。"
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` 是显示名称；在该通道内必须唯一。"
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` 是控件类型："
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` —— 只读数值显示，可带一个可选的 ``unit``\\ 。"
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` —— 只读字符串显示。"
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` —— 布尔开关。"
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
+msgstr "``\"pushbutton\"`` —— 瞬时动作（触发、校准等）。主机在点击时写入 ``True``\\ ，且不显示任何状态。"
+
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` —— 带有 ``min``\\ /\\ ``max``\\ /\\ ``step`` 的数值控件。"
+
+#: ../../library/omv.protocol.rst:345
+msgid ""
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``type`` 是控件类型：\\ ``\"label\"``\\ 、\\ ``\"toggle\"``\\ 、\\ ``\"slider\"``\\ "
-"、\\ ``\"select\"`` 或 ``\"depth\"``\\ 。"
+"``\"spinbox\"`` —— 精确的步进式数值输入；与 slider 共用相同的字段以及 ``(min, max, value)`` "
+"元组更新形式。"
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` 是初始值。默认值取决于 ``type``\\ 。"
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` —— 由 ``options`` 字符串组成的下拉列表。"
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` —— 将 ``options`` 呈现为一组单选按钮。"
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` —— 可写的字符串输入。"
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` —— 尺寸为 ``width`` x ``height`` 的 2D 深度图显示。"
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` —— 交错采样的 1D 时间序列图。"
+
+#: ../../library/omv.protocol.rst:353
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
-msgstr "``unit`` 是用于 ``label``/``slider`` 的单位字符串（例如 ``\"Cel\"``\\ 、\\ ``\"%RH\"``\\ ）。"
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` 是初始值。默认值取决于 ``type``\\ ：\\ ``label`` 为 ``0``\\ ，\\ ``text``\\ /\\ "
+"``lineedit``\\ /\\ ``select``\\ /\\ ``radio`` 为 ``\"\"``\\ ，\\ ``toggle``\\ "
+"/\\ ``pushbutton`` 为 ``False``\\ ，\\ ``slider``\\ /\\ ``spinbox`` 为 "
+"``min``\\ 。"
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` 是最小值（滑块范围或深度范围）。"
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` 是 ``label``\\ /\\ ``slider``\\ /\\ ``spinbox``\\ /\\ ``waveform`` "
+"的单位字符串（例如 ``\"Cel\"``\\ 、\\ ``\"%RH\"``\\ ）。"
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` 是最大值（滑块范围或深度范围）。"
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``min`` 是最小值（slider/spinbox 的范围，或 depth/waveform 的显示范围）。"
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` 是步长（滑块）。"
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr "``max`` 是最大值（slider/spinbox 的范围，或 depth/waveform 的显示范围）。"
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` 是选项字符串列表（select）。"
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` 是步长（slider/spinbox）。"
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr "``options`` 是选项字符串列表（select/radio），或各序列名称的列表（waveform）。"
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -463,20 +546,48 @@ msgstr "``width`` 是以像素为单位的宽度（depth）。"
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` 是以像素为单位的高度（depth）。"
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
-msgstr "返回命名字段的当前值。对于 ``depth`` 字段返回二进制数据缓冲区，否则返回标量值。"
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
+msgstr "``sample_rate`` 是以每秒采样数为单位的采样率（waveform）。以采样周期的形式发送给主机。"
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
+msgstr "``series`` 是每个采样块中交错序列的数量（waveform），例如 XYZ 加速度计轨迹为 ``3``\\ 。"
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
 msgstr ""
-"设置命名字段的值。对于 ``slider`` 字段，传入一个 ``(min, max, value)`` 元组可同时更新范围和当前值。对于 "
-"``depth`` 字段，\\ ``value`` 是二进制数据缓冲区。"
+"``typecode`` 是波形采样的 :mod:`array` 类型码（例如 ``\"H\"``\\ 、\\ ``\"h\"``\\ 、\\ "
+"``\"f\"``\\ ）。默认为 ``\"H\"``\\ （无符号 16 位）。"
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr "返回指定名称字段的当前值。对于 ``depth`` 和 ``waveform`` 字段返回二进制数据缓冲区，否则返回标量值。"
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"设置指定名称字段的值。对于 ``slider`` 和 ``spinbox`` 字段，\\ ``(min, max, value)`` "
+"元组可同时更新范围和当前值。对于 ``depth`` 字段，\\ ``value`` 是二进制数据缓冲区。对于 ``waveform`` 字段，\\ "
+"``value`` 是一个字节类对象的数据块，包含以该字段 ``typecode`` "
+"表示的交错采样；每个序列的采样数由其长度推导得出，并附带一个单调递增的时间戳（以微秒计，由 :func:`time.ticks_us` "
+"累计而来），以便主机将该数据块放置到其时间轴上。"
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

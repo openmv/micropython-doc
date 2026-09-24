@@ -93,15 +93,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Alustaa (tai konfiguroi uudelleen) protokollapinon ja rekisteröi "
 "oletusarvoiset loogiset datakanavat (\\ ``stdin``\\ , ``stdout``\\ , "
-"``stream`` ja, jos käännetty mukaan, ``profile``\\ ). Nostaa poikkeuksen "
-"``RuntimeError``\\ , jos alustus epäonnistuu. Laiteohjelmisto käynnistyy "
-"oletusarvoisen USB-protokollapinon ollessa jo käynnissä, joten tämän "
-"kutsuminen tarvitaan vain siirtotien vaihtamiseen tai oletusarvoisten "
-"kehystysparametrien korvaamiseen."
+"``stream`` ja, jos se on käännetty mukaan, ``profile``\\ ). Nostaa "
+"``RuntimeError``\\ -poikkeuksen, jos alustus epäonnistuu. Laiteohjelmisto "
+"käynnistyy oletusarvoinen USB-protokollapino jo käynnissä, joten tätä "
+"tarvitsee kutsua vain siirtolinkin vaihtamiseksi tai oletusarvoisten "
+"kehystysparametrien ohittamiseksi. Uusi kutsu alustaa pinon uudelleen: "
+"edellinen kyselyajastin poistetaan ja kanavat rekisteröidään uudestaan."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -252,6 +254,31 @@ msgid ""
 msgstr ""
 "Palauttaa ``True``\\ , jos isäntä on tällä hetkellä yhdistetty ja "
 "protokollapino on aktiivinen, muuten ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Suorittaa protokollatehtävän yhden iteraation: tyhjentää siirtolinkin "
+"vastaanottopuskurin, jäsentää valmiit kehykset, välittää komennot ja "
+"käsittelee kanavatapahtumat. Laiteohjelmisto tekee tämän normaalisti "
+"puolestasi USB-keskeytyksestä ja ``poll_ms``\\ -ajastimesta, joten tätä "
+"tarvitaan vain mukautetuille siirtolinkeille, joita kumpikaan ei ohjaa -- "
+"esimerkiksi kun ``poll_ms=0`` ja siirtolinkkiä kysellään skriptin "
+"pääsilmukasta."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Palauttaa ``0`` onnistuessaan ja ``-1``\\ , jos aktiivista siirtolinkkiä ei "
+"ole rekisteröity tai kutsu tehtiin keskeytyskontekstista."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -445,20 +472,22 @@ msgstr ""
 "Siirtokanavien tapauksessa palauta ``True``\\ , jos taustalla oleva "
 "siirtotie on tällä hetkellä yhdistetty."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Korkeamman tason Python-taustajärjestelmä (jonka tarjoaa jäädytetty "
-"``protocol``\\ -paketti), joka sarjallistaa nimetyt kentät CBOR-muotoon "
-"käyttäen SenML-yhteensopivia kokonaislukuavaimia. Tukee näyttökomponentteja "
-"(\\ ``label``\\ , ``depth``\\ ) ja interaktiivisia ohjaimia (\\ ``toggle``\\"
-" , ``slider``\\ , ``select``\\ ) ``on_read``\\ /\\ ``on_write``\\ "
-"-takaisinkutsuilla."
+"Korkeamman tason Python-taustatoteutus (jonka jäädytetty ``protocol``\\ "
+"-paketti tarjoaa), joka sarjallistaa nimetyt kentät CBOR-muotoon SenML-"
+"yhteensopivilla kokonaislukuavaimilla. Tukee näyttöwidgettejä (\\ "
+"``label``\\ , ``text``\\ , ``depth``\\ , ``waveform``\\ ) ja interaktiivisia"
+" säätimiä (\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\"
+" , ``select``\\ , ``radio``\\ , ``lineedit``\\ ) ``on_read``\\ /\\ "
+"``on_write``\\ -takaisinkutsuineen."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -486,41 +515,113 @@ msgid "``name`` is the display name; must be unique within this channel."
 msgstr ""
 "``name`` on näyttönimi; sen on oltava yksilöllinen tämän kanavan sisällä."
 
-#: ../../library/omv.protocol.rst:322
-msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` on widgetin tyyppi:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
 msgstr ""
-"``type`` on komponentin tyyppi: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` tai ``\"depth\"``\\ ."
+"``\"label\"`` -- vain luettava numeerinen näyttö, jolla on valinnainen "
+"``unit``\\ ."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` on alkuarvo. Oletusarvo riippuu tyypistä ``type``\\ ."
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- vain luettava merkkijononäyttö."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- totuusarvokytkin."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``unit`` on yksikkömerkkijono tyypeille ``label``\\ /\\ ``slider`` (esim. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"pushbutton\"`` -- hetkellinen toiminto (laukaisu, kalibrointi, ...). "
+"Isäntä kirjoittaa napsautettaessa arvon ``True`` eikä näytä tilaa."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` on pienin arvo (liukusäätimen tai syvyyden alue)."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr ""
+"``\"slider\"`` -- numeerinen säädin, jolla on ``min``\\ /\\ ``max``\\ /\\ "
+"``step``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` on suurin arvo (liukusäätimen tai syvyyden alue)."
+#: ../../library/omv.protocol.rst:345
+msgid ""
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
+msgstr ""
+"``\"spinbox\"`` -- tarkka askeleittainen numeerinen syöttö; jakaa "
+"liukusäätimen kentät ja ``(min, max, value)``\\ -monikkopäivitysmuodon."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` on askelkoko (liukusäädin)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- pudotusvalikko ``options``\\ -merkkijonoista."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` on vaihtoehtomerkkijonojen lista (select)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` näytettynä valintanappiryhmänä."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- kirjoitettava merkkijonosyöte."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- 2D-syvyyskarttanäyttö, jonka koko on ``width`` x "
+"``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D-aikasarjakuvaaja lomitetuista näytteistä."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` on alkuarvo. Oletus riippuu ``type``\\ -arvosta: ``0`` tyypille "
+"``label``\\ , ``\"\"`` tyypeille ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` tyypeille ``toggle``\\ /\\ "
+"``pushbutton``\\ , ``min`` tyypeille ``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` on yksikkömerkkijono tyypeille ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (esim. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` on vähimmäisarvo (slider/spinbox-alue tai depth/waveform-"
+"näyttöalue)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` on enimmäisarvo (slider/spinbox-alue tai depth/waveform-näyttöalue)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` on askelkoko (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` on lista vaihtoehtomerkkijonoista (select/radio) tai lista "
+"sarjakohtaisista nimistä (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -530,23 +631,58 @@ msgstr "``width`` on pikselileveys (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` on pikselikorkeus (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Palauttaa nimetyn kentän nykyisen arvon. ``depth``\\ -kentille palautetaan "
-"binääridatapuskuri, muuten skalaariarvo."
+"``sample_rate`` on näytteenottotaajuus näytteinä sekunnissa (waveform). "
+"Lähetetään isännälle näytejaksona."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Asettaa nimetyn kentän arvon. ``slider``\\ -kentille ``(min, max, value)``\\"
-" -monikko päivittää alueen ja nykyisen arvon samanaikaisesti. ``depth``\\ "
-"-kentille ``value`` on binääridatapuskuri."
+"``series`` on lomitettujen sarjojen määrä kussakin näytelohkossa (waveform),"
+" esim. ``3`` XYZ-kiihtyvyysanturin käyrälle."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` on aaltomuotonäytteiden :mod:`array`\\ -tyyppikoodi (esim. "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Oletus on ``\"H\"`` (etumerkitön "
+"16-bittinen)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Palauttaa nimetyn kentän nykyisen arvon. ``depth``\\ - ja ``waveform``\\ "
+"-kentille palautetaan binaaridatapuskuri, muuten skalaariarvo."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Asettaa nimetyn kentän arvon. ``slider``\\ - ja ``spinbox``\\ -kentille "
+"``(min, max, value)``\\ -monikko päivittää alueen ja nykyisen arvon "
+"samanaikaisesti. ``depth``\\ -kentille ``value`` on binaaridatapuskuri. "
+"``waveform``\\ -kentille ``value`` on tavumainen lohko lomitettuja näytteitä"
+" kentän ``typecode``\\ -tyyppikoodissa; näytteiden määrä sarjaa kohti "
+"johdetaan sen pituudesta, ja mukaan liitetään monotoninen aikaleima "
+"(mikrosekunteina, kerrytettynä funktiosta :func:`time.ticks_us`\\ ), jotta "
+"isäntä voi sijoittaa lohkon aika-akselilleen."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

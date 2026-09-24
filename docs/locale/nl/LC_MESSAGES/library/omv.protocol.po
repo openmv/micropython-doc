@@ -94,15 +94,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Initialiseert (of herconfigureert) de protocolstack en registreert de "
 "standaard logische datakanalen (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` "
-"en, indien meegecompileerd, ``profile``\\ ). Genereert een ``RuntimeError`` "
-"als de initialisatie mislukt. De firmware start op met een standaard USB-"
-"protocolstack die al draait, dus het aanroepen hiervan is alleen nodig om "
-"het transport te wijzigen of de standaard framingparameters te "
-"overschrijven."
+"en, indien meegecompileerd, ``profile``\\ ). Genereert ``RuntimeError`` als "
+"de initialisatie mislukt. De firmware start op met een standaard USB-"
+"protocolstack die al draait, dus deze aanroep is alleen nodig om het "
+"transport te wijzigen of de standaard framing-parameters te overschrijven. "
+"Opnieuw aanroepen herinitialiseert de stack: de vorige polling-timer wordt "
+"verwijderd en de kanalen worden opnieuw geregistreerd."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -254,6 +256,31 @@ msgid ""
 msgstr ""
 "Retourneert ``True`` als er momenteel een host verbonden is en de "
 "protocolstack actief is, anders ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Voert één iteratie van de protocoltaak uit: leegt de ontvangstbuffer van het"
+" transport, parseert eventuele complete frames, verwerkt commando's en "
+"handelt kanaalgebeurtenissen af. Normaal doet de firmware dit voor je vanuit"
+" de USB-interrupt en vanuit de ``poll_ms``\\ -timer, dus dit is alleen nodig"
+" voor aangepaste transporten die door geen van beide worden aangestuurd -- "
+"bijvoorbeeld wanneer ``poll_ms=0`` en het transport vanuit de hoofdlus van "
+"het script wordt gepold."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Retourneert ``0`` bij succes en ``-1`` als er geen actief transport is "
+"geregistreerd of de aanroep vanuit een interrupt-context is gedaan."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -453,20 +480,22 @@ msgstr ""
 "Retourneert voor transportkanalen ``True`` als het onderliggende transport "
 "momenteel verbonden is."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Een Python-backend op een hoger niveau (geleverd door het ingevroren "
-"``protocol`` pakket) dat benoemde velden serialiseert naar CBOR met behulp "
-"van SenML-compatibele integer-sleutels. Ondersteunt weergavewidgets (\\ "
-"``label``\\ , ``depth``\\ ) en interactieve besturingselementen (\\ "
-"``toggle``\\ , ``slider``\\ , ``select``\\ ) met ``on_read``\\ /\\ "
-"``on_write`` callbacks."
+"Een Python-backend op hoger niveau (geleverd door het bevroren "
+"``protocol``\\ -pakket) die benoemde velden naar CBOR serialiseert met "
+"SenML-compatibele integer-sleutels. Ondersteunt weergavewidgets (\\ "
+"``label``\\ , ``text``\\ , ``depth``\\ , ``waveform``\\ ) en interactieve "
+"bedieningselementen (\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , "
+"``spinbox``\\ , ``select``\\ , ``radio``\\ , ``lineedit``\\ ) met "
+"``on_read``\\ /\\ ``on_write``\\ -callbacks."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -494,42 +523,112 @@ msgstr "Voegt een benoemd veld toe aan het kanaal."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` is de weergavenaam; moet uniek zijn binnen dit kanaal."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` is het widgettype:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr ""
+"``\"label\"`` -- alleen-lezen numerieke weergave met een optionele "
+"``unit``\\ ."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- alleen-lezen stringweergave."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- booleaanse schakelaar."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` is het widgettype: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"``\\ , of ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- kortstondige actie (trigger, kalibreren, ...). De host"
+" schrijft ``True`` bij een klik en toont geen toestand."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
 msgstr ""
-"``value`` is de beginwaarde. De standaardwaarde hangt af van ``type``\\ ."
+"``\"slider\"`` -- numeriek bedieningselement met ``min``\\ /\\ ``max``\\ /\\"
+" ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` is de eenheidsstring voor ``label``\\ /\\ ``slider`` (bijv. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- nauwkeurige numerieke invoer in stappen; deelt de slider-"
+"velden en de update-vorm met een ``(min, max, value)``\\ -tuple."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` is de minimumwaarde (sliderbereik of dieptebereik)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- keuzelijst (drop-down) van ``options``\\ -strings."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` is de maximumwaarde (sliderbereik of dieptebereik)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` weergegeven als een groep keuzerondjes."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` is de stapgrootte (slider)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- schrijfbare stringinvoer."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` is de lijst met optiestrings (select)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` -- 2D-dieptekaartweergave van ``width`` x ``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D-tijdreeksplot van interleaved samples."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` is de beginwaarde. De standaardwaarde hangt af van ``type``\\ : "
+"``0`` voor ``label``\\ , ``\"\"`` voor ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` voor ``toggle``\\ /\\ "
+"``pushbutton``\\ , ``min`` voor ``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` is de eenheidsstring voor ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (bijv. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` is de minimumwaarde (bereik van slider/spinbox, of weergavebereik "
+"van depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` is de maximumwaarde (bereik van slider/spinbox, of weergavebereik "
+"van depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` is de stapgrootte (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` is de lijst met optiestrings (select/radio), of de lijst met "
+"namen per reeks (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -539,23 +638,59 @@ msgstr "``width`` is de breedte in pixels (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` is de hoogte in pixels (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Retourneert de huidige waarde van het benoemde veld. Voor ``depth`` velden "
-"wordt de binaire gegevensbuffer geretourneerd, anders de scalaire waarde."
+"``sample_rate`` is de bemonsteringsfrequentie in samples per seconde "
+"(waveform). Wordt naar de host gestuurd als de sampleperiode."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Stelt de waarde van het benoemde veld in. Voor ``slider`` velden werkt een "
-"``(min, max, value)`` tuple het bereik en de huidige waarde tegelijkertijd "
-"bij. Voor ``depth`` velden is ``value`` de binaire gegevensbuffer."
+"``series`` is het aantal interleaved reeksen in elk sampleblok (waveform), "
+"bijv. ``3`` voor een XYZ-accelerometerspoor."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` is de :mod:`array`\\ -typecode van de waveform-samples (bijv. "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Standaard ``\"H\"`` (unsigned "
+"16-bit)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Retourneert de huidige waarde van het benoemde veld. Voor ``depth``\\ - en "
+"``waveform``\\ -velden wordt de binaire databuffer geretourneerd, anders de "
+"scalaire waarde."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Stelt de waarde van het benoemde veld in. Voor ``slider``\\ - en "
+"``spinbox``\\ -velden werkt een ``(min, max, value)``\\ -tuple het bereik en"
+" de huidige waarde tegelijk bij. Voor ``depth``\\ -velden is ``value`` de "
+"binaire databuffer. Voor ``waveform``\\ -velden is ``value`` een bytes-"
+"achtig blok interleaved samples in de ``typecode`` van het veld; het aantal "
+"samples per reeks wordt uit de lengte afgeleid en er wordt een monotone "
+"tijdstempel (in microseconden, opgebouwd uit :func:`time.ticks_us`\\ ) aan "
+"gekoppeld zodat de host het blok op zijn tijdas kan plaatsen."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

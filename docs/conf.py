@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath("."))
 import datetime as _dt
 
 # OpenMV firmware version this documentation covers.
-openmv_version = "5.0.0"
+openmv_version = "5.0.1"
 
 # MicroPython version that the firmware is built on top of.
 # (Also used as the Sphinx ``version`` / ``release`` variables below.)

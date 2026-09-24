@@ -93,15 +93,18 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Menginisialisasi (atau mengonfigurasi ulang) tumpukan protokol dan "
 "mendaftarkan saluran data logis default (\\ ``stdin``\\ , ``stdout``\\ , "
 "``stream`` dan, jika dikompilasi, ``profile``\\ ). Memunculkan "
 "``RuntimeError`` jika inisialisasi gagal. Firmware melakukan boot dengan "
 "tumpukan protokol USB default yang sudah berjalan, sehingga pemanggilan ini "
-"hanya diperlukan untuk mengubah transport atau mengganti parameter "
-"pembingkaian default."
+"hanya diperlukan untuk mengganti transport atau menimpa parameter framing "
+"default. Memanggilnya lagi akan menginisialisasi ulang tumpukan: timer "
+"polling sebelumnya dihapus dan saluran-saluran didaftarkan kembali dari "
+"awal."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -251,6 +254,30 @@ msgid ""
 msgstr ""
 "Mengembalikan ``True`` jika host saat ini terhubung dan tumpukan protokol "
 "aktif, jika tidak ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Menjalankan satu iterasi tugas protokol: mengosongkan buffer penerimaan "
+"transport, mem-parsing setiap frame yang lengkap, mendispatch perintah, dan "
+"melayani event saluran. Firmware biasanya melakukan ini untuk Anda dari "
+"interupsi USB dan dari timer ``poll_ms``\\ , sehingga ini hanya diperlukan "
+"untuk transport kustom yang tidak digerakkan oleh keduanya -- misalnya "
+"ketika ``poll_ms=0`` dan transport di-polling dari loop utama skrip."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Mengembalikan ``0`` jika berhasil dan ``-1`` jika tidak ada transport aktif "
+"yang terdaftar atau pemanggilan dilakukan dari konteks interupsi."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -444,20 +471,22 @@ msgstr ""
 "Untuk saluran transport, mengembalikan ``True`` jika transport yang "
 "mendasarinya saat ini terhubung."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Backend Python tingkat tinggi (disediakan oleh paket ``protocol`` yang "
-"dibekukan) yang menserialisasi field bernama ke CBOR menggunakan kunci "
-"integer yang kompatibel dengan SenML. Mendukung widget tampilan (\\ "
-"``label``\\ , ``depth``\\ ) dan kontrol interaktif (\\ ``toggle``\\ , "
-"``slider``\\ , ``select``\\ ) dengan callback ``on_read``\\ /\\ "
-"``on_write``\\ ."
+"Backend Python tingkat lebih tinggi (disediakan oleh paket ``protocol`` "
+"beku) yang menyerialisasi kolom bernama ke CBOR menggunakan kunci integer "
+"yang kompatibel dengan SenML. Mendukung widget tampilan (\\ ``label``\\ , "
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) dan kontrol interaktif (\\ "
+"``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , "
+"``select``\\ , ``radio``\\ , ``lineedit``\\ ) dengan callback ``on_read``\\ "
+"/\\ ``on_write``\\ ."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -484,41 +513,112 @@ msgstr "Menambahkan field bernama ke saluran."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` adalah nama tampilan; harus unik dalam saluran ini."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` adalah tipe widget:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` -- tampilan numerik hanya-baca dengan ``unit`` opsional."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- tampilan string hanya-baca."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- sakelar boolean."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` adalah tipe widget: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"``\\ , atau ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- aksi sesaat (trigger, kalibrasi, ...). Host menulis "
+"``True`` saat diklik dan tidak menampilkan status apa pun."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` adalah nilai awal. Default bergantung pada ``type``\\ ."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- kontrol numerik dengan ``min``\\ /\\ ``max``\\ /\\ ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` adalah string unit untuk ``label``\\ /\\ ``slider`` (misalnya "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- entri numerik bertahap yang presisi; berbagi kolom yang "
+"sama dengan slider serta bentuk pembaruan tuple ``(min, max, value)``\\ ."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` adalah nilai minimum (rentang slider atau rentang depth)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- drop-down dari string ``options``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` adalah nilai maksimum (rentang slider atau rentang depth)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr ""
+"``\"radio\"`` -- ``options`` yang ditampilkan sebagai sekelompok tombol "
+"radio."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` adalah ukuran langkah (slider)."
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- input string yang dapat ditulis."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` adalah daftar string pilihan (select)."
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- tampilan peta kedalaman 2D berukuran ``width`` x "
+"``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- plot deret waktu 1D dari sampel yang di-interleave."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` adalah nilai awal. Nilai default bergantung pada ``type``\\ : "
+"``0`` untuk ``label``\\ , ``\"\"`` untuk ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` untuk ``toggle``\\ /\\ "
+"``pushbutton``\\ , ``min`` untuk ``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` adalah string satuan untuk ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (misalnya ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` adalah nilai minimum (rentang slider/spinbox, atau rentang tampilan "
+"depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` adalah nilai maksimum (rentang slider/spinbox, atau rentang tampilan"
+" depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` adalah ukuran langkah (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` adalah daftar string opsi (select/radio), atau daftar nama per-"
+"seri (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -528,23 +628,59 @@ msgstr "``width`` adalah lebar piksel (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` adalah tinggi piksel (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Mengembalikan nilai saat ini dari field bernama. Untuk field ``depth``\\ , "
-"buffer data biner dikembalikan, jika tidak nilai skalar."
+"``sample_rate`` adalah laju sampel dalam sampel per detik (waveform). "
+"Dikirim ke host sebagai periode sampel."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Mengatur nilai field bernama. Untuk field ``slider``\\ , tuple ``(min, max, "
-"value)`` memperbarui rentang dan nilai saat ini secara bersamaan. Untuk "
-"field ``depth``\\ , ``value`` adalah buffer data biner."
+"``series`` adalah jumlah seri yang di-interleave dalam setiap blok sampel "
+"(waveform), misalnya ``3`` untuk jejak akselerometer XYZ."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` adalah typecode :mod:`array` dari sampel waveform (misalnya "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Default-nya ``\"H\"`` (16-bit "
+"tanpa tanda)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Mengembalikan nilai saat ini dari kolom bernama. Untuk kolom ``depth`` dan "
+"``waveform``\\ , buffer data biner yang dikembalikan; selain itu, nilai "
+"skalarnya."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Mengatur nilai kolom bernama. Untuk kolom ``slider`` dan ``spinbox``\\ , "
+"tuple ``(min, max, value)`` memperbarui rentang dan nilai saat ini secara "
+"bersamaan. Untuk kolom ``depth``\\ , ``value`` adalah buffer data biner. "
+"Untuk kolom ``waveform``\\ , ``value`` adalah blok bytes-like berisi sampel "
+"yang di-interleave dalam ``typecode`` kolom tersebut; jumlah sampel per seri"
+" diturunkan dari panjangnya dan stempel waktu monotonik (dalam mikrodetik, "
+"diakumulasikan dari :func:`time.ticks_us`\\ ) dilampirkan agar host dapat "
+"menempatkan potongan data tersebut pada sumbu waktunya."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

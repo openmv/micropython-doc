@@ -92,14 +92,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
-"Initiera (eller omkonfigurera) protokollstacken och registrera "
-"standardlogiska datakanaler (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` och,"
-" om inkompilerad, ``profile``\\ ). Höjer ``RuntimeError`` om initieringen "
-"misslyckas. Den fasta programvaran startar med en standard-USB-"
-"protokollstack som redan körs, så detta anrop behövs endast för att byta "
-"transport eller åsidosätta standardparametrarna för ramning."
+"Initierar (eller omkonfigurerar) protokollstacken och registrerar de logiska"
+" standarddatakanalerna (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` och, om "
+"den är inkompilerad, ``profile``\\ ). Utlöser ``RuntimeError`` om "
+"initieringen misslyckas. Firmwaren startar med en USB-protokollstack som "
+"redan körs som standard, så detta behöver bara anropas för att byta "
+"transport eller åsidosätta standardparametrarna för ramning. Anropas den "
+"igen initieras stacken om: den tidigare pollningstimern tas bort och "
+"kanalerna registreras på nytt."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -249,6 +252,30 @@ msgid ""
 msgstr ""
 "Returnerar ``True`` om en värd är ansluten för närvarande och "
 "protokollstacken är aktiv, annars ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Kör en iteration av protokolluppgiften: tömmer transportens "
+"mottagningsbuffert, tolkar alla kompletta ramar, skickar vidare kommandon "
+"och betjänar kanalhändelser. Normalt gör firmwaren detta åt dig från USB-"
+"avbrottet och från ``poll_ms``\\ -timern, så detta behövs bara för anpassade"
+" transporter som inte drivs av någotdera -- till exempel när ``poll_ms=0`` "
+"och transporten pollas från skriptets huvudloop."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Returnerar ``0`` vid framgång och ``-1`` om ingen aktiv transport är "
+"registrerad eller om anropet gjordes från en avbrottskontext."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -439,19 +466,22 @@ msgstr ""
 "För transportkanaler, returnera ``True`` om den underliggande transporten är"
 " ansluten för närvarande."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"En Python-backend på högre nivå (tillhandahållen av det frysta paketet "
-"``protocol``\\ ) som serialiserar namngivna fält till CBOR med SenML-"
-"kompatibla heltalsnycklar. Stöder visningswidgetar (\\ ``label``\\ , "
-"``depth``\\ ) och interaktiva kontroller (\\ ``toggle``\\ , ``slider``\\ , "
-"``select``\\ ) med ``on_read``\\ /\\ ``on_write``\\ -återanrop."
+"En Python-backend på högre nivå (som tillhandahålls av det frysta "
+"``protocol``\\ -paketet) som serialiserar namngivna fält till CBOR med "
+"SenML-kompatibla heltalsnycklar. Stöder visningswidgetar (\\ ``label``\\ , "
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) och interaktiva kontroller (\\ "
+"``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , "
+"``select``\\ , ``radio``\\ , ``lineedit``\\ ) med ``on_read``\\ /\\ "
+"``on_write``\\ -återanrop."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -479,42 +509,110 @@ msgstr "Lägg till ett namngivet fält i kanalen."
 msgid "``name`` is the display name; must be unique within this channel."
 msgstr "``name`` är visningsnamnet; måste vara unikt inom denna kanal."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` är widgettypen:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr "``\"label\"`` -- skrivskyddad numerisk visning med en valfri ``unit``\\ ."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- skrivskyddad strängvisning."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- boolesk växlare."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` är widgettypen: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` eller ``\"depth\"``\\ ."
+"``\"pushbutton\"`` -- momentan åtgärd (utlös, kalibrera, ...). Värden "
+"skriver ``True`` vid klick och visar inget tillstånd."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` är startvärdet. Standardvärdet beror på ``type``\\ ."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- numerisk kontroll med ``min``\\ /\\ ``max``\\ /\\ ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` är enhetssträngen för ``label``\\ /\\ ``slider`` (t.ex. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"spinbox\"`` -- exakt stegvis numerisk inmatning; delar skjutreglagets "
+"fält och uppdateringsformen med en ``(min, max, value)``\\ -tupel."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- rullgardinsmeny med strängarna i ``options``\\ ."
+
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` visade som en grupp radioknappar."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- skrivbar stränginmatning."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
 msgstr ""
-"``min`` är minimivärdet (skjutreglagets intervall eller djupintervall)."
+"``\"depth\"`` -- 2D-visning av en djupkarta med storleken ``width`` x "
+"``height``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` är maxvärdet (skjutreglagets intervall eller djupintervall)."
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D-tidsseriediagram över sammanflätade sampel."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` är stegstorleken (skjutreglage)."
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` är startvärdet. Standardvärdet beror på ``type``\\ : ``0`` för "
+"``label``\\ , ``\"\"`` för ``text``\\ /\\ ``lineedit``\\ /\\ ``select``\\ / "
+"``radio``\\ , ``False`` för ``toggle``\\ /\\ ``pushbutton``\\ , ``min`` för "
+"``slider``\\ /\\ ``spinbox``\\ ."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` är listan med alternativsträngar (select)."
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` är enhetssträngen för ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (t.ex. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` är minimivärdet (intervall för slider/spinbox, eller "
+"visningsintervall för depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` är maximivärdet (intervall för slider/spinbox, eller "
+"visningsintervall för depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` är stegstorleken (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` är listan med alternativsträngar (select/radio), eller listan "
+"med namn per serie (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -524,23 +622,59 @@ msgstr "``width`` är pixelbredden (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` är pixelhöjden (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Returnerar det aktuella värdet för det namngivna fältet. För ``depth``\\ "
-"-fält returneras den binära databufferten, annars skalärvärdet."
+"``sample_rate`` är samplingsfrekvensen i sampel per sekund (waveform). "
+"Skickas till värden som samplingsperiod."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Sätt värdet för det namngivna fältet. För ``slider``\\ -fält uppdaterar en "
-"tupel ``(min, max, value)`` intervallet och det aktuella värdet samtidigt. "
-"För ``depth``\\ -fält är ``value`` den binära databufferten."
+"``series`` är antalet sammanflätade serier i varje sampelblock (waveform), "
+"t.ex. ``3`` för en XYZ-accelerometerkurva."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` är :mod:`array`\\ -typkoden för vågformens sampel (t.ex. "
+"``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Standard är ``\"H\"`` (16-bitars "
+"utan tecken)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Returnerar det aktuella värdet för det namngivna fältet. För ``depth``\\ - "
+"och ``waveform``\\ -fält returneras den binära databufferten, annars "
+"skalärvärdet."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Sätter värdet för det namngivna fältet. För ``slider``\\ - och ``spinbox``\\"
+" -fält uppdaterar en ``(min, max, value)``\\ -tupel intervallet och det "
+"aktuella värdet samtidigt. För ``depth``\\ -fält är ``value`` den binära "
+"databufferten. För ``waveform``\\ -fält är ``value`` ett bytes-liknande "
+"block av sammanflätade sampel i fältets ``typecode``\\ ; antalet sampel per "
+"serie härleds från dess längd och en monoton tidsstämpel (i mikrosekunder, "
+"ackumulerad från :func:`time.ticks_us`\\ ) bifogas så att värden kan placera"
+" blocket på sin tidsaxel."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

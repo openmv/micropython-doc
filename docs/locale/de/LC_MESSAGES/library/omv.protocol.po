@@ -92,15 +92,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
 "Initialisiert (oder rekonfiguriert) den Protokoll-Stack und registriert die "
-"logischen Standard-Datenkanäle (``stdin``, ``stdout``, ``stream`` und, falls"
-" einkompiliert, ``profile``). Löst ``RuntimeError`` aus, wenn die "
-"Initialisierung fehlschlägt. Die Firmware startet mit einem bereits "
-"laufenden USB-Standard-Protokoll-Stack, sodass dieser Aufruf nur "
-"erforderlich ist, um den Transport zu ändern oder die Standard-Framing-"
-"Parameter zu überschreiben."
+"standardmäßigen logischen Datenkanäle (\\ ``stdin``\\ , ``stdout``\\ , "
+"``stream`` und, falls einkompiliert, ``profile``\\ ). Löst ``RuntimeError`` "
+"aus, wenn die Initialisierung fehlschlägt. Die Firmware startet bereits mit "
+"einem laufenden Standard-USB-Protokoll-Stack, sodass dieser Aufruf nur nötig"
+" ist, um den Transport zu wechseln oder die Standard-Framing-Parameter zu "
+"überschreiben. Ein erneuter Aufruf initialisiert den Stack neu: Der "
+"vorherige Polling-Timer wird entfernt und die Kanäle werden neu registriert."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -254,6 +256,31 @@ msgid ""
 msgstr ""
 "Gibt ``True`` zurück, wenn aktuell ein Host verbunden und der Protokoll-"
 "Stack aktiv ist, andernfalls ``False``."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Führt eine Iteration der Protokoll-Task aus: leert den Empfangspuffer des "
+"Transports, parst alle vollständigen Frames, verteilt Befehle und bedient "
+"Kanalereignisse. Normalerweise erledigt die Firmware dies für Sie aus dem "
+"USB-Interrupt und dem ``poll_ms``\\ -Timer heraus, sodass dies nur für "
+"benutzerdefinierte Transporte nötig ist, die von keinem der beiden "
+"angetrieben werden -- zum Beispiel wenn ``poll_ms=0`` gesetzt ist und der "
+"Transport aus der Hauptschleife des Skripts abgefragt wird."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Gibt ``0`` bei Erfolg zurück und ``-1``\\ , wenn kein aktiver Transport "
+"registriert ist oder der Aufruf aus einem Interrupt-Kontext erfolgte."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -451,19 +478,22 @@ msgstr ""
 "Gibt bei Transportkanälen ``True`` zurück, wenn der zugrunde liegende "
 "Transport aktuell verbunden ist."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Ein übergeordnetes Python-Backend (bereitgestellt durch das eingefrorene "
-"Paket ``protocol``), das benannte Felder mit SenML-kompatiblen Ganzzahl-"
-"Schlüsseln in CBOR serialisiert. Unterstützt Anzeige-Widgets (``label``, "
-"``depth``) und interaktive Steuerelemente (``toggle``, ``slider``, "
-"``select``) mit ``on_read``/``on_write``-Callbacks."
+"Ein höherstufiges Python-Backend (bereitgestellt vom eingefrorenen "
+"``protocol``\\ -Paket), das benannte Felder mit SenML-kompatiblen Integer-"
+"Schlüsseln nach CBOR serialisiert. Unterstützt Anzeige-Widgets (\\ "
+"``label``\\ , ``text``\\ , ``depth``\\ , ``waveform``\\ ) und interaktive "
+"Steuerelemente (\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , "
+"``spinbox``\\ , ``select``\\ , ``radio``\\ , ``lineedit``\\ ) mit "
+"``on_read``\\ -/\\ ``on_write``\\ -Callbacks."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -492,44 +522,114 @@ msgid "``name`` is the display name; must be unique within this channel."
 msgstr ""
 "``name`` ist der Anzeigename; muss innerhalb dieses Kanals eindeutig sein."
 
-#: ../../library/omv.protocol.rst:322
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` ist der Widget-Typ:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
+msgstr ""
+"``\"label\"`` -- schreibgeschützte numerische Anzeige mit optionaler "
+"``unit``\\ ."
+
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- schreibgeschützte String-Anzeige."
+
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- boolescher Schalter."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``type`` ist der Widget-Typ: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"`` oder ``\"depth\"``."
+"``\"pushbutton\"`` -- momentane Aktion (Auslösen, Kalibrieren, ...). Der "
+"Host schreibt beim Klick ``True`` und stellt keinen Zustand dar."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
 msgstr ""
-"``value`` ist der Anfangswert. Der Standardwert hängt von ``type`` ab."
+"``\"slider\"`` -- numerisches Steuerelement mit ``min``\\ /\\ ``max``\\ /\\ "
+"``step``\\ ."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:345
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
 msgstr ""
-"``unit`` ist die Einheitenzeichenkette für ``label``/``slider`` (z. B. "
-"``\"Cel\"``, ``\"%RH\"``)."
+"``\"spinbox\"`` -- präzise schrittweise Zahleneingabe; teilt sich die "
+"Slider-Felder und die Aktualisierungsform per ``(min, max, value)``\\ "
+"-Tupel."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- Drop-down-Liste der ``options``\\ -Strings."
+
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr "``\"radio\"`` -- ``options`` dargestellt als Gruppe von Radiobuttons."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- beschreibbare String-Eingabe."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr "``\"depth\"`` -- 2D-Tiefenkartenanzeige mit ``width`` x ``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
 msgstr ""
-"``min`` ist der Minimalwert (Schieberegler-Bereich oder Tiefenbereich)."
+"``\"waveform\"`` -- 1D-Zeitreihendiagramm aus verschachtelten Abtastwerten."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
 msgstr ""
-"``max`` ist der Maximalwert (Schieberegler-Bereich oder Tiefenbereich)."
+"``value`` ist der Anfangswert. Der Standardwert hängt von ``type`` ab: ``0``"
+" für ``label``\\ , ``\"\"`` für ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` für ``toggle``\\ /\\ ``pushbutton``\\"
+" , ``min`` für ``slider``\\ /\\ ``spinbox``\\ ."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` ist die Schrittweite (Schieberegler)."
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` ist der Einheiten-String für ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (z. B. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` ist die Liste der Optionszeichenketten (Auswahl)."
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` ist der Minimalwert (Bereich für slider/spinbox oder Anzeigebereich "
+"für depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` ist der Maximalwert (Bereich für slider/spinbox oder Anzeigebereich "
+"für depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` ist die Schrittweite (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` ist die Liste der Options-Strings (select/radio) oder die Liste "
+"der Namen je Serie (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -539,23 +639,61 @@ msgstr "``width`` ist die Breite in Pixeln (Tiefe)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` ist die Höhe in Pixeln (Tiefe)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Gibt den aktuellen Wert des benannten Feldes zurück. Bei ``depth``-Feldern "
-"wird der Binärdatenpuffer zurückgegeben, andernfalls der Skalarwert."
+"``sample_rate`` ist die Abtastrate in Abtastwerten pro Sekunde (waveform). "
+"Wird dem Host als Abtastperiode gesendet."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Setzt den Wert des benannten Feldes. Bei ``slider``-Feldern aktualisiert ein"
-" ``(min, max, value)``-Tupel den Bereich und den aktuellen Wert "
-"gleichzeitig. Bei ``depth``-Feldern ist ``value`` der Binärdatenpuffer."
+"``series`` ist die Anzahl der verschachtelten Serien in jedem Abtastblock "
+"(waveform), z. B. ``3`` für eine XYZ-Aufzeichnung eines "
+"Beschleunigungssensors."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` ist der :mod:`array`\\ -Typcode der Waveform-Abtastwerte (z. B."
+" ``\"H\"``\\ , ``\"h\"``\\ , ``\"f\"``\\ ). Standardwert ``\"H\"`` "
+"(vorzeichenlos, 16 Bit)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Gibt den aktuellen Wert des benannten Feldes zurück. Für ``depth``\\ - und "
+"``waveform``\\ -Felder wird der binäre Datenpuffer zurückgegeben, "
+"andernfalls der Skalarwert."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Setzt den Wert des benannten Feldes. Für ``slider``\\ - und ``spinbox``\\ "
+"-Felder aktualisiert ein ``(min, max, value)``\\ -Tupel Bereich und "
+"aktuellen Wert gleichzeitig. Für ``depth``\\ -Felder ist ``value`` der "
+"binäre Datenpuffer. Für ``waveform``\\ -Felder ist ``value`` ein bytes-"
+"artiger Block verschachtelter Abtastwerte im ``typecode`` des Feldes; die "
+"Anzahl der Abtastwerte je Serie wird aus seiner Länge abgeleitet, und ein "
+"monotoner Zeitstempel (in Mikrosekunden, akkumuliert aus "
+":func:`time.ticks_us`\\ ) wird angehängt, damit der Host den Block auf "
+"seiner Zeitachse platzieren kann."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""

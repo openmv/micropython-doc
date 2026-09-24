@@ -93,14 +93,17 @@ msgid ""
 "in, ``profile``). Raises ``RuntimeError`` if initialization fails. The "
 "firmware boots with a default USB protocol stack already running, so calling"
 " this is needed only to change the transport or override the default framing"
-" parameters."
+" parameters. Calling it again re-initializes the stack: the previous polling"
+" timer is removed and the channels are registered afresh."
 msgstr ""
-"Inicializuje (nebo překonfiguruje) protokolový zásobník a registruje výchozí"
-" logické datové kanály (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` a, pokud "
-"je zkompilován, ``profile``\\ ). Vyvolá ``RuntimeError``\\ , pokud "
-"inicializace selže. Firmware startuje s již běžícím výchozím protokolovým "
-"zásobníkem USB, takže toto volání je potřeba pouze ke změně přenosu nebo "
-"přepsání výchozích parametrů rámcování."
+"Inicializuje (nebo překonfiguruje) protokolový zásobník a zaregistruje "
+"výchozí logické datové kanály (\\ ``stdin``\\ , ``stdout``\\ , ``stream`` a,"
+" je-li zakompilován, ``profile``\\ ). Vyvolá ``RuntimeError``\\ , pokud "
+"inicializace selže. Firmware se spouští s již běžícím výchozím protokolovým "
+"zásobníkem přes USB, takže toto volání je potřeba pouze pro změnu přenosu "
+"nebo přepsání výchozích parametrů rámcování. Opětovné volání zásobník znovu "
+"inicializuje: předchozí časovač dotazování se odstraní a kanály se "
+"zaregistrují znovu."
 
 #: ../../library/omv.protocol.rst:120
 msgid "``crc`` enables CRC validation on protocol frames."
@@ -253,6 +256,30 @@ msgid ""
 msgstr ""
 "Vrací ``True``\\ , pokud je aktuálně připojen hostitel a protokolový "
 "zásobník je aktivní, jinak ``False``\\ ."
+
+#: ../../library/omv.protocol.rst:193
+msgid ""
+"Run one iteration of the protocol task: drain the transport's receive "
+"buffer, parse any complete frames, dispatch commands and service channel "
+"events. The firmware normally does this for you from the USB interrupt and "
+"from the ``poll_ms`` timer, so this is only needed for custom transports "
+"that are not driven by either -- for example when ``poll_ms=0`` and the "
+"transport is polled from the script's main loop."
+msgstr ""
+"Provede jednu iteraci úlohy protokolu: vyprázdní přijímací buffer přenosu, "
+"zpracuje všechny kompletní rámce, rozešle příkazy a obslouží události "
+"kanálů. Firmware to za vás běžně provádí z přerušení USB a z časovače "
+"``poll_ms``\\ , takže je to potřeba jen pro vlastní přenosy, které nejsou "
+"řízeny ani jedním z nich -- například když ``poll_ms=0`` a přenos je "
+"dotazován z hlavní smyčky skriptu."
+
+#: ../../library/omv.protocol.rst:200
+msgid ""
+"Returns ``0`` on success and ``-1`` if no active transport is registered or "
+"the call was made from an interrupt context."
+msgstr ""
+"Vrací ``0`` při úspěchu a ``-1``\\ , pokud není zaregistrován žádný aktivní "
+"přenos nebo bylo volání provedeno z kontextu přerušení."
 
 #: ../../library/omv.protocol.rst:191
 msgid ""
@@ -439,19 +466,22 @@ msgstr ""
 "U přenosových kanálů vrací ``True``\\ , pokud je podkladový přenos aktuálně "
 "připojen."
 
-#: ../../library/omv.protocol.rst:304
+#: ../../library/omv.protocol.rst:318
 msgid ""
 "A higher-level Python backend (provided by the frozen ``protocol`` package) "
 "that serializes named fields to CBOR using SenML-compatible integer keys. "
-"Supports display widgets (``label``, ``depth``) and interactive controls "
-"(``toggle``, ``slider``, ``select``) with ``on_read``/``on_write`` "
+"Supports display widgets (``label``, ``text``, ``depth``, ``waveform``) and "
+"interactive controls (``toggle``, ``pushbutton``, ``slider``, ``spinbox``, "
+"``select``, ``radio``, ``lineedit``) with ``on_read``/``on_write`` "
 "callbacks."
 msgstr ""
-"Backend Python vyšší úrovně (poskytovaný zamrazeným balíčkem ``protocol``\\ "
+"Backend Pythonu vyšší úrovně (poskytovaný zmrazeným balíčkem ``protocol``\\ "
 "), který serializuje pojmenovaná pole do CBOR pomocí celočíselných klíčů "
 "kompatibilních se SenML. Podporuje zobrazovací widgety (\\ ``label``\\ , "
-"``depth``\\ ) a interaktivní ovládací prvky (\\ ``toggle``\\ , ``slider``\\ "
-", ``select``\\ ) s callbacky ``on_read``\\ /\\ ``on_write``\\ ."
+"``text``\\ , ``depth``\\ , ``waveform``\\ ) a interaktivní ovládací prvky "
+"(\\ ``toggle``\\ , ``pushbutton``\\ , ``slider``\\ , ``spinbox``\\ , "
+"``select``\\ , ``radio``\\ , ``lineedit``\\ ) s callbacky ``on_read``\\ /\\ "
+"``on_write``\\ ."
 
 #: ../../library/omv.protocol.rst:310
 msgid ""
@@ -478,41 +508,113 @@ msgid "``name`` is the display name; must be unique within this channel."
 msgstr ""
 "``name`` je zobrazovaný název; musí být v rámci tohoto kanálu jedinečný."
 
-#: ../../library/omv.protocol.rst:322
-msgid ""
-"``type`` is the widget type: ``\"label\"``, ``\"toggle\"``, ``\"slider\"``, "
-"``\"select\"``, or ``\"depth\"``."
+#: ../../library/omv.protocol.rst:337
+msgid "``type`` is the widget type:"
+msgstr "``type`` je typ widgetu:"
+
+#: ../../library/omv.protocol.rst:339
+msgid "``\"label\"`` -- read-only numeric display with an optional ``unit``."
 msgstr ""
-"``type`` je typ widgetu: ``\"label\"``\\ , ``\"toggle\"``\\ , "
-"``\"slider\"``\\ , ``\"select\"`` nebo ``\"depth\"``\\ ."
+"``\"label\"`` -- číselné zobrazení pouze pro čtení s volitelnou jednotkou "
+"``unit``\\ ."
 
-#: ../../library/omv.protocol.rst:325
-msgid "``value`` is the initial value. The default depends on ``type``."
-msgstr "``value`` je počáteční hodnota. Výchozí hodnota závisí na ``type``\\ ."
+#: ../../library/omv.protocol.rst:340
+msgid "``\"text\"`` -- read-only string display."
+msgstr "``\"text\"`` -- zobrazení řetězce pouze pro čtení."
 
-#: ../../library/omv.protocol.rst:327
+#: ../../library/omv.protocol.rst:341
+msgid "``\"toggle\"`` -- boolean switch."
+msgstr "``\"toggle\"`` -- logický přepínač."
+
+#: ../../library/omv.protocol.rst:342
 msgid ""
-"``unit`` is the unit string for ``label``/``slider`` (e.g. ``\"Cel\"``, "
-"``\"%RH\"``)."
+"``\"pushbutton\"`` -- momentary action (trigger, calibrate, ...). The host "
+"writes ``True`` on click and renders no state."
 msgstr ""
-"``unit`` je řetězec jednotky pro ``label``\\ /\\ ``slider`` (např. "
-"``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+"``\"pushbutton\"`` -- okamžitá akce (spuštění, kalibrace, ...). Hostitel při"
+" kliknutí zapíše ``True`` a nezobrazuje žádný stav."
 
-#: ../../library/omv.protocol.rst:330
-msgid "``min`` is the minimum value (slider range or depth range)."
-msgstr "``min`` je minimální hodnota (rozsah slideru nebo rozsah hloubky)."
+#: ../../library/omv.protocol.rst:344
+msgid "``\"slider\"`` -- numeric control with ``min``/``max``/``step``."
+msgstr "``\"slider\"`` -- číselný ovládací prvek s ``min``\\ /\\ ``max``\\ /\\ ``step``\\ ."
 
-#: ../../library/omv.protocol.rst:332
-msgid "``max`` is the maximum value (slider range or depth range)."
-msgstr "``max`` je maximální hodnota (rozsah slideru nebo rozsah hloubky)."
+#: ../../library/omv.protocol.rst:345
+msgid ""
+"``\"spinbox\"`` -- precise stepped numeric entry; shares the slider fields "
+"and the ``(min, max, value)`` tuple update form."
+msgstr ""
+"``\"spinbox\"`` -- přesné krokované zadávání čísel; sdílí pole slideru a "
+"formu aktualizace n-ticí ``(min, max, value)``\\ ."
 
-#: ../../library/omv.protocol.rst:334
-msgid "``step`` is the step size (slider)."
-msgstr "``step`` je velikost kroku (slider)."
+#: ../../library/omv.protocol.rst:347
+msgid "``\"select\"`` -- drop-down of ``options`` strings."
+msgstr "``\"select\"`` -- rozbalovací seznam řetězců ``options``\\ ."
 
-#: ../../library/omv.protocol.rst:336
-msgid "``options`` is the list of option strings (select)."
-msgstr "``options`` je seznam řetězců možností (select)."
+#: ../../library/omv.protocol.rst:348
+msgid "``\"radio\"`` -- ``options`` rendered as a group of radio buttons."
+msgstr ""
+"``\"radio\"`` -- ``options`` vykreslené jako skupina přepínacích tlačítek."
+
+#: ../../library/omv.protocol.rst:349
+msgid "``\"lineedit\"`` -- writable string input."
+msgstr "``\"lineedit\"`` -- zapisovatelný řetězcový vstup."
+
+#: ../../library/omv.protocol.rst:350
+msgid "``\"depth\"`` -- 2D depth-map display of ``width`` x ``height``."
+msgstr ""
+"``\"depth\"`` -- 2D zobrazení hloubkové mapy o rozměrech ``width`` x "
+"``height``\\ ."
+
+#: ../../library/omv.protocol.rst:351
+msgid "``\"waveform\"`` -- 1D time-series plot of interleaved samples."
+msgstr "``\"waveform\"`` -- 1D graf časové řady prokládaných vzorků."
+
+#: ../../library/omv.protocol.rst:353
+msgid ""
+"``value`` is the initial value. The default depends on ``type``: ``0`` for "
+"``label``, ``\"\"`` for ``text``/``lineedit``/``select``/ ``radio``, "
+"``False`` for ``toggle``/``pushbutton``, ``min`` for ``slider``/``spinbox``."
+msgstr ""
+"``value`` je počáteční hodnota. Výchozí hodnota závisí na ``type``\\ : ``0``"
+" pro ``label``\\ , ``\"\"`` pro ``text``\\ /\\ ``lineedit``\\ /\\ "
+"``select``\\ / ``radio``\\ , ``False`` pro ``toggle``\\ /\\ ``pushbutton``\\"
+" , ``min`` pro ``slider``\\ /\\ ``spinbox``\\ ."
+
+#: ../../library/omv.protocol.rst:358
+msgid ""
+"``unit`` is the unit string for ``label``/``slider``/``spinbox``/ "
+"``waveform`` (e.g. ``\"Cel\"``, ``\"%RH\"``)."
+msgstr ""
+"``unit`` je řetězec jednotky pro ``label``\\ /\\ ``slider``\\ /\\ "
+"``spinbox``\\ / ``waveform`` (např. ``\"Cel\"``\\ , ``\"%RH\"``\\ )."
+
+#: ../../library/omv.protocol.rst:361
+msgid ""
+"``min`` is the minimum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``min`` je minimální hodnota (rozsah slideru/spinboxu, nebo rozsah zobrazení"
+" pro depth/waveform)."
+
+#: ../../library/omv.protocol.rst:364
+msgid ""
+"``max`` is the maximum value (slider/spinbox range, or depth/waveform "
+"display range)."
+msgstr ""
+"``max`` je maximální hodnota (rozsah slideru/spinboxu, nebo rozsah zobrazení"
+" pro depth/waveform)."
+
+#: ../../library/omv.protocol.rst:367
+msgid "``step`` is the step size (slider/spinbox)."
+msgstr "``step`` je velikost kroku (slider/spinbox)."
+
+#: ../../library/omv.protocol.rst:369
+msgid ""
+"``options`` is the list of option strings (select/radio), or the list of "
+"per-series names (waveform)."
+msgstr ""
+"``options`` je seznam řetězců voleb (select/radio), nebo seznam názvů "
+"jednotlivých řad (waveform)."
 
 #: ../../library/omv.protocol.rst:338
 msgid "``width`` is the pixel width (depth)."
@@ -522,23 +624,56 @@ msgstr "``width`` je šířka v pixelech (depth)."
 msgid "``height`` is the pixel height (depth)."
 msgstr "``height`` je výška v pixelech (depth)."
 
-#: ../../library/omv.protocol.rst:344
+#: ../../library/omv.protocol.rst:376
 msgid ""
-"Return the current value of the named field. For ``depth`` fields the binary"
-" data buffer is returned, otherwise the scalar value."
+"``sample_rate`` is the sample rate in samples per second (waveform). Sent to"
+" the host as the sample period."
 msgstr ""
-"Vrací aktuální hodnotu pojmenovaného pole. U polí ``depth`` je vrácen buffer"
-" binárních dat, jinak skalární hodnota."
+"``sample_rate`` je vzorkovací frekvence ve vzorcích za sekundu (waveform). "
+"Hostiteli se odesílá jako perioda vzorkování."
 
-#: ../../library/omv.protocol.rst:349
+#: ../../library/omv.protocol.rst:379
 msgid ""
-"Set the value of the named field. For ``slider`` fields, a ``(min, max, "
-"value)`` tuple updates the range and current value simultaneously. For "
-"``depth`` fields, ``value`` is the binary data buffer."
+"``series`` is the number of interleaved series in each sample block "
+"(waveform), e.g. ``3`` for an XYZ accelerometer trace."
 msgstr ""
-"Nastaví hodnotu pojmenovaného pole. U polí ``slider`` n-tice ``(min, max, "
-"value)`` současně aktualizuje rozsah i aktuální hodnotu. U polí ``depth`` je"
-" ``value`` buffer binárních dat."
+"``series`` je počet prokládaných řad v každém bloku vzorků (waveform), např."
+" ``3`` pro záznam akcelerometru XYZ."
+
+#: ../../library/omv.protocol.rst:382
+msgid ""
+"``typecode`` is the :mod:`array` typecode of the waveform samples (e.g. "
+"``\"H\"``, ``\"h\"``, ``\"f\"``). Defaults to ``\"H\"`` (unsigned 16-bit)."
+msgstr ""
+"``typecode`` je typový kód :mod:`array` vzorků waveformu (např. ``\"H\"``\\ "
+", ``\"h\"``\\ , ``\"f\"``\\ ). Výchozí je ``\"H\"`` (16bitové bez znaménka)."
+
+#: ../../library/omv.protocol.rst:387
+msgid ""
+"Return the current value of the named field. For ``depth`` and ``waveform`` "
+"fields the binary data buffer is returned, otherwise the scalar value."
+msgstr ""
+"Vrátí aktuální hodnotu pojmenovaného pole. Pro pole ``depth`` a ``waveform``"
+" se vrací binární datový buffer, jinak skalární hodnota."
+
+#: ../../library/omv.protocol.rst:393
+msgid ""
+"Set the value of the named field. For ``slider`` and ``spinbox`` fields, a "
+"``(min, max, value)`` tuple updates the range and current value "
+"simultaneously. For ``depth`` fields, ``value`` is the binary data buffer. "
+"For ``waveform`` fields, ``value`` is a bytes-like block of interleaved "
+"samples in the field's ``typecode``; the samples-per- series count is "
+"derived from its length and a monotonic timestamp (in microseconds, "
+"accumulated from :func:`time.ticks_us`) is attached so the host can place "
+"the chunk on its time axis."
+msgstr ""
+"Nastaví hodnotu pojmenovaného pole. U polí ``slider`` a ``spinbox`` n-tice "
+"``(min, max, value)`` aktualizuje rozsah a aktuální hodnotu současně. U polí"
+" ``depth`` je ``value`` binární datový buffer. U polí ``waveform`` je "
+"``value`` blok bajtů (bytes-like) prokládaných vzorků v ``typecode`` daného "
+"pole; počet vzorků na řadu se odvodí z jeho délky a připojí se monotónní "
+"časové razítko (v mikrosekundách, akumulované z :func:`time.ticks_us`\\ ), "
+"aby hostitel mohl blok umístit na svou časovou osu."
 
 #: ../../library/omv.protocol.rst:356
 msgid ""
