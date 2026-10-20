@@ -320,6 +320,20 @@ extensions = [
 # so they are removed after the build by .ci/dedup_assets.py instead.
 if os.environ.get("OPENMV_DOCS_ROOT_BUILD"):
     extensions.append("sphinx_llms_txt")
+    # sitemap.xml likewise lists only the English channel-root pages; the
+    # translations are discoverable through each page's hreflang alternates.
+    # The site-root robots.txt (written by .ci/gen_versions.py) points crawlers
+    # at the newest release's copy only, so dev and older snapshots aren't
+    # advertised. URLs come from html_baseurl, which already carries the channel.
+    extensions.append("sphinx_sitemap")
+
+sitemap_url_scheme = "{link}"
+# No per-URL hreflang alternates: sphinx-sitemap assumes /<lang>/ for every
+# language including English, but English is the channel root here, so its
+# alternates would all point at the English URL. The pages' own hreflang
+# links (see html_context["languages"]) already describe the translations.
+sitemap_locales = [None]
+sitemap_excludes = ["search.html", "genindex.html"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["templates"]
