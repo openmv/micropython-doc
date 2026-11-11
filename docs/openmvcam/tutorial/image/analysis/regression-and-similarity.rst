@@ -39,9 +39,7 @@ best-fit line through those pixels:
 
     line = img.get_regression([(0, 60)])
     if line:
-        img.draw_line((line.x1(), line.y1(),
-                       line.x2(), line.y2()),
-                      color=(255, 0, 0))
+        img.draw_line(line, color=(255, 0, 0))
 
 The fit is *Theil-Sen* linear regression --
 a robust method that tolerates outliers
